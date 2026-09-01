@@ -127,6 +127,15 @@
   }
 }
 
+/* Editor de código. CodeMirror inyecta su tema como .cm-editor.<hash>, con la
+   misma especificidad que cualquier regla nuestra, así que el orden de
+   inyección decidía el fondo. Repetir la clase sube la especificidad y hace
+   que gane el token del sistema sin recurrir a !important. */
+.codegym-editor .cm-editor.cm-editor,
+.codegym-editor .cm-gutters {
+  background-color: hsl(var(--code-bg));
+}
+
 /* Resaltado de código. Consume primitivas de forma justificada: son tonos del
    sistema §12 sin equivalente en la capa semántica de shadcn. */
 .codegym-code .hljs-comment {

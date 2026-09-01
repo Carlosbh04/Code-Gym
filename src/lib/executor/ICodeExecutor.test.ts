@@ -164,12 +164,11 @@ describe('ICodeExecutor (T038)', () => {
 
   describe('seguridad: la ejecución no vive donde D001 la prohíbe', () => {
     it('ExerciseEngine no expone ninguna vía para ejecutar código', () => {
-      const engine = new ExerciseEngine(new StaticContentRepository());
+      const engine = new ExerciseEngine(new StaticContentRepository(), new StubExecutor());
       const comoRegistro = engine as unknown as Record<string, unknown>;
 
-      // validateFixCode es la única operación del engine que ejecuta, y §41 la
-      // asigna a T042. Mientras no exista, el engine no puede ejecutar nada.
-      expect(typeof comoRegistro.validateFixCode).toBe('undefined');
+      // Desde T042 el engine sí valida fix-code, pero delegando: no ejecuta.
+      expect(typeof comoRegistro.validateFixCode).toBe('function');
       expect(typeof comoRegistro.execute).toBe('undefined');
     });
 
@@ -248,16 +247,27 @@ describe('ICodeExecutor (T038)', () => {
       ]);
     });
 
-    it('no adelanta ficheros de T040 en adelante', () => {
-      expect(existsSync('src/components/codegym/CodeEditor.tsx')).toBe(false);
-      expect(existsSync('src/features/session/steps/FixCodeStep.tsx')).toBe(false);
+    it('T040 y T041 existen, y no ejecutan código', () => {
+      expect(existsSync('src/components/codegym/CodeEditor.tsx')).toBe(true);
+      expect(existsSync('src/features/session/steps/FixCodeStep.tsx')).toBe(true);
+
+      for (const path of [
+        'src/components/codegym/CodeEditor.tsx',
+        'src/features/session/steps/FixCodeStep.tsx',
+      ]) {
+        const codigo = codeOf(path);
+        expect(codigo, path).not.toMatch(/\bWorker\b|@\/lib\/executor|ICodeExecutor/);
+        expect(codigo, path).not.toMatch(/\beval\s*\(|new\s+Function\s*\(/);
+        expect(codigo, path).not.toMatch(/validateFixCode/);
+      }
     });
 
-    it('el engine no instancia el worker: esa integración es T042', () => {
+    it('el engine conoce la interfaz, nunca el WorkerExecutor concreto', () => {
       const engine = codeOf('src/lib/engine/exercise-engine.ts');
 
-      expect(engine).not.toMatch(/WorkerExecutor|new\s+Worker/);
-      expect(engine).not.toMatch(/validateFixCode\s*\(/);
+      expect(engine).toMatch(/ICodeExecutor/);
+      expect(engine).not.toMatch(/WorkerExecutor|new\s+Worker|worker-script/);
+      expect(engine).not.toMatch(/postMessage|iframe/);
     });
 
     it('ni el reducer ni los componentes conocen el Worker', () => {
