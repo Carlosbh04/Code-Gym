@@ -287,6 +287,76 @@ describe('SessionPage (T027)', () => {
     });
   });
 
+  describe('pistas (T033)', () => {
+    const pedirPista = () => screen.getByRole('button', { name: /pista/i });
+
+    it('ofrece las pistas del paso actual sin revelarlas', async () => {
+      await loaded();
+      const real = await session();
+      const step = real.steps[0];
+
+      expect(screen.getByRole('region', { name: 'Pistas' })).toBeInTheDocument();
+      expect(pedirPista()).toBeEnabled();
+      step.hints.forEach((h) => expect(screen.queryByText(h)).toBeNull());
+    });
+
+    it('las revela de una en una y en orden', async () => {
+      await loaded();
+      const real = await session();
+      const hints = real.steps[0].hints;
+
+      for (let i = 0; i < hints.length; i += 1) {
+        fireEvent.click(pedirPista());
+        await waitFor(() => expect(screen.getByText(hints[i])).toBeInTheDocument());
+
+        // Ninguna posterior se ha adelantado.
+        hints.slice(i + 1).forEach((h) => expect(screen.queryByText(h)).toBeNull());
+      }
+    });
+
+    it('al agotarlas el botón se deshabilita', async () => {
+      await loaded();
+      const real = await session();
+
+      for (let i = 0; i < real.steps[0].hints.length; i += 1) {
+        fireEvent.click(pedirPista());
+      }
+
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'No quedan más pistas' })).toBeDisabled(),
+      );
+    });
+
+    it('tras responder ya no se piden pistas', async () => {
+      await loaded();
+      const real = await session();
+
+      fireEvent.click(screen.getByRole('radio', { name: real.steps[0].options![0].text }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+
+      await waitFor(() => expect(pedirPista()).toBeDisabled());
+    });
+
+    it('al pasar de paso las pistas vuelven a empezar', async () => {
+      await loaded();
+      const real = await session();
+      const primeras = real.steps[0].hints;
+
+      fireEvent.click(pedirPista());
+      await waitFor(() => expect(screen.getByText(primeras[0])).toBeInTheDocument());
+
+      await answerAndAdvance(real.steps[0].options![0].text);
+
+      await waitFor(() =>
+        expect(screen.getByRole('group', { name: real.steps[1].prompt })).toBeInTheDocument(),
+      );
+      expect(screen.queryByText(primeras[0])).toBeNull();
+      expect(pedirPista()).toBeEnabled();
+      real.steps[1].hints.forEach((h) => expect(screen.queryByText(h)).toBeNull());
+    });
+  });
+
   describe('accesibilidad', () => {
     it('aporta un único h1 y ningún landmark main propio', async () => {
       const { container } = await loaded();

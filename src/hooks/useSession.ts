@@ -43,6 +43,8 @@ export interface UseSessionResult {
   isAnswered: boolean;
   isLastStep: boolean;
   select: (optionId: string) => void;
+  /** Pide la siguiente pista del paso actual, en el orden de `hints`. */
+  revealHint: () => void;
   selectError: (next: FindErrorSelection) => void;
   submit: () => void;
   next: () => void;
@@ -108,6 +110,21 @@ export function useSession(sessionId: string): UseSessionResult {
   }, []);
 
   /**
+   * Revela la siguiente pista (§6: una cada vez, en orden). El índice sale de
+   * cuántas hay ya reveladas, así que no se salta ninguna ni se repite, y no
+   * se pide ninguna más allá de las que declara el paso.
+   */
+  const revealHint = useCallback(() => {
+    const next = state.hintsRevealed.length;
+
+    if (currentStep === null || next >= currentStep.hints.length) {
+      return;
+    }
+
+    dispatch({ type: 'REVEAL_HINT', payload: next });
+  }, [currentStep, state.hintsRevealed.length]);
+
+  /**
    * La respuesta lista para enviar, o null si el paso todavía está a medias.
    * find-error necesita sus dos mitades (D014); los demás, la opción elegida.
    */
@@ -164,6 +181,7 @@ export function useSession(sessionId: string): UseSessionResult {
     isLastStep,
     select,
     selectError,
+    revealHint,
     submit,
     next,
   };

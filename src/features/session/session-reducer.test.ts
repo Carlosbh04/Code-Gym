@@ -179,6 +179,47 @@ describe('sessionReducer (T028)', () => {
     });
   });
 
+  describe('las pistas son de un paso, no de la sesión (T033)', () => {
+    it('NEXT_STEP vacía las pistas reveladas', () => {
+      let state = sessionReducer(initial(), { type: 'SUBMIT_ANSWER', payload: answer(0) });
+      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: 0 });
+      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: 1 });
+      expect(state.hintsRevealed).toEqual([0, 1]);
+
+      state = sessionReducer(state, { type: 'NEXT_STEP' });
+
+      expect(state.currentStep).toBe(1);
+      expect(state.hintsRevealed).toEqual([]);
+    });
+
+    it('un NEXT_STEP rechazado no toca las pistas', () => {
+      // Sin responder, §18 no deja avanzar: tampoco debe perderse el estado.
+      let state = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: 0 });
+      const antes = state;
+
+      state = sessionReducer(state, { type: 'NEXT_STEP' });
+
+      expect(state).toBe(antes);
+      expect(state.hintsRevealed).toEqual([0]);
+    });
+
+    it('cada paso cuenta sus propias pistas', () => {
+      let state = initial();
+      const contadas: number[] = [];
+
+      for (let paso = 0; paso < 3; paso += 1) {
+        for (let hint = 0; hint <= paso; hint += 1) {
+          state = sessionReducer(state, { type: 'REVEAL_HINT', payload: hint });
+        }
+        contadas.push(state.hintsRevealed.length);
+        state = sessionReducer(state, { type: 'SUBMIT_ANSWER', payload: answer(paso) });
+        state = sessionReducer(state, { type: 'NEXT_STEP' });
+      }
+
+      expect(contadas).toEqual([1, 2, 3]);
+    });
+  });
+
   describe('REVEAL_HINT', () => {
     it('registra el índice de la pista', () => {
       const state = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: 0 });

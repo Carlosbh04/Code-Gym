@@ -59,7 +59,11 @@ export function sessionReducer(
         return state;
       }
 
-      return { ...state, currentStep: state.currentStep + 1 };
+      // Las pistas son de un paso, no de la sesión: §6 las declara en
+      // ExerciseStep.hints y §17 registra hintsUsed en cada UserAnswer. Sin
+      // vaciarlas aquí, el paso siguiente arrancaría con las suyas ya
+      // reveladas y contaría pistas que nadie pidió.
+      return { ...state, currentStep: state.currentStep + 1, hintsRevealed: [] };
     }
 
     case 'REVEAL_HINT': {

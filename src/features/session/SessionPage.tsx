@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
+import { HintReveal } from '@/components/codegym/HintReveal';
 import { ResultFeedback } from '@/components/codegym/ResultFeedback';
 import { StepIndicator } from '@/components/codegym/StepIndicator';
 import { useSession } from '@/hooks/useSession';
@@ -41,6 +42,7 @@ function SessionPage() {
     isLastStep,
     select,
     selectError,
+    revealHint,
     submit,
     next,
   } = useSession(sessionId);
@@ -124,6 +126,15 @@ function SessionPage() {
         <p role="status" className="text-sm text-muted-foreground">
           Los pasos de tipo «{currentStep.type}» todavía no están disponibles.
         </p>
+      )}
+
+      {currentStep !== null && (
+        <HintReveal
+          hints={currentStep.hints}
+          revealedCount={state.hintsRevealed.length}
+          onReveal={revealHint}
+          disabled={isAnswered}
+        />
       )}
 
       {answer !== undefined && currentStep !== null && (
