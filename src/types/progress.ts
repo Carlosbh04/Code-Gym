@@ -1,4 +1,4 @@
-import type { StepType } from './exercise';
+import type { StepAnswer, StepType } from './exercise';
 
 export interface DifficultyDistribution {
   beginner: { total: number; correct: number };
@@ -51,7 +51,7 @@ export interface CompletedSession {
 export interface UserAnswer {
   stepId: string;
   stepType: StepType;
-  answer: string | number;
+  answer: StepAnswer;
   isCorrect: boolean;
   timeSpentMs: number;
   hintsUsed: number;

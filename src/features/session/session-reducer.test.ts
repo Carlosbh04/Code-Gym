@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { FindErrorAnswer } from '@/types/exercise';
 import type { UserAnswer } from '@/types/progress';
 import { createInitialSessionState, sessionReducer } from './session-reducer';
 import type { SessionState } from './session-types';
@@ -25,6 +26,61 @@ const answered = (n: number): SessionState => {
 };
 
 describe('sessionReducer (T028)', () => {
+  describe('contrato de UserAnswer con la respuesta compuesta (D014)', () => {
+    const compuesta: FindErrorAnswer = { line: 3, errorType: 'mutacion' };
+    const respuestaFindError: UserAnswer = {
+      stepId: 'step-find-error',
+      stepType: 'find-error',
+      answer: compuesta,
+      isCorrect: true,
+      timeSpentMs: 4200,
+      hintsUsed: 1,
+    };
+
+    it('guarda la respuesta compuesta tal cual, sin aplanarla', () => {
+      const state = sessionReducer(initial(), {
+        type: 'SUBMIT_ANSWER',
+        payload: respuestaFindError,
+      });
+
+      expect(state.answers).toHaveLength(1);
+      expect(state.answers[0].answer).toEqual(compuesta);
+      expect(state.answers[0]).toEqual(respuestaFindError);
+    });
+
+    it('conserva las dos mitades por separado y con su tipo', () => {
+      const state = sessionReducer(initial(), {
+        type: 'SUBMIT_ANSWER',
+        payload: respuestaFindError,
+      });
+      const guardada = state.answers[0].answer as FindErrorAnswer;
+
+      expect(typeof guardada.line).toBe('number');
+      expect(typeof guardada.errorType).toBe('string');
+      expect(guardada.line).toBe(3);
+      expect(guardada.errorType).toBe('mutacion');
+    });
+
+    it('convive con las respuestas de un solo valor de los demás tipos', () => {
+      let state = sessionReducer(initial(), { type: 'SUBMIT_ANSWER', payload: answer(0) });
+      state = sessionReducer(state, { type: 'NEXT_STEP' });
+      state = sessionReducer(state, {
+        type: 'SUBMIT_ANSWER',
+        payload: respuestaFindError,
+      });
+
+      expect(state.answers.map((a) => a.answer)).toEqual(['a', compuesta]);
+    });
+
+    it('isCorrect sigue siendo el veredicto del engine, no se recalcula aquí', () => {
+      const fallada: UserAnswer = { ...respuestaFindError, isCorrect: false };
+      const state = sessionReducer(initial(), { type: 'SUBMIT_ANSWER', payload: fallada });
+
+      expect(state.answers[0].isCorrect).toBe(false);
+      expect(state.answers[0].answer).toEqual(compuesta);
+    });
+  });
+
   describe('estado inicial', () => {
     it('parte de los valores exactos de SessionState', () => {
       expect(initial()).toEqual({
@@ -120,6 +176,47 @@ describe('sessionReducer (T028)', () => {
 
       expect(dos).toBe(uno);
       expect(dos.currentStep).toBe(1);
+    });
+  });
+
+  describe('las pistas son de un paso, no de la sesión (T033)', () => {
+    it('NEXT_STEP vacía las pistas reveladas', () => {
+      let state = sessionReducer(initial(), { type: 'SUBMIT_ANSWER', payload: answer(0) });
+      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: 0 });
+      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: 1 });
+      expect(state.hintsRevealed).toEqual([0, 1]);
+
+      state = sessionReducer(state, { type: 'NEXT_STEP' });
+
+      expect(state.currentStep).toBe(1);
+      expect(state.hintsRevealed).toEqual([]);
+    });
+
+    it('un NEXT_STEP rechazado no toca las pistas', () => {
+      // Sin responder, §18 no deja avanzar: tampoco debe perderse el estado.
+      let state = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: 0 });
+      const antes = state;
+
+      state = sessionReducer(state, { type: 'NEXT_STEP' });
+
+      expect(state).toBe(antes);
+      expect(state.hintsRevealed).toEqual([0]);
+    });
+
+    it('cada paso cuenta sus propias pistas', () => {
+      let state = initial();
+      const contadas: number[] = [];
+
+      for (let paso = 0; paso < 3; paso += 1) {
+        for (let hint = 0; hint <= paso; hint += 1) {
+          state = sessionReducer(state, { type: 'REVEAL_HINT', payload: hint });
+        }
+        contadas.push(state.hintsRevealed.length);
+        state = sessionReducer(state, { type: 'SUBMIT_ANSWER', payload: answer(paso) });
+        state = sessionReducer(state, { type: 'NEXT_STEP' });
+      }
+
+      expect(contadas).toEqual([1, 2, 3]);
     });
   });
 

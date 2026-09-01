@@ -686,11 +686,19 @@ UserAnswer
 interface UserAnswer {
   stepId: string;
   stepType: StepType;
-  answer: string | number;   // optionId para selección, código para fix-code
+  answer: StepAnswer;        // según el tipo del paso, ver StepAnswer
   isCorrect: boolean;        // lo fija el engine al validar la respuesta
   timeSpentMs: number;
   hintsUsed: number;
 }
+StepAnswer
+interface FindErrorAnswer {
+  line: number;              // línea 1-based del code del paso
+  errorType: string;
+}
+
+type StepAnswer = string | number | FindErrorAnswer;
+La respuesta de find-error es compuesta (D014). §7 pide al usuario dos cosas —«Seleccionar línea + clasificar error»— y §24 valida las dos contra errorLines y errorType, de modo que un solo escalar no puede transportarla. Los pasos de opción única siguen respondiendo con el optionId y fix-code con el código.
 El campo isCorrect resuelve una incoherencia del propio plan: §24 calcula la puntuación con answers.filter(a => a.isCorrect) sobre un UserAnswer[], y §21 construye los Attempt al completar la sesión a partir de SessionState.answers. Sin este campo, ni la fórmula de §24 compila ni Attempt.isCorrect tiene origen.
 SessionScore
 interface SessionScore {
@@ -899,7 +907,7 @@ class ExerciseEngine {
   ) {}
 
   async loadSession(sessionId: string): Promise<ExerciseSession>;
-  validateSelection(step: ExerciseStep, answer: string): ValidationResult;
+  validateSelection(step: ExerciseStep, answer: StepAnswer): ValidationResult;
   async validateFixCode(step: ExerciseStep, userCode: string): Promise<ValidationResult>;
   calculateScore(session: ExerciseSession, answers: UserAnswer[], domainImpact: DomainImpact): SessionScore;
   getNextStep(currentStep: number, totalSteps: number): number | null;
@@ -908,7 +916,7 @@ Validation por tipo
 Tipo	Método	Validación
 code-reading	validateSelection	optionId contra correct flag
 predict-output	validateSelection	optionId contra correct flag
-find-error	validateSelection	línea + tipo contra errorLines + errorType
+find-error	validateSelection	línea + tipo contra errorLines + errorType (answer: FindErrorAnswer)
 fix-code	validateFixCode	ejecutar en Worker + comparar con testCases
 Scoring
 function calculateScore(session, answers, domainImpact): SessionScore {
@@ -1371,6 +1379,7 @@ T033: Crear HintReveal component
 T034: Crear ejercicios: Code Reading (3 sesiones)
 T035: Crear ejercicios: Predict Output (3 sesiones)
 T036: Crear ejercicios: Find Error (3 sesiones)
+Nota (D015): T034, T035 y T036 quedan satisfechas por el contenido de T017 y T018, que entregaron 6 sesiones completas con los cuatro tipos de paso. No generan contenido nuevo.
 T037: Test: validateSelection para los 3 tipos
 Semana 6: Fix Code + Worker
 T038: Crear ICodeExecutor interface + types
@@ -1379,6 +1388,7 @@ T040: Crear CodeEditor component (CodeMirror)
 T041: Crear FixCodeStep component
 T042: Integrar WorkerExecutor en ExerciseEngine
 T043: Crear ejercicios: Fix Code (3 sesiones)
+Nota (D015): satisfecha por el contenido de T017 y T018, igual que T034, T035 y T036. No genera contenido nuevo.
 T044: Test: WorkerExecutor (timeout, error, destroy, queue)
 T045: Test: validateFixCode
 FASE 3: Progress & UX (Semanas 7-9)

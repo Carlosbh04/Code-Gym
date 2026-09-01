@@ -32,6 +32,33 @@ const loaded = async (sessionId = SESSION_ID, repository: IContentRepository = r
 const session = async (): Promise<ExerciseSession> =>
   (await repo.getSessionById(SESSION_ID))!;
 
+/** Envía la respuesta ya elegida del paso visible y avanza al siguiente. */
+const submitAndAdvance = async () => {
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Siguiente paso' })).toBeEnabled(),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Siguiente paso' }));
+};
+
+/** Responde el paso find-error visible con la línea y el tipo indicados. */
+const chooseError = (line: number, errorTypeText: string) => {
+  fireEvent.click(screen.getByRole('radio', { name: new RegExp('^Línea ' + line + '\\b') }));
+  fireEvent.click(screen.getByRole('radio', { name: errorTypeText }));
+};
+
+/** Responde el paso visible con la opción indicada y avanza al siguiente. */
+const answerAndAdvance = async (optionText: string) => {
+  fireEvent.click(screen.getByRole('radio', { name: optionText }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Siguiente paso' })).toBeEnabled(),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Siguiente paso' }));
+};
+
 /** Repositorio que falla al leer la sesión, sin ocultar el error. */
 const failingRepo: IContentRepository = {
   getTechnologies: () => Promise.resolve([] as Technology[]),
@@ -147,20 +174,186 @@ describe('SessionPage (T027)', () => {
       );
     });
 
+    it('el paso predict-output se responde como cualquier otro (T031)', async () => {
+      await loaded();
+      const real = await session();
+      const predictOutput = real.steps[1];
+
+      await answerAndAdvance(real.steps[0].options![0].text);
+
+      await waitFor(() =>
+        expect(screen.getByRole('group', { name: predictOutput.prompt })).toBeInTheDocument(),
+      );
+      expect(predictOutput.type).toBe('predict-output');
+      expect(screen.getAllByRole('radio')).toHaveLength(predictOutput.options!.length);
+      expect(screen.getByRole('button', { name: 'Comprobar' })).toBeDisabled();
+
+      fireEvent.click(screen.getByRole('radio', { name: predictOutput.options![0].text }));
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled(),
+      );
+    });
+
+    it('el paso find-error exige línea y tipo antes de poder comprobar (T032)', async () => {
+      await loaded();
+      const real = await session();
+      const findError = real.steps[2];
+
+      await answerAndAdvance(real.steps[0].options![0].text);
+      await answerAndAdvance(real.steps[1].options![0].text);
+
+      await waitFor(() =>
+        expect(screen.getByRole('group', { name: findError.prompt })).toBeInTheDocument(),
+      );
+      expect(findError.type).toBe('find-error');
+
+      const comprobar = () => screen.getByRole('button', { name: 'Comprobar' });
+      expect(comprobar()).toBeDisabled();
+
+      // Solo la línea: sigue sin haber respuesta que enviar.
+      fireEvent.click(screen.getByRole('radio', { name: /^Línea 1\b/ }));
+      expect(comprobar()).toBeDisabled();
+
+      // Línea + tipo: la respuesta ya está completa.
+      fireEvent.click(screen.getByRole('radio', { name: findError.options![0].text }));
+      await waitFor(() => expect(comprobar()).toBeEnabled());
+    });
+
+    it('find-error acierta solo con la línea y el tipo correctos (T032)', async () => {
+      await loaded();
+      const real = await session();
+      const findError = real.steps[2];
+      const correcta = findError.options!.find((o) => o.correct)!;
+
+      await answerAndAdvance(real.steps[0].options![0].text);
+      await answerAndAdvance(real.steps[1].options![0].text);
+      await waitFor(() =>
+        expect(screen.getByRole('group', { name: findError.prompt })).toBeInTheDocument(),
+      );
+
+      chooseError(findError.errorLines![0], correcta.text);
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled(),
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+
+      await waitFor(() =>
+        expect(screen.getByText('Respuesta correcta')).toBeInTheDocument(),
+      );
+    });
+
+    it('find-error falla si la línea es correcta pero el tipo no (T032)', async () => {
+      await loaded();
+      const real = await session();
+      const findError = real.steps[2];
+      const incorrecta = findError.options!.find((o) => !o.correct)!;
+
+      await answerAndAdvance(real.steps[0].options![0].text);
+      await answerAndAdvance(real.steps[1].options![0].text);
+      await waitFor(() =>
+        expect(screen.getByRole('group', { name: findError.prompt })).toBeInTheDocument(),
+      );
+
+      chooseError(findError.errorLines![0], incorrecta.text);
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled(),
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+
+      await waitFor(() =>
+        expect(screen.getByText('Respuesta incorrecta')).toBeInTheDocument(),
+      );
+    });
+
     it('los tipos de paso aún no implementados se indican como tales', async () => {
+      await loaded();
+      const real = await session();
+      const findError = real.steps[2];
+      const correcta = findError.options!.find((o) => o.correct)!;
+
+      await answerAndAdvance(real.steps[0].options![0].text);
+      await answerAndAdvance(real.steps[1].options![0].text);
+      await waitFor(() =>
+        expect(screen.getByRole('group', { name: findError.prompt })).toBeInTheDocument(),
+      );
+      chooseError(findError.errorLines![0], correcta.text);
+      await submitAndAdvance();
+
+      await waitFor(() =>
+        expect(screen.getByText(/todavía no están disponibles/)).toBeInTheDocument(),
+      );
+      expect(real.steps[3].type).toBe('fix-code');
+      expect(screen.getByText(/fix-code/)).toBeInTheDocument();
+    });
+  });
+
+  describe('pistas (T033)', () => {
+    const pedirPista = () => screen.getByRole('button', { name: /pista/i });
+
+    it('ofrece las pistas del paso actual sin revelarlas', async () => {
+      await loaded();
+      const real = await session();
+      const step = real.steps[0];
+
+      expect(screen.getByRole('region', { name: 'Pistas' })).toBeInTheDocument();
+      expect(pedirPista()).toBeEnabled();
+      step.hints.forEach((h) => expect(screen.queryByText(h)).toBeNull());
+    });
+
+    it('las revela de una en una y en orden', async () => {
+      await loaded();
+      const real = await session();
+      const hints = real.steps[0].hints;
+
+      for (let i = 0; i < hints.length; i += 1) {
+        fireEvent.click(pedirPista());
+        await waitFor(() => expect(screen.getByText(hints[i])).toBeInTheDocument());
+
+        // Ninguna posterior se ha adelantado.
+        hints.slice(i + 1).forEach((h) => expect(screen.queryByText(h)).toBeNull());
+      }
+    });
+
+    it('al agotarlas el botón se deshabilita', async () => {
+      await loaded();
+      const real = await session();
+
+      for (let i = 0; i < real.steps[0].hints.length; i += 1) {
+        fireEvent.click(pedirPista());
+      }
+
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'No quedan más pistas' })).toBeDisabled(),
+      );
+    });
+
+    it('tras responder ya no se piden pistas', async () => {
       await loaded();
       const real = await session();
 
       fireEvent.click(screen.getByRole('radio', { name: real.steps[0].options![0].text }));
       await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
       fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Siguiente paso' })).toBeEnabled());
-      fireEvent.click(screen.getByRole('button', { name: 'Siguiente paso' }));
+
+      await waitFor(() => expect(pedirPista()).toBeDisabled());
+    });
+
+    it('al pasar de paso las pistas vuelven a empezar', async () => {
+      await loaded();
+      const real = await session();
+      const primeras = real.steps[0].hints;
+
+      fireEvent.click(pedirPista());
+      await waitFor(() => expect(screen.getByText(primeras[0])).toBeInTheDocument());
+
+      await answerAndAdvance(real.steps[0].options![0].text);
 
       await waitFor(() =>
-        expect(screen.getByText(/todavía no están disponibles/)).toBeInTheDocument(),
+        expect(screen.getByRole('group', { name: real.steps[1].prompt })).toBeInTheDocument(),
       );
-      expect(screen.getByText(/predict-output/)).toBeInTheDocument();
+      expect(screen.queryByText(primeras[0])).toBeNull();
+      expect(pedirPista()).toBeEnabled();
+      real.steps[1].hints.forEach((h) => expect(screen.queryByText(h)).toBeNull());
     });
   });
 

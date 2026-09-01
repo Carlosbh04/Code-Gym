@@ -12,6 +12,16 @@ export interface SessionState {
   error: string | null;
 }
 
+/**
+ * Las dos mitades de la respuesta de un paso find-error mientras se elige
+ * (D014). Ninguna está puesta hasta que el usuario la elige; solo cuando las
+ * dos lo están hay un `FindErrorAnswer` que enviar al engine.
+ */
+export interface FindErrorSelection {
+  line: number | null;
+  errorType: string | null;
+}
+
 export type SessionAction =
   | { type: 'SUBMIT_ANSWER'; payload: UserAnswer }
   | { type: 'NEXT_STEP' }
