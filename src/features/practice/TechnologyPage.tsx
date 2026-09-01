@@ -1,5 +1,5 @@
 function TechnologyPage() {
-  return <main>Technology</main>;
+  return <section>Technology</section>;
 }
 
 export default TechnologyPage;

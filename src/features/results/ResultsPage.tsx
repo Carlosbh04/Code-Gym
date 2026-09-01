@@ -1,5 +1,5 @@
 function ResultsPage() {
-  return <main>Results</main>;
+  return <section>Results</section>;
 }
 
 export default ResultsPage;

@@ -1,5 +1,5 @@
 function SessionPage() {
-  return <main>Session</main>;
+  return <section>Session</section>;
 }
 
 export default SessionPage;

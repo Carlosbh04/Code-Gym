@@ -1,5 +1,5 @@
 function ReviewPage() {
-  return <main>Review</main>;
+  return <section>Review</section>;
 }
 
 export default ReviewPage;
