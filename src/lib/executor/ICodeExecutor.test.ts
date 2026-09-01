@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { ExerciseEngine } from '@/lib/engine/exercise-engine';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
@@ -29,6 +29,16 @@ const sourceFiles = (dir = 'src'): string[] =>
   });
 
 const read = (path: string) => readFileSync(path, 'utf8');
+
+/**
+ * El fichero sin comentarios. Varias capas nombran `Worker` o
+ * `validateFixCode` en su documentación precisamente para decir que NO los
+ * usan; buscar uso real exige mirar solo el código.
+ */
+const codeOf = (path: string) =>
+  read(path)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '');
 
 /** Único sitio donde §26 pone `new Function`: el script del worker (T039). */
 const WORKER_SCRIPT = 'src/lib/executor/worker-script.ts';
@@ -165,11 +175,11 @@ describe('ICodeExecutor (T038)', () => {
 
     it('la capa engine no contiene evaluación dinámica ni crea workers', () => {
       for (const path of sourceFiles('src/lib/engine')) {
-        const source = read(path);
+        const codigo = codeOf(path);
 
-        expect(source, path).not.toMatch(/\beval\s*\(/);
-        expect(source, path).not.toMatch(/new\s+Function\s*\(/);
-        expect(source, path).not.toMatch(/new\s+Worker\s*\(/);
+        expect(codigo, path).not.toMatch(/\beval\s*\(/);
+        expect(codigo, path).not.toMatch(/new\s+Function\s*\(/);
+        expect(codigo, path).not.toMatch(/new\s+Worker\s*\(/);
       }
     });
 
@@ -177,7 +187,7 @@ describe('ICodeExecutor (T038)', () => {
       const infractores = sourceFiles().filter(
         (path) =>
           path !== WORKER_SCRIPT &&
-          /\beval\s*\(|new\s+Function\s*\(/.test(read(path)),
+          /\beval\s*\(|new\s+Function\s*\(/.test(codeOf(path)),
       );
 
       expect(infractores).toEqual([]);
@@ -192,46 +202,87 @@ describe('ICodeExecutor (T038)', () => {
       ];
 
       for (const path of ui) {
-        const source = read(path);
+        const codigo = codeOf(path);
 
-        expect(source, path).not.toMatch(/\beval\s*\(/);
-        expect(source, path).not.toMatch(/new\s+Function\s*\(/);
-        expect(source, path).not.toMatch(/new\s+Worker\s*\(/);
+        expect(codigo, path).not.toMatch(/\beval\s*\(/);
+        expect(codigo, path).not.toMatch(/new\s+Function\s*\(/);
+        expect(codigo, path).not.toMatch(/new\s+Worker\s*\(/);
       }
     });
 
     it('el ejecutor no conoce React, la interfaz ni el almacenamiento', () => {
       for (const path of sourceFiles('src/lib/executor')) {
-        const source = read(path);
+        const codigo = codeOf(path);
 
-        expect(source, path).not.toMatch(/from\s+'react'|from\s+"react"/);
-        expect(source, path).not.toMatch(/@\/components|@\/features|@\/hooks|@\/contexts/);
-        expect(source, path).not.toMatch(/localStorage|sessionStorage|indexedDB/);
-        expect(source, path).not.toMatch(/\bdocument\./);
+        expect(codigo, path).not.toMatch(/from\s+'react'|from\s+"react"/);
+        expect(codigo, path).not.toMatch(/@\/components|@\/features|@\/hooks|@\/contexts/);
+        expect(codigo, path).not.toMatch(/localStorage|sessionStorage|indexedDB/);
+        expect(codigo, path).not.toMatch(/\bdocument\./);
       }
     });
 
     it('§15 se respeta: el executor solo depende de tipos del dominio', () => {
-      const imports = sourceFiles('src/lib/executor')
-        .flatMap((path) => read(path).match(/^import .*$/gm) ?? [])
-        .filter((line) => !line.includes("'./"));
+      const imports = [
+        ...new Set(
+          sourceFiles('src/lib/executor')
+            .flatMap((path) => read(path).match(/^import .*$/gm) ?? [])
+            .filter((line) => !line.includes("'./")),
+        ),
+      ];
 
       expect(imports).toEqual(["import type { TestCase } from '@/types/exercise';"]);
     });
   });
 
-  describe('ubicación y alcance de T038', () => {
-    it('crea exactamente los dos ficheros que §41 marca como suyos', () => {
+  describe('ubicación y alcance', () => {
+    it('lib/executor contiene exactamente lo que §41 asigna a T038 y T039', () => {
       const ficheros = readdirSync('src/lib/executor').sort();
 
-      expect(ficheros).toEqual(['ICodeExecutor.test.ts', 'ICodeExecutor.ts', 'types.ts']);
+      expect(ficheros).toEqual([
+        'ICodeExecutor.test.ts',
+        'ICodeExecutor.ts',
+        'WorkerExecutor.test.ts',
+        'WorkerExecutor.ts',
+        'types.ts',
+        'worker-script.ts',
+      ]);
     });
 
-    it('no adelanta WorkerExecutor ni worker-script, que son T039', () => {
-      const ficheros = readdirSync('src/lib/executor');
+    it('no adelanta ficheros de T040 en adelante', () => {
+      expect(existsSync('src/components/codegym/CodeEditor.tsx')).toBe(false);
+      expect(existsSync('src/features/session/steps/FixCodeStep.tsx')).toBe(false);
+    });
 
-      expect(ficheros).not.toContain('WorkerExecutor.ts');
-      expect(ficheros).not.toContain('worker-script.ts');
+    it('el engine no instancia el worker: esa integración es T042', () => {
+      const engine = codeOf('src/lib/engine/exercise-engine.ts');
+
+      expect(engine).not.toMatch(/WorkerExecutor|new\s+Worker/);
+      expect(engine).not.toMatch(/validateFixCode\s*\(/);
+    });
+
+    it('ni el reducer ni los componentes conocen el Worker', () => {
+      const capas = [
+        ...sourceFiles('src/features'),
+        ...sourceFiles('src/components'),
+        ...sourceFiles('src/hooks'),
+        ...sourceFiles('src/contexts'),
+      ];
+
+      for (const path of capas) {
+        expect(codeOf(path), path).not.toMatch(/\bWorker\b|@\/lib\/executor/);
+      }
+    });
+
+    it('solo WorkerExecutor crea workers, y solo worker-script evalúa', () => {
+      const creanWorker = sourceFiles().filter((path) =>
+        /new\s+Worker\s*\(/.test(codeOf(path)),
+      );
+      const evaluan = sourceFiles().filter((path) =>
+        /\beval\s*\(|new\s+Function\s*\(/.test(codeOf(path)),
+      );
+
+      expect(creanWorker).toEqual(['src/lib/executor/WorkerExecutor.ts']);
+      expect(evaluan).toEqual([WORKER_SCRIPT]);
     });
   });
 });
