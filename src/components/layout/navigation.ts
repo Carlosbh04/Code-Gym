@@ -9,6 +9,6 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Inicio', to: '/', icon: Home },
   { label: 'Progreso', to: '/dashboard', icon: LayoutDashboard },
-  { label: 'Entrenar', to: '/tech', icon: Dumbbell },
+  { label: 'Entrenar', to: '/tech/javascript', icon: Dumbbell },
   { label: 'Repaso', to: '/review', icon: Repeat },
 ];
