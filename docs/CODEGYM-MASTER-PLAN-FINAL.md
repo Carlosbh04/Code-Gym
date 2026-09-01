@@ -1379,6 +1379,7 @@ T033: Crear HintReveal component
 T034: Crear ejercicios: Code Reading (3 sesiones)
 T035: Crear ejercicios: Predict Output (3 sesiones)
 T036: Crear ejercicios: Find Error (3 sesiones)
+Nota (D015): T034, T035 y T036 quedan satisfechas por el contenido de T017 y T018, que entregaron 6 sesiones completas con los cuatro tipos de paso. No generan contenido nuevo.
 T037: Test: validateSelection para los 3 tipos
 Semana 6: Fix Code + Worker
 T038: Crear ICodeExecutor interface + types
@@ -1387,6 +1388,7 @@ T040: Crear CodeEditor component (CodeMirror)
 T041: Crear FixCodeStep component
 T042: Integrar WorkerExecutor en ExerciseEngine
 T043: Crear ejercicios: Fix Code (3 sesiones)
+Nota (D015): satisfecha por el contenido de T017 y T018, igual que T034, T035 y T036. No genera contenido nuevo.
 T044: Test: WorkerExecutor (timeout, error, destroy, queue)
 T045: Test: validateFixCode
 FASE 3: Progress & UX (Semanas 7-9)

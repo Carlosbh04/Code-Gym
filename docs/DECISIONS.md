@@ -782,3 +782,77 @@ la binariedad de `ValidationResult` no deja sitio a crédito parcial.
 Accepted
 
 **Tareas:** T023, T032 · **Master Plan:** §17, §24
+
+# D015 — Las tareas de contenido por tipo las satisface T017/T018
+
+## Context
+
+El roadmap tiene dos familias de tarea de contenido con criterios distintos:
+
+- Por topic: `Crear contenido: <Topic> (concept + 3 sesiones)` — T017 Arrays,
+  T018 Functions, T063 Closures, T064 Promises, T065 Objects, T066 ES6+ y
+  T067 Errors. Son 7 tareas para los 7 topics que dibuja §8: 21 sesiones.
+- Por tipo de ejercicio: `Crear ejercicios: <Tipo> (3 sesiones)` — T034 Code
+  Reading, T035 Predict Output, T036 Find Error y T043 Fix Code, cada una
+  situada junto al componente que renderiza ese tipo (T026, T031, T032, T041).
+
+El roadmap no asigna topic a las cuatro tareas por tipo, y las dos familias no
+encajan entre sí. T017 y T018 ya entregaron **6 sesiones completas de 4 pasos**
+—code-reading, predict-output, find-error y fix-code— es decir 24 steps y
+**6 ejercicios de cada uno de los cuatro tipos**, donde cada tarea por tipo
+pide 3.
+
+## Decision
+
+T034, T035, T036 y T043 quedan **satisfechas por el contenido existente de
+T017 y T018**. No se crea contenido nuevo, no se crean sesiones nuevas y no se
+modifica ninguno de los siete topics.
+
+Las tareas de contenido por topic pendientes —T063 a T067— no se ven afectadas
+y siguen siendo las que aportan las 15 sesiones restantes.
+
+## Alternatives
+
+- **Colección incremental (cada tarea añade un tipo de step a las mismas 3
+  sesiones)**: T034 crearía 3 sesiones con un solo paso, T035 y T036 añadirían
+  el suyo y el cuarto no llegaría hasta T043, que está en la Semana 6 mientras
+  T034–T036 están en la Semana 5. El repositorio quedaría con sesiones
+  incompletas cruzando una frontera de semana: contradice la progresión de §7,
+  `SessionPage` recorre `session.steps` y `StepIndicator` pinta el total, así
+  que una sesión de un paso se navega entera en un clic, y los validadores de
+  contenido fallarían. Además obligaría a deshacer las sesiones completas que
+  T017 y T018 ya entregaron.
+- **Tres sesiones completas nuevas por tarea, en un topic pendiente**: no hay
+  topic libre. §8 dibuja 7 y las 7 tareas `Crear contenido` los reclaman todos.
+  Esta opción solaparía T034–T036 con T063–T067 sobre los mismos directorios y
+  llevaría el total a 33 sesiones, con topics de 6 sin nada que lo justifique.
+
+## Rationale
+
+Es la única lectura compatible a la vez con §6, §7, §8, los datos del
+repositorio y la estructura del propio roadmap. §6 enumera las etapas 3 a 6
+—Code Reading, Predict, Find Error, Fix Code— que son exactamente los cuatro
+tipos de §7 y exactamente los cuatro pasos de cada sesión de T017/T018: el
+contenido ya está organizado como la metodología pide.
+
+Las otras dos no caen por preferencia sino por evidencia: la incremental deja
+el repositorio en un estado que el propio plan invalida, y la de topics nuevos
+no tiene dónde ponerse.
+
+## Consequences
+
+- Cuatro tareas del roadmap se cierran **sin entregable de contenido**. Se
+  registran aquí para que releer el roadmap más adelante no sugiera que se
+  saltaron.
+- El inventario final del roadmap no cambia: 21 sesiones, 84 steps, 7 topics.
+- T037 (`Test: validateSelection para los 3 tipos`) sí tiene trabajo real y es
+  ejecutable ya, porque el contenido que necesita existe.
+- No cambia ningún tipo, contrato, validador ni sección de §8. Si en el futuro
+  se quisieran más ejercicios de un tipo, sería una ampliación de alcance
+  fuera de este plan, no la ejecución de T034–T036 o T043.
+
+## Status
+
+Accepted
+
+**Tareas:** T034, T035, T036, T043 · **Master Plan:** §6, §7, §8, roadmap
