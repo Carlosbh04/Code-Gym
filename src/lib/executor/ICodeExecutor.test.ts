@@ -164,12 +164,11 @@ describe('ICodeExecutor (T038)', () => {
 
   describe('seguridad: la ejecución no vive donde D001 la prohíbe', () => {
     it('ExerciseEngine no expone ninguna vía para ejecutar código', () => {
-      const engine = new ExerciseEngine(new StaticContentRepository());
+      const engine = new ExerciseEngine(new StaticContentRepository(), new StubExecutor());
       const comoRegistro = engine as unknown as Record<string, unknown>;
 
-      // validateFixCode es la única operación del engine que ejecuta, y §41 la
-      // asigna a T042. Mientras no exista, el engine no puede ejecutar nada.
-      expect(typeof comoRegistro.validateFixCode).toBe('undefined');
+      // Desde T042 el engine sí valida fix-code, pero delegando: no ejecuta.
+      expect(typeof comoRegistro.validateFixCode).toBe('function');
       expect(typeof comoRegistro.execute).toBe('undefined');
     });
 
@@ -263,11 +262,12 @@ describe('ICodeExecutor (T038)', () => {
       }
     });
 
-    it('el engine no instancia el worker: esa integración es T042', () => {
+    it('el engine conoce la interfaz, nunca el WorkerExecutor concreto', () => {
       const engine = codeOf('src/lib/engine/exercise-engine.ts');
 
-      expect(engine).not.toMatch(/WorkerExecutor|new\s+Worker/);
-      expect(engine).not.toMatch(/validateFixCode\s*\(/);
+      expect(engine).toMatch(/ICodeExecutor/);
+      expect(engine).not.toMatch(/WorkerExecutor|new\s+Worker|worker-script/);
+      expect(engine).not.toMatch(/postMessage|iframe/);
     });
 
     it('ni el reducer ni los componentes conocen el Worker', () => {
