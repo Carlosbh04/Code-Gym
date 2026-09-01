@@ -37,12 +37,16 @@ export interface UseSessionResult {
   selectedOptionId: string | null;
   /** Línea y tipo elegidos en un paso find-error, todavía sin enviar (D014). */
   selectedError: FindErrorSelection;
+  /** Código escrito en un paso fix-code, o null si no se ha editado. */
+  fixCodeDraft: string | null;
   /** true cuando el paso actual tiene una respuesta completa lista para enviar. */
   canSubmit: boolean;
   /** true cuando el paso actual ya tiene respuesta guardada. */
   isAnswered: boolean;
   isLastStep: boolean;
   select: (optionId: string) => void;
+  /** Guarda el código del paso fix-code en curso. No lo valida: eso es T042. */
+  editCode: (code: string) => void;
   /** Pide la siguiente pista del paso actual, en el orden de `hints`. */
   revealHint: () => void;
   selectError: (next: FindErrorSelection) => void;
@@ -56,6 +60,7 @@ export function useSession(sessionId: string): UseSessionResult {
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [selectedError, setSelectedError] =
     useState<FindErrorSelection>(NO_ERROR_SELECTION);
+  const [fixCodeDraft, setFixCodeDraft] = useState<string | null>(null);
   const [state, dispatch] = useReducer(
     sessionReducer,
     createInitialSessionState(sessionId, 0),
@@ -109,6 +114,10 @@ export function useSession(sessionId: string): UseSessionResult {
     setSelectedError(next);
   }, []);
 
+  const editCode = useCallback((code: string) => {
+    setFixCodeDraft(code);
+  }, []);
+
   /**
    * Revela la siguiente pista (§6: una cada vez, en orden). El índice sale de
    * cuántas hay ya reveladas, así que no se salta ninguna ni se repite, y no
@@ -131,6 +140,8 @@ export function useSession(sessionId: string): UseSessionResult {
   const pendingAnswer = useMemo<StepAnswer | null>(() => {
     if (currentStep === null) return null;
 
+    // fix-code no entra aquí: su validación ejecuta código y llega en T042,
+    // así que el paso se edita pero todavía no se puede comprobar.
     if (currentStep.type !== 'find-error') return selectedOptionId;
 
     const { line, errorType } = selectedError;
@@ -166,6 +177,7 @@ export function useSession(sessionId: string): UseSessionResult {
     dispatch({ type: 'NEXT_STEP' });
     setSelectedOptionId(null);
     setSelectedError(NO_ERROR_SELECTION);
+    setFixCodeDraft(null);
     stepStartedAt.current = Date.now();
   }, [isLastStep]);
 
@@ -176,11 +188,13 @@ export function useSession(sessionId: string): UseSessionResult {
     isLoading: session === null && state.error === null,
     selectedOptionId,
     selectedError,
+    fixCodeDraft,
     canSubmit: pendingAnswer !== null,
     isAnswered,
     isLastStep,
     select,
     selectError,
+    editCode,
     revealHint,
     submit,
     next,

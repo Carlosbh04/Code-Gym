@@ -6,6 +6,7 @@ import { StepIndicator } from '@/components/codegym/StepIndicator';
 import { useSession } from '@/hooks/useSession';
 import { CodeReadingStep } from './steps/CodeReadingStep';
 import { FindErrorStep } from './steps/FindErrorStep';
+import { FixCodeStep } from './steps/FixCodeStep';
 import { PredictOutputStep } from './steps/PredictOutputStep';
 
 /**
@@ -15,10 +16,11 @@ import { PredictOutputStep } from './steps/PredictOutputStep';
  * engine, ambos detrás de `useSession`. No duplica lógica de negocio ni conoce
  * repositorios.
  *
- * Tipos de paso disponibles: los tres que se resuelven eligiendo y que §24
- * valida sin ejecutar código —code-reading (T026), predict-output (T031) y
- * find-error (T032)—. fix-code llega en T041 y hasta entonces se indica como
- * no disponible en lugar de fingir que funciona.
+ * Tipos de paso disponibles: los cuatro de §7. Los tres que se resuelven
+ * eligiendo —code-reading (T026), predict-output (T031) y find-error (T032)—
+ * se comprueban aquí mismo; fix-code (T041) se puede editar, pero comprobarlo
+ * exige ejecutar en el Worker y esa integración es T042, así que su botón
+ * sigue deshabilitado.
  *
  * Quién decide que una respuesta está completa es `useSession` con
  * `canSubmit`: find-error necesita sus dos mitades (D014) y esa regla es de
@@ -37,11 +39,13 @@ function SessionPage() {
     isLoading,
     selectedOptionId,
     selectedError,
+    fixCodeDraft,
     canSubmit,
     isAnswered,
     isLastStep,
     select,
     selectError,
+    editCode,
     revealHint,
     submit,
     next,
@@ -120,6 +124,13 @@ function SessionPage() {
           step={currentStep}
           value={selectedError}
           onChange={selectError}
+          disabled={isAnswered}
+        />
+      ) : currentStep.type === 'fix-code' ? (
+        <FixCodeStep
+          step={currentStep}
+          value={fixCodeDraft}
+          onChange={editCode}
           disabled={isAnswered}
         />
       ) : (

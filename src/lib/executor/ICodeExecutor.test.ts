@@ -248,9 +248,19 @@ describe('ICodeExecutor (T038)', () => {
       ]);
     });
 
-    it('no adelanta ficheros de T040 en adelante', () => {
-      expect(existsSync('src/components/codegym/CodeEditor.tsx')).toBe(false);
-      expect(existsSync('src/features/session/steps/FixCodeStep.tsx')).toBe(false);
+    it('T040 y T041 existen, y no ejecutan código', () => {
+      expect(existsSync('src/components/codegym/CodeEditor.tsx')).toBe(true);
+      expect(existsSync('src/features/session/steps/FixCodeStep.tsx')).toBe(true);
+
+      for (const path of [
+        'src/components/codegym/CodeEditor.tsx',
+        'src/features/session/steps/FixCodeStep.tsx',
+      ]) {
+        const codigo = codeOf(path);
+        expect(codigo, path).not.toMatch(/\bWorker\b|@\/lib\/executor|ICodeExecutor/);
+        expect(codigo, path).not.toMatch(/\beval\s*\(|new\s+Function\s*\(/);
+        expect(codigo, path).not.toMatch(/validateFixCode/);
+      }
     });
 
     it('el engine no instancia el worker: esa integración es T042', () => {

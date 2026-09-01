@@ -265,25 +265,77 @@ describe('SessionPage (T027)', () => {
       );
     });
 
-    it('los tipos de paso aún no implementados se indican como tales', async () => {
-      await loaded();
+    /** Avanza hasta el cuarto paso, que es el de fix-code. */
+    const llegarAFixCode = async () => {
       const real = await session();
       const findError = real.steps[2];
-      const correcta = findError.options!.find((o) => o.correct)!;
 
       await answerAndAdvance(real.steps[0].options![0].text);
       await answerAndAdvance(real.steps[1].options![0].text);
       await waitFor(() =>
         expect(screen.getByRole('group', { name: findError.prompt })).toBeInTheDocument(),
       );
-      chooseError(findError.errorLines![0], correcta.text);
+      chooseError(findError.errorLines![0], findError.options!.find((o) => o.correct)!.text);
       await submitAndAdvance();
 
+      const fixCode = real.steps[3];
       await waitFor(() =>
-        expect(screen.getByText(/todavía no están disponibles/)).toBeInTheDocument(),
+        expect(screen.getByRole('group', { name: fixCode.prompt })).toBeInTheDocument(),
       );
-      expect(real.steps[3].type).toBe('fix-code');
-      expect(screen.getByText(/fix-code/)).toBeInTheDocument();
+      return fixCode;
+    };
+
+    it('el paso fix-code muestra el editor con el código del ejercicio (T041)', async () => {
+      await loaded();
+      const fixCode = await llegarAFixCode();
+
+      expect(fixCode.type).toBe('fix-code');
+      expect(document.querySelector('.cm-editor')).not.toBeNull();
+      expect(screen.getByRole('textbox')).toHaveAccessibleName('Editor de código');
+      expect(document.body.textContent).toContain('numeros.forEach');
+    });
+
+    it('ya no queda ningún tipo de paso sin implementar', async () => {
+      await loaded();
+      await llegarAFixCode();
+
+      expect(screen.queryByText(/todavía no están disponibles/)).toBeNull();
+    });
+
+    it('Comprobar sigue deshabilitado en fix-code: validar es T042', async () => {
+      await loaded();
+      await llegarAFixCode();
+
+      expect(screen.getByRole('button', { name: 'Comprobar' })).toBeDisabled();
+
+      // Ni siquiera tras editar el código: no hay validación que ejecutar aún.
+      fireEvent.click(screen.getByRole('button', { name: 'Usar editor de texto simple' }));
+      fireEvent.change(screen.getByRole('textbox'), {
+        target: { value: 'function dobles(n) { return n.map((x) => x * 2); }' },
+      });
+
+      expect(screen.getByRole('button', { name: 'Comprobar' })).toBeDisabled();
+    });
+
+    it('lo que se escribe en el editor se conserva', async () => {
+      await loaded();
+      await llegarAFixCode();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Usar editor de texto simple' }));
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'const mio = 1;' } });
+
+      await waitFor(() =>
+        expect(screen.getByRole('textbox')).toHaveValue('const mio = 1;'),
+      );
+    });
+
+    it('el editor no ejecuta el código del ejercicio', async () => {
+      const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+      await loaded();
+      await llegarAFixCode();
+
+      expect(log).not.toHaveBeenCalled();
+      log.mockRestore();
     });
   });
 
