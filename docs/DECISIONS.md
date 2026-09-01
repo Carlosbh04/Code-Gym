@@ -22,6 +22,7 @@ T015.1–T015.12.
 | D010 | Primitives de shadcn/Radix en components/ui | Accepted |
 | D011 | ESLint 9 con flat config | Accepted |
 | D012 | isCorrect en UserAnswer | Accepted |
+| D013 | Escala del dominio y factores inyectados | Accepted |
 
 ---
 
@@ -580,3 +581,118 @@ actualizar y cero compilaciones rotas.
 Accepted
 
 **Tareas:** T024 (corrige T011) · **Master Plan:** §17, §21, §23, §24
+
+---
+
+# D013 — Escala del dominio y factores inyectados
+
+## Context
+
+§22 es la única sección que especifica el cálculo de dominio, y no se puede
+implementar tal como está escrita.
+
+**Contradicción numérica.** El único factor con fórmula es
+`precision = correctAttempts / totalAttempts`, es decir un ratio 0..1. Si los
+cinco factores son ratios, la suma ponderada está acotada a 0..1, y
+`clamp(0, 100, round(suma))` solo puede devolver 0 o 1:
+
+```
+perfecto  (todos los factores a 1)  → round(1.0) = 1     ← debería ser 100
+medio     (todos a 0.5)             → round(0.5) = 1     ← debería ser ~50
+```
+
+Pero `ConceptProgress.domain` está documentado como 0-100 y el propio `clamp`
+acota a 100. Falta escalar por 100.
+
+**Tres de los cinco factores no tienen fórmula.** Cada uno aparece exactamente
+dos veces en todo el Master Plan: la línea de la suma y su fila en la tabla.
+
+| Factor | Lo que dice §22 | ¿Implementable? |
+|---|---|---|
+| `precision` | `correctAttempts / totalAttempts` | Sí |
+| `errorRate` | "Ratio de errores recientes vs total" | Parcial: "recientes" no está definido |
+| `diffScore` | "Ponderado por dificultad de ejercicios resueltos" | No: no hay tabla de pesos |
+| `recency` | "Ejercicios recientes pesan más" | No: no hay curva de decaimiento |
+| `consistency` | "Practicar en días separados > todo de golpe" | No: no hay métrica |
+
+**Dos de ellos ni siquiera tienen datos.** `recency` exige comparar
+`lastPracticed` con el momento actual, y el cálculo debe ser determinista, así
+que necesitaría una fecha de referencia inyectada. `consistency` exige saber en
+cuántos días distintos se ha practicado, y `ConceptProgress` guarda una única
+fecha; `recentErrors[].timestamp` solo cubre los errores, no la práctica.
+
+Implementar §22 al completo habría exigido inventar seis cosas: la escala, los
+pesos por dificultad, la ventana de errores recientes, la curva de recency, la
+métrica de consistency y los datos que la alimentan.
+
+## Decision
+
+**Escala.** Los factores viajan en 0..1 y el resultado se escala por 100:
+
+```
+domain = clamp(0, 100, round(weightedScore * 100))
+```
+
+Así el usuario perfecto obtiene 100, el medio ~50 y el mínimo 0.
+
+**Pesos.** 35 / 25 / 20 / 10 / 10, con esta asignación:
+
+```
+weightedScore = precision   * 0.35
+              + errorRate   * 0.25
+              + diffScore   * 0.20
+              + recency     * 0.10
+              + consistency * 0.10
+```
+
+Difiere de §22 en dos puntos deliberados: los pesos de `diffScore` y `errorRate`
+quedan intercambiados respecto al texto original, y el término se escribe
+`errorRate` en lugar de `(1 - errorRate)`. La consecuencia es que **los cinco
+factores quedan orientados igual: 1 es siempre el mejor valor**, lo que hace la
+fórmula simétrica y comprobable (todos a 1 → 100, todos a 0 → 0, todos a 0.5 →
+50). Quien llame debe pasar `errorRate` ya orientado; pasar la tasa de error en
+bruto haría que fallar más subiera el dominio.
+
+**Factores inyectados.** `calculateDomain` recibe un `DomainFactors` con los
+cinco valores ya calculados. T025 implementa solo la parte inequívoca de §22: la
+ponderación, el redondeo y el recorte.
+
+## Alternatives
+
+1. Especificar ahora los cinco factores que faltan (pesos por dificultad,
+   ventana de errores, curva de recency, métrica de consistency).
+2. **Implementar solo la parte definida, con los factores inyectados.**
+3. Aplazar T025 hasta T046–T049, cuando `ConceptProgress` se persista de verdad.
+
+## Rationale
+
+La opción 1 exigía cinco decisiones de producto y un cambio de contrato en
+`ConceptProgress` para poder medir la consistencia; es diseñar el sistema de
+progreso, no completar una fórmula. La 3 dejaba a T024 sin el punto de inyección
+que ya había preparado.
+
+La 2 entrega exactamente lo que §22 cubre sin inventar nada, mantiene la función
+pura y determinista, y traslada la derivación de los factores al momento en que
+el modelo de datos la soporte.
+
+## Consequences
+
+- `DomainFactors` se declara en `domain-calculator.ts` y no en
+  `types/progress.ts`: §16 no prevé un fichero de tipos bajo `lib/progress`, y
+  añadirlo a `ConceptProgress` habría cambiado un contrato sin necesidad.
+- Nadie calcula todavía los cinco factores. La tarea que lo haga deberá definir
+  los pesos por dificultad, la ventana de errores recientes, la curva de recency
+  y la métrica de consistency, y probablemente añadir a `ConceptProgress` un
+  historial de días de práctica.
+- `errorRate` es el nombre que fija la decisión, pero su semántica es "1 = sin
+  errores". Si al derivarlo se pasa la tasa en bruto, el dominio se invierte.
+- `calculateDomainImpact(previous, next)` recibe los dos dominios ya calculados
+  en lugar de la firma `(conceptId, accuracy, difficulty)` que insinuaba §24:
+  esa firma no daba acceso a los datos que la fórmula necesita, y resolverla
+  desde un `conceptId` habría exigido un repositorio dentro de lógica pura.
+
+## Status
+
+Accepted
+
+**Tareas:** T025 · **Master Plan:** §22, §24
