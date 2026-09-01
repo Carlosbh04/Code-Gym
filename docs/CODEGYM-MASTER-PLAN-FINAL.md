@@ -1295,8 +1295,11 @@ D004: useState+useReducer sobre Zustand
 D005: Lazy loading por topic sobre carga completa
 D006: sessionStorage para recovery sobre localStorage
 D007: Escala de acento accesible
-D008: Jerarquía de tokens primitivos → semánticos → shadcn
-El archivo vive en docs/DECISIONS.md.
+D008: Jerarquía de tokens
+D009: Highlighting y estrategia de fuentes
+D010: Primitives de shadcn/Radix en components/ui
+D011: ESLint 9 con flat config
+El registro canónico vive en docs/DECISIONS.md, con el detalle completo de cada decisión (contexto, alternativas, razón y consecuencias). §46 conserva un resumen.
 39. GIT STRATEGY
 Branches
 main        ← deploy
@@ -1556,6 +1559,7 @@ Sin dependencias innecesarias
 □ Sesiones: completan correctamente
 □ Progreso: se actualiza correctamente
 46. ARCHITECTURAL DECISIONS
+Resumen. El registro canónico y detallado de las decisiones está en docs/DECISIONS.md.
 D001: Web Worker sobre iframe sandbox
 Contexto: Fix Code necesita ejecutar código del usuario.
 Opciones: eval() en thread principal | iframe sandbox | Web Worker | Servicio externo
@@ -1598,12 +1602,24 @@ Opciones: aclarar el acento | conservarlo restringiendo su uso | doble token | a
 Decisión: doble token. --accent (#6366f1) queda como color de marca no textual; --accent-text (#818cf8) cubre texto, interacción y superficies de botón primario.
 Razón: conserva el acento del plan sin renunciar a WCAG AA, y el sistema de tokens hace cumplir la regla en lugar de confiarla a la disciplina de cada componente. #818cf8 ya estaba en §12 como --accent-hover, así que no introduce un color nuevo.
 Consecuencias: el botón primario deja de ser #6366f1 sólido y pasa a #818cf8 con texto oscuro (6.62:1). Los usos no textuales del acento (focus ring, bordes, iconos, glows) siguen siendo #6366f1. Detalle en docs/DECISIONS.md.
-D008: Jerarquía de tokens primitivos → semánticos → shadcn
+D008: Jerarquía de tokens
 Contexto: la implementación mantenía dos paletas independientes: los tokens hex de §12 y una capa HSL de shadcn con valores propios. --background (#0e0e10) no coincidía con --bg-primary (#0a0a0f), --accent estaba sobrescrito con un triplete HSL que lo invalidaba como color, y los componentes mezclaban ambos sistemas sin criterio.
 Opciones: tomar §12 como canónico | tomar shadcn como canónico | derivar shadcn de §12
 Decisión: derivar. §12 es la capa primitiva; los tokens de shadcn se definen con var() sobre ella; Tailwind expone las semánticas; los componentes consumen utilidades.
 Razón: un único valor por concepto visual, sin literales duplicados, conservando el contrato de shadcn y los modificadores de opacidad de Tailwind.
 Consecuencias: las primitivas se declaran como canales HSL, no como hex. Los componentes no usan var(--primitiva) salvo excepción justificada. Detalle en docs/DECISIONS.md.
+D009: Highlighting y estrategia de fuentes
+Contexto: §32 pide highlighting ligero para CodeBlock y fuentes self-hosted, pero ni la librería elegida ni la estrategia de carga quedaron registradas.
+Decisión: highlight.js importando solo core + el lenguaje JavaScript; Inter y JetBrains Mono vía @fontsource con el subset latin y solo los pesos en uso.
+Consecuencias: el build pasa de 60 ficheros de fuente (~950 KB) a 12 (328 KB). El coste real de highlight.js se mide en T094. Detalle en docs/DECISIONS.md.
+D010: Primitives de shadcn/Radix en components/ui
+Contexto: components/ui contenía una implementación propia de Progress y el CLI de shadcn nunca se había ejecutado con éxito.
+Decisión: components/ui solo contiene primitives generados por el CLI de shadcn; los componentes propios viven en components/codegym.
+Consecuencias: se añade @radix-ui/react-progress. El proyecto posee el código generado y puede corregirlo. Detalle en docs/DECISIONS.md.
+D011: ESLint 9 con flat config
+Contexto: §44, §45 y §39 exigen «lint limpio», pero el proyecto no tenía linter.
+Decisión: ESLint 9 flat config con los conjuntos oficiales recomendados de JS, typescript-eslint, react-hooks y react-refresh. Sin Prettier.
+Consecuencias: todo código futuro debe pasar no-explicit-any, no-unused-vars, rules-of-hooks y exhaustive-deps como errores. Detalle en docs/DECISIONS.md.
 47. RISKS AND MITIGATIONS
 #	Riesgo	Prob.	Impacto	Mitigación
 1	Contenido insuficiente para MVP	Alta	Alto	Empezar con 2-3 topics bien desarrollados
