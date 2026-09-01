@@ -52,6 +52,7 @@ export interface UserAnswer {
   stepId: string;
   stepType: StepType;
   answer: string | number;
+  isCorrect: boolean;
   timeSpentMs: number;
   hintsUsed: number;
 }

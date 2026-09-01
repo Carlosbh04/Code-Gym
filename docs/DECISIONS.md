@@ -21,6 +21,7 @@ T015.1–T015.12.
 | D009 | Highlighting y estrategia de fuentes | Accepted |
 | D010 | Primitives de shadcn/Radix en components/ui | Accepted |
 | D011 | ESLint 9 con flat config | Accepted |
+| D012 | isCorrect en UserAnswer | Accepted |
 
 ---
 
@@ -503,3 +504,79 @@ para no ampliar el alcance del bloque de corrección.
 Accepted
 
 **Tareas:** T015.10 · **Master Plan:** §37, §39, §44, §45
+
+---
+
+# D012 — isCorrect en UserAnswer
+
+## Context
+
+El Master Plan se contradice a sí mismo entre tres secciones.
+
+§24 define la puntuación de una sesión así:
+
+```ts
+calculateScore(session: ExerciseSession, answers: UserAnswer[]): SessionScore;
+
+function calculateScore(session, answers): SessionScore {
+  const correct = answers.filter(a => a.isCorrect).length;
+  ...
+}
+```
+
+El cuerpo filtra por `a.isCorrect`, pero la firma recibe `UserAnswer[]`, y el
+`UserAnswer` de §17 no tiene ese campo. Lo tiene `Attempt`, que es otro tipo. La
+función, tal como está escrita, no compila contra su propia firma.
+
+El problema no se limita al scoring. §21 guarda en sessionStorage
+`answers: UserAnswer[]`, y §23 establece que cada respuesta de cada step se
+guarda como `Attempt`, construyéndolos al completar la sesión a partir de ese
+estado. Como `Attempt.isCorrect` es obligatorio y `UserAnswer` no lo aporta, **el
+historial de intentos no tiene de dónde sacar la corrección**. El modelo estaba
+incompleto con independencia de T024.
+
+Tampoco puede recalcularse en el momento de puntuar: la corrección de un paso
+`fix-code` exige ejecutar el código del usuario en el Worker (D001), que no está
+disponible desde una función pura de scoring.
+
+## Decision
+
+Añadir `isCorrect: boolean` a `UserAnswer`, entre `answer` y `timeSpentMs`.
+
+Lo fija el engine al validar la respuesta: el `isCorrect` de `ValidationResult`
+(T023) pasa al `UserAnswer` que la UI despacha con `SUBMIT_ANSWER`.
+
+## Alternatives
+
+1. Cambiar el parámetro de `calculateScore` a `Attempt[]`, que ya tiene el campo.
+2. Pasar la corrección aparte, como un array de booleanos paralelo.
+3. **Añadir `isCorrect` a `UserAnswer`.**
+4. Recalcular la corrección dentro de `calculateScore`.
+
+## Rationale
+
+La opción 1 no sirve porque §21 crea los `Attempt` *al completar* la sesión: en
+el momento de puntuar todavía no existen. La 2 salva el scoring pero deja el
+hueco de `Attempt.isCorrect` sin resolver. La 4 es imposible para `fix-code`.
+
+La 3 es la única que cierra las tres secciones a la vez, y es además lo que el
+pseudocódigo de §24 ya asumía. El coste fue mínimo porque al aplicarla no
+existía ningún productor de `UserAnswer` en el proyecto: cero literales que
+actualizar y cero compilaciones rotas.
+
+## Consequences
+
+- `SessionState.answers` y el payload de `SUBMIT_ANSWER` heredan el campo sin
+  tocarse: citan el tipo por nombre.
+- Quien despache `SUBMIT_ANSWER` (T027/T028) debe rellenar `isCorrect` con el
+  resultado del engine. El reducer sigue siendo un almacén, sin validar nada.
+- T050 puede construir los `Attempt` directamente desde las respuestas.
+- La recuperación de sesión de §21/T052 conserva qué respuestas eran correctas;
+  antes se habría perdido al recargar.
+- El payload de sessionStorage crece un booleano por respuesta.
+
+## Status
+
+Accepted
+
+**Tareas:** T024 (corrige T011) · **Master Plan:** §17, §21, §23, §24

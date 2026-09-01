@@ -687,9 +687,11 @@ interface UserAnswer {
   stepId: string;
   stepType: StepType;
   answer: string | number;   // optionId para selección, código para fix-code
+  isCorrect: boolean;        // lo fija el engine al validar la respuesta
   timeSpentMs: number;
   hintsUsed: number;
 }
+El campo isCorrect resuelve una incoherencia del propio plan: §24 calcula la puntuación con answers.filter(a => a.isCorrect) sobre un UserAnswer[], y §21 construye los Attempt al completar la sesión a partir de SessionState.answers. Sin este campo, ni la fórmula de §24 compila ni Attempt.isCorrect tiene origen.
 SessionScore
 interface SessionScore {
   totalSteps: number;
@@ -897,7 +899,7 @@ class ExerciseEngine {
   async loadSession(sessionId: string): Promise<ExerciseSession>;
   validateSelection(step: ExerciseStep, answer: string): ValidationResult;
   async validateFixCode(step: ExerciseStep, userCode: string): Promise<ValidationResult>;
-  calculateScore(session: ExerciseSession, answers: UserAnswer[]): SessionScore;
+  calculateScore(session: ExerciseSession, answers: UserAnswer[], domainImpact: DomainImpact): SessionScore;
   getNextStep(currentStep: number, totalSteps: number): number | null;
 }
 Validation por tipo
@@ -907,12 +909,15 @@ predict-output	validateSelection	optionId contra correct flag
 find-error	validateSelection	línea + tipo contra errorLines + errorType
 fix-code	validateFixCode	ejecutar en Worker + comparar con testCases
 Scoring
-function calculateScore(session, answers): SessionScore {
+function calculateScore(session, answers, domainImpact): SessionScore {
+  const totalSteps = session.steps.length;
   const correct = answers.filter(a => a.isCorrect).length;
-  const accuracy = (correct / session.steps.length) * 100;
-  const domainImpact = calculateDomainImpact(conceptId, accuracy, difficulty);
-  return { totalSteps: session.steps.length, correctSteps: correct, accuracy, domainImpact, ... };
+  const accuracy = totalSteps === 0 ? 0 : (correct / totalSteps) * 100;
+  const timeSpentMs = answers.reduce((t, a) => t + a.timeSpentMs, 0);
+  const hintsUsed = answers.reduce((t, a) => t + a.hintsUsed, 0);
+  return { totalSteps, correctSteps: correct, accuracy, timeSpentMs, hintsUsed, domainImpact };
 }
+domainImpact se recibe como parámetro en lugar de calcularse aquí: §22 sitúa ese cálculo en lib/progress/domain-calculator.ts, y inyectarlo mantiene el scoring como aritmética pura. T050 es donde ambos se juntan. hintsUsed se acumula como dato informativo: §6 dice que cada pista reduce la puntuación del paso, pero ni esta sección define la penalización ni SessionScore tiene un campo de puntuación por paso donde aplicarla. Ver D012.
 25. CODE EXECUTION ARCHITECTURE
 CodeEditor → UserCode → ExerciseEngine.validateFixCode() → ICodeExecutor → WorkerExecutor → Web Worker
                                                                                                  ↓
@@ -1299,6 +1304,7 @@ D008: Jerarquía de tokens
 D009: Highlighting y estrategia de fuentes
 D010: Primitives de shadcn/Radix en components/ui
 D011: ESLint 9 con flat config
+D012: isCorrect en UserAnswer
 El registro canónico vive en docs/DECISIONS.md, con el detalle completo de cada decisión (contexto, alternativas, razón y consecuencias). §46 conserva un resumen.
 39. GIT STRATEGY
 Branches
@@ -1620,6 +1626,10 @@ D011: ESLint 9 con flat config
 Contexto: §44, §45 y §39 exigen «lint limpio», pero el proyecto no tenía linter.
 Decisión: ESLint 9 flat config con los conjuntos oficiales recomendados de JS, typescript-eslint, react-hooks y react-refresh. Sin Prettier.
 Consecuencias: todo código futuro debe pasar no-explicit-any, no-unused-vars, rules-of-hooks y exhaustive-deps como errores. Detalle en docs/DECISIONS.md.
+D012: isCorrect en UserAnswer
+Contexto: §24 calcula la puntuación con answers.filter(a => a.isCorrect) sobre un UserAnswer[], pero el UserAnswer de §17 no tiene ese campo; y §21/§23 construyen los Attempt desde ese mismo estado, de modo que Attempt.isCorrect tampoco tenía origen.
+Decisión: añadir isCorrect: boolean a UserAnswer. Lo fija el engine al validar la respuesta.
+Consecuencias: SessionState y SUBMIT_ANSWER heredan el campo sin cambios; quien despacha la respuesta debe rellenarlo; la recuperación de sesión conserva la corrección. Detalle en docs/DECISIONS.md.
 47. RISKS AND MITIGATIONS
 #	Riesgo	Prob.	Impacto	Mitigación
 1	Contenido insuficiente para MVP	Alta	Alto	Empezar con 2-3 topics bien desarrollados
