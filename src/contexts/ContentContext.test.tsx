@@ -253,11 +253,12 @@ describe('ContentContext + useContent (T020)', () => {
       expect(session?.steps).toHaveLength(4);
     });
 
-    it('devuelve null para una sesión inexistente y lista vacía de tecnologías hasta T021', async () => {
+    it('devuelve null para una sesión inexistente y expone las tecnologías del índice', async () => {
       const { result } = await mountHook(new StaticContentRepository());
 
       await expect(result.current.getSession('no-existe')).resolves.toBeNull();
-      expect(result.current.technologies).toEqual([]);
+      expect(result.current.technologies.map((t) => t.id)).toEqual(['javascript']);
+      expect(result.current.getTechnology('javascript')?.name).toBe('JavaScript');
     });
   });
 });

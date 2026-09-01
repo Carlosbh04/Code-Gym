@@ -163,17 +163,95 @@ describe('StaticContentRepository (T019)', () => {
     });
   });
 
-  describe('operaciones cuya fuente de datos llega en T021', () => {
-    it('getTechnologies devuelve vacío mientras no exista technologies.json', async () => {
-      await expect(repo.getTechnologies()).resolves.toEqual([]);
+  describe('indices de contenido (T021)', () => {
+    it('carga las tecnologias declaradas en technologies.json', async () => {
+      const technologies = await repo.getTechnologies();
+
+      expect(technologies).toHaveLength(1);
+      expect(technologies[0]).toEqual({
+        id: 'javascript',
+        name: 'JavaScript',
+        icon: 'js',
+        description: expect.any(String),
+      });
     });
 
-    it('getTopicsByTechnology devuelve vacío mientras no exista el índice de topics', async () => {
-      await expect(repo.getTopicsByTechnology('javascript')).resolves.toEqual([]);
+    it('devuelve los topics de JavaScript', async () => {
+      const topics = await repo.getTopicsByTechnology('javascript');
+
+      expect(topics.map((t) => t.id)).toEqual(['js-arrays', 'js-functions']);
+      expect(topics.every((t) => t.technologyId === 'javascript')).toBe(true);
+      expect(topics.every((t) => t.name.length > 0 && t.description.length > 0)).toBe(true);
     });
 
-    it('getConceptById devuelve null mientras no existan los metadatos del concepto', async () => {
-      await expect(repo.getConceptById(ARRAYS_CONCEPT)).resolves.toBeNull();
+    it('devuelve vacio para una tecnologia no declarada', async () => {
+      await expect(repo.getTopicsByTechnology('rust')).resolves.toEqual([]);
+    });
+
+    it('no expone los topics todavia no implementados', async () => {
+      const topics = await repo.getTopicsByTechnology('javascript');
+      const ids = topics.map((t) => t.id);
+
+      for (const pendiente of ['js-closures', 'js-promises', 'js-objects', 'js-es6-plus', 'js-errors']) {
+        expect(ids).not.toContain(pendiente);
+      }
+    });
+
+    it('resuelve el concepto de Arrays con su prosa', async () => {
+      const concept = await repo.getConceptById('js-array-iteration');
+
+      expect(concept).not.toBeNull();
+      expect(concept?.topicId).toBe('js-arrays');
+      expect(concept?.technologyId).toBe('javascript');
+      expect(concept?.name.length).toBeGreaterThan(0);
+      expect(concept?.contentMarkdown).toContain('forEach');
+    });
+
+    it('resuelve el concepto de Functions con su prosa', async () => {
+      const concept = await repo.getConceptById('js-function-basics');
+
+      expect(concept?.topicId).toBe('js-functions');
+      expect(concept?.contentMarkdown).toContain('hoisting');
+    });
+
+    it('devuelve null para un concepto inexistente', async () => {
+      await expect(repo.getConceptById('js-no-existe')).resolves.toBeNull();
+    });
+
+    it('congela y no duplica los datos de los indices', async () => {
+      const first = await repo.getConceptById('js-array-iteration');
+      const second = await repo.getConceptById('js-array-iteration');
+
+      expect(first).toBe(second);
+      expect(Object.isFrozen(first)).toBe(true);
+      expect(Object.isFrozen(await repo.getTechnologies())).toBe(true);
+    });
+
+    it('el grafo technology -> topic -> concept -> session es coherente', async () => {
+      const technologies = await repo.getTechnologies();
+      const topicIds = new Set<string>();
+
+      for (const technology of technologies) {
+        const topics = await repo.getTopicsByTechnology(technology.id);
+        for (const topic of topics) {
+          expect(topic.technologyId).toBe(technology.id);
+          topicIds.add(topic.id);
+        }
+      }
+
+      for (const conceptId of ['js-array-iteration', 'js-function-basics']) {
+        const concept = await repo.getConceptById(conceptId);
+        expect(concept).not.toBeNull();
+        expect(topicIds).toContain(concept?.topicId);
+        expect(technologies.map((t) => t.id)).toContain(concept?.technologyId);
+
+        const sessions = await repo.getSessionsByConcept(conceptId);
+        expect(sessions.length).toBeGreaterThan(0);
+        for (const session of sessions) {
+          expect(session.conceptId).toBe(conceptId);
+          expect(session.technologyId).toBe(concept?.technologyId);
+        }
+      }
     });
   });
 

@@ -21,6 +21,30 @@ const sessionLoaders = import.meta.glob<{ default: ExerciseSession }>(
   '/src/data/content/*/*/sessions/*.json',
 );
 
+/** Índice de tecnologías (§8: lo primero que carga la aplicación). */
+const technologyLoaders = import.meta.glob<{ default: Technology[] }>(
+  '/src/data/technologies.json',
+);
+
+/** Índice de topics de cada tecnología. */
+const topicLoaders = import.meta.glob<{ default: Topic[] }>(
+  '/src/data/content/*/index.json',
+);
+
+/** Metadatos del concepto de cada topic: un Concept sin su contentMarkdown. */
+const conceptLoaders = import.meta.glob<{
+  default: Omit<Concept, 'contentMarkdown'>;
+}>('/src/data/content/*/*/index.json');
+
+/** Prosa del concepto, que completa el contentMarkdown. */
+const conceptMarkdownLoaders = import.meta.glob<string>(
+  '/src/data/content/*/*/concept.md',
+  { query: '?raw', import: 'default' },
+);
+
+/** Conceptos ya compuestos, para no rehacer la mezcla en cada lectura. */
+const composedConcepts = new Map<string, Concept>();
+
 /** Rutas ordenadas, para que las consultas devuelvan un orden estable. */
 const sessionPaths = Object.keys(sessionLoaders).sort();
 
@@ -43,33 +67,59 @@ async function loadSession(path: string): Promise<ExerciseSession> {
 export class StaticContentRepository implements IContentRepository {
   private allSessions: Promise<ExerciseSession[]> | null = null;
 
-  /**
-   * Requiere `data/technologies.json`, que crea T021. Mientras ese fichero no
-   * exista no hay ninguna tecnología declarada y la respuesta correcta es una
-   * lista vacía: no se derivan `name`, `icon` ni `description` a partir de los
-   * nombres de carpeta, porque serían datos inventados.
-   */
+  /** Tecnologías declaradas en `data/technologies.json`. */
   async getTechnologies(): Promise<Technology[]> {
-    return [];
+    const load = technologyLoaders['/src/data/technologies.json'];
+    if (!load) {
+      return [];
+    }
+    return deepFreeze((await load()).default);
   }
 
   /**
-   * Requiere el índice de topics de cada tecnología
-   * (`data/content/<tecnologia>/index.json`), que crea T021. El Master Plan no
-   * define su esquema en ninguna sección, así que este método no lo presupone.
+   * Topics de una tecnología. §8 estructura el contenido como
+   * `content/<tecnologia>/`, así que el índice se localiza directamente por
+   * ruta en lugar de recorrer los de todas las tecnologías.
    */
   async getTopicsByTechnology(technologyId: string): Promise<Topic[]> {
-    void technologyId;
-    return [];
+    const load = topicLoaders[`/src/data/content/${technologyId}/index.json`];
+    if (!load) {
+      return [];
+    }
+    return deepFreeze((await load()).default);
   }
 
   /**
-   * Requiere los metadatos del concepto (`name`, `topicId`), que declara el
-   * índice de T021. Los `concept.md` de T017/T018 solo aportan
-   * `contentMarkdown`, que por sí solo no compone un `Concept`.
+   * Concepto completo: los metadatos vienen del `index.json` del topic y el
+   * `contentMarkdown` del `concept.md` que está a su lado. Un concepto sin
+   * prosa se considera contenido incompleto y no se devuelve a medias.
    */
   async getConceptById(conceptId: string): Promise<Concept | null> {
-    void conceptId;
+    const cached = composedConcepts.get(conceptId);
+    if (cached) {
+      return cached;
+    }
+
+    for (const path of Object.keys(conceptLoaders).sort()) {
+      const metadata = (await conceptLoaders[path]()).default;
+      if (metadata.id !== conceptId) {
+        continue;
+      }
+
+      const markdownPath = path.replace(/index\.json$/, 'concept.md');
+      const loadMarkdown = conceptMarkdownLoaders[markdownPath];
+      if (!loadMarkdown) {
+        return null;
+      }
+
+      const concept = deepFreeze({
+        ...metadata,
+        contentMarkdown: await loadMarkdown(),
+      });
+      composedConcepts.set(conceptId, concept);
+      return concept;
+    }
+
     return null;
   }
 

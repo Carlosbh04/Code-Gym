@@ -1,0 +1,14 @@
+[
+  {
+    "id": "js-arrays",
+    "name": "Arrays",
+    "technologyId": "javascript",
+    "description": "Métodos de iteración: qué devuelve cada uno, cuáles mutan y cuándo elegir map, filter o reduce."
+  },
+  {
+    "id": "js-functions",
+    "name": "Functions",
+    "technologyId": "javascript",
+    "description": "Parámetros por defecto, ámbito y hoisting, y los caminos por los que una función acaba devolviendo undefined."
+  }
+]
