@@ -270,6 +270,16 @@ ResultsPage
 ReviewPage
 TechnologyPage / TopicPage
 12. DESIGN SYSTEM
+Jerarquía de tokens (D008)
+La implementación organiza el color en cuatro capas. Cada concepto visual tiene un único valor, declarado una sola vez en la capa primitiva.
+  CAPA 1  PRIMITIVAS   los valores de esta sección. Fuente única de verdad.
+     ↓
+  CAPA 2  SEMÁNTICAS   contrato shadcn/ui (background, foreground, primary…). Derivadas con var(), sin literales propios.
+     ↓
+  CAPA 3  TAILWIND     tailwind.config.js expone hsl(var(--semántica)) como utilidades.
+     ↓
+  CAPA 4  COMPONENTES  consumen utilidades (bg-background, text-foreground, text-success…).
+Regla: los componentes NO leen primitivas directamente. Las excepciones se justifican por escrito (hoy solo el bloque de resaltado de código en index.css, cuyos tonos no tienen equivalente semántico en shadcn).
 Tokens
 :root {
   /* Background */
@@ -284,9 +294,15 @@ Tokens
   --text-secondary: #a0a0b5;
   --text-muted: #606075;
 
-  /* Accent */
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
+  /* Accent — dos tonos con roles excluyentes (D007) */
+  --accent: #6366f1;       /* marca. NO textual: bordes, iconos, focus ring, glows.
+                              4.42:1 sobre --bg-primary → cumple el 3:1 no textual,
+                              NO el 4.5:1 de texto normal que exige §14. */
+  --accent-text: #818cf8;  /* texto e interacción. 6.62:1 sobre --bg-primary → AA.
+                              Es también la superficie de los botones primarios,
+                              con --bg-primary como color de texto (6.62:1). */
+  --accent-hover: #818cf8; /* mismo valor que --accent-text; en la implementación
+                              se declara como alias para no duplicar el literal. */
   --accent-glow: rgba(99, 102, 241, 0.15);
 
   /* Semantic */
@@ -323,6 +339,10 @@ Tokens
   --radius-xl: 16px;
   --radius-full: 9999px;
 }
+Notas de implementación
+Formato: las primitivas de color se declaran en index.css como canales HSL («240 20% 5%») en lugar de hex. Es necesario para que la capa semántica las derive con var() y para que Tailwind inyecte modificadores de opacidad (bg-primary/20 → hsl(var(--primary) / .2)). Cada token documenta su hex equivalente en un comentario; todas las conversiones reproducen el hex de esta sección de forma exacta.
+--space-*: la escala coincide exactamente con la de Tailwind (1,2,3,4,5,6,8,10,12,16 → 4,8,12,16,20,24,32,40,48,64 px). Se consume mediante utilidades (p-4, gap-6…) y no se declara como variables CSS sin consumidor, para no mantener dos escalas de espaciado en paralelo. Esta sección sigue siendo la especificación de la escala.
+--radius-*: sí se declaran, porque tailwind.config.js los consume directamente (rounded-sm|md|lg|xl|full). Sustituyen al token --radius de shadcn, que derivaba una escala distinta (md 6px en vez de 8px).
 Componentes shadcn/ui (base)
 Button, Card, Badge, Input, Textarea, Select, Tabs, Dialog, Tooltip, Progress, Separator, Skeleton, Toast/Alert
 Componentes CodeGym (custom)
@@ -1273,6 +1293,10 @@ D002: Repository pattern sobre localStorage directo
 D003: CSS animations sobre Framer Motion
 D004: useState+useReducer sobre Zustand
 D005: Lazy loading por topic sobre carga completa
+D006: sessionStorage para recovery sobre localStorage
+D007: Escala de acento accesible
+D008: Jerarquía de tokens primitivos → semánticos → shadcn
+El archivo vive en docs/DECISIONS.md.
 39. GIT STRATEGY
 Branches
 main        ← deploy
@@ -1568,6 +1592,18 @@ Opciones: localStorage | sessionStorage | No recuperar
 Decisión: sessionStorage.
 Razón: La sesión activa es temporal. Si el usuario cierra la pestaña deliberadamente, no debe recuperarse. sessionStorage se limpia al cerrar la pestaña, que es el comportamiento deseado. localStorage preservaría sesiones abandonadas indefinidamente.
 Consecuencias: Si el usuario cierra la pestaña, pierde la sesión activa. Esto es intencional.
+D007: Escala de acento accesible
+Contexto: §12 fijaba --accent: #6366f1 y §14 exige contraste ≥ 4.5:1 para texto normal. Ambas cosas son incompatibles: sobre --bg-primary el acento da 4.42:1, y como fondo de botón ningún color de texto alcanza AA (blanco 3.93:1, --bg-primary 4.42:1).
+Opciones: aclarar el acento | conservarlo restringiendo su uso | doble token | aceptar AA parcial
+Decisión: doble token. --accent (#6366f1) queda como color de marca no textual; --accent-text (#818cf8) cubre texto, interacción y superficies de botón primario.
+Razón: conserva el acento del plan sin renunciar a WCAG AA, y el sistema de tokens hace cumplir la regla en lugar de confiarla a la disciplina de cada componente. #818cf8 ya estaba en §12 como --accent-hover, así que no introduce un color nuevo.
+Consecuencias: el botón primario deja de ser #6366f1 sólido y pasa a #818cf8 con texto oscuro (6.62:1). Los usos no textuales del acento (focus ring, bordes, iconos, glows) siguen siendo #6366f1. Detalle en docs/DECISIONS.md.
+D008: Jerarquía de tokens primitivos → semánticos → shadcn
+Contexto: la implementación mantenía dos paletas independientes: los tokens hex de §12 y una capa HSL de shadcn con valores propios. --background (#0e0e10) no coincidía con --bg-primary (#0a0a0f), --accent estaba sobrescrito con un triplete HSL que lo invalidaba como color, y los componentes mezclaban ambos sistemas sin criterio.
+Opciones: tomar §12 como canónico | tomar shadcn como canónico | derivar shadcn de §12
+Decisión: derivar. §12 es la capa primitiva; los tokens de shadcn se definen con var() sobre ella; Tailwind expone las semánticas; los componentes consumen utilidades.
+Razón: un único valor por concepto visual, sin literales duplicados, conservando el contrato de shadcn y los modificadores de opacidad de Tailwind.
+Consecuencias: las primitivas se declaran como canales HSL, no como hex. Los componentes no usan var(--primitiva) salvo excepción justificada. Detalle en docs/DECISIONS.md.
 47. RISKS AND MITIGATIONS
 #	Riesgo	Prob.	Impacto	Mitigación
 1	Contenido insuficiente para MVP	Alta	Alto	Empezar con 2-3 topics bien desarrollados

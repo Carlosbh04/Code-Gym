@@ -8,9 +8,9 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = {
 };
 
 const DIFFICULTY_STYLES: Record<Difficulty, string> = {
-  beginner: 'border-[var(--success)] text-[var(--success)]',
-  intermediate: 'border-[var(--warning)] text-[var(--warning)]',
-  advanced: 'border-[var(--error)] text-[var(--error)]',
+  beginner: 'border-success text-success',
+  intermediate: 'border-warning text-warning',
+  advanced: 'border-destructive text-destructive',
 };
 
 export interface DifficultyBadgeProps {

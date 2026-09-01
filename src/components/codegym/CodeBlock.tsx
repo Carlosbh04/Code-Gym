@@ -30,7 +30,7 @@ export function CodeBlock({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-md border border-[var(--code-border)] bg-[var(--code-bg)]',
+        'overflow-hidden rounded-md border border-code-border bg-code',
         className,
       )}
     >

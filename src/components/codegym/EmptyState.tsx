@@ -28,14 +28,14 @@ export function EmptyState({
     >
       <div
         aria-hidden="true"
-        className="flex size-16 items-center justify-center rounded-full bg-[var(--bg-tertiary)] text-[var(--text-muted)]"
+        className="flex size-16 items-center justify-center rounded-full bg-secondary text-subtle"
       >
         <Icon className="size-8" />
       </div>
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-[var(--text-primary)]">{title}</h3>
+        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
         {description ? (
-          <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             {description}
           </p>
         ) : null}
