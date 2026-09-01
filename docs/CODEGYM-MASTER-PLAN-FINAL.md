@@ -860,13 +860,15 @@ AL RECARGAR:
   → si nuevo: limpiar + empezar
 22. PROGRESS SYSTEM
 Cálculo de dominio
-domain = (precision * 0.35) +
-         (diffScore * 0.25) +
-         ((1 - errorRate) * 0.20) +
-         (recency * 0.10) +
-         (consistency * 0.10)
+weightedScore = (precision * 0.35) +
+                (errorRate * 0.25) +
+                (diffScore * 0.20) +
+                (recency * 0.10) +
+                (consistency * 0.10)
 
-domain = clamp(0, 100, round(domain))
+domain = clamp(0, 100, round(weightedScore * 100))
+
+Los cinco factores viajan en el rango 0..1 y están orientados igual: 1 es siempre el mejor valor, también en errorRate, que quien lo derive debe pasar ya invertido. La escala por 100 es necesaria porque con factores 0..1 la suma ponderada solo llega a 1, y ConceptProgress.domain está documentado como 0-100. Ver D013.
 Factor	Peso	Descripción
 precision	35%	correctAttempts / totalAttempts
 diffScore	25%	Ponderado por dificultad de ejercicios resueltos
@@ -879,7 +881,7 @@ interface DomainImpact {
   newDomain: number;
   change: number;  // positivo o negativo
 }
-La lógica de cálculo vive en lib/progress/domain-calculator.ts. Lógica pura, sin React.
+La lógica de cálculo vive en lib/progress/domain-calculator.ts. Lógica pura, sin React. calculateDomain recibe los cinco factores ya calculados en un DomainFactors; §22 no define fórmula para diffScore, recency ni consistency, ni la ventana de errores recientes, y recency y consistency necesitarían datos que ConceptProgress no guarda. Derivarlos queda pendiente de la tarea que especifique el modelo de progreso. calculateDomainImpact(previous, next) construye el DomainImpact a partir de los dos dominios ya calculados. Ver D013.
 23. HISTORY SYSTEM
 Attempt
 Cada respuesta de cada step se guarda como Attempt.
@@ -1305,6 +1307,7 @@ D009: Highlighting y estrategia de fuentes
 D010: Primitives de shadcn/Radix en components/ui
 D011: ESLint 9 con flat config
 D012: isCorrect en UserAnswer
+D013: Escala del dominio y factores inyectados
 El registro canónico vive en docs/DECISIONS.md, con el detalle completo de cada decisión (contexto, alternativas, razón y consecuencias). §46 conserva un resumen.
 39. GIT STRATEGY
 Branches
@@ -1630,6 +1633,10 @@ D012: isCorrect en UserAnswer
 Contexto: §24 calcula la puntuación con answers.filter(a => a.isCorrect) sobre un UserAnswer[], pero el UserAnswer de §17 no tiene ese campo; y §21/§23 construyen los Attempt desde ese mismo estado, de modo que Attempt.isCorrect tampoco tenía origen.
 Decisión: añadir isCorrect: boolean a UserAnswer. Lo fija el engine al validar la respuesta.
 Consecuencias: SessionState y SUBMIT_ANSWER heredan el campo sin cambios; quien despacha la respuesta debe rellenarlo; la recuperación de sesión conserva la corrección. Detalle en docs/DECISIONS.md.
+D013: Escala del dominio y factores inyectados
+Contexto: la fórmula de §22 solo podía devolver 0 o 1 porque sus factores son ratios 0..1 y no se escalaban, y tres de los cinco factores no tienen fórmula; dos de ellos ni siquiera tienen datos en ConceptProgress.
+Decisión: escalar por 100 tras la suma ponderada, fijar los pesos en 35/25/20/10/10 con los cinco factores orientados a que 1 sea el mejor valor, y recibirlos ya calculados mediante DomainFactors.
+Consecuencias: T025 implementa solo la ponderación, el redondeo y el recorte; la derivación de los factores queda para la tarea que especifique el modelo de progreso. Detalle en docs/DECISIONS.md.
 47. RISKS AND MITIGATIONS
 #	Riesgo	Prob.	Impacto	Mitigación
 1	Contenido insuficiente para MVP	Alta	Alto	Empezar con 2-3 topics bien desarrollados
