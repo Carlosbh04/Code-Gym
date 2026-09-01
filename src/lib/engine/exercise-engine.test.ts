@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
-import type { ExerciseSession } from '@/types/exercise';
+import type { ExerciseSession, StepAnswer } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
 import { ExerciseEngine } from './exercise-engine';
 
@@ -81,9 +81,9 @@ describe('ExerciseEngine (T023)', () => {
         for (const step of session.steps) {
           if (step.type === 'fix-code') continue;
 
-          const answer =
+          const answer: StepAnswer =
             step.type === 'find-error'
-              ? step.errorType!
+              ? { line: step.errorLines![0], errorType: step.errorType! }
               : step.options!.find((o) => o.correct)!.id;
 
           const result = engine.validateSelection(step, answer);
@@ -147,7 +147,12 @@ describe('ExerciseEngine (T023)', () => {
 
       for (const step of session.steps) {
         if (step.type === 'fix-code') continue;
-        engine.validateSelection(step, 'cualquier-cosa');
+        engine.validateSelection(
+          step,
+          step.type === 'find-error'
+            ? { line: 99, errorType: 'cualquier-cosa' }
+            : 'cualquier-cosa',
+        );
       }
 
       expect(JSON.stringify(session)).toBe(antes);

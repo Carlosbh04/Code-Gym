@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useContent } from '@/hooks/useContent';
 import { validateSelection } from '@/lib/engine/validation';
 import {
   createInitialSessionState,
   sessionReducer,
 } from '@/features/session/session-reducer';
-import type { SessionState } from '@/features/session/session-types';
-import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
+import type {
+  FindErrorSelection,
+  SessionState,
+} from '@/features/session/session-types';
+import type { ExerciseSession, ExerciseStep, StepAnswer } from '@/types/exercise';
 
 /**
  * Orquesta una sesión de ejercicios (§15, §18).
@@ -23,6 +26,8 @@ import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
  * `providers.tsx` (T049).
  */
 
+const NO_ERROR_SELECTION: FindErrorSelection = { line: null, errorType: null };
+
 export interface UseSessionResult {
   session: ExerciseSession | null;
   currentStep: ExerciseStep | null;
@@ -30,10 +35,15 @@ export interface UseSessionResult {
   isLoading: boolean;
   /** Opción elegida en el paso actual, todavía sin enviar. */
   selectedOptionId: string | null;
+  /** Línea y tipo elegidos en un paso find-error, todavía sin enviar (D014). */
+  selectedError: FindErrorSelection;
+  /** true cuando el paso actual tiene una respuesta completa lista para enviar. */
+  canSubmit: boolean;
   /** true cuando el paso actual ya tiene respuesta guardada. */
   isAnswered: boolean;
   isLastStep: boolean;
   select: (optionId: string) => void;
+  selectError: (next: FindErrorSelection) => void;
   submit: () => void;
   next: () => void;
 }
@@ -42,6 +52,8 @@ export function useSession(sessionId: string): UseSessionResult {
   const content = useContent();
   const [session, setSession] = useState<ExerciseSession | null>(null);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
+  const [selectedError, setSelectedError] =
+    useState<FindErrorSelection>(NO_ERROR_SELECTION);
   const [state, dispatch] = useReducer(
     sessionReducer,
     createInitialSessionState(sessionId, 0),
@@ -91,25 +103,42 @@ export function useSession(sessionId: string): UseSessionResult {
     setSelectedOptionId(optionId);
   }, []);
 
+  const selectError = useCallback((next: FindErrorSelection) => {
+    setSelectedError(next);
+  }, []);
+
+  /**
+   * La respuesta lista para enviar, o null si el paso todavía está a medias.
+   * find-error necesita sus dos mitades (D014); los demás, la opción elegida.
+   */
+  const pendingAnswer = useMemo<StepAnswer | null>(() => {
+    if (currentStep === null) return null;
+
+    if (currentStep.type !== 'find-error') return selectedOptionId;
+
+    const { line, errorType } = selectedError;
+    return line !== null && errorType !== null ? { line, errorType } : null;
+  }, [currentStep, selectedError, selectedOptionId]);
+
   const submit = useCallback(() => {
-    if (currentStep === null || selectedOptionId === null) {
+    if (currentStep === null || pendingAnswer === null) {
       return;
     }
 
-    const result = validateSelection(currentStep, selectedOptionId);
+    const result = validateSelection(currentStep, pendingAnswer);
 
     dispatch({
       type: 'SUBMIT_ANSWER',
       payload: {
         stepId: currentStep.id,
         stepType: currentStep.type,
-        answer: selectedOptionId,
+        answer: pendingAnswer,
         isCorrect: result.isCorrect,
         timeSpentMs: Date.now() - stepStartedAt.current,
         hintsUsed: state.hintsRevealed.length,
       },
     });
-  }, [currentStep, selectedOptionId, state.hintsRevealed.length]);
+  }, [currentStep, pendingAnswer, state.hintsRevealed.length]);
 
   const next = useCallback(() => {
     if (isLastStep) {
@@ -119,6 +148,7 @@ export function useSession(sessionId: string): UseSessionResult {
 
     dispatch({ type: 'NEXT_STEP' });
     setSelectedOptionId(null);
+    setSelectedError(NO_ERROR_SELECTION);
     stepStartedAt.current = Date.now();
   }, [isLastStep]);
 
@@ -128,9 +158,12 @@ export function useSession(sessionId: string): UseSessionResult {
     state,
     isLoading: session === null && state.error === null,
     selectedOptionId,
+    selectedError,
+    canSubmit: pendingAnswer !== null,
     isAnswered,
     isLastStep,
     select,
+    selectError,
     submit,
     next,
   };

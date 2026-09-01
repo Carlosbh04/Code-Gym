@@ -696,3 +696,89 @@ el modelo de datos la soporte.
 Accepted
 
 **Tareas:** T025 · **Master Plan:** §22, §24
+
+# D014 — Respuesta compuesta en find-error
+
+## Context
+
+El Master Plan describía la validación de `find-error` de dos formas
+incompatibles. §7 pide al usuario dos cosas —«Seleccionar línea + clasificar
+error»— y la tabla de §24 define la validación como «línea + tipo contra
+errorLines + errorType», dos comparaciones. Pero la firma que fija la misma
+§24 era `validateSelection(step: ExerciseStep, answer: string)`, un solo
+escalar, y §17 tipaba `UserAnswer.answer` como `string | number`, también uno.
+
+El contenido acompaña a §7, no a la firma: los seis pasos `find-error`
+declaran `errorLines` poblado y sus enunciados piden las dos cosas
+explícitamente («Localiza la línea del error y clasifícalo»).
+
+T023 implementó la mitad que la firma permitía —la clasificación contra
+`errorType`— y dejó la comprobación de `errorLines` anotada como decisión de
+contrato pendiente. T032, que construye la interfaz del paso, la fuerza.
+
+## Decision
+
+La respuesta de un paso `find-error` es compuesta:
+
+```ts
+interface FindErrorAnswer {
+  line: number;      // línea 1-based del code del paso
+  errorType: string;
+}
+
+type StepAnswer = string | number | FindErrorAnswer;
+```
+
+`UserAnswer.answer` pasa a ser `StepAnswer` y `validateSelection` acepta
+`StepAnswer`. La respuesta es correcta **solo** cuando `line` pertenece a
+`step.errorLines` **y** `errorType === step.errorType`. No hay crédito parcial:
+`ValidationResult.isCorrect` sigue siendo binario.
+
+`errorLines` se mantiene como `number[]`. La comprobación usa `includes`, así
+que un paso con varias líneas válidas se resuelve señalando cualquiera de
+ellas sin tocar la regla. La interfaz sigue recogiendo una sola línea: no se
+diseña selección múltiple mientras no exista contenido que la necesite.
+
+## Alternatives
+
+- **Segundo parámetro**: `validateSelection(step, answer, line?)`. Cabía en la
+  firma sin tocar §17, pero deja `UserAnswer.answer` sin poder registrar la
+  línea elegida, y §21 construye los `Attempt` a partir de esas respuestas: la
+  mitad de la respuesta se perdería al persistir.
+- **Cadena compuesta** (`"3:mutacion"`): no cambia ningún tipo, pero inventa un
+  formato de serialización que ninguna sección del plan define, y obliga a
+  parsear una respuesta que ya venía estructurada.
+- **La línea como presentación**: recoger solo el tipo y resaltar `errorLines`
+  en el feedback. Cero cambios de contrato, pero contradice el «Seleccionar
+  línea» de §7 y dejaría los seis enunciados pidiendo algo que la interfaz no
+  recoge.
+
+## Rationale
+
+Es la única opción en la que el dato viaja entero por toda la cadena —interfaz,
+engine, `UserAnswer`, y más adelante `Attempt` en §21— sin serializaciones
+inventadas ni información que se pierde por el camino. El coste es ensanchar
+dos tipos; a cambio, la firma pasa a decir lo que la tabla de §24 ya describía.
+
+La regla «línea correcta Y tipo correcto» es la lectura literal de esa tabla, y
+la binariedad de `ValidationResult` no deja sitio a crédito parcial.
+
+## Consequences
+
+- `validateSelection` lanza si la respuesta no tiene la forma que el tipo del
+  paso exige, igual que ya lanzaba con el contenido mal formado: es un fallo de
+  programación, no una respuesta errónea.
+- `useSession` decide cuándo una respuesta está completa (`canSubmit`), porque
+  `find-error` solo puede enviarse con sus dos mitades puestas.
+- `FindErrorStep` recoge las dos mitades por separado con `FindErrorSelection`
+  (`line: number | null`, `errorType: string | null`) y no lee `errorLines`:
+  renderiza igual con una línea errónea que con varias, así que no filtra la
+  respuesta.
+- Los consumidores que traten `answer` como escalar deben estrecharlo. Hoy solo
+  lo lee el reducer, que lo guarda tal cual.
+
+## Status
+
+Accepted
+
+**Tareas:** T023, T032 · **Master Plan:** §17, §24

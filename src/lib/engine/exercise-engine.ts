@@ -1,4 +1,4 @@
-import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
+import type { ExerciseSession, ExerciseStep, StepAnswer } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
 import type { ValidationResult } from './types';
 import { validateSelection as evaluateSelection } from './validation';
@@ -35,8 +35,14 @@ export class ExerciseEngine {
     return session;
   }
 
-  /** Valida la respuesta de un paso de selección. Ver `validation.ts`. */
-  validateSelection(step: ExerciseStep, answer: string): ValidationResult {
+  /**
+   * Valida la respuesta de un paso de selección. Ver `validation.ts`.
+   *
+   * `answer` toma la forma que fija el tipo del paso (D014): el id de la
+   * opción en code-reading y predict-output, y `{ line, errorType }` en
+   * find-error.
+   */
+  validateSelection(step: ExerciseStep, answer: StepAnswer): ValidationResult {
     return evaluateSelection(step, answer);
   }
 }

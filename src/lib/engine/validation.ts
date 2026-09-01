@@ -1,4 +1,4 @@
-import type { ExerciseStep } from '@/types/exercise';
+import type { ExerciseStep, FindErrorAnswer, StepAnswer } from '@/types/exercise';
 import type { ValidationResult } from './types';
 
 /**
@@ -11,14 +11,32 @@ import type { ValidationResult } from './types';
  * §24 asigna a cada tipo su referencia de comparación:
  *   code-reading    optionId contra la opción marcada como correcta
  *   predict-output  optionId contra la opción marcada como correcta
- *   find-error      tipo contra errorType
+ *   find-error      línea + tipo contra errorLines + errorType
  *
  * Un paso mal formado no se valida a la ligera: se lanza, porque devolver
  * "incorrecto" ocultaría un fallo de contenido detrás de un resultado normal.
+ * Por la misma razón se lanza cuando la respuesta no tiene la forma que el
+ * tipo del paso exige: es un fallo de programación, no una respuesta errónea.
  */
 
+/** Distingue la respuesta compuesta de find-error de un id de opción. */
+export function isFindErrorAnswer(answer: StepAnswer): answer is FindErrorAnswer {
+  return (
+    typeof answer === 'object' &&
+    answer !== null &&
+    typeof answer.line === 'number' &&
+    typeof answer.errorType === 'string'
+  );
+}
+
 /** Comprueba si `answer` es la opción correcta de un paso de opción múltiple. */
-function matchesCorrectOption(step: ExerciseStep, answer: string): boolean {
+function matchesCorrectOption(step: ExerciseStep, answer: StepAnswer): boolean {
+  if (typeof answer !== 'string') {
+    throw new Error(
+      `El paso ${step.id} es de tipo ${step.type} y se responde con el id de una opción`,
+    );
+  }
+
   if (step.options === null) {
     throw new Error(
       `El paso ${step.id} es de tipo ${step.type} pero no declara opciones`,
@@ -33,30 +51,44 @@ function matchesCorrectOption(step: ExerciseStep, answer: string): boolean {
   return correct.some((option) => option.id === answer);
 }
 
-/** Comprueba si `answer` clasifica el error con el tipo que declara el paso. */
-function matchesErrorType(step: ExerciseStep, answer: string): boolean {
+/**
+ * Comprueba la respuesta compuesta de un paso find-error (D014).
+ *
+ * Acierta solo quien señala una línea de `errorLines` **y** clasifica el error
+ * con `errorType`. No hay crédito parcial: `ValidationResult.isCorrect` es
+ * binario y §24 exige las dos comparaciones.
+ *
+ * `errorLines` es un array, así que un paso con varias líneas válidas se
+ * resuelve señalando cualquiera de ellas sin cambiar esta regla.
+ */
+function matchesError(step: ExerciseStep, answer: StepAnswer): boolean {
+  if (!isFindErrorAnswer(answer)) {
+    throw new Error(
+      `El paso ${step.id} es find-error y se responde con { line, errorType }`,
+    );
+  }
+
+  if (step.errorLines === null || step.errorLines.length === 0) {
+    throw new Error(`El paso ${step.id} es find-error pero no declara errorLines`);
+  }
+
   if (step.errorType === null) {
     throw new Error(`El paso ${step.id} es find-error pero no declara errorType`);
   }
 
-  return step.errorType === answer;
+  return step.errorLines.includes(answer.line) && step.errorType === answer.errorType;
 }
 
 /**
  * Valida la respuesta de un paso de selección.
  *
- * `answer` es el identificador elegido: el id de la opción en code-reading y
- * predict-output, y el tipo de error en find-error.
- *
- * NOTA sobre find-error: §24 describe su validación como "línea + tipo contra
- * errorLines + errorType", pero la firma que fija la misma sección solo recibe
- * un `string`. Aquí se valida el tipo, que es lo que esa cadena puede
- * transportar. La comprobación de `errorLines` necesita un segundo dato de
- * entrada, y esa es una decisión de contrato pendiente.
+ * `answer` toma la forma que fija el tipo del paso (D014): el id de la opción
+ * elegida en code-reading y predict-output, y `{ line, errorType }` en
+ * find-error.
  */
 export function validateSelection(
   step: ExerciseStep,
-  answer: string,
+  answer: StepAnswer,
 ): ValidationResult {
   if (step.type === 'fix-code') {
     throw new Error(
@@ -66,7 +98,7 @@ export function validateSelection(
 
   const isCorrect =
     step.type === 'find-error'
-      ? matchesErrorType(step, answer)
+      ? matchesError(step, answer)
       : matchesCorrectOption(step, answer);
 
   return { isCorrect, explanation: step.explanation };

@@ -48,6 +48,30 @@ export interface AnswerOption {
   correct: boolean;
 }
 
+/**
+ * Respuesta de un paso `find-error` (D014).
+ *
+ * §7 pide dos cosas al usuario —«Seleccionar línea + clasificar error»— y §24
+ * valida ambas contra `errorLines` y `errorType`. Un solo escalar no puede
+ * transportarlas, así que la respuesta de este tipo es compuesta.
+ *
+ * `line` es un número de línea 1-based del `code` del paso, tal como se
+ * numeran en `errorLines`.
+ */
+export interface FindErrorAnswer {
+  line: number;
+  errorType: string;
+}
+
+/**
+ * Respuesta que un paso puede recibir, según su tipo (D014).
+ *
+ * Los pasos de opción única —code-reading y predict-output— responden con el
+ * id de la opción; find-error responde con `FindErrorAnswer`. El `number`
+ * ya estaba admitido en §17 y se conserva.
+ */
+export type StepAnswer = string | number | FindErrorAnswer;
+
 export interface TestCase {
   input: unknown;
   expected: unknown;

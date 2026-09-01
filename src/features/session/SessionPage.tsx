@@ -4,6 +4,8 @@ import { ResultFeedback } from '@/components/codegym/ResultFeedback';
 import { StepIndicator } from '@/components/codegym/StepIndicator';
 import { useSession } from '@/hooks/useSession';
 import { CodeReadingStep } from './steps/CodeReadingStep';
+import { FindErrorStep } from './steps/FindErrorStep';
+import { PredictOutputStep } from './steps/PredictOutputStep';
 
 /**
  * Página de una sesión de ejercicios (§18, D004).
@@ -12,9 +14,14 @@ import { CodeReadingStep } from './steps/CodeReadingStep';
  * engine, ambos detrás de `useSession`. No duplica lógica de negocio ni conoce
  * repositorios.
  *
- * Alcance de T027: únicamente el paso de lectura de código, que es el que
- * existe (T026). Los demás tipos llegan en T031, T032 y T041, y hasta entonces
- * se indican como no disponibles en lugar de fingir que funcionan.
+ * Tipos de paso disponibles: los tres que se resuelven eligiendo y que §24
+ * valida sin ejecutar código —code-reading (T026), predict-output (T031) y
+ * find-error (T032)—. fix-code llega en T041 y hasta entonces se indica como
+ * no disponible en lugar de fingir que funciona.
+ *
+ * Quién decide que una respuesta está completa es `useSession` con
+ * `canSubmit`: find-error necesita sus dos mitades (D014) y esa regla es de
+ * la sesión, no de la página.
  */
 
 const BUTTON =
@@ -28,9 +35,12 @@ function SessionPage() {
     state,
     isLoading,
     selectedOptionId,
+    selectedError,
+    canSubmit,
     isAnswered,
     isLastStep,
     select,
+    selectError,
     submit,
     next,
   } = useSession(sessionId);
@@ -96,6 +106,20 @@ function SessionPage() {
           onChange={select}
           disabled={isAnswered}
         />
+      ) : currentStep.type === 'predict-output' ? (
+        <PredictOutputStep
+          step={currentStep}
+          value={selectedOptionId}
+          onChange={select}
+          disabled={isAnswered}
+        />
+      ) : currentStep.type === 'find-error' ? (
+        <FindErrorStep
+          step={currentStep}
+          value={selectedError}
+          onChange={selectError}
+          disabled={isAnswered}
+        />
       ) : (
         <p role="status" className="text-sm text-muted-foreground">
           Los pasos de tipo «{currentStep.type}» todavía no están disponibles.
@@ -113,7 +137,7 @@ function SessionPage() {
         <button
           type="button"
           onClick={submit}
-          disabled={selectedOptionId === null || isAnswered || currentStep?.type !== 'code-reading'}
+          disabled={!canSubmit || isAnswered}
           className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
         >
           Comprobar

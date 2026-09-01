@@ -686,11 +686,19 @@ UserAnswer
 interface UserAnswer {
   stepId: string;
   stepType: StepType;
-  answer: string | number;   // optionId para selección, código para fix-code
+  answer: StepAnswer;        // según el tipo del paso, ver StepAnswer
   isCorrect: boolean;        // lo fija el engine al validar la respuesta
   timeSpentMs: number;
   hintsUsed: number;
 }
+StepAnswer
+interface FindErrorAnswer {
+  line: number;              // línea 1-based del code del paso
+  errorType: string;
+}
+
+type StepAnswer = string | number | FindErrorAnswer;
+La respuesta de find-error es compuesta (D014). §7 pide al usuario dos cosas —«Seleccionar línea + clasificar error»— y §24 valida las dos contra errorLines y errorType, de modo que un solo escalar no puede transportarla. Los pasos de opción única siguen respondiendo con el optionId y fix-code con el código.
 El campo isCorrect resuelve una incoherencia del propio plan: §24 calcula la puntuación con answers.filter(a => a.isCorrect) sobre un UserAnswer[], y §21 construye los Attempt al completar la sesión a partir de SessionState.answers. Sin este campo, ni la fórmula de §24 compila ni Attempt.isCorrect tiene origen.
 SessionScore
 interface SessionScore {
@@ -899,7 +907,7 @@ class ExerciseEngine {
   ) {}
 
   async loadSession(sessionId: string): Promise<ExerciseSession>;
-  validateSelection(step: ExerciseStep, answer: string): ValidationResult;
+  validateSelection(step: ExerciseStep, answer: StepAnswer): ValidationResult;
   async validateFixCode(step: ExerciseStep, userCode: string): Promise<ValidationResult>;
   calculateScore(session: ExerciseSession, answers: UserAnswer[], domainImpact: DomainImpact): SessionScore;
   getNextStep(currentStep: number, totalSteps: number): number | null;
@@ -908,7 +916,7 @@ Validation por tipo
 Tipo	Método	Validación
 code-reading	validateSelection	optionId contra correct flag
 predict-output	validateSelection	optionId contra correct flag
-find-error	validateSelection	línea + tipo contra errorLines + errorType
+find-error	validateSelection	línea + tipo contra errorLines + errorType (answer: FindErrorAnswer)
 fix-code	validateFixCode	ejecutar en Worker + comparar con testCases
 Scoring
 function calculateScore(session, answers, domainImpact): SessionScore {
