@@ -1,0 +1,188 @@
+{
+  "id": "js-arrays-map-vs-foreach-01",
+  "title": "forEach no devuelve lo que crees",
+  "difficulty": "beginner",
+  "conceptId": "js-array-iteration",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-01",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué contiene `conIva` después de ejecutar este código?",
+      "code": "const precios = [10, 25, 40];\n\nconst conIva = precios.forEach((p) => p * 1.21);\n\nconsole.log(conIva);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "[12.1, 30.25, 48.4]",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "[10, 25, 40]",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza un TypeError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`forEach` siempre devuelve `undefined`. El valor que retorna su callback se descarta: recorre el array para producir un efecto, no para construir uno nuevo. Para obtener `[12.1, 30.25, 48.4]` hay que usar `map`.",
+      "hints": [
+        "Fíjate en qué método se está usando, no en lo que hace el callback.",
+        "¿Cuál es el valor de retorno de `forEach`, independientemente del callback?",
+        "El callback devuelve `p * 1.21`, pero `forEach` no hace nada con ese valor."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime este código, en orden?",
+      "code": "const nombres = ['ana', 'luis'];\n\nconst mayus = nombres.map((n) => n.toUpperCase());\n\nconsole.log(nombres);\nconsole.log(mayus);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "['ana', 'luis'] y después ['ANA', 'LUIS']",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "['ANA', 'LUIS'] y después ['ANA', 'LUIS']",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "['ana', 'luis'] y después undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined y después ['ANA', 'LUIS']",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`map` construye un array nuevo y deja intacto el original, así que `nombres` sigue en minúsculas. Además `toUpperCase` devuelve una cadena nueva: las cadenas son inmutables en JavaScript.",
+      "hints": [
+        "¿`map` modifica el array sobre el que se llama?",
+        "Piensa por separado en qué le pasa a `nombres` y en qué devuelve `map`."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Esta función debería devolver los números duplicados, pero devuelve `undefined`. Localiza la línea del error y clasifícalo.",
+      "code": "function dobles(numeros) {\n  const resultado = numeros.forEach((n) => n * 2);\n  return resultado;\n}\n\nconsole.log(dobles([1, 2, 3]));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "logico",
+          "text": "Lógico: la operación `n * 2` es incorrecta",
+          "correct": false
+        },
+        {
+          "id": "conceptual",
+          "text": "Conceptual: se usa `forEach` donde hace falta `map`",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: `numeros` no es un array",
+          "correct": false
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: el `return` está en el sitio equivocado",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El error está en la línea 2: `forEach` devuelve `undefined`, así que `resultado` nunca contiene los dobles. No es un fallo de sintaxis ni de lógica aritmética, sino de elección de método: para transformar cada elemento en uno nuevo el método correcto es `map`.",
+      "hints": [
+        "La función no falla: devuelve algo. ¿Qué exactamente?",
+        "Recorre el código línea a línea preguntándote qué vale cada variable.",
+        "El problema no es el callback, es el método que lo recibe."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige `dobles` para que devuelva un array con cada número multiplicado por dos.",
+      "code": "function dobles(numeros) {\n  return numeros.forEach((n) => n * 2);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            1,
+            2,
+            3
+          ],
+          "expected": [
+            2,
+            4,
+            6
+          ],
+          "call": "dobles(input)",
+          "description": "duplica cada número"
+        },
+        {
+          "input": [],
+          "expected": [],
+          "call": "dobles(input)",
+          "description": "un array vacío devuelve un array vacío"
+        },
+        {
+          "input": [
+            -2,
+            0,
+            5
+          ],
+          "expected": [
+            -4,
+            0,
+            10
+          ],
+          "call": "dobles(input)",
+          "description": "funciona con negativos y con cero"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Basta con cambiar `forEach` por `map`: `return numeros.map((n) => n * 2);`. `map` recoge el valor que devuelve el callback en cada vuelta y construye con ellos un array nuevo del mismo tamaño.",
+      "hints": [
+        "El cuerpo del callback ya es correcto.",
+        "Solo hay que cambiar el nombre del método.",
+        "Necesitas el método que devuelve un array nuevo con el resultado de cada callback."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "id": "js-arrays-reduce-accumulator-01",
+  "title": "El acumulador de reduce hay que devolverlo",
+  "difficulty": "advanced",
+  "conceptId": "js-array-iteration",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-01",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué valor tiene `total`?",
+      "code": "const carrito = [\n  { producto: 'teclado', precio: 45 },\n  { producto: 'raton', precio: 20 },\n];\n\nconst total = carrito.reduce((acc, item) => {\n  acc + item.precio;\n}, 0);\n\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "65",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "NaN",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El callback usa cuerpo de bloque `{ ... }` y no tiene `return`, así que devuelve `undefined`. Ese `undefined` se convierte en el acumulador de la siguiente vuelta, y el resultado final es `undefined`. Con cuerpo de expresión, `(acc, item) => acc + item.precio`, el valor se devuelve solo.",
+      "hints": [
+        "Compara `(acc, item) => acc + item.precio` con lo que hay escrito aquí.",
+        "¿Qué devuelve una función de flecha con llaves y sin `return`?",
+        "Sigue el valor del acumulador vuelta a vuelta empezando por 0."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué ocurre al ejecutar este código?",
+      "code": "const precios = [];\n\nconst total = precios.reduce((acc, p) => acc + p);\n\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Imprime 0",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Imprime undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Imprime NaN",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza TypeError: Reduce of empty array with no initial value",
+          "correct": true
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Sin valor inicial, `reduce` toma el primer elemento como acumulador de partida. Si el array está vacío no hay ninguno y lanza `TypeError`. Pasar `0` como segundo argumento habría devuelto `0`.",
+      "hints": [
+        "¿De dónde saca `reduce` el acumulador de la primera vuelta si no le das valor inicial?",
+        "El array está vacío. ¿Hay un primer elemento del que partir?"
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Esta función debería agrupar los nombres por tipo, pero devuelve otra cosa. Localiza la línea del error y clasifícalo.",
+      "code": "function agrupar(productos) {\n  return productos.reduce((acc, p) => {\n    acc[p.tipo] = acc[p.tipo] || [];\n    acc[p.tipo].push(p.nombre);\n    return p;\n  }, {});\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "logico",
+          "text": "Lógico: el callback devuelve el elemento en vez del acumulador",
+          "correct": true
+        },
+        {
+          "id": "mutacion",
+          "text": "Mutación: no se debe escribir dentro de `acc`",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: el valor inicial debería ser un array, no un objeto",
+          "correct": false
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: falta el `return` del `reduce`",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        5
+      ],
+      "errorType": "logico",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las líneas 3 y 4 construyen el grupo correctamente, pero la línea 5 devuelve `p` en lugar de `acc`. A partir de la segunda vuelta el acumulador deja de ser el objeto de grupos y pasa a ser el producto anterior, así que el resultado final es el último producto. Escribir en `acc` sí es correcto aquí: el acumulador de `reduce` es nuestro, no un dato ajeno.",
+      "hints": [
+        "Las tres líneas del cuerpo hacen cosas distintas. Solo una está mal.",
+        "¿Qué tiene que valer `acc` en la segunda vuelta?",
+        "Mira qué devuelve el callback y compáralo con lo que recibe como primer parámetro."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige `agrupar` para que devuelva un objeto con los nombres agrupados por tipo.",
+      "code": "function agrupar(productos) {\n  return productos.reduce((acc, p) => {\n    acc[p.tipo] = acc[p.tipo] || [];\n    acc[p.tipo].push(p.nombre);\n    return p;\n  }, {});\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            {
+              "nombre": "teclado",
+              "tipo": "perifericos"
+            },
+            {
+              "nombre": "raton",
+              "tipo": "perifericos"
+            },
+            {
+              "nombre": "monitor",
+              "tipo": "pantallas"
+            }
+          ],
+          "expected": {
+            "perifericos": [
+              "teclado",
+              "raton"
+            ],
+            "pantallas": [
+              "monitor"
+            ]
+          },
+          "call": "agrupar(input)",
+          "description": "agrupa los nombres por tipo respetando el orden"
+        },
+        {
+          "input": [
+            {
+              "nombre": "monitor",
+              "tipo": "pantallas"
+            }
+          ],
+          "expected": {
+            "pantallas": [
+              "monitor"
+            ]
+          },
+          "call": "agrupar(input)",
+          "description": "un solo producto crea un solo grupo"
+        },
+        {
+          "input": [],
+          "expected": {},
+          "call": "agrupar(input)",
+          "description": "un array vacío devuelve un objeto vacío"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "El callback debe devolver el acumulador: cambiar `return p;` por `return acc;`. Así cada vuelta recibe el objeto de grupos que construyó la anterior y al final `reduce` devuelve ese objeto.",
+      "hints": [
+        "Solo hay que cambiar una línea.",
+        "El acumulador se llama `acc`.",
+        "Lo que devuelve el callback es lo que recibirá la siguiente vuelta como primer parámetro."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

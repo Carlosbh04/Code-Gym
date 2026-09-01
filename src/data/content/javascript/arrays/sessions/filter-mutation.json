@@ -1,0 +1,206 @@
+{
+  "id": "js-arrays-filter-mutation-01",
+  "title": "Filter no debería mutar",
+  "difficulty": "intermediate",
+  "conceptId": "js-array-iteration",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-01",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Cuántos elementos tiene `activos`?",
+      "code": "const usuarios = [\n  { nombre: 'Ana', activo: false },\n  { nombre: 'Luis', activo: true },\n];\n\nconst activos = usuarios.filter((u) => (u.activo = true));\n\nconsole.log(activos.length);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "1",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "2",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "Lanza un TypeError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "En la línea 6 hay `=` (asignación), no `===` (comparación). Una asignación evalúa al valor asignado, así que el callback devuelve `true` para todos los usuarios y `filter` los conserva a los dos. De paso, deja a todos con `activo: true`.",
+      "hints": [
+        "Lee con atención el operador dentro del callback.",
+        "¿Qué valor produce una expresión de asignación como `x = true`?",
+        "Si el callback siempre devuelve `true`, ¿qué elementos descarta `filter`?"
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "Se descarta el resultado de `filter`. Aun así, ¿qué imprime la última línea?",
+      "code": "const usuarios = [\n  { nombre: 'Ana', activo: false },\n  { nombre: 'Luis', activo: true },\n];\n\nusuarios.filter((u) => (u.activo = true));\n\nconsole.log(usuarios[0].activo);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "true",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza un TypeError porque el array es de solo lectura",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`filter` no modifica el array original, pero eso no protege a los objetos que contiene: el callback recibe la misma referencia que está en el array, y `u.activo = true` la muta. Aunque tiremos el resultado, el daño ya está hecho.",
+      "hints": [
+        "`filter` no toca el array. ¿Y los objetos de dentro?",
+        "El parámetro `u` no es una copia del objeto."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Esta función devuelve los usuarios correctos, pero deja un rastro no deseado. Localiza la línea del error y clasifícalo.",
+      "code": "function usuariosActivos(usuarios) {\n  return usuarios.filter((u) => {\n    u.visto = true;\n    return u.activo;\n  });\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "mutacion",
+          "text": "Mutación: el callback modifica los objetos que recibe",
+          "correct": true
+        },
+        {
+          "id": "logico",
+          "text": "Lógico: la condición `u.activo` está invertida",
+          "correct": false
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: falta un `return` en la función",
+          "correct": false
+        },
+        {
+          "id": "scope",
+          "text": "Scope: `u` no está definida en ese ámbito",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "mutacion",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El filtrado en sí es correcto: la línea 4 devuelve `u.activo`. El problema está en la línea 3, que escribe `visto` en cada objeto recorrido. El callback de `filter` debe limitarse a responder sí o no; si además escribe, el método deja de ser predecible y quien lo llama acaba con datos modificados sin saberlo.",
+      "hints": [
+        "La función devuelve lo que promete. Mira qué más hace por el camino.",
+        "Pregúntate qué le ocurre al array que recibe quien llama a esta función.",
+        "Una de las dos líneas del cuerpo del callback no debería estar ahí."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige `usuariosActivos` para que devuelva solo los usuarios activos sin modificar el array recibido.",
+      "code": "function usuariosActivos(usuarios) {\n  return usuarios.filter((u) => (u.activo = true));\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            {
+              "nombre": "Ana",
+              "activo": false
+            },
+            {
+              "nombre": "Luis",
+              "activo": true
+            }
+          ],
+          "expected": [
+            {
+              "nombre": "Luis",
+              "activo": true
+            }
+          ],
+          "call": "usuariosActivos(input)",
+          "description": "devuelve solo los usuarios activos"
+        },
+        {
+          "input": [
+            {
+              "nombre": "Ana",
+              "activo": false
+            },
+            {
+              "nombre": "Luis",
+              "activo": true
+            }
+          ],
+          "expected": false,
+          "call": "(usuariosActivos(input), input[0].activo)",
+          "description": "no modifica los objetos del array recibido"
+        },
+        {
+          "input": [
+            {
+              "nombre": "Ana",
+              "activo": false
+            }
+          ],
+          "expected": [],
+          "call": "usuariosActivos(input)",
+          "description": "si no hay activos devuelve un array vacío"
+        },
+        {
+          "input": [],
+          "expected": [],
+          "call": "usuariosActivos(input)",
+          "description": "un array vacío devuelve un array vacío"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "El callback debe comparar, no asignar: `return usuarios.filter((u) => u.activo === true);`, o directamente `(u) => u.activo` si el campo ya es booleano. Con `=` se asigna `true` a todos y el filtro deja de filtrar.",
+      "hints": [
+        "Solo hay que cambiar un operador.",
+        "`=` asigna; para comparar hace falta otro.",
+        "El callback tiene que responder una pregunta, no cambiar el objeto."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}
