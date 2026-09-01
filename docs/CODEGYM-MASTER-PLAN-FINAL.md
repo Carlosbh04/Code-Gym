@@ -991,6 +991,7 @@ class WorkerExecutor implements ICodeExecutor {
     // limpiar todo
   }
 }
+Nota (D016): esta sección usa ExecutionResult sin declararlo. Su forma, y la del resultado por test case, se derivan de este worker-script, de los límites de §25 y de los tests de §30, y viven en lib/executor/types.ts desde T038: ExecutionResult = { pass, results } y TestCaseResult = { input, expected, actual, pass, error? }.
 worker-script.ts
 self.onmessage = function(event) {
   const { type, id, code, testCases } = event.data;

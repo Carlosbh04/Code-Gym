@@ -856,3 +856,92 @@ no tiene dónde ponerse.
 Accepted
 
 **Tareas:** T034, T035, T036, T043 · **Master Plan:** §6, §7, §8, roadmap
+
+# D016 — Forma de ExecutionResult y TestCaseResult
+
+## Context
+
+El Master Plan usa `ExecutionResult` pero no lo declara en ninguna sección.
+Aparece exactamente dos veces: en el diagrama de flujo de §25
+(`… → WorkerExecutor → Web Worker → ExecutionResult → ValidationResult →
+Feedback UI`) y en la firma de §26
+(`execute(code: string, testCases: TestCase[]): Promise<ExecutionResult>`).
+El resultado por test case ni siquiera tiene nombre en el plan: §26 lo
+describe estructuralmente dentro del `worker-script`, apilándolo en un array.
+
+T038 es la tarea que crea `lib/executor/types.ts`, así que fijar esa forma le
+corresponde. No hay margen para elegirla libremente: el plan la describe en
+tres sitios y basta con leerlos juntos.
+
+## Decision
+
+```ts
+interface TestCaseResult {
+  input: unknown;
+  expected: unknown;
+  actual: unknown;
+  pass: boolean;
+  error?: string;
+}
+
+interface ExecutionResult {
+  pass: boolean;
+  results: TestCaseResult[];
+}
+```
+
+## Rationale
+
+Cada campo sale de una fuente concreta del plan, ninguno es añadido:
+
+- **`input`, `expected`, `actual`, `pass`** — el `worker-script` de §26 apila
+  exactamente esas cuatro claves por cada test case en el camino de éxito.
+- **`error?: string`** — el mismo script añade `error` solo en el `catch`, y lo
+  construye como `error instanceof Error ? error.message : String(error)`. Es
+  un mensaje, no una excepción, y está ausente cuando el caso va bien: de ahí
+  que sea opcional y no `string | null`.
+- **`actual` admite `null`** — el camino de error fija `actual: null`. Se
+  cubre con `unknown`, que ya lo admite sin necesidad de un tipo aparte.
+- **`pass` y `results` como campos hermanos de `ExecutionResult`** — §30 los
+  nombra por separado al describir los tests del executor: «código correcto →
+  pass: true» y «syntax error → results con error». Un solo veredicto agregado
+  sobre la lista de casos.
+- **Todo es clonable estructuradamente** — §25 sitúa la ejecución en un Web
+  Worker, así que el resultado cruza por `postMessage`. Por eso el fallo viaja
+  como cadena y no como `Error`.
+
+Lo que el tipo **no** lleva, también por el plan: ni timeout ni fallo del
+worker tienen sitio en `ExecutionResult`. El ciclo de vida de §26 los asigna a
+la rama `reject` (`TIMEOUT → pending.delete → terminate → createWorker →
+reject`, `ERROR → terminate → createWorker → reject pending`). Un test case que
+lanza sí es un resultado; que la ejecución entera no llegue a producirlos, no.
+
+El nombre `TestCaseResult` es el único elemento no dictado por el plan: §26
+describe la entrada pero no la bautiza. Se elige por simetría con `TestCase`
+de §17, que es justamente su entrada.
+
+## Alternatives
+
+- **`ExecutionResult` como alias del array de resultados**: más corto, pero
+  deja sin sitio el `pass` agregado que §30 nombra aparte.
+- **Un campo de error de alto nivel** (`ExecutionResult.error`) para timeout y
+  fallo de worker: contradice el ciclo de vida de §26, que los rechaza en vez
+  de resolverlos, y crearía dos caminos para el mismo fallo.
+- **`error: string | null`** en vez de opcional: obligaría al worker-script a
+  emitir una clave que hoy omite en el camino de éxito.
+
+## Consequences
+
+- T039 implementa `WorkerExecutor` contra este tipo sin decidir nada más: el
+  contrato ya está cerrado.
+- Quien consuma `ExecutionResult` debe tratar timeout y fallo de worker como
+  promesa rechazada, no como resultado.
+- Si en el futuro se quisiera distinguir el tipo de fallo por caso —sintaxis
+  frente a ejecución— habría que ampliar `TestCaseResult`; hoy el plan solo
+  distingue «hubo error» y su mensaje.
+
+## Status
+
+Accepted
+
+**Tareas:** T038 · **Master Plan:** §25, §26, §30
