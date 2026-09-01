@@ -1,5 +1,5 @@
 function TopicPage() {
-  return <main>Topic</main>;
+  return <section>Topic</section>;
 }
 
 export default TopicPage;

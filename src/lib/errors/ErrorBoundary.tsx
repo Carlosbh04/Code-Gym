@@ -55,16 +55,16 @@ function DefaultErrorFallback({ error, reset }: ErrorBoundaryFallbackProps) {
     >
       <div
         aria-hidden="true"
-        className="flex size-16 items-center justify-center rounded-full bg-[var(--bg-tertiary)] text-[var(--warning)]"
+        className="flex size-16 items-center justify-center rounded-full bg-secondary text-warning"
       >
         <AlertTriangle className="size-8" />
       </div>
 
       <div className="space-y-2">
-        <h1 className="text-lg font-semibold text-[var(--text-primary)]">
+        <h1 className="text-lg font-semibold text-foreground">
           Algo salió mal
         </h1>
-        <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           {messages.default}
         </p>
       </div>

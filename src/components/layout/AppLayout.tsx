@@ -3,6 +3,16 @@ import { MobileNav } from '@/components/layout/MobileNav';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/layout/TopBar';
 
+/**
+ * Layout raíz de la aplicación.
+ *
+ * CONVENCIÓN: este layout es el propietario único del landmark `main`.
+ * Las páginas que se renderizan en el `<Outlet />` NO deben incluir su
+ * propio `<main>`: anidarlo produce HTML inválido y dos landmarks
+ * principales, lo que incumple el requisito de HTML semántico del
+ * Master Plan §14. Una página usa `<section>` o un fragmento y aporta
+ * su propio `<h1>`.
+ */
 export function AppLayout() {
   return (
     <div className="min-h-screen bg-background lg:flex">
