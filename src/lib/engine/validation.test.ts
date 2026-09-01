@@ -1,7 +1,23 @@
-import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { describe, expect, it, vi } from 'vitest';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
-import type { ExerciseStep } from '@/types/exercise';
-import { validateSelection } from './validation';
+import type { ExerciseStep, StepAnswer } from '@/types/exercise';
+import { isFindErrorAnswer, validateSelection } from './validation';
+
+const ALL_SESSIONS = [
+  'js-arrays-filter-mutation-01',
+  'js-arrays-map-vs-foreach-01',
+  'js-arrays-reduce-accumulator-01',
+  'js-functions-default-parameters-01',
+  'js-functions-return-flow-01',
+  'js-functions-scope-hoisting-01',
+];
+
+/** La respuesta que acierta un paso, según su tipo (D014). */
+const correctAnswerFor = (step: ExerciseStep): StepAnswer =>
+  step.type === 'find-error'
+    ? { line: step.errorLines![0], errorType: step.errorType! }
+    : step.options!.find((o) => o.correct)!.id;
 
 const repo = new StaticContentRepository();
 const stepsOf = async (sessionId: string) =>
@@ -277,6 +293,306 @@ describe('validateSelection (T023)', () => {
       expect(() =>
         validateSelection(step, { line: 1, errorType: 'conceptual' }),
       ).toThrow(/se responde con el id de una opción/);
+    });
+  });
+
+  describe('T037 · isFindErrorAnswer distingue la forma compuesta', () => {
+    it('acepta la forma { line: number, errorType: string }', () => {
+      expect(isFindErrorAnswer({ line: 3, errorType: 'mutacion' })).toBe(true);
+      expect(isFindErrorAnswer({ line: 0, errorType: '' })).toBe(true);
+    });
+
+    it('rechaza los escalares que StepAnswer también admite', () => {
+      expect(isFindErrorAnswer('conceptual')).toBe(false);
+      expect(isFindErrorAnswer(3)).toBe(false);
+    });
+
+    it('rechaza null, que en JavaScript también es "object"', () => {
+      expect(isFindErrorAnswer(null as unknown as StepAnswer)).toBe(false);
+    });
+
+    it('rechaza una línea que no es número', () => {
+      expect(isFindErrorAnswer({ line: '3', errorType: 'x' } as unknown as StepAnswer)).toBe(
+        false,
+      );
+      expect(isFindErrorAnswer({ errorType: 'x' } as unknown as StepAnswer)).toBe(false);
+    });
+
+    it('rechaza un invocable aunque lleve line y errorType', () => {
+      // De esto defiende la comprobación de `typeof answer === 'object'`: un
+      // string o un number ya caen en el chequeo de `line`, pero una función
+      // con las dos propiedades pasaría todo lo demás. `StepAnswer` no lo
+      // permite; `isFindErrorAnswer` está exportada y sí puede recibirlo.
+      const invocable = Object.assign(() => {}, { line: 3, errorType: 'mutacion' });
+
+      expect(isFindErrorAnswer(invocable as unknown as StepAnswer)).toBe(false);
+    });
+
+    it('un invocable tampoco se acepta como respuesta de find-error', async () => {
+      const step = await stepOfType('js-arrays-filter-mutation-01', 'find-error');
+      const invocable = Object.assign(() => {}, {
+        line: step.errorLines![0],
+        errorType: step.errorType!,
+      });
+
+      expect(() => validateSelection(step, invocable as unknown as StepAnswer)).toThrow(
+        /se responde con \{ line, errorType \}/,
+      );
+    });
+
+    it('rechaza un tipo de error que no es cadena', () => {
+      expect(isFindErrorAnswer({ line: 3, errorType: 3 } as unknown as StepAnswer)).toBe(
+        false,
+      );
+      expect(isFindErrorAnswer({ line: 3 } as unknown as StepAnswer)).toBe(false);
+    });
+  });
+
+  describe('T037 · ramas de matchesCorrectOption', () => {
+    it('acepta cualquiera de las opciones cuando el paso declara varias correctas', async () => {
+      const base = await stepOfType('js-arrays-map-vs-foreach-01', 'code-reading');
+      const dosCorrectas: ExerciseStep = {
+        ...base,
+        options: base.options!.map((o, i) => ({ ...o, correct: i === 0 || i === 2 })),
+      };
+
+      expect(validateSelection(dosCorrectas, base.options![0].id).isCorrect).toBe(true);
+      expect(validateSelection(dosCorrectas, base.options![2].id).isCorrect).toBe(true);
+      expect(validateSelection(dosCorrectas, base.options![1].id).isCorrect).toBe(false);
+      expect(validateSelection(dosCorrectas, base.options![3].id).isCorrect).toBe(false);
+    });
+
+    it('una lista de opciones vacía no tiene ninguna correcta', async () => {
+      const base = await stepOfType('js-arrays-map-vs-foreach-01', 'code-reading');
+      const sinNinguna: ExerciseStep = { ...base, options: [] };
+
+      expect(() => validateSelection(sinNinguna, 'a')).toThrow(/ninguna opción correcta/);
+    });
+
+    it('un número tampoco es un id de opción, aunque StepAnswer lo admita', async () => {
+      for (const type of ['code-reading', 'predict-output'] as const) {
+        const step = await stepOfType('js-arrays-map-vs-foreach-01', type);
+
+        expect(() => validateSelection(step, 3)).toThrow(
+          /se responde con el id de una opción/,
+        );
+      }
+    });
+
+    it('null no es un id de opción', async () => {
+      const step = await stepOfType('js-arrays-map-vs-foreach-01', 'code-reading');
+
+      expect(() => validateSelection(step, null as unknown as StepAnswer)).toThrow(
+        /se responde con el id de una opción/,
+      );
+    });
+
+    it('la cadena vacía es un id como cualquier otro: simplemente no acierta', async () => {
+      const step = await stepOfType('js-arrays-map-vs-foreach-01', 'code-reading');
+
+      expect(validateSelection(step, '').isCorrect).toBe(false);
+    });
+  });
+
+  describe('T037 · ramas de matchesError', () => {
+    it('null se rechaza como respuesta de find-error', async () => {
+      const step = await stepOfType('js-arrays-filter-mutation-01', 'find-error');
+
+      expect(() => validateSelection(step, null as unknown as StepAnswer)).toThrow(
+        /se responde con \{ line, errorType \}/,
+      );
+    });
+
+    it('una respuesta a medias no vale como compuesta', async () => {
+      const step = await stepOfType('js-arrays-filter-mutation-01', 'find-error');
+      const aMedias = [
+        { line: 3 },
+        { errorType: 'mutacion' },
+        { line: '3', errorType: 'mutacion' },
+        { line: 3, errorType: 7 },
+        {},
+      ];
+
+      for (const answer of aMedias) {
+        expect(
+          () => validateSelection(step, answer as unknown as StepAnswer),
+          JSON.stringify(answer),
+        ).toThrow(/se responde con \{ line, errorType \}/);
+      }
+    });
+
+    it('errorLines se comprueba antes que errorType', async () => {
+      const base = await stepOfType('js-arrays-filter-mutation-01', 'find-error');
+      const sinNada: ExerciseStep = { ...base, errorLines: null, errorType: null };
+
+      // Con las dos ausencias, manda la primera guarda.
+      expect(() => validateSelection(sinNada, { line: 1, errorType: 'x' })).toThrow(
+        /no declara errorLines/,
+      );
+    });
+
+    it('un errorType vacío es un tipo declarado, no una ausencia', async () => {
+      const base = await stepOfType('js-arrays-filter-mutation-01', 'find-error');
+      const tipoVacio: ExerciseStep = { ...base, errorType: '' };
+      const linea = base.errorLines![0];
+
+      expect(validateSelection(tipoVacio, { line: linea, errorType: '' }).isCorrect).toBe(
+        true,
+      );
+      expect(
+        validateSelection(tipoVacio, { line: linea, errorType: 'mutacion' }).isCorrect,
+      ).toBe(false);
+    });
+
+    it('una línea decimal no coincide con la declarada', async () => {
+      const step = await stepOfType('js-arrays-filter-mutation-01', 'find-error');
+      const linea = step.errorLines![0];
+
+      expect(
+        validateSelection(step, { line: linea + 0.5, errorType: step.errorType! }).isCorrect,
+      ).toBe(false);
+    });
+  });
+
+  describe('T037 · fix-code no se valida aquí', () => {
+    it('lanza sea cual sea la forma de la respuesta', async () => {
+      const step = await stepOfType('js-arrays-map-vs-foreach-01', 'fix-code');
+      const respuestas: StepAnswer[] = [
+        'const x = 1;',
+        3,
+        { line: 1, errorType: 'logico' },
+      ];
+
+      for (const answer of respuestas) {
+        expect(() => validateSelection(step, answer)).toThrow(/corresponde al Worker/);
+      }
+    });
+
+    it('el error nombra al Worker, que es quien tiene esa responsabilidad', async () => {
+      const step = await stepOfType('js-arrays-map-vs-foreach-01', 'fix-code');
+
+      expect(() => validateSelection(step, 'x')).toThrow(
+        new RegExp(`El paso ${step.id} es fix-code`),
+      );
+    });
+
+    it('lanza antes de mirar el paso: ni siquiera necesita testCases', async () => {
+      const base = await stepOfType('js-arrays-map-vs-foreach-01', 'fix-code');
+      const roto: ExerciseStep = { ...base, testCases: null, options: null };
+
+      expect(() => validateSelection(roto, 'x')).toThrow(/corresponde al Worker/);
+    });
+
+    it('los 6 pasos fix-code del contenido real se rechazan igual', async () => {
+      for (const id of ALL_SESSIONS) {
+        const step = (await stepsOf(id)).find((s) => s.type === 'fix-code')!;
+
+        expect(() => validateSelection(step, 'lo que sea'), id).toThrow(
+          /corresponde al Worker/,
+        );
+      }
+    });
+  });
+
+  describe('T037 · el contenido real completo', () => {
+    it('los 18 pasos validables aciertan con su respuesta correcta', async () => {
+      let validados = 0;
+
+      for (const id of ALL_SESSIONS) {
+        for (const step of await stepsOf(id)) {
+          if (step.type === 'fix-code') continue;
+
+          const result = validateSelection(step, correctAnswerFor(step));
+
+          expect(result.isCorrect, `${id}/${step.id}`).toBe(true);
+          expect(result.explanation, `${id}/${step.id}`).toBe(step.explanation);
+          validados += 1;
+        }
+      }
+
+      expect(validados).toBe(18);
+    });
+
+    it('y fallan con cada una de sus respuestas incorrectas', async () => {
+      let rechazadas = 0;
+
+      for (const id of ALL_SESSIONS) {
+        for (const step of await stepsOf(id)) {
+          if (step.type === 'fix-code') continue;
+
+          for (const option of step.options!) {
+            if (option.correct) continue;
+
+            const answer: StepAnswer =
+              step.type === 'find-error'
+                ? { line: step.errorLines![0], errorType: option.id }
+                : option.id;
+
+            expect(
+              validateSelection(step, answer).isCorrect,
+              `${id}/${step.id}/${option.id}`,
+            ).toBe(false);
+            rechazadas += 1;
+          }
+        }
+      }
+
+      expect(rechazadas).toBe(54);
+    });
+
+    it('cada paso validable declara exactamente una opción correcta', async () => {
+      for (const id of ALL_SESSIONS) {
+        for (const step of await stepsOf(id)) {
+          if (step.type === 'fix-code') continue;
+
+          expect(step.options!.filter((o) => o.correct), `${id}/${step.id}`).toHaveLength(1);
+        }
+      }
+    });
+  });
+
+  describe('T037 · seguridad: la validación es aritmética, no ejecución', () => {
+    // Bajo jsdom, import.meta.url no es file://: se lee desde la raíz del
+    // proyecto, que es el cwd con el que corre Vitest.
+    const source = readFileSync('src/lib/engine/validation.ts', 'utf8');
+
+    it.each([
+      ['eval', /\beval\s*\(/],
+      ['new Function', /new\s+Function\s*\(/],
+      ['Worker', /new\s+Worker\s*\(/],
+      ['DOM', /\bdocument\.|\bwindow\./],
+      ['almacenamiento', /localStorage|sessionStorage|indexedDB/],
+      ['red', /\bfetch\s*\(|XMLHttpRequest|WebSocket/],
+      ['import dinámico', /\bimport\s*\(/],
+    ])('el módulo no contiene %s', (_nombre, patron) => {
+      expect(source).not.toMatch(patron);
+    });
+
+    it('no ejecuta el código de ningún paso, ni toca red o almacenamiento', async () => {
+      const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+      const fetchSpy = vi.fn();
+      const storageSpy = vi.spyOn(Storage.prototype, 'getItem');
+      const original = globalThis.fetch;
+      globalThis.fetch = fetchSpy as unknown as typeof fetch;
+
+      let conCodigo = 0;
+
+      for (const id of ALL_SESSIONS) {
+        for (const step of await stepsOf(id)) {
+          if (step.code !== null) conCodigo += 1;
+          if (step.type === 'fix-code') continue;
+          validateSelection(step, correctAnswerFor(step));
+        }
+      }
+
+      expect(conCodigo).toBeGreaterThan(0);
+      expect(log).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(storageSpy).not.toHaveBeenCalled();
+
+      globalThis.fetch = original;
+      storageSpy.mockRestore();
+      log.mockRestore();
     });
   });
 
