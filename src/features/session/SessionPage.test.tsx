@@ -217,13 +217,86 @@ describe('SessionPage (T027)', () => {
     });
   });
 
-  describe('límites de la tarea', () => {
-    it('no renderiza todavía indicador de pasos ni feedback de resultado', async () => {
-      const { container } = await loaded();
-
-      expect(within(container).queryByRole('progressbar')).toBeNull();
+  describe('integración con StepIndicator y ResultFeedback (T029/T030)', () => {
+    it('muestra el indicador de pasos con el primero en curso', async () => {
+      await loaded();
       const real = await session();
-      expect(container.textContent).not.toContain(real.steps[0].explanation);
+      const lista = screen.getByRole('list', { name: 'Progreso de la sesión' });
+
+      expect(within(lista).getAllByRole('listitem')).toHaveLength(real.steps.length);
+      expect(within(lista).getByText('Paso 1: en curso')).toBeInTheDocument();
+      expect(screen.getByText(`Paso 1 de ${real.steps.length}`)).toBeInTheDocument();
+    });
+
+    it('no muestra feedback antes de responder', async () => {
+      await loaded();
+
+      expect(screen.queryByText('Respuesta correcta')).toBeNull();
+      expect(screen.queryByText('Respuesta incorrecta')).toBeNull();
+    });
+
+    it('tras acertar muestra el feedback correcto con la explicación real', async () => {
+      await loaded();
+      const real = await session();
+      const correcta = real.steps[0].options!.find((o) => o.correct)!;
+
+      fireEvent.click(screen.getByRole('radio', { name: correcta.text }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+
+      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
+      expect(screen.getByText(real.steps[0].explanation)).toBeInTheDocument();
+    });
+
+    it('tras fallar muestra el feedback incorrecto con la misma explicación', async () => {
+      await loaded();
+      const real = await session();
+      const fallida = real.steps[0].options!.find((o) => !o.correct)!;
+
+      fireEvent.click(screen.getByRole('radio', { name: fallida.text }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+
+      await waitFor(() => expect(screen.getByText('Respuesta incorrecta')).toBeInTheDocument());
+      expect(screen.getByText(real.steps[0].explanation)).toBeInTheDocument();
+    });
+
+    it('el indicador avanza al pasar de paso y marca el anterior completado', async () => {
+      await loaded();
+      const real = await session();
+
+      fireEvent.click(screen.getByRole('radio', { name: real.steps[0].options![0].text }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Siguiente paso' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Siguiente paso' }));
+
+      await waitFor(() => {
+        const lista = screen.getByRole('list', { name: 'Progreso de la sesión' });
+        expect(within(lista).getByText('Paso 1: completado')).toBeInTheDocument();
+        expect(within(lista).getByText('Paso 2: en curso')).toBeInTheDocument();
+      });
+    });
+
+    it('el feedback desaparece al avanzar al paso siguiente', async () => {
+      await loaded();
+      const real = await session();
+
+      fireEvent.click(screen.getByRole('radio', { name: real.steps[0].options![0].text }));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+      await waitFor(() => expect(screen.getByText(real.steps[0].explanation)).toBeInTheDocument());
+      fireEvent.click(screen.getByRole('button', { name: 'Siguiente paso' }));
+
+      await waitFor(() => expect(screen.queryByText(real.steps[0].explanation)).toBeNull());
+    });
+
+    it('el indicador no permite saltar de paso', async () => {
+      await loaded();
+      const lista = screen.getByRole('list', { name: 'Progreso de la sesión' });
+
+      expect(within(lista).queryAllByRole('button')).toEqual([]);
+      expect(within(lista).queryAllByRole('link')).toEqual([]);
     });
   });
 });

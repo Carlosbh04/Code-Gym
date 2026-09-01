@@ -1,5 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
+import { ResultFeedback } from '@/components/codegym/ResultFeedback';
+import { StepIndicator } from '@/components/codegym/StepIndicator';
 import { useSession } from '@/hooks/useSession';
 import { CodeReadingStep } from './steps/CodeReadingStep';
 
@@ -32,6 +34,9 @@ function SessionPage() {
     submit,
     next,
   } = useSession(sessionId);
+
+  // El resultado ya lo calculó el engine al responder (D012): aquí solo se lee.
+  const answer = state.answers[state.currentStep];
 
   if (state.error !== null) {
     return (
@@ -72,9 +77,12 @@ function SessionPage() {
         <h1 className="text-xl font-bold text-foreground sm:text-2xl">
           {session.title}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Paso {state.currentStep + 1} de {session.steps.length}
-        </p>
+        <StepIndicator
+          totalSteps={session.steps.length}
+          currentStep={state.currentStep}
+          completedSteps={state.answers.length}
+          className="mt-3"
+        />
       </header>
 
       {currentStep === null ? (
@@ -92,6 +100,13 @@ function SessionPage() {
         <p role="status" className="text-sm text-muted-foreground">
           Los pasos de tipo «{currentStep.type}» todavía no están disponibles.
         </p>
+      )}
+
+      {answer !== undefined && currentStep !== null && (
+        <ResultFeedback
+          isCorrect={answer.isCorrect}
+          explanation={currentStep.explanation}
+        />
       )}
 
       <div className="flex flex-wrap gap-3">
