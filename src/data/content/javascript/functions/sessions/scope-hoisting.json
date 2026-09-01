@@ -1,0 +1,179 @@
+{
+  "id": "js-functions-scope-hoisting-01",
+  "title": "Dónde vive cada variable",
+  "difficulty": "intermediate",
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-01",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué ocurre al ejecutar este código?",
+      "code": "console.log(typeof declarada);\nconsole.log(typeof expresada);\n\nfunction declarada() {}\nconst expresada = function () {};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Imprime 'function' y después 'undefined'",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Imprime 'function' y después lanza ReferenceError",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "Imprime 'undefined' y después 'undefined'",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza ReferenceError ya en la primera línea",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las declaraciones de función se elevan completas, así que `declarada` ya existe en la línea 1. `const` también se eleva, pero queda en la zona muerta temporal hasta su línea: acceder antes lanza `ReferenceError`, y `typeof` no protege de eso (a diferencia de lo que ocurre con una variable que no existe en absoluto).",
+      "hints": [
+        "Las dos líneas no se comportan igual. Analízalas por separado.",
+        "¿Qué diferencia hay entre elevar una declaración de función y elevar un `const`?",
+        "`typeof` es seguro con identificadores inexistentes, pero no con la zona muerta temporal."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime `procesar()`, en orden?",
+      "code": "function procesar() {\n  if (true) {\n    var suelta = 'var';\n    let atada = 'let';\n  }\n\n  console.log(suelta);\n  console.log(typeof atada);\n}\n\nprocesar();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "'var' y después 'undefined'",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "'var' y después 'let'",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined y después 'undefined'",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza ReferenceError en la línea 7",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`var` es de ámbito de función: sale del bloque `if` y sigue viva en la línea 7. `let` es de ámbito de bloque y fuera del `if` no existe en absoluto; sobre un identificador que nunca se declaró en ese ámbito, `typeof` devuelve `\"undefined\"` sin lanzar nada.",
+      "hints": [
+        "Una de las dos variables sobrevive al bloque.",
+        "Compara el ámbito de `var` con el de `let`.",
+        "Aquí `atada` no está en zona muerta: directamente no existe fuera del bloque."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Esta función lanza un error en lugar de devolver el rango. Localiza la línea del error y clasifícalo.",
+      "code": "function nivel(puntos) {\n  if (puntos >= 100) {\n    const rango = 'avanzado';\n  }\n\n  return rango;\n}\n\nconsole.log(nivel(150));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: `rango` se declara dentro del bloque y se usa fuera",
+          "correct": true
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: falta un `return` dentro del `if`",
+          "correct": false
+        },
+        {
+          "id": "logico",
+          "text": "Lógico: la comparación `>=` debería ser `>`",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: `puntos` llega como cadena y no se puede comparar",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "scope",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`const` es de ámbito de bloque: `rango` solo existe entre las llaves del `if`. En la línea 6 ya no hay ninguna variable con ese nombre, así que se lanza `ReferenceError: rango is not defined`. La declaración tiene que estar en el ámbito donde se va a usar.",
+      "hints": [
+        "El error no es de sintaxis: el código está bien escrito.",
+        "¿Hasta dónde llega la vida de un `const` declarado entre llaves?",
+        "Compara la línea donde se declara con la línea donde se usa."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige `nivel` para que devuelva 'avanzado' con 100 puntos o más, e 'inicial' en caso contrario.",
+      "code": "function nivel(puntos) {\n  if (puntos >= 100) {\n    const rango = 'avanzado';\n  }\n\n  return rango;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": 150,
+          "expected": "avanzado",
+          "call": "nivel(input)",
+          "description": "por encima del umbral"
+        },
+        {
+          "input": 100,
+          "expected": "avanzado",
+          "call": "nivel(input)",
+          "description": "justo en el umbral"
+        },
+        {
+          "input": 50,
+          "expected": "inicial",
+          "call": "nivel(input)",
+          "description": "por debajo del umbral"
+        },
+        {
+          "input": 0,
+          "expected": "inicial",
+          "call": "nivel(input)",
+          "description": "sin puntos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Se declara la variable en el ámbito de la función con el valor de partida y se reasigna dentro del `if`: `let rango = 'inicial';` antes del bloque, y `rango = 'avanzado';` dentro. Así existe en la línea del `return`.",
+      "hints": [
+        "Mueve la declaración fuera del bloque.",
+        "¿Qué valor debe tener la variable cuando el `if` no se cumple?",
+        "Con `let` puedes declarar fuera y reasignar dentro; con `const` no."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

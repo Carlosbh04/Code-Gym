@@ -1,0 +1,193 @@
+{
+  "id": "js-functions-return-flow-01",
+  "title": "Salir de una función en el momento equivocado",
+  "difficulty": "advanced",
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-01",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué devuelve `crearRespuesta()`?",
+      "code": "function crearRespuesta() {\n  return\n  {\n    ok: true\n  };\n}\n\nconsole.log(crearRespuesta());",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "{ ok: true }",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "null",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza un SyntaxError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "JavaScript inserta un punto y coma automáticamente después de un `return` seguido de salto de línea. El `return` queda sin valor y devuelve `undefined`; lo de abajo se interpreta como un bloque con una etiqueta `ok:` que nunca se usa. La llave de apertura tiene que ir en la misma línea que el `return`.",
+      "hints": [
+        "Fíjate en dónde termina la línea del `return`.",
+        "Busca \"inserción automática de punto y coma\".",
+        "El objeto de las líneas 3 a 5 nunca llega a devolverse."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime este código, en orden?",
+      "code": "function clasificar(edad) {\n  if (edad >= 18) {\n    'adulto';\n  } else {\n    return 'menor';\n  }\n}\n\nconsole.log(clasificar(20));\nconsole.log(clasificar(10));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "'adulto' y después 'menor'",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "undefined y después 'menor'",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "'adulto' y después undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined y después undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La línea 3 evalúa la cadena `'adulto'` y la descarta: no hay `return`. Cuando una función termina sin ejecutar ningún `return`, devuelve `undefined`. La rama `else` sí devuelve, por eso la segunda llamada imprime `'menor'`.",
+      "hints": [
+        "Una de las dos ramas tiene `return` y la otra no.",
+        "¿Qué devuelve una función que llega al final sin `return`?",
+        "Escribir una expresión sola no la devuelve."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Un usuario sin ningún dato debería producir dos errores, pero esta función devuelve una lista vacía. Localiza la línea del error y clasifícalo.",
+      "code": "function validar(usuario) {\n  const errores = [];\n\n  if (!usuario.nombre) {\n    return errores;\n  }\n\n  if (!usuario.email) {\n    errores.push('falta el email');\n  }\n\n  return errores;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "flujo",
+          "text": "Flujo: el `return` sale antes de registrar el error y de seguir validando",
+          "correct": true
+        },
+        {
+          "id": "logico",
+          "text": "Lógico: la condición `!usuario.nombre` está invertida",
+          "correct": false
+        },
+        {
+          "id": "mutacion",
+          "text": "Mutación: `errores.push` modifica un array que no debería",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: `errores` debería ser un objeto y no un array",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        5
+      ],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La línea 5 devuelve la lista en cuanto falta el nombre, sin haber añadido ningún error y sin llegar a comprobar el email. El resultado es el peor posible: un usuario incompleto se informa como válido. Ese `return` debería ser un `push`, dejando que la función siga validando.",
+      "hints": [
+        "La función devuelve algo, así que el fallo no es un error de ejecución.",
+        "Sigue el camino que recorre `validar({})` línea a línea.",
+        "Salir de la función ahí impide dos cosas distintas."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige `validar` para que acumule todos los errores. Usa exactamente los textos 'falta el nombre' y 'falta el email'.",
+      "code": "function validar(usuario) {\n  const errores = [];\n\n  if (!usuario.nombre) {\n    return errores;\n  }\n\n  if (!usuario.email) {\n    errores.push('falta el email');\n  }\n\n  return errores;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {},
+          "expected": [
+            "falta el nombre",
+            "falta el email"
+          ],
+          "call": "validar(input)",
+          "description": "sin ningún dato acumula los dos errores"
+        },
+        {
+          "input": {
+            "nombre": "Ana"
+          },
+          "expected": [
+            "falta el email"
+          ],
+          "call": "validar(input)",
+          "description": "solo falta el email"
+        },
+        {
+          "input": {
+            "email": "ana@ejemplo.com"
+          },
+          "expected": [
+            "falta el nombre"
+          ],
+          "call": "validar(input)",
+          "description": "solo falta el nombre"
+        },
+        {
+          "input": {
+            "nombre": "Ana",
+            "email": "ana@ejemplo.com"
+          },
+          "expected": [],
+          "call": "validar(input)",
+          "description": "un usuario completo no produce errores"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Se cambia el `return errores;` de la línea 5 por `errores.push('falta el nombre');`. Al no salir de la función, la segunda comprobación también se ejecuta y la lista final contiene todos los problemas encontrados.",
+      "hints": [
+        "Solo hay que cambiar una línea.",
+        "Dentro del primer `if` debería ocurrir lo mismo que dentro del segundo.",
+        "La función tiene que llegar hasta el `return` final."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}
