@@ -269,4 +269,141 @@ describe('StaticContentRepository (T019)', () => {
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);
     });
   });
+
+  describe('carga perezosa y reutilizacion entre instancias (T022)', () => {
+    it('no precarga nada: toda lectura se resuelve de forma asincrona', () => {
+      const fresh = new StaticContentRepository();
+
+      expect(fresh.getTechnologies()).toBeInstanceOf(Promise);
+      expect(fresh.getSessionsByConcept(ARRAYS_CONCEPT)).toBeInstanceOf(Promise);
+      expect(fresh.getSessionById('js-arrays-map-vs-foreach-01')).toBeInstanceOf(Promise);
+    });
+
+    it('dos instancias distintas comparten el contenido ya cargado', async () => {
+      const a = await new StaticContentRepository().getSessionById('js-arrays-map-vs-foreach-01');
+      const b = await new StaticContentRepository().getSessionById('js-arrays-map-vs-foreach-01');
+
+      expect(a).toBe(b);
+    });
+
+    it('dos instancias distintas comparten el concepto ya compuesto', async () => {
+      const a = await new StaticContentRepository().getConceptById(ARRAYS_CONCEPT);
+      const b = await new StaticContentRepository().getConceptById(ARRAYS_CONCEPT);
+
+      expect(a).toBe(b);
+    });
+
+    it('las lecturas concurrentes devuelven el mismo contenido sin duplicarlo', async () => {
+      const [first, second] = await Promise.all([
+        repo.getSessionsByConcept(ARRAYS_CONCEPT),
+        repo.getSessionsByConcept(ARRAYS_CONCEPT),
+      ]);
+
+      expect(first).not.toBe(second);
+      expect(first).toHaveLength(3);
+      first.forEach((session, i) => expect(session).toBe(second[i]));
+    });
+  });
+
+  describe('propiedad del resultado (T022)', () => {
+    it('el array de una consulta pertenece al llamante y puede ordenarse', async () => {
+      const sessions = await repo.getSessionsByConcept(ARRAYS_CONCEPT);
+      const original = sessions.map((s) => s.id);
+
+      sessions.reverse();
+      const again = await repo.getSessionsByConcept(ARRAYS_CONCEPT);
+
+      expect(again.map((s) => s.id)).toEqual(original);
+    });
+
+    it('los arrays de los indices son datos compartidos y estan congelados', async () => {
+      const technologies = await repo.getTechnologies();
+      const topics = await repo.getTopicsByTechnology('javascript');
+
+      expect(Object.isFrozen(technologies)).toBe(true);
+      expect(Object.isFrozen(topics)).toBe(true);
+      expect(Object.isFrozen(topics[0])).toBe(true);
+      expect(() => topics.push(topics[0])).toThrow(TypeError);
+    });
+
+    it('congela las estructuras anidadas mas profundas de una sesion', async () => {
+      const session = (await repo.getSessionById(
+        'js-arrays-map-vs-foreach-01',
+      )) as ExerciseSession;
+      const fixStep = session.steps.find((s) => s.type === 'fix-code');
+
+      expect(Object.isFrozen(fixStep?.testCases)).toBe(true);
+      expect(Object.isFrozen(fixStep?.testCases?.[0])).toBe(true);
+      expect(() => {
+        (fixStep?.testCases?.[0] as { call: string }).call = 'roto';
+      }).toThrow(TypeError);
+    });
+
+    it('un updatedAt nulo no rompe la congelacion', async () => {
+      const session = await repo.getSessionById('js-functions-return-flow-01');
+
+      expect(session?.updatedAt).toBeNull();
+      expect(Object.isFrozen(session)).toBe(true);
+    });
+  });
+
+  describe('identificadores no validos (T022)', () => {
+    it('los identificadores distinguen mayusculas', async () => {
+      await expect(repo.getSessionById('JS-ARRAYS-MAP-VS-FOREACH-01')).resolves.toBeNull();
+      await expect(repo.getConceptById('JS-ARRAY-ITERATION')).resolves.toBeNull();
+    });
+
+    it('no confunde un id que es prefijo de otro real', async () => {
+      await expect(repo.getSessionById('js-arrays-map-vs-foreach')).resolves.toBeNull();
+      await expect(repo.getSessionsByConcept('js-array')).resolves.toEqual([]);
+    });
+
+    it('ignora los espacios significativos', async () => {
+      await expect(repo.getSessionById(' js-arrays-map-vs-foreach-01 ')).resolves.toBeNull();
+    });
+
+    it('no resuelve claves del prototipo ni rutas relativas', async () => {
+      await expect(repo.getTopicsByTechnology('__proto__')).resolves.toEqual([]);
+      await expect(repo.getTopicsByTechnology('constructor')).resolves.toEqual([]);
+      await expect(repo.getTopicsByTechnology('../..')).resolves.toEqual([]);
+      await expect(repo.getTopicsByTechnology('')).resolves.toEqual([]);
+    });
+  });
+
+  describe('integridad referencial completa desde las sesiones (T022)', () => {
+    const SESSION_IDS = [
+      'js-arrays-filter-mutation-01',
+      'js-arrays-map-vs-foreach-01',
+      'js-arrays-reduce-accumulator-01',
+      'js-functions-default-parameters-01',
+      'js-functions-return-flow-01',
+      'js-functions-scope-hoisting-01',
+    ];
+
+    it('cada sesion resuelve su concepto, su topic y su tecnologia', async () => {
+      const technologyIds = (await repo.getTechnologies()).map((t) => t.id);
+
+      for (const sessionId of SESSION_IDS) {
+        const session = await repo.getSessionById(sessionId);
+        expect(session, sessionId).not.toBeNull();
+        expect(technologyIds).toContain(session?.technologyId);
+
+        const concept = await repo.getConceptById(session!.conceptId);
+        expect(concept, session!.conceptId).not.toBeNull();
+        expect(concept?.technologyId).toBe(session?.technologyId);
+        expect(concept?.contentMarkdown.length).toBeGreaterThan(0);
+
+        const topics = await repo.getTopicsByTechnology(session!.technologyId);
+        expect(topics.map((t) => t.id)).toContain(concept?.topicId);
+      }
+    });
+
+    it('la sesion recuperada por id es la misma que devuelve la consulta por concepto', async () => {
+      const sessions = await repo.getSessionsByConcept(FUNCTIONS_CONCEPT);
+
+      for (const session of sessions) {
+        expect(await repo.getSessionById(session.id)).toBe(session);
+      }
+    });
+  });
 });
