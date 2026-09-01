@@ -1,9 +1,5 @@
-import type {
-  Concept,
-  ExerciseSession,
-  Technology,
-  Topic,
-} from './content';
+import type { Concept, Technology, Topic } from './content';
+import type { ExerciseSession } from './exercise';
 import type { Attempt, CompletedSession, ConceptProgress } from './progress';
 
 export interface IProgressRepository {

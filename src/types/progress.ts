@@ -1,4 +1,4 @@
-import type { StepType } from './content';
+import type { StepType } from './exercise';
 
 export interface DifficultyDistribution {
   beginner: { total: number; correct: number };

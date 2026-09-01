@@ -1,4 +1,4 @@
-import type { Difficulty } from '@/types/content';
+import type { Difficulty } from '@/types/exercise';
 import { cn } from '@/lib/utils';
 
 const DIFFICULTY_LABELS: Record<Difficulty, string> = {
