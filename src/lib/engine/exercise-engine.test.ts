@@ -3,6 +3,7 @@ import { StaticContentRepository } from '@/lib/repositories/StaticContentReposit
 import type { ExerciseSession, StepAnswer } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
 import { ExerciseEngine } from './exercise-engine';
+import { validateSelection } from './validation';
 
 const ALL_SESSIONS = [
   'js-arrays-filter-mutation-01',
@@ -122,6 +123,83 @@ describe('ExerciseEngine (T023)', () => {
         isCorrect: true,
         explanation: step.explanation,
       });
+    });
+  });
+
+  describe('T037 · la delegación es exacta, también al fallar', () => {
+    it('devuelve lo mismo que la función pura en los 18 pasos validables', async () => {
+      let comparados = 0;
+
+      for (const id of ALL_SESSIONS) {
+        const session = await engine.loadSession(id);
+
+        for (const step of session.steps) {
+          if (step.type === 'fix-code') continue;
+
+          for (const option of step.options!) {
+            const answer: StepAnswer =
+              step.type === 'find-error'
+                ? { line: step.errorLines![0], errorType: option.id }
+                : option.id;
+
+            expect(
+              engine.validateSelection(step, answer),
+              `${id}/${step.id}/${option.id}`,
+            ).toEqual(validateSelection(step, answer));
+            comparados += 1;
+          }
+        }
+      }
+
+      expect(comparados).toBe(72);
+    });
+
+    it('propaga el mismo error que la función pura, no uno propio', async () => {
+      const session = await engine.loadSession('js-arrays-filter-mutation-01');
+      const findError = session.steps.find((s) => s.type === 'find-error')!;
+      const codeReading = session.steps.find((s) => s.type === 'code-reading')!;
+      const fixCode = session.steps.find((s) => s.type === 'fix-code')!;
+
+      const casos: [typeof findError, StepAnswer][] = [
+        [findError, 'conceptual'],
+        [findError, 3],
+        [codeReading, { line: 1, errorType: 'x' }],
+        [fixCode, 'lo que sea'],
+      ];
+
+      for (const [step, answer] of casos) {
+        let delEngine = '';
+        let deLaFuncion = '';
+
+        try {
+          engine.validateSelection(step, answer);
+        } catch (e) {
+          delEngine = (e as Error).message;
+        }
+        try {
+          validateSelection(step, answer);
+        } catch (e) {
+          deLaFuncion = (e as Error).message;
+        }
+
+        expect(delEngine, `${step.type}`).not.toBe('');
+        expect(delEngine).toBe(deLaFuncion);
+      }
+    });
+
+    it('acepta la respuesta compuesta de find-error a través del engine', async () => {
+      const session = await engine.loadSession('js-functions-scope-hoisting-01');
+      const step = session.steps.find((s) => s.type === 'find-error')!;
+
+      expect(
+        engine.validateSelection(step, {
+          line: step.errorLines![0],
+          errorType: step.errorType!,
+        }).isCorrect,
+      ).toBe(true);
+      expect(
+        engine.validateSelection(step, { line: 99, errorType: step.errorType! }).isCorrect,
+      ).toBe(false);
     });
   });
 
