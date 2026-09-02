@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { HintReveal } from '@/components/codegym/HintReveal';
 import { ResultFeedback } from '@/components/codegym/ResultFeedback';
-import { StepIndicator } from '@/components/codegym/StepIndicator';
+import { SessionHeader } from '@/components/codegym/SessionHeader';
 import { useSession } from '@/hooks/useSession';
 import { CodeReadingStep } from './steps/CodeReadingStep';
 import { FindErrorStep } from './steps/FindErrorStep';
@@ -93,17 +93,14 @@ function SessionPage() {
 
   return (
     <section className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-xl font-bold text-foreground sm:text-2xl">
-          {session.title}
-        </h1>
-        <StepIndicator
-          totalSteps={session.steps.length}
-          currentStep={state.currentStep}
-          completedSteps={state.answers.length}
-          className="mt-3"
-        />
-      </header>
+      <SessionHeader
+        title={session.title}
+        concept={session.conceptId}
+        difficulty={session.difficulty}
+        totalSteps={session.steps.length}
+        currentStep={state.currentStep}
+        completedSteps={state.answers.length}
+      />
 
       {currentStep === null ? (
         <p role="status" className="text-sm text-muted-foreground">

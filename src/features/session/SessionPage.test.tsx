@@ -98,6 +98,8 @@ describe('SessionPage (T027)', () => {
       const real = await session();
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(real.title);
+      expect(screen.getByText(`Concepto: ${real.conceptId}`)).toBeInTheDocument();
+      expect(screen.getByText('Principiante')).toBeInTheDocument();
       expect(screen.getByText(`Paso 1 de ${real.steps.length}`)).toBeInTheDocument();
     });
 
