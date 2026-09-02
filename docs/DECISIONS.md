@@ -945,3 +945,56 @@ de §17, que es justamente su entrada.
 Accepted
 
 **Tareas:** T038 · **Master Plan:** §25, §26, §30
+
+# D017 — Contexto de ejecución con ciclo de vida en el provider
+
+## Context
+
+`fix-code` necesita que la sesión pueda pedir una validación asíncrona, pero
+§15 mantiene los componentes y hooks alejados de implementaciones concretas.
+`WorkerExecutor` además posee recursos del navegador —Worker, blob URL, cola y
+watchdogs— que deben liberarse al cerrar la aplicación. Crear el executor en
+la UI o recrearlo en cada render rompería esa separación y podría cancelar
+trabajo en curso.
+
+## Decision
+
+Se introduce `ExecutionContext` como la frontera entre la sesión y el motor.
+`AppProviders` crea una única pareja `WorkerExecutor` + `ExerciseEngine` dentro
+de su efecto de montaje, guarda ambas instancias en refs y publica una fachada
+estable con la única operación que la sesión necesita:
+`validateFixCode(step, userCode)`.
+
+Al desmontar el provider, su cleanup llama a `WorkerExecutor.destroy()`. El
+cleanup no crea una nueva instancia ni actualiza estado; en desarrollo,
+StrictMode puede montar un ciclo nuevo y ese ciclo crea y destruye su propia
+instancia de forma independiente.
+
+## Rationale
+
+- El provider es la raíz de composición que ya concentra dependencias concretas
+  (D002, §35), por lo que es el dueño natural del executor y del engine.
+- La fachada del contexto evita que `useSession` conozca `WorkerExecutor`,
+  Workers o repositorios; la UI conserva su responsabilidad de recoger la
+  respuesta y mostrar el feedback.
+- La creación ocurre en un efecto, no durante render, porque iniciar un Worker
+  es un efecto del navegador.
+- Las refs preservan la identidad de executor y engine durante toda la vida del
+  provider sin desencadenar renders ni recreaciones por cambios de UI.
+- `destroy()` concentra la liberación del Worker, blob URL, ejecuciones
+  pendientes y cola, según §26.
+
+## Consequences
+
+- `fix-code` sigue la cadena `FixCodeStep → useSession → ExerciseEngine →
+  ICodeExecutor → WorkerExecutor → Web Worker`.
+- Rechazos de infraestructura atraviesan esa cadena para que la sesión los
+  presente como reintentables, sin registrarlos como respuestas incorrectas.
+- Los tests de sesión montan `ExecutionProvider` con un doble controlable; un
+  test de integración usa el provider real y el script real del Worker.
+
+## Status
+
+Accepted
+
+**Tareas:** T045.1 · **Master Plan:** §15, §24–§27

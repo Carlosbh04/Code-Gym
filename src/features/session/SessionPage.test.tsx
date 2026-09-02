@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ContentProvider } from '@/contexts/ContentContext';
+import { ExecutionProvider } from '@/contexts/ExecutionContext';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
+import { FakeExecution } from '@/test/fake-execution';
 import type { Concept, Technology, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
@@ -11,20 +13,30 @@ import SessionPage from './SessionPage';
 const SESSION_ID = 'js-arrays-map-vs-foreach-01';
 const repo = new StaticContentRepository();
 
-const renderAt = (sessionId: string, repository: IContentRepository = repo) =>
+const renderAt = (
+  sessionId: string,
+  repository: IContentRepository = repo,
+  execution: FakeExecution = new FakeExecution(),
+) =>
   render(
     <ContentProvider repository={repository}>
-      <MemoryRouter initialEntries={[`/practice/${sessionId}`]}>
-        <Routes>
-          <Route path="/practice/:sessionId" element={<SessionPage />} />
-          <Route path="/" element={<p>inicio</p>} />
-        </Routes>
-      </MemoryRouter>
+      <ExecutionProvider engine={execution.value}>
+        <MemoryRouter initialEntries={[`/practice/${sessionId}`]}>
+          <Routes>
+            <Route path="/practice/:sessionId" element={<SessionPage />} />
+            <Route path="/" element={<p>inicio</p>} />
+          </Routes>
+        </MemoryRouter>
+      </ExecutionProvider>
     </ContentProvider>,
   );
 
-const loaded = async (sessionId = SESSION_ID, repository: IContentRepository = repo) => {
-  const view = renderAt(sessionId, repository);
+const loaded = async (
+  sessionId = SESSION_ID,
+  repository: IContentRepository = repo,
+  execution: FakeExecution = new FakeExecution(),
+) => {
+  const view = renderAt(sessionId, repository, execution);
   await waitFor(() => expect(screen.queryByText(/Cargando la sesión/)).toBeNull());
   return view;
 };
@@ -265,7 +277,7 @@ describe('SessionPage (T027)', () => {
       );
     });
 
-    /** Avanza hasta el cuarto paso, que es el de fix-code. */
+    /** Avanza hasta el cuarto paso, que es el de fix-code. Requiere `loaded()`. */
     const llegarAFixCode = async () => {
       const real = await session();
       const findError = real.steps[2];
@@ -285,6 +297,14 @@ describe('SessionPage (T027)', () => {
       return fixCode;
     };
 
+    /** Pone el editor en modo texto y escribe la solución dada. */
+    const escribirCodigo = (codigo: string) => {
+      fireEvent.click(screen.getByRole('button', { name: 'Usar editor de texto simple' }));
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: codigo } });
+    };
+
+    const SOLUCION = 'function dobles(numeros) {\n  return numeros.map((n) => n * 2);\n}';
+
     it('el paso fix-code muestra el editor con el código del ejercicio (T041)', async () => {
       await loaded();
       const fixCode = await llegarAFixCode();
@@ -302,27 +322,90 @@ describe('SessionPage (T027)', () => {
       expect(screen.queryByText(/todavía no están disponibles/)).toBeNull();
     });
 
-    it('Comprobar sigue deshabilitado en fix-code: validar es T042', async () => {
-      await loaded();
+    it('en fix-code Comprobar ejecuta el código y muestra el veredicto del engine (T045.1)', async () => {
+      const execution = new FakeExecution();
+      execution.resuelve(true);
+      await loaded(SESSION_ID, repo, execution);
       await llegarAFixCode();
 
-      expect(screen.getByRole('button', { name: 'Comprobar' })).toBeDisabled();
+      escribirCodigo(SOLUCION);
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
 
-      // Ni siquiera tras editar el código: no hay validación que ejecutar aún.
-      fireEvent.click(screen.getByRole('button', { name: 'Usar editor de texto simple' }));
-      fireEvent.change(screen.getByRole('textbox'), {
-        target: { value: 'function dobles(n) { return n.map((x) => x * 2); }' },
-      });
+      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
+      expect(execution.llamadas).toHaveLength(1);
+      expect(execution.llamadas[0].userCode).toBe(SOLUCION);
+      expect(execution.llamadas[0].step.id).toBe('step-4');
+    });
 
-      expect(screen.getByRole('button', { name: 'Comprobar' })).toBeDisabled();
+    it('un código que no pasa los test cases es respuesta incorrecta', async () => {
+      const execution = new FakeExecution();
+      execution.resuelve(false);
+      await loaded(SESSION_ID, repo, execution);
+      await llegarAFixCode();
+
+      escribirCodigo(SOLUCION);
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+
+      await waitFor(() => expect(screen.getByText('Respuesta incorrecta')).toBeInTheDocument());
+    });
+
+    it('mientras ejecuta muestra «Ejecutando…», lo bloquea y no admite doble envío', async () => {
+      const execution = new FakeExecution();
+      execution.diferir();
+      await loaded(SESSION_ID, repo, execution);
+      await llegarAFixCode();
+
+      escribirCodigo(SOLUCION);
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+
+      const ejecutando = await screen.findByRole('button', { name: 'Ejecutando…' });
+      expect(ejecutando).toBeDisabled();
+      expect(ejecutando).toHaveAttribute('aria-busy', 'true');
+      expect(execution.llamadas).toHaveLength(1);
+
+      // Un segundo clic no reenvía: la validación en curso lo impide.
+      fireEvent.click(ejecutando);
+      expect(execution.llamadas).toHaveLength(1);
+
+      act(() => execution.resolverDiferido(true));
+      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
+    });
+
+    it('un fallo de ejecución es recuperable: aviso con Reintentar y sin contar como respuesta', async () => {
+      const execution = new FakeExecution();
+      execution.rechaza('La ejecución superó el límite de 3000 ms');
+      await loaded(SESSION_ID, repo, execution);
+      await llegarAFixCode();
+
+      escribirCodigo(SOLUCION);
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+
+      // §27: el timeout no es una respuesta incorrecta, es un error reintentable.
+      const aviso = await screen.findByRole('alert');
+      expect(aviso).toHaveTextContent(
+        'No se pudo ejecutar tu código: La ejecución superó el límite de 3000 ms',
+      );
+      expect(screen.queryByText('Respuesta incorrecta')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Reintentar' })).toBeEnabled();
+
+      // El reintento sí llega a veredicto y limpia el aviso.
+      execution.resuelve(true);
+      fireEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
+
+      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
+      expect(screen.queryByRole('alert')).toBeNull();
+      expect(execution.llamadas).toHaveLength(2);
     });
 
     it('lo que se escribe en el editor se conserva', async () => {
       await loaded();
       await llegarAFixCode();
 
-      fireEvent.click(screen.getByRole('button', { name: 'Usar editor de texto simple' }));
-      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'const mio = 1;' } });
+      escribirCodigo('const mio = 1;');
 
       await waitFor(() =>
         expect(screen.getByRole('textbox')).toHaveValue('const mio = 1;'),

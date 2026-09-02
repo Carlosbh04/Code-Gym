@@ -320,6 +320,58 @@ describe('ExerciseEngine (T023)', () => {
     });
   });
 
+  describe('T045 · contrato completo de validateFixCode', () => {
+    it('mapea ExecutionResult.pass a isCorrect en ambos sentidos, leyendo `pass` y no `results`', async () => {
+      const step = await fixCodeStepOf('js-arrays-map-vs-foreach-01');
+
+      executor.pasaTodo(step.testCases!);
+      await expect(engine.validateFixCode(step, 'bien')).resolves.toMatchObject({
+        isCorrect: true,
+        explanation: step.explanation,
+      });
+
+      // Con `pass: false` el veredicto es falso aunque los casos digan otra
+      // cosa: el agregado que fija D016 es `pass`, no la lista.
+      executor.devuelve([]);
+      const vacio: ExecutionResult = { pass: false, results: [] };
+      vi.spyOn(executor, 'execute').mockResolvedValueOnce(vacio);
+      await expect(engine.validateFixCode(step, 'mal')).resolves.toMatchObject({
+        isCorrect: false,
+      });
+    });
+
+    it('entrega los 3 testCases del paso real y agrega sobre todos', async () => {
+      const step = await fixCodeStepOf('js-arrays-map-vs-foreach-01');
+      expect(step.testCases).toHaveLength(3);
+
+      // Los tres pasan: correcto.
+      executor.devuelve(
+        step.testCases!.map((t) => ({
+          input: t.input,
+          expected: t.expected,
+          actual: t.expected,
+          pass: true,
+        })),
+      );
+      await expect(engine.validateFixCode(step, 'solución')).resolves.toMatchObject({
+        isCorrect: true,
+      });
+
+      // El segundo falla y el tercero lanza: ambos viajan como resultado.
+      executor.devuelve([
+        { input: step.testCases![0].input, expected: step.testCases![0].expected, actual: step.testCases![0].expected, pass: true },
+        { input: step.testCases![1].input, expected: step.testCases![1].expected, actual: null, pass: false },
+        { input: step.testCases![2].input, expected: step.testCases![2].expected, actual: null, pass: false, error: 'x is not defined' },
+      ]);
+      await expect(engine.validateFixCode(step, 'a medias')).resolves.toMatchObject({
+        isCorrect: false,
+      });
+
+      expect(executor.llamadas).toHaveLength(2);
+      expect(executor.llamadas[0].testCases).toEqual(step.testCases);
+    });
+  });
+
   describe('T042 · los fallos de infraestructura no son respuestas (§27)', () => {
     it.each([
       ['timeout', 'La ejecución superó el límite de 3000 ms'],

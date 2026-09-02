@@ -1,3 +1,4 @@
+import { TriangleAlert } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { HintReveal } from '@/components/codegym/HintReveal';
@@ -43,6 +44,7 @@ function SessionPage() {
     canSubmit,
     isAnswered,
     isLastStep,
+    executionError,
     select,
     selectError,
     editCode,
@@ -50,6 +52,8 @@ function SessionPage() {
     submit,
     next,
   } = useSession(sessionId);
+
+  const isValidating = state.isValidating;
 
   // El resultado ya lo calculó el engine al responder (D012): aquí solo se lee.
   const answer = state.answers[state.currentStep];
@@ -148,6 +152,19 @@ function SessionPage() {
         />
       )}
 
+      {executionError !== null && (
+        <p
+          role="alert"
+          className="flex min-w-0 items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground"
+        >
+          <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning" />
+          <span className="min-w-0">
+            No se pudo ejecutar tu código: {executionError}. Puedes volver a
+            intentarlo.
+          </span>
+        </p>
+      )}
+
       {answer !== undefined && currentStep !== null && (
         <ResultFeedback
           isCorrect={answer.isCorrect}
@@ -159,10 +176,11 @@ function SessionPage() {
         <button
           type="button"
           onClick={submit}
-          disabled={!canSubmit || isAnswered}
+          disabled={!canSubmit || isAnswered || isValidating}
+          aria-busy={isValidating}
           className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
         >
-          Comprobar
+          {isValidating ? 'Ejecutando…' : executionError !== null ? 'Reintentar' : 'Comprobar'}
         </button>
 
         <button
