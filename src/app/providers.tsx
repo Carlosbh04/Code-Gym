@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { ContentProvider } from '@/contexts/ContentContext';
 import { ExecutionProvider } from '@/contexts/ExecutionContext';
+import { ProgressProvider } from '@/contexts/ProgressContext';
 import type { ExecutionContextValue } from '@/contexts/execution-context';
 import { ExerciseEngine } from '@/lib/engine/exercise-engine';
 import { WorkerExecutor } from '@/lib/executor/WorkerExecutor';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
+import { LocalProgressRepository } from '@/lib/repositories/LocalProgressRepository';
 
 /**
  * Raíz de composición de la aplicación (§16, §35, D017).
@@ -18,10 +20,12 @@ import { StaticContentRepository } from '@/lib/repositories/StaticContentReposit
  * asigna a `destroy()` terminar el worker, revocar su blob URL y rechazar lo
  * pendiente, de modo que su dueño es este componente.
  *
- * Los proveedores de progreso llegan con T049.
+ * El repositorio de progreso también carece de ciclo de vida y se comparte
+ * durante toda la aplicación. `ProgressProvider` solo conoce su interfaz.
  */
 
 const contentRepository = new StaticContentRepository();
+const progressRepository = new LocalProgressRepository();
 
 interface Execution {
   executor: WorkerExecutor;
@@ -72,8 +76,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <ContentProvider repository={contentRepository}>
-      <ExecutionProvider engine={execution}>{children}</ExecutionProvider>
-    </ContentProvider>
+    <ProgressProvider repository={progressRepository}>
+      <ContentProvider repository={contentRepository}>
+        <ExecutionProvider engine={execution}>{children}</ExecutionProvider>
+      </ContentProvider>
+    </ProgressProvider>
   );
 }

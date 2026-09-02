@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { describe, expect, it, afterEach, beforeEach, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { useCodeExecution } from '@/hooks/useCodeExecution';
+import { useProgress } from '@/hooks/useProgress';
 import { AppProviders } from './providers';
 
 class FakeWorker {
@@ -29,7 +30,8 @@ const revoked: string[] = [];
 
 function Probe() {
   useCodeExecution();
-  return <p>execution-ready</p>;
+  const { isLoading } = useProgress();
+  return <p>{isLoading ? 'progress-loading' : 'providers-ready'}</p>;
 }
 
 describe('AppProviders · ciclo de vida de ejecución (T045.1)', () => {
@@ -61,7 +63,7 @@ describe('AppProviders · ciclo de vida de ejecución (T045.1)', () => {
       </StrictMode>,
     );
 
-    await screen.findByText('execution-ready');
+    await screen.findByText('providers-ready');
 
     // StrictMode comprueba el cleanup inicial: el primer executor se destruye
     // y el segundo es la única instancia viva que queda para la aplicación.
