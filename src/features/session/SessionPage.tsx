@@ -1,5 +1,5 @@
 import { TriangleAlert } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { HintReveal } from '@/components/codegym/HintReveal';
 import { ResultFeedback } from '@/components/codegym/ResultFeedback';
@@ -33,6 +33,7 @@ const BUTTON =
 
 function SessionPage() {
   const { sessionId = '' } = useParams();
+  const navigate = useNavigate();
   const {
     session,
     currentStep,
@@ -45,18 +46,102 @@ function SessionPage() {
     isAnswered,
     isLastStep,
     executionError,
+    recoveryStatus,
+    recoverySessionId,
+    storageWarning,
     select,
     selectError,
     editCode,
     revealHint,
     submit,
     next,
+    continueRecovery,
+    startNewSession,
+    retryRecoveryPersistence,
   } = useSession(sessionId);
 
   const isValidating = state.isValidating;
 
   // El resultado ya lo calculó el engine al responder (D012): aquí solo se lee.
   const answer = state.answers[state.currentStep];
+
+  if (recoveryStatus === 'available') {
+    return (
+      <section
+        role="dialog"
+        aria-labelledby="recovery-title"
+        aria-describedby="recovery-description"
+        className="mx-auto flex max-w-lg flex-col gap-4 rounded-lg border border-border bg-card p-6"
+      >
+        <div className="space-y-2">
+          <h1 id="recovery-title" className="text-xl font-semibold text-foreground">
+            Tienes una sesión incompleta
+          </h1>
+          <p id="recovery-description" className="text-sm text-muted-foreground">
+            Puedes continuar donde lo dejaste o descartar esa sesión y empezar
+            una nueva.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              const target = recoverySessionId;
+              continueRecovery();
+              if (target !== null && target !== sessionId) {
+                navigate(`/practice/${target}`, { replace: true });
+              }
+            }}
+            className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
+          >
+            Continuar
+          </button>
+          <button
+            type="button"
+            onClick={startNewSession}
+            className={`${BUTTON} border border-border bg-card text-foreground hover:bg-accent`}
+          >
+            Empezar de nuevo
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  if (recoveryStatus === 'invalid-json') {
+    return (
+      <section
+        role="alert"
+        className="mx-auto flex max-w-lg flex-col gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-6"
+      >
+        <h1 className="text-xl font-semibold text-foreground">
+          No se pudo leer la sesión guardada
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          El recovery contiene JSON inválido y no puede restaurarse de forma segura.
+        </p>
+      </section>
+    );
+  }
+
+  if (recoveryStatus === 'recovery-failed') {
+    return (
+      <EmptyState
+        icon={TriangleAlert}
+        title="No se pudo recuperar"
+        description="La sesión guardada no es compatible con el contenido actual."
+        action={
+          <button
+            type="button"
+            onClick={startNewSession}
+            className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
+          >
+            Empezar de nuevo
+          </button>
+        }
+      />
+    );
+  }
 
   if (state.error !== null) {
     return (
@@ -87,6 +172,12 @@ function SessionPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           Has respondido los {session.steps.length} pasos de {session.title}.
         </p>
+        {storageWarning !== null && (
+          <StorageWarning
+            warning={storageWarning}
+            onRetry={retryRecoveryPersistence}
+          />
+        )}
       </section>
     );
   }
@@ -101,6 +192,13 @@ function SessionPage() {
         currentStep={state.currentStep}
         completedSteps={state.answers.length}
       />
+
+      {storageWarning !== null && (
+        <StorageWarning
+          warning={storageWarning}
+          onRetry={retryRecoveryPersistence}
+        />
+      )}
 
       {currentStep === null ? (
         <p role="status" className="text-sm text-muted-foreground">
@@ -194,3 +292,32 @@ function SessionPage() {
 }
 
 export default SessionPage;
+
+function StorageWarning({
+  warning,
+  onRetry,
+}: {
+  warning: { message: string; canRetry: boolean };
+  onRetry: () => void;
+}) {
+  return (
+    <div
+      role="alert"
+      className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground"
+    >
+      <span className="flex min-w-0 items-start gap-2">
+        <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning" />
+        <span>{warning.message}</span>
+      </span>
+      {warning.canRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className={`${BUTTON} border border-border bg-card text-foreground hover:bg-accent`}
+        >
+          Reintentar guardado
+        </button>
+      )}
+    </div>
+  );
+}

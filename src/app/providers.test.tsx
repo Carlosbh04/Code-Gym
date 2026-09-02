@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { useCodeExecution } from '@/hooks/useCodeExecution';
 import { useProgress } from '@/hooks/useProgress';
 import { useSessionCompletion } from '@/hooks/useSessionCompletion';
+import { useSessionRecoveryStore } from '@/hooks/useSessionRecovery';
 import { AppProviders } from './providers';
 
 class FakeWorker {
@@ -32,6 +33,7 @@ const revoked: string[] = [];
 function Probe() {
   useCodeExecution();
   useSessionCompletion();
+  useSessionRecoveryStore();
   const { isLoading } = useProgress();
   return <p>{isLoading ? 'progress-loading' : 'providers-ready'}</p>;
 }

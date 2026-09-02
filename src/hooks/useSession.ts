@@ -1,7 +1,11 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
 import { useCodeExecution } from '@/hooks/useCodeExecution';
-import { useContent } from '@/hooks/useContent';
 import { useSessionCompletion } from '@/hooks/useSessionCompletion';
+import {
+  useSessionRecoveryController,
+  type RecoveryStatus,
+  type SessionStorageWarning,
+} from '@/hooks/useSessionRecoveryController';
 import { validateSelection } from '@/lib/engine/validation';
 import {
   createInitialSessionState,
@@ -57,6 +61,12 @@ export interface UseSessionResult {
   isCompleting: boolean;
   /** Fallo de persistencia de la finalización, separado del error de carga. */
   completionError: string | null;
+  /** Estado del diálogo/estado de recuperación previo a iniciar la sesión. */
+  recoveryStatus: RecoveryStatus;
+  /** Identidad de la sesión recuperable, incluso si no coincide con la URL. */
+  recoverySessionId: string | null;
+  /** Aviso no bloqueante cuando la persistencia temporal no está disponible. */
+  storageWarning: SessionStorageWarning | null;
   select: (optionId: string) => void;
   /** Guarda el código del paso fix-code en curso. No lo valida. */
   editCode: (code: string) => void;
@@ -66,13 +76,16 @@ export interface UseSessionResult {
   submit: () => void;
   next: () => void;
   retryCompletion: () => void;
+  continueRecovery: () => void;
+  startNewSession: () => void;
+  retryRecoveryPersistence: () => void;
+  /** Capacidad explícita; T052 no inventa todavía una navegación para usarla. */
+  abandonSession: () => void;
 }
 
 export function useSession(sessionId: string): UseSessionResult {
-  const content = useContent();
   const execution = useCodeExecution();
   const completion = useSessionCompletion();
-  const [session, setSession] = useState<ExerciseSession | null>(null);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [selectedError, setSelectedError] =
     useState<FindErrorSelection>(NO_ERROR_SELECTION);
@@ -97,36 +110,24 @@ export function useSession(sessionId: string): UseSessionResult {
   const completionInFlight = useRef(false);
   const completionSucceeded = useRef(false);
 
-  useEffect(() => {
-    let active = true;
+  const onSessionReady = useCallback((resumedAt: number) => {
+    stepStartedAt.current = resumedAt;
+    completionInFlight.current = false;
+    completionSucceeded.current = false;
+    setSelectedOptionId(null);
+    setSelectedError(NO_ERROR_SELECTION);
+    setFixCodeDraft(null);
+    setExecutionError(null);
+    setCompletionError(null);
+  }, []);
 
-    content
-      .getSession(sessionId)
-      .then((loaded) => {
-        if (!active) return;
-
-        if (loaded === null) {
-          dispatch({ type: 'SET_ERROR', payload: `Sesión no encontrada: ${sessionId}` });
-          return;
-        }
-
-        const now = Date.now();
-        setSession(loaded);
-        stepStartedAt.current = now;
-        dispatch({ type: 'RESTORE', payload: { startTime: now } });
-      })
-      .catch((error: unknown) => {
-        if (!active) return;
-        dispatch({
-          type: 'SET_ERROR',
-          payload: error instanceof Error ? error.message : String(error),
-        });
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [content, sessionId]);
+  const recovery = useSessionRecoveryController({
+    requestedSessionId: sessionId,
+    state,
+    dispatch,
+    onSessionReady,
+  });
+  const { session } = recovery;
 
   const currentStep = session?.steps[state.currentStep] ?? null;
   const isAnswered = state.answers.length > state.currentStep;
@@ -303,7 +304,9 @@ export function useSession(sessionId: string): UseSessionResult {
     session,
     currentStep,
     state,
-    isLoading: session === null && state.error === null,
+    isLoading:
+      (recovery.recoveryStatus === 'checking' || session === null) &&
+      state.error === null,
     selectedOptionId,
     selectedError,
     fixCodeDraft,
@@ -313,6 +316,9 @@ export function useSession(sessionId: string): UseSessionResult {
     executionError,
     isCompleting,
     completionError,
+    recoveryStatus: recovery.recoveryStatus,
+    recoverySessionId: recovery.recoverySessionId,
+    storageWarning: recovery.storageWarning,
     select,
     selectError,
     editCode,
@@ -320,5 +326,9 @@ export function useSession(sessionId: string): UseSessionResult {
     submit,
     next,
     retryCompletion,
+    continueRecovery: recovery.continueRecovery,
+    startNewSession: recovery.startNewSession,
+    retryRecoveryPersistence: recovery.retryRecoveryPersistence,
+    abandonSession: recovery.abandonSession,
   };
 }

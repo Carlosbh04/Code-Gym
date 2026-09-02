@@ -66,6 +66,7 @@ const answerAndAdvance = async (option: string) => {
 
 describe('SessionPage · Fix Code integrado (T045.1)', () => {
   beforeEach(() => {
+    sessionStorage.clear();
     vi.stubGlobal('Worker', FakeWorker);
     vi.stubGlobal('URL', {
       ...URL,

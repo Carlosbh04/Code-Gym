@@ -1054,3 +1054,74 @@ Accepted
 
 **Tareas:** T050 · **Master Plan:** §17, §20–§24 · **Relacionada con:** D002,
 D004, D012, D013, D017
+
+---
+
+# D019 — Recovery temporal detrás de una capacidad inyectable
+
+## Context
+
+T052 debe leer, escribir y eliminar el estado de una sesión activa en
+`sessionStorage`, distinguir corrupción de fallos reales del navegador y seguir
+funcionando en memoria cuando la persistencia no está disponible. Hacerlo
+directamente desde `useSession` acoplaría la orquestación de sesión a Web
+Storage y haría indeterministas los tests de errores y cuota.
+
+Además, un recovery existente debe inspeccionarse antes de inicializar otra
+sesión. Un snapshot válido cuyo `sessionId` no coincide con la URL no puede
+sobrescribirse sin una decisión explícita del usuario.
+
+## Decision
+
+- Una interfaz síncrona y estrecha, `ISessionRecoveryStore`, expone únicamente
+  `load`, `save` y `clear` con el snapshot canónico de §21.
+- `SessionStorageRecoveryStore` encapsula la clave, Web Storage, JSON,
+  validación estructural y clasificación de errores.
+- La implementación concreta se crea en la raíz y llega a `useSession` mediante
+  contexto. El reducer permanece puro.
+- JSON no parseable produce `INVALID_JSON`. JSON parseable pero no restaurable
+  produce `RECOVERY_FAILED`; ninguno se elimina automáticamente.
+- Una sesión nueva solo se persiste después de comprobar que no existe un
+  recovery pendiente. Descartar o abandonar requiere una acción explícita.
+- `STORAGE_UNAVAILABLE` desactiva más escrituras durante esa sesión y permite
+  continuar en memoria. `STORAGE_FULL` pausa las escrituras y conserva una
+  operación reintentable.
+- El tiempo persistido se calcula como tiempo acumulado previo más tiempo desde
+  la reanudación. `startTime` conserva la identidad original y no se cuenta el
+  intervalo durante el que la página estuvo cerrada.
+- El recovery se borra después de `SET_COMPLETE`, nunca antes de que T050 haya
+  confirmado progreso, attempts y completed session.
+
+## Alternatives
+
+- Acceder a `sessionStorage` directamente desde `useSession`.
+- Reutilizar un repositorio durable de progreso.
+- Guardar el snapshot en un contexto con representación y errores de Web
+  Storage expuestos a todos los consumidores.
+- Borrar automáticamente snapshots inválidos o de otra sesión.
+
+## Rationale
+
+La capacidad separa orquestación, estado y plataforma sin convertir el estado
+temporal en un repositorio de dominio durable. Su contrato síncrono refleja la
+API subyacente y permite dobles deterministas. La decisión explícita antes de
+escribir evita pérdida silenciosa, y el reloj con baseline conserva el tiempo
+activo sin introducir un intervalo que fuerce renders.
+
+## Consequences
+
+- T052 añade un provider y una implementación concreta, pero los componentes no
+  conocen claves, JSON ni Web Storage.
+- La UI local de sesión muestra recovery y avisos de almacenamiento sin crear
+  infraestructura global de notificaciones.
+- Los borradores todavía no enviados no se recuperan porque no pertenecen al
+  payload de §21.
+- No se añade journal ni idempotencia de completion entre montajes; permanecen
+  fuera de T052 según D018.
+
+## Status
+
+Accepted
+
+**Tareas:** T052 · **Master Plan:** §21, §27 · **Relacionada con:** D004, D006,
+D012, D018

@@ -3,6 +3,7 @@ import { ContentProvider } from '@/contexts/ContentContext';
 import { ExecutionProvider } from '@/contexts/ExecutionContext';
 import { ProgressProvider } from '@/contexts/ProgressContext';
 import { SessionCompletionProvider } from '@/contexts/SessionCompletionContext';
+import { SessionRecoveryProvider } from '@/contexts/SessionRecoveryContext';
 import type { ExecutionContextValue } from '@/contexts/execution-context';
 import { ExerciseEngine } from '@/lib/engine/exercise-engine';
 import { WorkerExecutor } from '@/lib/executor/WorkerExecutor';
@@ -10,6 +11,7 @@ import { StaticContentRepository } from '@/lib/repositories/StaticContentReposit
 import { LocalAttemptRepository } from '@/lib/repositories/LocalAttemptRepository';
 import { LocalCompletedSessionRepository } from '@/lib/repositories/LocalCompletedSessionRepository';
 import { LocalProgressRepository } from '@/lib/repositories/LocalProgressRepository';
+import { SessionStorageRecoveryStore } from '@/lib/recovery/SessionStorageRecoveryStore';
 
 /**
  * Raíz de composición de la aplicación (§16, §35, D017).
@@ -31,6 +33,7 @@ const contentRepository = new StaticContentRepository();
 const progressRepository = new LocalProgressRepository();
 const attemptRepository = new LocalAttemptRepository();
 const completedSessionRepository = new LocalCompletedSessionRepository();
+const sessionRecoveryStore = new SessionStorageRecoveryStore();
 
 interface Execution {
   executor: WorkerExecutor;
@@ -86,9 +89,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
         attemptRepository={attemptRepository}
         completedSessionRepository={completedSessionRepository}
       >
-        <ContentProvider repository={contentRepository}>
-          <ExecutionProvider engine={execution}>{children}</ExecutionProvider>
-        </ContentProvider>
+        <SessionRecoveryProvider store={sessionRecoveryStore}>
+          <ContentProvider repository={contentRepository}>
+            <ExecutionProvider engine={execution}>{children}</ExecutionProvider>
+          </ContentProvider>
+        </SessionRecoveryProvider>
       </SessionCompletionProvider>
     </ProgressProvider>
   );

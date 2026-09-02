@@ -1,53 +1,74 @@
 import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ContentProvider } from '@/contexts/ContentContext';
 import { ExecutionProvider } from '@/contexts/ExecutionContext';
 import { SessionCompletionContext } from '@/contexts/session-completion-context';
+import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
 import { FakeExecution } from '@/test/fake-execution';
 import { FakeSessionCompletion } from '@/test/fake-session-completion';
+import { FakeSessionRecoveryStore } from '@/test/fake-session-recovery';
 import type { Concept, Technology, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
+import type { SessionRecoverySnapshot } from '@/lib/recovery/ISessionRecoveryStore';
 import SessionPage from './SessionPage';
 
 const SESSION_ID = 'js-arrays-map-vs-foreach-01';
 const repo = new StaticContentRepository();
 const completion = new FakeSessionCompletion();
 
+function LocationProbe() {
+  return <div data-testid="location">{useLocation().pathname}</div>;
+}
+
 const renderAt = (
   sessionId: string,
   repository: IContentRepository = repo,
   execution: FakeExecution = new FakeExecution(),
+  recovery: FakeSessionRecoveryStore = new FakeSessionRecoveryStore(),
 ) =>
   render(
-    <SessionCompletionContext.Provider value={completion.value}>
-      <ContentProvider repository={repository}>
-        <ExecutionProvider engine={execution.value}>
-          <MemoryRouter initialEntries={[`/practice/${sessionId}`]}>
-            <Routes>
-              <Route path="/practice/:sessionId" element={<SessionPage />} />
-              <Route path="/" element={<p>inicio</p>} />
-            </Routes>
-          </MemoryRouter>
-        </ExecutionProvider>
-      </ContentProvider>
-    </SessionCompletionContext.Provider>,
+    <SessionRecoveryContext.Provider value={recovery}>
+      <SessionCompletionContext.Provider value={completion.value}>
+        <ContentProvider repository={repository}>
+          <ExecutionProvider engine={execution.value}>
+            <MemoryRouter initialEntries={[`/practice/${sessionId}`]}>
+              <LocationProbe />
+              <Routes>
+                <Route path="/practice/:sessionId" element={<SessionPage />} />
+                <Route path="/" element={<p>inicio</p>} />
+              </Routes>
+            </MemoryRouter>
+          </ExecutionProvider>
+        </ContentProvider>
+      </SessionCompletionContext.Provider>
+    </SessionRecoveryContext.Provider>,
   );
 
 const loaded = async (
   sessionId = SESSION_ID,
   repository: IContentRepository = repo,
   execution: FakeExecution = new FakeExecution(),
+  recovery: FakeSessionRecoveryStore = new FakeSessionRecoveryStore(),
 ) => {
-  const view = renderAt(sessionId, repository, execution);
+  const view = renderAt(sessionId, repository, execution, recovery);
   await waitFor(() => expect(screen.queryByText(/Cargando la sesión/)).toBeNull());
   return view;
 };
 
 const session = async (): Promise<ExerciseSession> =>
   (await repo.getSessionById(SESSION_ID))!;
+
+const recoveryOf = (sessionId = SESSION_ID): SessionRecoverySnapshot => ({
+  sessionId,
+  currentStep: 0,
+  answers: [],
+  elapsedMs: 4_000,
+  hintsRevealed: [],
+  startTime: 1_000,
+});
 
 /** Envía la respuesta ya elegida del paso visible y avanza al siguiente. */
 const submitAndAdvance = async () => {
@@ -87,10 +108,11 @@ const failingRepo: IContentRepository = {
 
 describe('SessionPage (T027)', () => {
   describe('carga', () => {
-    it('muestra un estado de carga antes de tener la sesión', () => {
+    it('muestra un estado de carga antes de tener la sesión', async () => {
       renderAt(SESSION_ID);
 
       expect(screen.getByRole('status')).toHaveTextContent(/Cargando la sesión/);
+      await screen.findByRole('heading', { name: /forEach no devuelve/i });
     });
 
     it('carga una sesión real y muestra su título y posición', async () => {
@@ -533,10 +555,11 @@ describe('SessionPage (T027)', () => {
       expect(document.activeElement).toBe(comprobar);
     });
 
-    it('el estado de carga se anuncia', () => {
+    it('el estado de carga se anuncia', async () => {
       renderAt(SESSION_ID);
 
       expect(screen.getByRole('status')).toBeInTheDocument();
+      await screen.findByRole('heading', { name: /forEach no devuelve/i });
     });
   });
 
@@ -633,5 +656,112 @@ describe('SessionPage (T027)', () => {
       expect(within(lista).queryAllByRole('button')).toEqual([]);
       expect(within(lista).queryAllByRole('link')).toEqual([]);
     });
+  });
+});
+
+describe('SessionPage · recovery (T052)', () => {
+  it('muestra la decisión canónica antes de renderizar o sobrescribir la sesión', async () => {
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.snapshot = recoveryOf();
+    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Tienes una sesión incompleta' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Continuar' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Empezar de nuevo' })).toBeEnabled();
+    expect(recovery.saves).toHaveLength(0);
+    expect(screen.queryByRole('radio')).toBeNull();
+  });
+
+  it('continúa el sessionId almacenado y navega a él si la URL era distinta', async () => {
+    const requested = 'js-functions-return-flow-01';
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.snapshot = recoveryOf(SESSION_ID);
+    renderAt(requested, repo, new FakeExecution(), recovery);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Continuar' }));
+
+    await screen.findByRole('heading', { name: /forEach no devuelve/i });
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      `/practice/${SESSION_ID}`,
+    );
+    expect(recovery.clearCalls).toBe(0);
+  });
+
+  it('Empezar de nuevo descarta explícitamente el recovery anterior y conserva la URL solicitada', async () => {
+    const requested = 'js-functions-return-flow-01';
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.snapshot = recoveryOf(SESSION_ID);
+    renderAt(requested, repo, new FakeExecution(), recovery);
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Empezar de nuevo' }),
+    );
+
+    await screen.findByRole('heading', { name: /Salir de una función/i });
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      `/practice/${requested}`,
+    );
+    expect(recovery.clearCalls).toBe(1);
+    await waitFor(() => expect(recovery.snapshot?.sessionId).toBe(requested));
+  });
+
+  it('INVALID_JSON muestra error page y no ofrece descarte parcial', async () => {
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.loadError = 'INVALID_JSON';
+    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'No se pudo leer la sesión guardada',
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('JSON inválido');
+    expect(screen.queryByRole('button', { name: 'Empezar de nuevo' })).toBeNull();
+    expect(recovery.clearCalls).toBe(0);
+  });
+
+  it('RECOVERY_FAILED permite empezar de nuevo sin restauración parcial', async () => {
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.loadError = 'RECOVERY_FAILED';
+    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+
+    expect(await screen.findByText('No se pudo recuperar')).toBeInTheDocument();
+    recovery.loadError = null;
+    fireEvent.click(screen.getByRole('button', { name: 'Empezar de nuevo' }));
+
+    await screen.findByRole('heading', { name: /forEach no devuelve/i });
+    expect(recovery.clearCalls).toBe(1);
+  });
+
+  it('avisa de STORAGE_UNAVAILABLE sin bloquear la práctica ni ofrecer retry', async () => {
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.loadError = 'STORAGE_UNAVAILABLE';
+    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+
+    await screen.findByRole('heading', { name: /forEach no devuelve/i });
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'La sesión continuará en memoria',
+    );
+    expect(screen.queryByRole('button', { name: 'Reintentar guardado' })).toBeNull();
+  });
+
+  it('avisa de STORAGE_FULL y conecta el retry de persistencia', async () => {
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.saveError = 'STORAGE_FULL';
+    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+
+    const retry = await screen.findByRole('button', {
+      name: 'Reintentar guardado',
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Tu estado sigue en memoria',
+    );
+
+    recovery.saveError = null;
+    fireEvent.click(retry);
+    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
+    expect(recovery.snapshot?.sessionId).toBe(SESSION_ID);
   });
 });
