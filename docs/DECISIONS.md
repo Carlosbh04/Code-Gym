@@ -23,6 +23,7 @@ T015.1–T015.12.
 | D011 | ESLint 9 con flat config | Accepted |
 | D012 | isCorrect en UserAnswer | Accepted |
 | D013 | Escala del dominio y factores inyectados | Accepted |
+| D018 | Finalización coordinada de sesión y dominio diferido | Accepted |
 
 ---
 
@@ -998,3 +999,58 @@ instancia de forma independiente.
 Accepted
 
 **Tareas:** T045.1 · **Master Plan:** §15, §24–§27
+
+---
+
+# D018 — Finalización coordinada de sesión y dominio diferido
+
+## Context
+
+T050 debe convertir las respuestas acumuladas por `useSession` en progreso del
+concepto, un `Attempt` por respuesta y la metadata `CompletedSession`. Las tres
+colecciones viven detrás de repositorios distintos y localStorage no ofrece una
+transacción común.
+
+D013 impide calcular un dominio nuevo: todavía no existen fórmulas para todos
+los factores ni datos suficientes para derivarlos. `UserAnswer` tampoco aporta
+un `errorType` canónico con el que construir `ErrorRecord`.
+
+## Decision
+
+- T050 actualiza las métricas de progreso, pero conserva el dominio anterior.
+  Para un concepto nuevo, `domain: 0` significa «todavía no calculado».
+- `totalAttempts` cuenta steps respondidos, no sesiones. Cada `UserAnswer`
+  incrementa ese contador y produce exactamente un `Attempt`.
+- `recentErrors` se conserva. El progreso inicial usa una colección vacía y no
+  se inventan registros sin un `errorType` derivable.
+- Un `SessionCompletionContext` coordina la persistencia detrás de las
+  interfaces de repositorio; `SessionPage` no conoce esa infraestructura.
+- El orden es progreso → attempts secuenciales → completed session.
+- `SessionState.isComplete` solo cambia después de confirmar las tres etapas.
+- El plan fija una vez IDs, timestamp y datos derivados. Durante el mismo
+  montaje, un retry reanuda desde la primera etapa no confirmada y las llamadas
+  concurrentes comparten una única operación.
+- La idempotencia después de reload/unmount queda fuera del contrato actual.
+  No se afirma atomicidad real entre las tres claves de almacenamiento.
+
+`calculateDomain()` no participa en T050. El score recibe
+`calculateDomainImpact(previousDomain, previousDomain)`, por lo que el impacto
+es cero hasta que una tarea posterior especifique todos los factores.
+
+## Consequences
+
+- Una escritura fallida no completa la sesión ni elimina sus respuestas.
+- La operación puede reintentarse sin repetir etapas confirmadas mientras el
+  provider siga montado.
+- Un reload durante una finalización parcial puede dejar colecciones
+  inconsistentes. Resolverlo exigiría un journal o identificador persistido de
+  ejecución y no pertenece a T050.
+- El cálculo completo de dominio y la generación de `ErrorRecord` permanecen
+  aplazados de forma explícita.
+
+## Status
+
+Accepted
+
+**Tareas:** T050 · **Master Plan:** §17, §20–§24 · **Relacionada con:** D002,
+D004, D012, D013, D017

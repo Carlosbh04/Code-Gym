@@ -2,10 +2,13 @@ import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { ContentProvider } from '@/contexts/ContentContext';
 import { ExecutionProvider } from '@/contexts/ExecutionContext';
 import { ProgressProvider } from '@/contexts/ProgressContext';
+import { SessionCompletionProvider } from '@/contexts/SessionCompletionContext';
 import type { ExecutionContextValue } from '@/contexts/execution-context';
 import { ExerciseEngine } from '@/lib/engine/exercise-engine';
 import { WorkerExecutor } from '@/lib/executor/WorkerExecutor';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
+import { LocalAttemptRepository } from '@/lib/repositories/LocalAttemptRepository';
+import { LocalCompletedSessionRepository } from '@/lib/repositories/LocalCompletedSessionRepository';
 import { LocalProgressRepository } from '@/lib/repositories/LocalProgressRepository';
 
 /**
@@ -20,12 +23,14 @@ import { LocalProgressRepository } from '@/lib/repositories/LocalProgressReposit
  * asigna a `destroy()` terminar el worker, revocar su blob URL y rechazar lo
  * pendiente, de modo que su dueño es este componente.
  *
- * El repositorio de progreso también carece de ciclo de vida y se comparte
- * durante toda la aplicación. `ProgressProvider` solo conoce su interfaz.
+ * Los repositorios locales carecen de ciclo de vida y se comparten durante
+ * toda la aplicación. Cada provider solo conoce sus interfaces.
  */
 
 const contentRepository = new StaticContentRepository();
 const progressRepository = new LocalProgressRepository();
+const attemptRepository = new LocalAttemptRepository();
+const completedSessionRepository = new LocalCompletedSessionRepository();
 
 interface Execution {
   executor: WorkerExecutor;
@@ -77,9 +82,14 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <ProgressProvider repository={progressRepository}>
-      <ContentProvider repository={contentRepository}>
-        <ExecutionProvider engine={execution}>{children}</ExecutionProvider>
-      </ContentProvider>
+      <SessionCompletionProvider
+        attemptRepository={attemptRepository}
+        completedSessionRepository={completedSessionRepository}
+      >
+        <ContentProvider repository={contentRepository}>
+          <ExecutionProvider engine={execution}>{children}</ExecutionProvider>
+        </ContentProvider>
+      </SessionCompletionProvider>
     </ProgressProvider>
   );
 }

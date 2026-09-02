@@ -1398,7 +1398,7 @@ T046: Crear IProgressRepository + LocalProgressRepository + test
 T047: Crear IAttemptRepository + LocalAttemptRepository + test
 T048: Crear ICompletedSessionRepository + LocalCompletedSessionRepository + test
 T049: Crear ProgressContext + useProgress
-T050: Integrar progress en session completion
+T050: Integrar progress en session completion (D018)
 T051: Crear SessionHeader component
 T052: Integrar sessionStorage recovery
 T053: Test: integración sesión → progress → attempts

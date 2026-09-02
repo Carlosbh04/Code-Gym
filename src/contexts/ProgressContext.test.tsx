@@ -146,6 +146,21 @@ describe('ProgressProvider + useProgress (T049)', () => {
     expect(view.result.current.error).toBeNull();
   });
 
+  it('crea el primer progreso cuando recibe todos los campos canónicos', async () => {
+    const repository = new FakeProgressRepository();
+    const view = mount(repository);
+    const initial = progressOf('nuevo', 0);
+    await waitFor(() => expect(view.result.current.isLoading).toBe(false));
+
+    await act(() => view.result.current.updateProgress('nuevo', initial));
+
+    expect(repository.updates).toEqual([
+      { conceptId: 'nuevo', progress: initial },
+    ]);
+    expect(view.result.current.progress.get('nuevo')).toEqual(initial);
+    expect(view.result.current.error).toBeNull();
+  });
+
   it('un fallo de actualización conserva el estado, expone error y rechaza', async () => {
     const original = progressOf('js-array-iteration', 42);
     const repository = new FakeProgressRepository([original]);
@@ -176,7 +191,9 @@ describe('ProgressProvider + useProgress (T049)', () => {
 
     await expect(
       act(() => view.result.current.updateProgress('nuevo', { domain: 10 })),
-    ).rejects.toThrow('No existe progreso para el concepto nuevo');
+    ).rejects.toThrow(
+      'No existe progreso para el concepto nuevo y la actualización es incompleta',
+    );
     expect(repository.updates).toEqual([]);
     expect(view.result.current.progress.size).toBe(0);
   });

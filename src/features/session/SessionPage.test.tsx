@@ -3,8 +3,10 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ContentProvider } from '@/contexts/ContentContext';
 import { ExecutionProvider } from '@/contexts/ExecutionContext';
+import { SessionCompletionContext } from '@/contexts/session-completion-context';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
 import { FakeExecution } from '@/test/fake-execution';
+import { FakeSessionCompletion } from '@/test/fake-session-completion';
 import type { Concept, Technology, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
@@ -12,6 +14,7 @@ import SessionPage from './SessionPage';
 
 const SESSION_ID = 'js-arrays-map-vs-foreach-01';
 const repo = new StaticContentRepository();
+const completion = new FakeSessionCompletion();
 
 const renderAt = (
   sessionId: string,
@@ -19,16 +22,18 @@ const renderAt = (
   execution: FakeExecution = new FakeExecution(),
 ) =>
   render(
-    <ContentProvider repository={repository}>
-      <ExecutionProvider engine={execution.value}>
-        <MemoryRouter initialEntries={[`/practice/${sessionId}`]}>
-          <Routes>
-            <Route path="/practice/:sessionId" element={<SessionPage />} />
-            <Route path="/" element={<p>inicio</p>} />
-          </Routes>
-        </MemoryRouter>
-      </ExecutionProvider>
-    </ContentProvider>,
+    <SessionCompletionContext.Provider value={completion.value}>
+      <ContentProvider repository={repository}>
+        <ExecutionProvider engine={execution.value}>
+          <MemoryRouter initialEntries={[`/practice/${sessionId}`]}>
+            <Routes>
+              <Route path="/practice/:sessionId" element={<SessionPage />} />
+              <Route path="/" element={<p>inicio</p>} />
+            </Routes>
+          </MemoryRouter>
+        </ExecutionProvider>
+      </ContentProvider>
+    </SessionCompletionContext.Provider>,
   );
 
 const loaded = async (

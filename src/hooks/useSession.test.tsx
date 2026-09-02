@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { ContentProvider } from '@/contexts/ContentContext';
 import { ExecutionProvider } from '@/contexts/ExecutionContext';
+import { SessionCompletionContext } from '@/contexts/session-completion-context';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
 import { FakeExecution } from '@/test/fake-execution';
+import { FakeSessionCompletion } from '@/test/fake-session-completion';
 import { useSession } from './useSession';
 
 /**
@@ -16,18 +18,26 @@ import { useSession } from './useSession';
 const repo = new StaticContentRepository();
 const SESSION_ID = 'js-arrays-map-vs-foreach-01';
 
-const montar = (execution: FakeExecution = new FakeExecution()) => {
+const montar = (
+  execution: FakeExecution = new FakeExecution(),
+  completion: FakeSessionCompletion = new FakeSessionCompletion(),
+) => {
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <ContentProvider repository={repo}>
-      <ExecutionProvider engine={execution.value}>{children}</ExecutionProvider>
-    </ContentProvider>
+    <SessionCompletionContext.Provider value={completion.value}>
+      <ContentProvider repository={repo}>
+        <ExecutionProvider engine={execution.value}>{children}</ExecutionProvider>
+      </ContentProvider>
+    </SessionCompletionContext.Provider>
   );
 
   return renderHook(() => useSession(SESSION_ID), { wrapper });
 };
 
-const loaded = async (execution?: FakeExecution) => {
-  const view = montar(execution);
+const loaded = async (
+  execution?: FakeExecution,
+  completion?: FakeSessionCompletion,
+) => {
+  const view = montar(execution, completion);
   await waitFor(() => expect(view.result.current.session).not.toBeNull());
   return view;
 };
@@ -36,8 +46,11 @@ const loaded = async (execution?: FakeExecution) => {
 const SOLUCION = 'function dobles(numeros) {\n  return numeros.map((n) => n * 2);\n}';
 
 /** Avanza los tres pasos de selección y deja el hook en el paso fix-code. */
-const hastaFixCode = async (execution: FakeExecution) => {
-  const view = await loaded(execution);
+const hastaFixCode = async (
+  execution: FakeExecution,
+  completion?: FakeSessionCompletion,
+) => {
+  const view = await loaded(execution, completion);
 
   act(() => view.result.current.select('b'));
   act(() => view.result.current.submit());
@@ -240,5 +253,72 @@ describe('useSession · fix-code (T045.1)', () => {
     act(() => execution.resolverDiferido(true));
     await waitFor(() => expect(view.result.current.state.answers).toHaveLength(4));
     expect(view.result.current.state.isValidating).toBe(false);
+  });
+});
+
+describe('useSession · finalización persistida (T050)', () => {
+  const answerLastStep = async (
+    execution: FakeExecution,
+    completion: FakeSessionCompletion,
+  ) => {
+    execution.resuelve(true);
+    const view = await hastaFixCode(execution, completion);
+
+    act(() => view.result.current.editCode(SOLUCION));
+    act(() => view.result.current.submit());
+    await waitFor(() =>
+      expect(view.result.current.state.answers).toHaveLength(4),
+    );
+    return view;
+  };
+
+  it('solo marca complete tras persistir y bloquea dos llamadas simultáneas', async () => {
+    const completion = new FakeSessionCompletion();
+    completion.defer();
+    const view = await answerLastStep(new FakeExecution(), completion);
+
+    act(() => {
+      view.result.current.next();
+      view.result.current.next();
+    });
+
+    await waitFor(() => expect(view.result.current.isCompleting).toBe(true));
+    expect(completion.calls).toHaveLength(1);
+    expect(completion.calls[0].operationId).toMatch(
+      /^js-arrays-map-vs-foreach-01:\d+$/,
+    );
+    expect(view.result.current.state.isComplete).toBe(false);
+
+    act(() => completion.resolve());
+    await waitFor(() => expect(view.result.current.state.isComplete).toBe(true));
+    expect(view.result.current.isCompleting).toBe(false);
+    expect(completion.calls).toHaveLength(1);
+  });
+
+  it('expone el fallo, conserva answers y permite retry sin usar state.error', async () => {
+    const completion = new FakeSessionCompletion();
+    completion.failOnce('Cuota de almacenamiento agotada');
+    const view = await answerLastStep(new FakeExecution(), completion);
+
+    act(() => view.result.current.next());
+    await waitFor(() =>
+      expect(view.result.current.completionError).toBe(
+        'Cuota de almacenamiento agotada',
+      ),
+    );
+
+    expect(view.result.current.state.isComplete).toBe(false);
+    expect(view.result.current.state.error).toBeNull();
+    expect(view.result.current.state.answers).toHaveLength(4);
+
+    act(() => view.result.current.retryCompletion());
+    await waitFor(() => expect(view.result.current.state.isComplete).toBe(true));
+
+    expect(completion.calls).toHaveLength(2);
+    expect(completion.calls[1].operationId).toBe(
+      completion.calls[0].operationId,
+    );
+    expect(view.result.current.completionError).toBeNull();
+    expect(view.result.current.state.answers).toHaveLength(4);
   });
 });

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useCodeExecution } from '@/hooks/useCodeExecution';
 import { useContent } from '@/hooks/useContent';
+import { useSessionCompletion } from '@/hooks/useSessionCompletion';
 import { validateSelection } from '@/lib/engine/validation';
 import {
   createInitialSessionState,
@@ -52,6 +53,10 @@ export interface UseSessionResult {
    * llegan al reducer ni cuentan como intento.
    */
   executionError: string | null;
+  /** true mientras se persiste la finalización completa (D018). */
+  isCompleting: boolean;
+  /** Fallo de persistencia de la finalización, separado del error de carga. */
+  completionError: string | null;
   select: (optionId: string) => void;
   /** Guarda el código del paso fix-code en curso. No lo valida. */
   editCode: (code: string) => void;
@@ -60,17 +65,21 @@ export interface UseSessionResult {
   selectError: (next: FindErrorSelection) => void;
   submit: () => void;
   next: () => void;
+  retryCompletion: () => void;
 }
 
 export function useSession(sessionId: string): UseSessionResult {
   const content = useContent();
   const execution = useCodeExecution();
+  const completion = useSessionCompletion();
   const [session, setSession] = useState<ExerciseSession | null>(null);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [selectedError, setSelectedError] =
     useState<FindErrorSelection>(NO_ERROR_SELECTION);
   const [fixCodeDraft, setFixCodeDraft] = useState<string | null>(null);
   const [executionError, setExecutionError] = useState<string | null>(null);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [completionError, setCompletionError] = useState<string | null>(null);
   const [state, dispatch] = useReducer(
     sessionReducer,
     createInitialSessionState(sessionId, 0),
@@ -83,6 +92,10 @@ export function useSession(sessionId: string): UseSessionResult {
   // cierra el hueco entre el primer clic y ese render, donde dos submit seguidos
   // podrían llamar al executor antes de que `isValidating` se hiciera visible.
   const validationInFlight = useRef(false);
+  // Igual que la validación, la finalización necesita una guarda síncrona: dos
+  // clics pueden entrar antes de que React publique isCompleting.
+  const completionInFlight = useRef(false);
+  const completionSucceeded = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -229,9 +242,48 @@ export function useSession(sessionId: string): UseSessionResult {
     state.isValidating,
   ]);
 
+  const startCompletion = useCallback(() => {
+    if (
+      session === null ||
+      !isLastStep ||
+      !isAnswered ||
+      state.answers.length !== session.steps.length ||
+      completionInFlight.current ||
+      completionSucceeded.current
+    ) {
+      return;
+    }
+
+    completionInFlight.current = true;
+    setIsCompleting(true);
+    setCompletionError(null);
+
+    // startTime distingue dos ejecuciones legítimas de la misma sesión y se
+    // conserva en el recovery canónico que implementará T052.
+    const operationId = `${session.id}:${state.startTime}`;
+
+    void Promise.resolve()
+      .then(() =>
+        completion.completeSession(operationId, session, state.answers),
+      )
+      .then(() => {
+        completionSucceeded.current = true;
+        dispatch({ type: 'SET_COMPLETE' });
+      })
+      .catch((reason: unknown) => {
+        setCompletionError(
+          reason instanceof Error ? reason.message : String(reason),
+        );
+      })
+      .finally(() => {
+        completionInFlight.current = false;
+        setIsCompleting(false);
+      });
+  }, [completion, isAnswered, isLastStep, session, state.answers, state.startTime]);
+
   const next = useCallback(() => {
     if (isLastStep) {
-      dispatch({ type: 'SET_COMPLETE' });
+      startCompletion();
       return;
     }
 
@@ -241,7 +293,11 @@ export function useSession(sessionId: string): UseSessionResult {
     setFixCodeDraft(null);
     setExecutionError(null);
     stepStartedAt.current = Date.now();
-  }, [isLastStep]);
+  }, [isLastStep, startCompletion]);
+
+  const retryCompletion = useCallback(() => {
+    startCompletion();
+  }, [startCompletion]);
 
   return {
     session,
@@ -255,11 +311,14 @@ export function useSession(sessionId: string): UseSessionResult {
     isAnswered,
     isLastStep,
     executionError,
+    isCompleting,
+    completionError,
     select,
     selectError,
     editCode,
     revealHint,
     submit,
     next,
+    retryCompletion,
   };
 }

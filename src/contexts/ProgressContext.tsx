@@ -18,6 +18,44 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function hasDifficultyCounts(value: unknown): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+
+  const counts = value as { total?: unknown; correct?: unknown };
+  return (
+    typeof counts.total === 'number' &&
+    Number.isFinite(counts.total) &&
+    typeof counts.correct === 'number' &&
+    Number.isFinite(counts.correct)
+  );
+}
+
+/** Una creación exige todos los campos; no rellena parciales con defaults. */
+function isCompleteProgress(
+  value: Partial<ConceptProgress>,
+): value is ConceptProgress {
+  const distribution = value.difficultyDistribution;
+
+  return (
+    typeof value.conceptId === 'string' &&
+    typeof value.domain === 'number' &&
+    Number.isFinite(value.domain) &&
+    typeof value.totalAttempts === 'number' &&
+    Number.isFinite(value.totalAttempts) &&
+    typeof value.correctAttempts === 'number' &&
+    Number.isFinite(value.correctAttempts) &&
+    typeof distribution === 'object' &&
+    distribution !== null &&
+    hasDifficultyCounts(distribution.beginner) &&
+    hasDifficultyCounts(distribution.intermediate) &&
+    hasDifficultyCounts(distribution.advanced) &&
+    Array.isArray(value.recentErrors) &&
+    typeof value.lastPracticed === 'string' &&
+    typeof value.schemaVersion === 'number' &&
+    Number.isFinite(value.schemaVersion)
+  );
+}
+
 /**
  * Estado de progreso de la aplicación (§18, T049).
  *
@@ -66,16 +104,23 @@ export function ProgressProvider({
       update: Partial<ConceptProgress>,
     ): Promise<void> => {
       const current = progress.get(conceptId);
+      const candidate: Partial<ConceptProgress> = {
+        ...current,
+        ...update,
+        conceptId,
+      };
 
-      // T049 no define valores iniciales para los campos obligatorios. Crear
-      // aquí dominio, métricas o fecha sería anticipar las reglas de T050.
-      if (current === undefined) {
-        const reason = new Error(`No existe progreso para el concepto ${conceptId}`);
+      // D018 aporta los valores iniciales desde el coordinador. Este contexto
+      // únicamente comprueba que estén todos: no inventa defaults ocultos.
+      if (current === undefined && !isCompleteProgress(candidate)) {
+        const reason = new Error(
+          `No existe progreso para el concepto ${conceptId} y la actualización es incompleta`,
+        );
         setError(reason.message);
         throw reason;
       }
 
-      const next: ConceptProgress = { ...current, ...update, conceptId };
+      const next = candidate as ConceptProgress;
 
       try {
         await repository.updateProgress(conceptId, next);
