@@ -20,4 +20,20 @@ describe('tokens de movimiento (T071)', () => {
     expect(tailwindConfig).toContain("standard: 'var(--motion-ease-standard)'");
     expect(tailwindConfig).toContain("emphasized: 'var(--motion-ease-emphasized)'");
   });
+
+  it('define fadeInUp y el stagger con los tokens de movimiento', () => {
+    expect(tailwindConfig).toContain('fadeInUp: {');
+    expect(tailwindConfig).toContain("transform: 'translateY(8px)'");
+    expect(tailwindConfig).toContain("transform: 'translateY(0)'");
+    expect(tailwindConfig).toContain(
+      "'fade-in-up':\n          'fadeInUp var(--motion-duration-normal) var(--motion-ease-standard) both'",
+    );
+    expect(css).toContain('.stagger-fade-in-up > *');
+    expect(css).toContain(
+      'animation: fadeInUp var(--motion-duration-normal) var(--motion-ease-standard) both;',
+    );
+    expect(css).toContain('animation-delay: var(--motion-duration-fast);');
+    expect(css).toContain('animation-delay: var(--motion-duration-normal);');
+    expect(css).toContain('animation-delay: var(--motion-duration-slow);');
+  });
 });

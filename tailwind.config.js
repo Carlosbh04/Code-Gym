@@ -101,6 +101,16 @@ export default {
         standard: 'var(--motion-ease-standard)',
         emphasized: 'var(--motion-ease-emphasized)',
       },
+      keyframes: {
+        fadeInUp: {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-in-up':
+          'fadeInUp var(--motion-duration-normal) var(--motion-ease-standard) both',
+      },
     },
   },
   plugins: [tailwindcssAnimate],

@@ -45,7 +45,7 @@ export function CodeReadingStep({
   }
 
   return (
-    <fieldset disabled={disabled} className={cn('min-w-0', className)}>
+    <fieldset disabled={disabled} className={cn('min-w-0 animate-fade-in-up', className)}>
       <legend className="mb-4 text-base font-medium text-foreground">
         {step.prompt}
       </legend>
@@ -58,7 +58,7 @@ export function CodeReadingStep({
         />
       )}
 
-      <ul className="flex flex-col gap-2">
+      <ul className="stagger-fade-in-up flex flex-col gap-2">
         {step.options.map((option) => {
           const selected = option.id === value;
 

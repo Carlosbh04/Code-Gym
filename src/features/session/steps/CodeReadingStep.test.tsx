@@ -20,7 +20,11 @@ describe('CodeReadingStep (T026)', () => {
       const step = await codeReadingStepOf(MAP_VS_FOREACH);
       render(<CodeReadingStep step={step} value={null} onChange={() => {}} />);
 
-      expect(screen.getByRole('group', { name: step.prompt })).toBeInTheDocument();
+      const group = screen.getByRole('group', { name: step.prompt });
+
+      expect(group).toBeInTheDocument();
+      expect(group).toHaveClass('animate-fade-in-up');
+      expect(within(group).getByRole('list')).toHaveClass('stagger-fade-in-up');
     });
 
     it('muestra el código del ejercicio', async () => {

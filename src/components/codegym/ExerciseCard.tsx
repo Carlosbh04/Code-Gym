@@ -31,7 +31,7 @@ export function ExerciseCard({
       aria-label={answered ? 'Ejercicio respondido' : 'Ejercicio actual'}
       data-state={state}
       className={cn(
-        'min-w-0 rounded-lg border bg-card p-4 sm:p-6',
+        'min-w-0 animate-fade-in-up rounded-lg border bg-card p-4 sm:p-6',
         answered ? 'border-primary/60 bg-primary/5' : 'border-border',
         className,
       )}

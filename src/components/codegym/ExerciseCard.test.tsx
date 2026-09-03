@@ -15,7 +15,15 @@ describe('ExerciseCard (T059)', () => {
 
     const card = screen.getByRole('article', { name: 'Ejercicio actual' });
     expect(card).toHaveAttribute('data-state', 'default');
-    expect(card).toHaveClass('min-w-0', 'rounded-lg', 'bg-card', 'p-4', 'sm:p-6', 'mt-6');
+    expect(card).toHaveClass(
+      'min-w-0',
+      'animate-fade-in-up',
+      'rounded-lg',
+      'bg-card',
+      'p-4',
+      'sm:p-6',
+      'mt-6',
+    );
     expect(card).toHaveTextContent('Lee el código antes de responder.');
     expect(screen.getAllByRole('main')).toHaveLength(1);
     expect(screen.queryByRole('heading')).not.toBeInTheDocument();

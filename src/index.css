@@ -175,3 +175,23 @@
 .codegym-code .hljs-property {
   color: hsl(var(--text-secondary));
 }
+
+/* T072: utilitario para entradas escalonadas. La animación base está en
+   Tailwind y consume los tokens de T071; solo el retraso cambia por ítem. */
+@layer utilities {
+  .stagger-fade-in-up > * {
+    animation: fadeInUp var(--motion-duration-normal) var(--motion-ease-standard) both;
+  }
+
+  .stagger-fade-in-up > :nth-child(2) {
+    animation-delay: var(--motion-duration-fast);
+  }
+
+  .stagger-fade-in-up > :nth-child(3) {
+    animation-delay: var(--motion-duration-normal);
+  }
+
+  .stagger-fade-in-up > :nth-child(4) {
+    animation-delay: var(--motion-duration-slow);
+  }
+}
