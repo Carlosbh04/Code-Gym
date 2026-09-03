@@ -36,11 +36,15 @@ const ATTEMPT: Attempt = {
 function repositories({
   completed = [COMPLETED],
   completedError,
+  completedSession = COMPLETED,
+  completedSessionError,
   attempts = [ATTEMPT],
   attemptsError,
 }: {
   completed?: CompletedSession[];
   completedError?: Error;
+  completedSession?: CompletedSession | null;
+  completedSessionError?: Error;
   attempts?: Attempt[];
   attemptsError?: Error;
 } = {}) {
@@ -55,7 +59,10 @@ function repositories({
   };
   const completedSessionRepository: ICompletedSessionRepository = {
     save: vi.fn(),
-    getBySessionId: vi.fn(),
+    getBySessionId: vi.fn(async () => {
+      if (completedSessionError) throw completedSessionError;
+      return completedSession;
+    }),
     getRecent: vi.fn(async () => {
       if (completedError) throw completedError;
       return completed;
@@ -162,6 +169,43 @@ describe('HistoryContext + useHistory (T055)', () => {
     expect(attempts).toEqual([ATTEMPT]);
     expect(result.current.attemptsError).toBeNull();
     expect(result.current.completedSessionsError).toBe('fallo completed');
+  });
+
+  it('expone la lectura puntual de una sesión completada sin cargar attempts', async () => {
+    const repos = repositories();
+    const { result } = renderHook(() => useHistory(), {
+      wrapper: wrapperFor(repos),
+    });
+
+    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
+
+    let completedSession: CompletedSession | null = null;
+    await act(async () => {
+      completedSession = await result.current.getCompletedSession('session-1');
+    });
+
+    expect(completedSession).toEqual(COMPLETED);
+    expect(repos.completedSessionRepository.getBySessionId).toHaveBeenCalledWith(
+      'session-1',
+    );
+    expect(repos.attemptRepository.getAttemptsBySession).not.toHaveBeenCalled();
+  });
+
+  it('propaga el error de lectura puntual de una sesión completada', async () => {
+    const repos = repositories({
+      completedSessionError: new Error('resultado no disponible'),
+    });
+    const { result } = renderHook(() => useHistory(), {
+      wrapper: wrapperFor(repos),
+    });
+
+    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
+
+    await act(async () => {
+      await expect(result.current.getCompletedSession('session-1')).rejects.toThrow(
+        'resultado no disponible',
+      );
+    });
   });
 
   it('termina en un estado coherente bajo StrictMode', async () => {

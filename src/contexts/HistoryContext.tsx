@@ -74,6 +74,12 @@ export function HistoryProvider({
     };
   }, [completedSessionRepository, recentLimit]);
 
+  const getCompletedSession = useCallback(
+    (sessionId: string): Promise<CompletedSession | null> =>
+      completedSessionRepository.getBySessionId(sessionId),
+    [completedSessionRepository],
+  );
+
   const getAttemptsBySession = useCallback(
     async (sessionId: string): Promise<Attempt[]> => {
       setAttemptsLoading(true);
@@ -96,6 +102,7 @@ export function HistoryProvider({
       recentCompletedSessions,
       completedSessionsLoading,
       completedSessionsError,
+      getCompletedSession,
       getAttemptsBySession,
       attemptsLoading,
       attemptsError,
@@ -104,6 +111,7 @@ export function HistoryProvider({
       recentCompletedSessions,
       completedSessionsLoading,
       completedSessionsError,
+      getCompletedSession,
       getAttemptsBySession,
       attemptsLoading,
       attemptsError,

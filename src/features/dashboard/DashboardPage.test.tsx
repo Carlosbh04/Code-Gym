@@ -125,6 +125,7 @@ function renderDashboard({
     recentCompletedSessions: completed,
     completedSessionsLoading: historyLoading,
     completedSessionsError: historyError,
+    getCompletedSession: vi.fn(),
     getAttemptsBySession: vi.fn(),
     attemptsLoading: false,
     attemptsError: null,

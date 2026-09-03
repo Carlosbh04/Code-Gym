@@ -53,12 +53,15 @@ const PROGRESS_KEY = 'codegym:progress';
 const ATTEMPTS_KEY = 'codegym:attempts';
 const COMPLETED_SESSIONS_KEY = 'codegym:completed-sessions';
 
+const ResultsDestination = () => <h1>Resultado de la sesión</h1>;
+
 const renderIntegratedSession = () =>
   render(
     <AppProviders>
       <MemoryRouter initialEntries={['/practice/js-arrays-map-vs-foreach-01']}>
         <Routes>
           <Route path="/practice/:sessionId" element={<SessionPage />} />
+          <Route path="/results/:sessionId" element={<ResultsDestination />} />
         </Routes>
       </MemoryRouter>
     </AppProviders>,
@@ -213,7 +216,7 @@ describe('SessionPage · persistencia integrada de sesión (T053)', () => {
     storageOperations.length = 0;
     fireEvent.click(screen.getByRole('button', { name: 'Terminar sesión' }));
 
-    await screen.findByRole('heading', { name: 'Sesión completada' });
+    await screen.findByRole('heading', { name: 'Resultado de la sesión' });
     await waitFor(() => expect(sessionStorage.getItem(RECOVERY_KEY)).toBeNull());
 
     const progressByConcept = readStoredJson<Record<string, ConceptProgress>>(

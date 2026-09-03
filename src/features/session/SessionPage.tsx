@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
@@ -61,6 +62,12 @@ function SessionPage() {
   } = useSession(sessionId);
 
   const isValidating = state.isValidating;
+
+  useEffect(() => {
+    if (state.isComplete && session !== null) {
+      navigate(`/results/${session.id}`, { replace: true });
+    }
+  }, [navigate, session, state.isComplete]);
 
   // El resultado ya lo calculó el engine al responder (D012): aquí solo se lee.
   const answer = state.answers[state.currentStep];
@@ -162,23 +169,6 @@ function SessionPage() {
       <p role="status" className="text-sm text-muted-foreground">
         Cargando la sesión…
       </p>
-    );
-  }
-
-  if (state.isComplete) {
-    return (
-      <section>
-        <h1 className="text-2xl font-bold text-foreground">Sesión completada</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Has respondido los {session.steps.length} pasos de {session.title}.
-        </p>
-        {storageWarning !== null && (
-          <StorageWarning
-            warning={storageWarning}
-            onRetry={retryRecoveryPersistence}
-          />
-        )}
-      </section>
     );
   }
 
