@@ -28,5 +28,11 @@
     "name": "Objects",
     "technologyId": "javascript",
     "description": "Propiedades, referencias y copias superficiales para leer y actualizar datos sin mutar estado compartido por accidente."
+  },
+  {
+    "id": "js-es6-plus",
+    "name": "ES6+",
+    "technologyId": "javascript",
+    "description": "Destructuring, parámetros rest y operadores modernos para expresar valores opcionales sin confundir ausencia con valores falsy."
   }
 ]

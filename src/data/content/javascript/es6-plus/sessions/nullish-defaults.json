@@ -1,0 +1,104 @@
+{
+  "id": "js-es6-nullish-defaults-01",
+  "title": "Ausente no significa falsy",
+  "difficulty": "advanced",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué imprime?",
+      "code": "const configuracion = { reintentos: 0 };\nconst maximo = configuracion.reintentos || 3;\nconsole.log(maximo);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "3", "correct": true },
+        { "id": "b", "text": "0", "correct": false },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": "Error", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "0 es falsy, así que || toma 3 aunque el cero sea un valor configurado explícitamente.",
+      "hints": [
+        "0 es un valor falsy en JavaScript.",
+        "|| usa el valor de la derecha cuando el de la izquierda es falsy."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const usuario = {};\nconsole.log(usuario.perfil?.nombre ?? 'Invitado');",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "Invitado", "correct": true },
+        { "id": "b", "text": "undefined", "correct": false },
+        { "id": "c", "text": "Error", "correct": false },
+        { "id": "d", "text": "null", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "usuario.perfil es undefined; ?. detiene el acceso y ?? aporta Invitado para ese valor ausente.",
+      "hints": [
+        "perfil no existe en usuario.",
+        "?. evita el acceso peligroso y ?? cubre null o undefined."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "ciudadDe debe devolver un fallback si falta direccion, pero lanza una excepción. Localiza el error.",
+      "code": "function ciudadDe(usuario) {\n  return usuario.direccion.ciudad ?? 'sin ciudad';\n}\nconsole.log(ciudadDe({}));",
+      "language": "javascript",
+      "options": [
+        { "id": "conceptual", "text": "Conceptual: falta optional chaining antes de ciudad", "correct": true },
+        { "id": "scope", "text": "Scope: usuario debe declararse global", "correct": false },
+        { "id": "flujo", "text": "Flujo: el fallback debe ir antes del return", "correct": false },
+        { "id": "mutacion", "text": "Mutación: ?? modifica al usuario", "correct": false }
+      ],
+      "errorLines": [2],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "?? solo actúa después de evaluar su lado izquierdo. Si direccion no existe, el acceso a ciudad falla antes; usuario.direccion?.ciudad evita ese acceso.",
+      "hints": [
+        "¿Qué ocurre antes de que ?? pueda elegir el fallback?",
+        "Protege el acceso desde direccion con ?."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige etiqueta para conservar una cadena vacía configurada y usar el fallback solo si falta el valor.",
+      "code": "function etiqueta(valor) {\n  return valor || 'sin etiqueta';\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        { "input": "", "expected": "", "call": "etiqueta(input)", "description": "conserva una cadena vacía" },
+        { "input": null, "expected": "sin etiqueta", "call": "etiqueta(input)", "description": "cubre un valor ausente" },
+        { "input": "personal", "expected": "personal", "call": "etiqueta(input)", "description": "conserva un valor definido" }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Usa valor ?? 'sin etiqueta': ?? solo reemplaza null y undefined, no una cadena vacía válida.",
+      "hints": [
+        "La cadena vacía es falsy, pero sigue siendo un valor elegido.",
+        "Sustituye || por el operador nullish coalescing."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

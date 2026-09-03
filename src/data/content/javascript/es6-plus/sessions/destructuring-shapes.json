@@ -1,0 +1,103 @@
+{
+  "id": "js-es6-destructuring-shapes-01",
+  "title": "La forma del dato importa",
+  "difficulty": "beginner",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué imprime?",
+      "code": "const [primero, , tercero] = ['rojo', 'verde', 'azul'];\nconsole.log(primero, tercero);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "rojo azul", "correct": true },
+        { "id": "b", "text": "rojo verde", "correct": false },
+        { "id": "c", "text": "verde azul", "correct": false },
+        { "id": "d", "text": "Error", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La coma vacía omite el segundo elemento; primero recibe rojo y tercero recibe azul.",
+      "hints": [
+        "La posición entre las dos comas no tiene variable.",
+        "Los corchetes extraen por posición."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const { nombre = 'anónimo', rol = 'lector' } = { nombre: 'Ada' };\nconsole.log(`${nombre}: ${rol}`);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "Ada: lector", "correct": true },
+        { "id": "b", "text": "anónimo: lector", "correct": false },
+        { "id": "c", "text": "Ada: undefined", "correct": false },
+        { "id": "d", "text": "Error", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "nombre existe en el objeto y conserva Ada; rol no existe, así que toma su valor por defecto.",
+      "hints": [
+        "Cada propiedad tiene su propio valor por defecto.",
+        "El valor por defecto solo se usa cuando falta esa propiedad."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "presentar recibe una lista, pero al ejecutarse falla. Localiza el error conceptual.",
+      "code": "function presentar(datos) {\n  const { nombre } = datos;\n  return nombre.toUpperCase();\n}\nconsole.log(presentar(['ada']));",
+      "language": "javascript",
+      "options": [
+        { "id": "conceptual", "text": "Conceptual: un array debe desestructurarse con corchetes", "correct": true },
+        { "id": "scope", "text": "Scope: nombre debe declararse fuera de la función", "correct": false },
+        { "id": "flujo", "text": "Flujo: sobra el return", "correct": false },
+        { "id": "mutacion", "text": "Mutación: toUpperCase altera el array", "correct": false }
+      ],
+      "errorLines": [2],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "datos es un array, así que { nombre } busca una propiedad llamada nombre que no existe. Para extraer su primer elemento se usa [nombre].",
+      "hints": [
+        "Mira la forma de datos en la llamada.",
+        "Los arrays se desestructuran con []."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige sumarCoordenadas para aceptar un array [x, y].",
+      "code": "function sumarCoordenadas(coordenadas) {\n  const { x, y } = coordenadas;\n  return x + y;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        { "input": [3, 4], "expected": 7, "call": "sumarCoordenadas(input)", "description": "suma dos coordenadas" },
+        { "input": [0, 5], "expected": 5, "call": "sumarCoordenadas(input)", "description": "conserva el cero" }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Como coordenadas es un array, usa const [x, y] = coordenadas para extraer sus posiciones.",
+      "hints": [
+        "La entrada es una lista ordenada.",
+        "Sustituye las llaves por corchetes."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

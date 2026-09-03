@@ -1,0 +1,103 @@
+{
+  "id": "js-es6-rest-arguments-01",
+  "title": "Los argumentos que sobran",
+  "difficulty": "intermediate",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué imprime?",
+      "code": "function unir(separador, ...palabras) {\n  return palabras.join(separador);\n}\nconsole.log(unir('-', 'api', 'v1', 'users'));",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "api-v1-users", "correct": true },
+        { "id": "b", "text": "-api-v1-users", "correct": false },
+        { "id": "c", "text": "api, v1, users", "correct": false },
+        { "id": "d", "text": "Error", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "separador recibe '-' y rest reúne los tres argumentos restantes en palabras antes de unirlos.",
+      "hints": [
+        "El primer argumento no entra en palabras.",
+        "...palabras es un array con api, v1 y users."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const etiquetas = [...new Set(['api', 'api', 'web'])];\nconsole.log(etiquetas.join(', '));",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "api, web", "correct": true },
+        { "id": "b", "text": "api, api, web", "correct": false },
+        { "id": "c", "text": "[api, web]", "correct": false },
+        { "id": "d", "text": "Error", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Set conserva valores únicos; el spread lo convierte en un array para aplicar join.",
+      "hints": [
+        "Set no mantiene duplicados iguales.",
+        "El spread extrae los valores del Set."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La declaración de registrar ni siquiera puede ejecutarse. Localiza el error.",
+      "code": "function registrar(...eventos, nivel) {\n  return `${nivel}: ${eventos.length}`;\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "conceptual", "text": "Conceptual: el parámetro rest debe ser el último", "correct": true },
+        { "id": "scope", "text": "Scope: nivel debe ser una variable global", "correct": false },
+        { "id": "flujo", "text": "Flujo: falta un else", "correct": false },
+        { "id": "estado", "text": "Estado: eventos no conserva su longitud", "correct": false }
+      ],
+      "errorLines": [1],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Un parámetro rest absorbe todos los argumentos restantes; por eso no puede haber otro parámetro después de él.",
+      "hints": [
+        "Piensa qué argumentos puede absorber rest.",
+        "Después de ...eventos no puede declararse otro parámetro."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige sumarTodos para aceptar cualquier cantidad de números.",
+      "code": "function sumarTodos(numeros) {\n  return numeros.reduce((total, numero) => total + numero, 0);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        { "input": [2, 3, 5], "expected": 10, "call": "sumarTodos(...input)", "description": "suma varios argumentos" },
+        { "input": [], "expected": 0, "call": "sumarTodos(...input)", "description": "acepta cero argumentos" }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Declara ...numeros para reunir los argumentos sueltos en el array que reduce necesita.",
+      "hints": [
+        "La llamada expande el array en argumentos separados.",
+        "El parámetro necesita empezar por tres puntos."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}
