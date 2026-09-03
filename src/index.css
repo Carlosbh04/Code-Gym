@@ -74,6 +74,14 @@
     --radius-xl: 16px;
     --radius-full: 9999px;
 
+    /* Movimiento — base reutilizable para transiciones y animaciones (T071).
+       Las keyframes y su aplicación por componente se añaden en T072–T077. */
+    --motion-duration-fast: 150ms;
+    --motion-duration-normal: 200ms;
+    --motion-duration-slow: 300ms;
+    --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+
     /* NOTA sobre --space-*: la escala de espaciado de §12 (4,8,12,16,20,24,
        32,40,48,64 px) es idéntica a la de Tailwind (1,2,3,4,5,6,8,10,12,16).
        Se consume vía utilidades (p-4, gap-6…) y no se duplica como variables

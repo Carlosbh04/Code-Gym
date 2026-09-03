@@ -90,6 +90,17 @@ export default {
         xl: 'var(--radius-xl)',
         full: 'var(--radius-full)',
       },
+      /* Tokens de movimiento T071. Los componentes podrán usar duration-* y
+         ease-* sin introducir literales ni dependencias de animación. */
+      transitionDuration: {
+        fast: 'var(--motion-duration-fast)',
+        normal: 'var(--motion-duration-normal)',
+        slow: 'var(--motion-duration-slow)',
+      },
+      transitionTimingFunction: {
+        standard: 'var(--motion-ease-standard)',
+        emphasized: 'var(--motion-ease-emphasized)',
+      },
     },
   },
   plugins: [tailwindcssAnimate],
