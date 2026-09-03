@@ -20,6 +20,7 @@ describe('StaticContentRepository (T019)', () => {
       for (const method of [
         'getTechnologies',
         'getTopicsByTechnology',
+        'getConceptsByTopic',
         'getConceptById',
         'getSessionsByConcept',
         'getSessionById',
@@ -31,6 +32,7 @@ describe('StaticContentRepository (T019)', () => {
     it('todas las operaciones devuelven promesas', async () => {
       await expect(repo.getTechnologies()).resolves.toBeInstanceOf(Array);
       await expect(repo.getTopicsByTechnology('javascript')).resolves.toBeInstanceOf(Array);
+      await expect(repo.getConceptsByTopic('x')).resolves.toBeInstanceOf(Array);
       await expect(repo.getConceptById('x')).resolves.toBeNull();
       await expect(repo.getSessionsByConcept('x')).resolves.toBeInstanceOf(Array);
       await expect(repo.getSessionById('x')).resolves.toBeNull();
@@ -183,6 +185,39 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('indices de contenido (T021)', () => {
+    it('devuelve los conceptos del topic en su orden canónico sin cargar sesiones', async () => {
+      const source = readFileSync(
+        'src/lib/repositories/StaticContentRepository.ts',
+        'utf8',
+      );
+      const topicQuerySource = source.slice(
+        source.indexOf('private async loadConceptsByTopic'),
+        source.indexOf('private async findConceptPath'),
+      );
+      const concepts = await repo.getConceptsByTopic('js-arrays');
+
+      expect(concepts.map((concept) => concept.id)).toEqual([ARRAYS_CONCEPT]);
+      expect(concepts[0]?.contentMarkdown).toContain('forEach');
+      expect(topicQuerySource).not.toContain('sessionLoaders');
+      expect(topicQuerySource).not.toContain('loadSession(');
+    });
+
+    it('devuelve una colección vacía para un topic sin conceptos', async () => {
+      await expect(repo.getConceptsByTopic('js-no-existe')).resolves.toEqual([]);
+    });
+
+    it('reutiliza los conceptos compuestos y devuelve arrays propiedad del llamante', async () => {
+      const first = await repo.getConceptsByTopic('js-arrays');
+      const second = await repo.getConceptsByTopic('js-arrays');
+
+      expect(first).not.toBe(second);
+      expect(first[0]).toBe(second[0]);
+      first.reverse();
+      expect((await repo.getConceptsByTopic('js-arrays')).map((concept) => concept.id)).toEqual([
+        ARRAYS_CONCEPT,
+      ]);
+    });
+
     it('carga las tecnologias declaradas en technologies.json', async () => {
       const technologies = await repo.getTechnologies();
 

@@ -121,6 +121,7 @@ describe('ExerciseEngine (T023)', () => {
       const espia: IContentRepository = {
         getTechnologies: () => Promise.resolve([]),
         getTopicsByTechnology: () => Promise.resolve([]),
+        getConceptsByTopic: () => Promise.resolve([]),
         getConceptById: () => Promise.resolve(null),
         getSessionsByConcept: () => Promise.resolve([]),
         getSessionById: (id) => {

@@ -44,6 +44,7 @@ function renderTechnologyPage({
     isLoading,
     getTechnology: (id) => technologies.find((technology) => technology.id === id),
     getTopics,
+    getConceptsByTopic: vi.fn(),
     getConcept: vi.fn(),
     getSessionsByConcept: vi.fn(),
     getSession: vi.fn(),

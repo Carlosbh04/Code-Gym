@@ -34,7 +34,14 @@ const ITERATION: Concept = {
  * permite provocar fallos reales del repositorio.
  */
 class FakeContentRepository implements IContentRepository {
-  calls = { technologies: 0, topics: 0, concept: 0, sessions: 0, session: 0 };
+  calls = {
+    technologies: 0,
+    topics: 0,
+    conceptsByTopic: 0,
+    concept: 0,
+    sessions: 0,
+    session: 0,
+  };
 
   constructor(private readonly failOn: Set<string> = new Set()) {}
 
@@ -54,6 +61,14 @@ class FakeContentRepository implements IContentRepository {
   async getConceptById(conceptId: string): Promise<Concept | null> {
     this.calls.concept += 1;
     return conceptId === ITERATION.id ? ITERATION : null;
+  }
+
+  async getConceptsByTopic(topicId: string): Promise<Concept[]> {
+    this.calls.conceptsByTopic += 1;
+    if (this.failOn.has('conceptsByTopic')) {
+      throw new Error('fallo al leer los conceptos');
+    }
+    return topicId === ARRAYS_TOPIC.id ? [ITERATION] : [];
   }
 
   async getSessionsByConcept(conceptId: string): Promise<ExerciseSession[]> {
@@ -95,6 +110,7 @@ describe('ContentContext + useContent (T020)', () => {
 
       expect(Object.keys(result.current).sort()).toEqual([
         'getConcept',
+        'getConceptsByTopic',
         'getSession',
         'getSessionsByConcept',
         'getTechnology',
@@ -105,6 +121,7 @@ describe('ContentContext + useContent (T020)', () => {
       expect(typeof result.current.getTechnology).toBe('function');
       expect(typeof result.current.getTopics).toBe('function');
       expect(typeof result.current.getConcept).toBe('function');
+      expect(typeof result.current.getConceptsByTopic).toBe('function');
       expect(typeof result.current.getSessionsByConcept).toBe('function');
       expect(typeof result.current.getSession).toBe('function');
     });
@@ -175,6 +192,16 @@ describe('ContentContext + useContent (T020)', () => {
       await expect(result.current.getConcept('no-existe')).resolves.toBeNull();
     });
 
+    it('getConceptsByTopic delega en el contrato de conceptos por topic', async () => {
+      const repo = new FakeContentRepository();
+      const { result } = await mountHook(repo);
+
+      await expect(result.current.getConceptsByTopic(ARRAYS_TOPIC.id)).resolves.toEqual([
+        ITERATION,
+      ]);
+      expect(repo.calls.conceptsByTopic).toBe(1);
+    });
+
     it('getSession delega en getSessionById', async () => {
       const repo = new FakeContentRepository();
       const { result } = await mountHook(repo);
@@ -216,6 +243,16 @@ describe('ContentContext + useContent (T020)', () => {
       expect(repo.calls.concept).toBe(1);
     });
 
+    it('no repite la consulta de conceptos ya cacheada por topic', async () => {
+      const repo = new FakeContentRepository();
+      const { result } = await mountHook(repo);
+
+      await result.current.getConceptsByTopic(ARRAYS_TOPIC.id);
+      await result.current.getConceptsByTopic(ARRAYS_TOPIC.id);
+
+      expect(repo.calls.conceptsByTopic).toBe(1);
+    });
+
     it('no repite la consulta de sesiones ya cacheadas por concepto', async () => {
       const repo = new FakeContentRepository();
       const { result } = await mountHook(repo);
@@ -254,6 +291,15 @@ describe('ContentContext + useContent (T020)', () => {
       await expect(
         result.current.getSessionsByConcept(ITERATION.id),
       ).rejects.toThrow('fallo al leer las sesiones');
+    });
+
+    it('propaga un error al cargar conceptos de un topic', async () => {
+      const repo = new FakeContentRepository(new Set(['conceptsByTopic']));
+      const { result } = await mountHook(repo);
+
+      await expect(
+        result.current.getConceptsByTopic(ARRAYS_TOPIC.id),
+      ).rejects.toThrow('fallo al leer los conceptos');
     });
 
     it('un fallo en la carga inicial deja lista vacía, registra el error y no bloquea', async () => {

@@ -137,6 +137,7 @@ function renderDashboard({
     technologies: [],
     getTechnology: vi.fn(),
     getTopics: vi.fn(),
+    getConceptsByTopic: vi.fn(),
     getConcept: vi.fn(async (id: string) => CONCEPTS[id] ?? null),
     getSessionsByConcept,
     getSession: vi.fn(async (id: string) => (id === SESSION.id ? SESSION : null)),

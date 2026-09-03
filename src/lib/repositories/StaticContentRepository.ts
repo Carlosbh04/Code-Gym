@@ -51,6 +51,8 @@ const conceptPaths = new Map<string, string>();
 /** Rutas ordenadas, para que las consultas devuelvan un orden estable. */
 const sessionPaths = Object.keys(sessionLoaders).sort();
 
+type ConceptMetadata = Omit<Concept, 'contentMarkdown'>;
+
 function deepFreeze<T>(value: T): T {
   if (value === null || typeof value !== 'object' || Object.isFrozen(value)) {
     return value;
@@ -67,7 +69,31 @@ async function loadSession(path: string): Promise<ExerciseSession> {
   return deepFreeze(module.default);
 }
 
+async function composeConcept(
+  path: string,
+  metadata: ConceptMetadata,
+): Promise<Concept | null> {
+  const cached = composedConcepts.get(metadata.id);
+  if (cached) return cached;
+
+  const markdownPath = path.replace(/index\.json$/, 'concept.md');
+  const loadMarkdown = conceptMarkdownLoaders[markdownPath];
+  if (!loadMarkdown) return null;
+
+  const concept = deepFreeze({
+    ...metadata,
+    contentMarkdown: await loadMarkdown(),
+  });
+  composedConcepts.set(metadata.id, concept);
+  conceptPaths.set(metadata.id, path);
+  return concept;
+}
+
 export class StaticContentRepository implements IContentRepository {
+  private readonly conceptsByTopic = new Map<
+    string,
+    Promise<readonly Concept[]>
+  >();
   private readonly sessionsByConcept = new Map<
     string,
     Promise<readonly ExerciseSession[]>
@@ -96,6 +122,26 @@ export class StaticContentRepository implements IContentRepository {
   }
 
   /**
+   * Conceptos completos de un topic, en el orden estable de sus índices.
+   * La prosa solo se carga para los conceptos del topic solicitado; no carga
+   * ninguna sesión (D005).
+   */
+  async getConceptsByTopic(topicId: string): Promise<Concept[]> {
+    let pending = this.conceptsByTopic.get(topicId);
+    if (pending === undefined) {
+      pending = this.loadConceptsByTopic(topicId);
+      this.conceptsByTopic.set(topicId, pending);
+    }
+
+    try {
+      return [...(await pending)];
+    } catch (error: unknown) {
+      this.conceptsByTopic.delete(topicId);
+      throw error;
+    }
+  }
+
+  /**
    * Concepto completo: los metadatos vienen del `index.json` del topic y el
    * `contentMarkdown` del `concept.md` que está a su lado. Un concepto sin
    * prosa se considera contenido incompleto y no se devuelve a medias.
@@ -111,19 +157,7 @@ export class StaticContentRepository implements IContentRepository {
       if (metadata.id !== conceptId) {
         continue;
       }
-
-      const markdownPath = path.replace(/index\.json$/, 'concept.md');
-      const loadMarkdown = conceptMarkdownLoaders[markdownPath];
-      if (!loadMarkdown) {
-        return null;
-      }
-
-      const concept = deepFreeze({
-        ...metadata,
-        contentMarkdown: await loadMarkdown(),
-      });
-      composedConcepts.set(conceptId, concept);
-      return concept;
+      return composeConcept(path, metadata);
     }
 
     return null;
@@ -171,6 +205,22 @@ export class StaticContentRepository implements IContentRepository {
     const paths = sessionPaths.filter((path) => path.startsWith(topicDirectory));
     const sessions = await Promise.all(paths.map(loadSession));
     return sessions.filter((session) => session.conceptId === conceptId);
+  }
+
+  private async loadConceptsByTopic(
+    topicId: string,
+  ): Promise<readonly Concept[]> {
+    const concepts: Concept[] = [];
+
+    for (const path of Object.keys(conceptLoaders).sort()) {
+      const metadata = (await conceptLoaders[path]()).default;
+      if (metadata.topicId !== topicId) continue;
+
+      const concept = await composeConcept(path, metadata);
+      if (concept !== null) concepts.push(concept);
+    }
+
+    return concepts;
   }
 
   private async findConceptPath(conceptId: string): Promise<string | null> {

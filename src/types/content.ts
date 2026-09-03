@@ -26,6 +26,7 @@ export interface ContentContextValue {
   technologies: Technology[];
   getTechnology: (id: string) => Technology | undefined;
   getTopics: (technologyId: string) => Promise<Topic[]>;
+  getConceptsByTopic: (topicId: string) => Promise<Concept[]>;
   getConcept: (conceptId: string) => Promise<Concept | null>;
   getSessionsByConcept: (conceptId: string) => Promise<ExerciseSession[]>;
   getSession: (sessionId: string) => Promise<ExerciseSession | null>;

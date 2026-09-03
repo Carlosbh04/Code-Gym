@@ -101,6 +101,7 @@ const answerAndAdvance = async (optionText: string) => {
 const failingRepo: IContentRepository = {
   getTechnologies: () => Promise.resolve([] as Technology[]),
   getTopicsByTechnology: () => Promise.resolve([] as Topic[]),
+  getConceptsByTopic: () => Promise.resolve([] as Concept[]),
   getConceptById: () => Promise.resolve(null as Concept | null),
   getSessionsByConcept: () => Promise.resolve([]),
   getSessionById: () => Promise.reject(new Error('el contenido no se pudo leer')),

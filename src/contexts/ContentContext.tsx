@@ -49,6 +49,7 @@ export function ContentProvider({
 
   const topicsCache = useRef(new Map<string, Topic[]>());
   const conceptCache = useRef(new Map<string, Concept>());
+  const topicConceptsCache = useRef(new Map<string, Concept[]>());
   const conceptSessionsCache = useRef(new Map<string, ExerciseSession[]>());
   const sessionCache = useRef(new Map<string, ExerciseSession>());
 
@@ -119,6 +120,21 @@ export function ContentProvider({
     [repository],
   );
 
+  const getConceptsByTopic = useCallback(
+    async (topicId: string): Promise<Concept[]> => {
+      const cached = topicConceptsCache.current.get(topicId);
+      if (cached) return cached;
+
+      const concepts = await repository.getConceptsByTopic(topicId);
+      topicConceptsCache.current.set(topicId, concepts);
+      for (const concept of concepts) {
+        conceptCache.current.set(concept.id, concept);
+      }
+      return concepts;
+    },
+    [repository],
+  );
+
   const getSession = useCallback(
     async (sessionId: string): Promise<ExerciseSession | null> => {
       const cached = sessionCache.current.get(sessionId);
@@ -155,6 +171,7 @@ export function ContentProvider({
       technologies,
       getTechnology,
       getTopics,
+      getConceptsByTopic,
       getConcept,
       getSessionsByConcept,
       getSession,
@@ -164,6 +181,7 @@ export function ContentProvider({
       technologies,
       getTechnology,
       getTopics,
+      getConceptsByTopic,
       getConcept,
       getSessionsByConcept,
       getSession,

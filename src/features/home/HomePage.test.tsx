@@ -33,6 +33,7 @@ function renderHome({
     isLoading,
     getTechnology: vi.fn(),
     getTopics: vi.fn(),
+    getConceptsByTopic: vi.fn(),
     getConcept: vi.fn(),
     getSessionsByConcept: vi.fn(),
     getSession: vi.fn(),
