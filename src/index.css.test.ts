@@ -51,4 +51,13 @@ describe('tokens de movimiento (T071)', () => {
       "shake: 'shake var(--motion-duration-normal) var(--motion-ease-standard) both'",
     );
   });
+
+  it('define progressFill con variables de origen y destino', () => {
+    expect(tailwindConfig).toContain('progressFill: {');
+    expect(tailwindConfig).toContain("from: { width: 'var(--from)' }");
+    expect(tailwindConfig).toContain("to: { width: 'var(--to)' }");
+    expect(tailwindConfig).toContain(
+      "'progress-fill':\n          'progressFill var(--motion-duration-slow) var(--motion-ease-standard) both'",
+    );
+  });
 });

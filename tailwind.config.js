@@ -116,6 +116,10 @@ export default {
           '25%': { transform: 'translateX(-4px)' },
           '75%': { transform: 'translateX(4px)' },
         },
+        progressFill: {
+          from: { width: 'var(--from)' },
+          to: { width: 'var(--to)' },
+        },
       },
       animation: {
         'fade-in-up':
@@ -123,6 +127,8 @@ export default {
         'correct-pulse':
           'correctPulse var(--motion-duration-slow) var(--motion-ease-emphasized) both',
         shake: 'shake var(--motion-duration-normal) var(--motion-ease-standard) both',
+        'progress-fill':
+          'progressFill var(--motion-duration-slow) var(--motion-ease-standard) both',
       },
     },
   },
