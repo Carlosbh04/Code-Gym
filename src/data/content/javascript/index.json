@@ -16,5 +16,11 @@
     "name": "Closures",
     "technologyId": "javascript",
     "description": "Qué captura una función interna, cuándo dos funciones comparten la misma variable y por qué ven el valor de hoy, no el del momento en que se crearon."
+  },
+  {
+    "id": "js-promises",
+    "name": "Promises",
+    "technologyId": "javascript",
+    "description": "Cómo encadenar resultados asíncronos, propagar errores y esperar una promesa antes de usar su valor."
   }
 ]
