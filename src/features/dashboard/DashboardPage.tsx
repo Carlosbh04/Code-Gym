@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
 import { useProgress } from '@/hooks/useProgress';
+import { useResetProgress } from '@/hooks/useResetProgress';
 import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
 import { DiagnosisVerdict } from './components/DiagnosisVerdict';
 import { EvidencePiece } from './components/EvidencePiece';
@@ -42,6 +43,17 @@ function DashboardPage() {
     completedSessionsError,
   } = useHistory();
   const { getConcept, getSession, getSessionsByConcept } = useContent();
+  const { resetProgress } = useResetProgress();
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+  const confirmReset = async () => {
+    if (resetting) return;
+    setResetting(true); setResetError(null);
+    try { await resetProgress(); setResetOpen(false); }
+    catch (error) { setResetError(error instanceof Error ? error.message : String(error)); }
+    finally { setResetting(false); }
+  };
   const model = useMemo(
     () => createDashboardViewModel(progress.values()),
     [progress],
@@ -167,6 +179,19 @@ function DashboardPage() {
       error={completedSessionsError}
     />
   );
+  const resetAction = (
+    <section className="border-t border-border pt-6" aria-labelledby="reset-progress-title">
+      <h2 id="reset-progress-title" className="text-sm font-semibold text-foreground">Restablecer progreso</h2>
+      <p className="mt-2 text-sm text-muted-foreground">Elimina los datos de práctica guardados en este dispositivo.</p>
+      <button type="button" className="mt-3 rounded-md border border-destructive px-4 py-2 text-sm font-semibold text-destructive" onClick={() => setResetOpen(true)}>Restablecer progreso</button>
+      {resetOpen && <div role="dialog" aria-modal="true" aria-labelledby="reset-dialog-title" className="mt-4 max-w-lg rounded-md border border-destructive/50 bg-muted p-4">
+        <h3 id="reset-dialog-title" className="font-semibold">¿Restablecer progreso?</h3>
+        <p className="mt-2 text-sm text-muted-foreground">Se eliminarán tu progreso, intentos y sesiones completadas guardadas en este dispositivo. Esta acción no se puede deshacer.</p>
+        {resetError && <p role="alert" className="mt-3 text-sm text-destructive">No se pudo restablecer el progreso: {resetError}</p>}
+        <div className="mt-4 flex gap-3"><button type="button" disabled={resetting} onClick={() => setResetOpen(false)}>Cancelar</button><button type="button" disabled={resetting} onClick={confirmReset} className="rounded-md bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground">{resetting ? 'Restableciendo…' : 'Restablecer progreso'}</button></div>
+      </div>}
+    </section>
+  );
 
   if (progressLoading) {
     return (
@@ -206,6 +231,7 @@ function DashboardPage() {
           </p>
         </section>
         {activity}
+        {resetAction}
       </div>
     );
   }
@@ -284,6 +310,7 @@ function DashboardPage() {
       />
       {activity}
       <ProgressOverview overview={model.overview} />
+      {resetAction}
     </div>
   );
 }

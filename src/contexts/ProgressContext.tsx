@@ -142,10 +142,11 @@ export function ProgressProvider({
     (conceptId: string): number => progress.get(conceptId)?.domain ?? 0,
     [progress],
   );
+  const resetState = useCallback(() => { setProgress(new Map()); setError(null); }, []);
 
   const value = useMemo<ProgressContextValue>(
-    () => ({ progress, updateProgress, getConceptDomain, isLoading, error }),
-    [progress, updateProgress, getConceptDomain, isLoading, error],
+    () => ({ progress, updateProgress, getConceptDomain, resetState, isLoading, error }),
+    [progress, updateProgress, getConceptDomain, resetState, isLoading, error],
   );
 
   return (

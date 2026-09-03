@@ -79,6 +79,7 @@ export interface ProgressContextValue {
     update: Partial<ConceptProgress>,
   ) => Promise<void>;
   getConceptDomain: (conceptId: string) => number;
+  resetState?: () => void;
   isLoading: boolean;
   error: string | null;
 }

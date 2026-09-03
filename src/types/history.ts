@@ -9,4 +9,5 @@ export interface HistoryContextValue {
   getAttemptsBySession: (sessionId: string) => Promise<Attempt[]>;
   attemptsLoading: boolean;
   attemptsError: string | null;
+  resetState?: () => void;
 }

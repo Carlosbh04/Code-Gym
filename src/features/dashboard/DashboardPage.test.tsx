@@ -1,10 +1,11 @@
 import { type ReactNode } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
 import { HistoryContext } from '@/contexts/history-context';
 import { ProgressContext } from '@/contexts/progress-context';
+import { ResetProgressContext } from '@/contexts/reset-progress-context';
 import type { ContentContextValue, Concept } from '@/types/content';
 import type { HistoryContextValue } from '@/types/history';
 import type { ExerciseSession } from '@/types/exercise';
@@ -102,6 +103,7 @@ interface RenderOptions {
   historyError?: string | null;
   sessions?: ExerciseSession[];
   contentError?: Error;
+  resetProgress?: () => Promise<void>;
 }
 
 function renderDashboard({
@@ -113,6 +115,7 @@ function renderDashboard({
   historyError = null,
   sessions = [SESSION],
   contentError,
+  resetProgress = async () => {},
 }: RenderOptions = {}) {
   const progressValue: ProgressContextValue = {
     progress: new Map(progress.map((item) => [item.conceptId, item])),
@@ -150,9 +153,7 @@ function renderDashboard({
       <ProgressContext.Provider value={progressValue}>
         <HistoryContext.Provider value={historyValue}>
           <ContentContext.Provider value={contentValue}>
-            <MemoryRouter>
-              <main>{children}</main>
-            </MemoryRouter>
+            <ResetProgressContext.Provider value={{ resetProgress }}><MemoryRouter><main>{children}</main></MemoryRouter></ResetProgressContext.Provider>
           </ContentContext.Provider>
         </HistoryContext.Provider>
       </ProgressContext.Provider>
@@ -166,6 +167,32 @@ function renderDashboard({
 }
 
 describe('DashboardPage (T055)', () => {
+  it('confirma el reset exactamente una vez', async () => {
+    const resetProgress = vi.fn(async () => {});
+    renderDashboard({ progress: [progressOf('arrays', 3, 2)], resetProgress });
+    fireEvent.click(screen.getByRole('button', { name: 'Restablecer progreso' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Restablecer progreso' }));
+    await waitFor(() => expect(resetProgress).toHaveBeenCalledOnce());
+  });
+
+  it('muestra el error y permite reintentar el reset', async () => {
+    const resetProgress = vi.fn().mockRejectedValueOnce(new Error('storage bloqueado')).mockResolvedValueOnce(undefined);
+    renderDashboard({ progress: [progressOf('arrays', 3, 2)], resetProgress });
+    fireEvent.click(screen.getByRole('button', { name: 'Restablecer progreso' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Restablecer progreso' })[1]);
+    expect(await screen.findByRole('alert')).toHaveTextContent('storage bloqueado');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Restablecer progreso' })[1]);
+    await waitFor(() => expect(resetProgress).toHaveBeenCalledTimes(2));
+  });
+  it('confirma el restablecimiento y cancelar no ejecuta la operación', () => {
+    const resetProgress = vi.fn(async () => {});
+    renderDashboard({ progress: [progressOf('arrays', 3, 2)], resetProgress });
+    fireEvent.click(screen.getByRole('button', { name: 'Restablecer progreso' }));
+    expect(screen.getByRole('dialog')).toHaveTextContent('Esta acción no se puede deshacer');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(resetProgress).not.toHaveBeenCalled();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
   it('muestra un estado loading accesible sin solicitar recomendaciones', () => {
     const { getSessionsByConcept } = renderDashboard({ progressLoading: true });
 

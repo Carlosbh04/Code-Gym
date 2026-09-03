@@ -5,6 +5,7 @@ import { HistoryProvider } from '@/contexts/HistoryContext';
 import { ProgressProvider } from '@/contexts/ProgressContext';
 import { SessionCompletionProvider } from '@/contexts/SessionCompletionContext';
 import { SessionRecoveryProvider } from '@/contexts/SessionRecoveryContext';
+import { ResetProgressProvider } from '@/contexts/ResetProgressContext';
 import type { ExecutionContextValue } from '@/contexts/execution-context';
 import { ExerciseEngine } from '@/lib/engine/exercise-engine';
 import { WorkerExecutor } from '@/lib/executor/WorkerExecutor';
@@ -90,6 +91,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
         attemptRepository={attemptRepository}
         completedSessionRepository={completedSessionRepository}
       >
+        <ResetProgressProvider
+          progressRepository={progressRepository}
+          attemptRepository={attemptRepository}
+          completedSessionRepository={completedSessionRepository}
+        >
         <SessionCompletionProvider
           attemptRepository={attemptRepository}
           completedSessionRepository={completedSessionRepository}
@@ -100,6 +106,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
             </ContentProvider>
           </SessionRecoveryProvider>
         </SessionCompletionProvider>
+        </ResetProgressProvider>
       </HistoryProvider>
     </ProgressProvider>
   );

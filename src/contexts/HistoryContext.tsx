@@ -96,6 +96,11 @@ export function HistoryProvider({
     },
     [attemptRepository],
   );
+  const resetState = useCallback(() => {
+    setRecentCompletedSessions([]);
+    setCompletedSessionsError(null);
+    setAttemptsError(null);
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -106,6 +111,7 @@ export function HistoryProvider({
       getAttemptsBySession,
       attemptsLoading,
       attemptsError,
+      resetState,
     }),
     [
       recentCompletedSessions,
@@ -115,6 +121,7 @@ export function HistoryProvider({
       getAttemptsBySession,
       attemptsLoading,
       attemptsError,
+      resetState,
     ],
   );
 
