@@ -134,6 +134,10 @@ describe('SessionPage (T027)', () => {
       expect(primero.type).toBe('code-reading');
       expect(screen.getByRole('group', { name: primero.prompt })).toBeInTheDocument();
       expect(screen.getAllByRole('radio')).toHaveLength(primero.options!.length);
+      expect(screen.getByRole('article', { name: 'Ejercicio actual' })).toHaveAttribute(
+        'data-state',
+        'default',
+      );
     });
   });
 
@@ -193,6 +197,10 @@ describe('SessionPage (T027)', () => {
         }
       });
       expect(screen.getByRole('button', { name: 'Siguiente paso' })).toBeEnabled();
+      expect(screen.getByRole('article', { name: 'Ejercicio respondido' })).toHaveAttribute(
+        'data-state',
+        'answered',
+      );
     });
 
     it('Siguiente está deshabilitado mientras no se haya respondido', async () => {

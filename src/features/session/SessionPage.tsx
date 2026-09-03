@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
+import { ExerciseCard } from '@/components/codegym/ExerciseCard';
 import { HintReveal } from '@/components/codegym/HintReveal';
 import { ResultFeedback } from '@/components/codegym/ResultFeedback';
 import { SessionHeader } from '@/components/codegym/SessionHeader';
@@ -190,93 +191,97 @@ function SessionPage() {
         />
       )}
 
-      {currentStep === null ? (
-        <p role="status" className="text-sm text-muted-foreground">
-          Este paso no existe en la sesión.
-        </p>
-      ) : currentStep.type === 'code-reading' ? (
-        <CodeReadingStep
-          step={currentStep}
-          value={selectedOptionId}
-          onChange={select}
-          disabled={isAnswered}
-        />
-      ) : currentStep.type === 'predict-output' ? (
-        <PredictOutputStep
-          step={currentStep}
-          value={selectedOptionId}
-          onChange={select}
-          disabled={isAnswered}
-        />
-      ) : currentStep.type === 'find-error' ? (
-        <FindErrorStep
-          step={currentStep}
-          value={selectedError}
-          onChange={selectError}
-          disabled={isAnswered}
-        />
-      ) : currentStep.type === 'fix-code' ? (
-        <FixCodeStep
-          step={currentStep}
-          value={fixCodeDraft}
-          onChange={editCode}
-          disabled={isAnswered}
-        />
-      ) : (
-        <p role="status" className="text-sm text-muted-foreground">
-          Los pasos de tipo «{currentStep.type}» todavía no están disponibles.
-        </p>
-      )}
+      <ExerciseCard state={isAnswered ? 'answered' : 'default'}>
+        <div className="flex flex-col gap-6">
+          {currentStep === null ? (
+            <p role="status" className="text-sm text-muted-foreground">
+              Este paso no existe en la sesión.
+            </p>
+          ) : currentStep.type === 'code-reading' ? (
+            <CodeReadingStep
+              step={currentStep}
+              value={selectedOptionId}
+              onChange={select}
+              disabled={isAnswered}
+            />
+          ) : currentStep.type === 'predict-output' ? (
+            <PredictOutputStep
+              step={currentStep}
+              value={selectedOptionId}
+              onChange={select}
+              disabled={isAnswered}
+            />
+          ) : currentStep.type === 'find-error' ? (
+            <FindErrorStep
+              step={currentStep}
+              value={selectedError}
+              onChange={selectError}
+              disabled={isAnswered}
+            />
+          ) : currentStep.type === 'fix-code' ? (
+            <FixCodeStep
+              step={currentStep}
+              value={fixCodeDraft}
+              onChange={editCode}
+              disabled={isAnswered}
+            />
+          ) : (
+            <p role="status" className="text-sm text-muted-foreground">
+              Los pasos de tipo «{currentStep.type}» todavía no están disponibles.
+            </p>
+          )}
 
-      {currentStep !== null && (
-        <HintReveal
-          hints={currentStep.hints}
-          revealedCount={state.hintsRevealed.length}
-          onReveal={revealHint}
-          disabled={isAnswered}
-        />
-      )}
+          {currentStep !== null && (
+            <HintReveal
+              hints={currentStep.hints}
+              revealedCount={state.hintsRevealed.length}
+              onReveal={revealHint}
+              disabled={isAnswered}
+            />
+          )}
 
-      {executionError !== null && (
-        <p
-          role="alert"
-          className="flex min-w-0 items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground"
-        >
-          <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning" />
-          <span className="min-w-0">
-            No se pudo ejecutar tu código: {executionError}. Puedes volver a
-            intentarlo.
-          </span>
-        </p>
-      )}
+          {executionError !== null && (
+            <p
+              role="alert"
+              className="flex min-w-0 items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground"
+            >
+              <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning" />
+              <span className="min-w-0">
+                No se pudo ejecutar tu código: {executionError}. Puedes volver a
+                intentarlo.
+              </span>
+            </p>
+          )}
 
-      {answer !== undefined && currentStep !== null && (
-        <ResultFeedback
-          isCorrect={answer.isCorrect}
-          explanation={currentStep.explanation}
-        />
-      )}
+          {answer !== undefined && currentStep !== null && (
+            <ResultFeedback
+              isCorrect={answer.isCorrect}
+              explanation={currentStep.explanation}
+            />
+          )}
 
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!canSubmit || isAnswered || isValidating}
-          aria-busy={isValidating}
-          className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
-        >
-          {isValidating ? 'Ejecutando…' : executionError !== null ? 'Reintentar' : 'Comprobar'}
-        </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={submit}
+              disabled={!canSubmit || isAnswered || isValidating}
+              aria-busy={isValidating}
+              className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
+            >
+              {isValidating ? 'Ejecutando…' : executionError !== null ? 'Reintentar' : 'Comprobar'}
+            </button>
 
-        <button
-          type="button"
-          onClick={next}
-          disabled={!isAnswered}
-          className={`${BUTTON} border border-border bg-card text-foreground hover:bg-accent`}
-        >
-          {isLastStep ? 'Terminar sesión' : 'Siguiente paso'}
-        </button>
-      </div>
+            <button
+              type="button"
+              onClick={next}
+              disabled={!isAnswered}
+              className={`${BUTTON} border border-border bg-card text-foreground hover:bg-accent`}
+            >
+              {isLastStep ? 'Terminar sesión' : 'Siguiente paso'}
+            </button>
+          </div>
+        </div>
+      </ExerciseCard>
     </section>
   );
 }
