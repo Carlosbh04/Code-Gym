@@ -1,0 +1,175 @@
+{
+  "id": "js-closures-loop-capture-01",
+  "title": "El bucle que recuerda el último valor",
+  "difficulty": "beginner",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué imprime la última línea?",
+      "code": "function crearFunciones() {\n  const funciones = [];\n  for (var i = 0; i < 3; i++) {\n    funciones.push(function () { return i; });\n  }\n  return funciones;\n}\n\nconsole.log(crearFunciones().map((f) => f()));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "[0, 1, 2]",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "[3, 3, 3]",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "[0, 0, 0]",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza un ReferenceError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`var` es de ámbito de función: el bucle tiene una única variable `i` para todas las vueltas. Las tres funciones creadas cierran sobre la misma, y cuando alguien las llama el bucle ya terminó y `i` vale 3, el primer valor que rompe la condición.",
+      "hints": [
+        "Con `var`, ¿cuántas variables `i` existen en total: una por vuelta o una para todo el bucle?",
+        "Cuando `f()` se ejecuta, el bucle ya terminó. ¿Cuánto vale `i` en ese momento?"
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "Este código programa tres avisos con retardo. ¿Qué imprime la consola cuando disparan?",
+      "code": "for (var i = 1; i <= 3; i++) {\n  setTimeout(function () {\n    console.log(i);\n  }, i * 100);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "1, 2, 3",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "4, 4, 4",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "3, 3, 3",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined, undefined, undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los tres callbacks comparten la misma `i` de `var`. Ninguno se ejecuta hasta que el bucle termina, y `i` acaba valiendo 4: el primer valor que rompe `i <= 3`. Cuando los temporizadores disparan, los tres leen ese 4. Con `let`, cada vuelta tendría su propio `i` y se imprimiría 1, 2, 3.",
+      "hints": [
+        "¿Se ejecuta algún callback antes de que el bucle termine?",
+        "Tras la última vuelta, `i` se incrementa una vez más antes de fallar la condición. ¿Cuánto vale?"
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Cada función debería devolver la vuelta del bucle en que se creó, pero las tres devuelven lo mismo. Localiza la línea del error y clasifícalo.",
+      "code": "function crearMarcadores() {\n  const marcadores = [];\n  for (var i = 0; i < 3; i++) {\n    marcadores.push(function () { return i; });\n  }\n  return marcadores;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: las tres funciones comparten la misma `i` porque se declara con `var`",
+          "correct": true
+        },
+        {
+          "id": "logico",
+          "text": "Lógico: la condición del bucle descarta el último valor",
+          "correct": false
+        },
+        {
+          "id": "mutacion",
+          "text": "Mutación: `push` modifica el array de quien llama",
+          "correct": false
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: falta un `return` dentro del callback",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "scope",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La línea 4 no está rota: el callback devuelve `i` correctamente. El problema está en la línea 3, donde `var` declara una única variable para todo el bucle, así que las tres funciones capturan el mismo binding. Con `let`, cada vuelta crearía un `i` nuevo y cada función capturaría el suyo.",
+      "hints": [
+        "El callback hace bien su trabajo. El problema es qué `i` está viendo.",
+        "Compara el ámbito de `var` con el de `let` dentro de un bloque `for`."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige `crearMarcadores` para que cada función devuelva la vuelta del bucle en la que se creó.",
+      "code": "function crearMarcadores() {\n  const marcadores = [];\n  for (var i = 0; i < 3; i++) {\n    marcadores.push(function () { return i; });\n  }\n  return marcadores;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": [0, 1, 2],
+          "call": "crearMarcadores().map((f) => f())",
+          "description": "cada función devuelve su propia vuelta del bucle"
+        },
+        {
+          "input": null,
+          "expected": 0,
+          "call": "crearMarcadores()[0]()",
+          "description": "la primera función recuerda la primera vuelta"
+        },
+        {
+          "input": null,
+          "expected": 2,
+          "call": "crearMarcadores()[2]()",
+          "description": "la última función recuerda la última vuelta"
+        },
+        {
+          "input": null,
+          "expected": 3,
+          "call": "crearMarcadores().length",
+          "description": "sigue creando tres funciones"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Basta con cambiar `var` por `let`: `let` es de ámbito de bloque y crea una variable nueva en cada vuelta, de modo que cada función captura su propio `i`. La alternativa clásica sin `let` es una IIFE que copie el valor: `marcadores.push(((j) => () => j)(i));`.",
+      "hints": [
+        "Solo hay que cambiar una palabra en la línea 3.",
+        "¿Qué declaración crea un binding nuevo por cada vuelta del bucle?"
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

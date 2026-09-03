@@ -10,5 +10,11 @@
     "name": "Functions",
     "technologyId": "javascript",
     "description": "Parámetros por defecto, ámbito y hoisting, y los caminos por los que una función acaba devolviendo undefined."
+  },
+  {
+    "id": "js-closures",
+    "name": "Closures",
+    "technologyId": "javascript",
+    "description": "Qué captura una función interna, cuándo dos funciones comparten la misma variable y por qué ven el valor de hoy, no el del momento en que se crearon."
   }
 ]

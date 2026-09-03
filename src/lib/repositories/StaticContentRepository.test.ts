@@ -6,6 +6,7 @@ import { StaticContentRepository } from './StaticContentRepository';
 
 const ARRAYS_CONCEPT = 'js-array-iteration';
 const FUNCTIONS_CONCEPT = 'js-function-basics';
+const CLOSURES_CONCEPT = 'js-closure-basics';
 
 describe('StaticContentRepository (T019)', () => {
   let repo: IContentRepository;
@@ -64,6 +65,19 @@ describe('StaticContentRepository (T019)', () => {
       expect(session?.steps.at(-1)?.testCases).not.toBeNull();
     });
 
+    it('devuelve una sesión de Closures con sus datos reales', async () => {
+      const session = await repo.getSessionById('js-closures-loop-capture-01');
+
+      expect(session?.conceptId).toBe(CLOSURES_CONCEPT);
+      expect(session?.difficulty).toBe('beginner');
+      expect(session?.steps.map((s) => s.type)).toEqual([
+        'code-reading',
+        'predict-output',
+        'find-error',
+        'fix-code',
+      ]);
+    });
+
     it('devuelve null cuando el id no existe', async () => {
       await expect(repo.getSessionById('js-arrays-no-existe-99')).resolves.toBeNull();
     });
@@ -105,6 +119,18 @@ describe('StaticContentRepository (T019)', () => {
         'beginner',
         'intermediate',
       ]);
+    });
+
+    it('devuelve las 3 sesiones de Closures', async () => {
+      const sessions = await repo.getSessionsByConcept(CLOSURES_CONCEPT);
+
+      expect(sessions).toHaveLength(3);
+      expect(sessions.map((s) => s.difficulty).sort()).toEqual([
+        'advanced',
+        'beginner',
+        'intermediate',
+      ]);
+      expect(sessions.every((s) => s.conceptId === CLOSURES_CONCEPT)).toBe(true);
     });
 
     it('no mezcla sesiones entre conceptos', async () => {
@@ -233,7 +259,7 @@ describe('StaticContentRepository (T019)', () => {
     it('devuelve los topics de JavaScript', async () => {
       const topics = await repo.getTopicsByTechnology('javascript');
 
-      expect(topics.map((t) => t.id)).toEqual(['js-arrays', 'js-functions']);
+      expect(topics.map((t) => t.id)).toEqual(['js-arrays', 'js-functions', 'js-closures']);
       expect(topics.every((t) => t.technologyId === 'javascript')).toBe(true);
       expect(topics.every((t) => t.name.length > 0 && t.description.length > 0)).toBe(true);
     });
@@ -246,7 +272,7 @@ describe('StaticContentRepository (T019)', () => {
       const topics = await repo.getTopicsByTechnology('javascript');
       const ids = topics.map((t) => t.id);
 
-      for (const pendiente of ['js-closures', 'js-promises', 'js-objects', 'js-es6-plus', 'js-errors']) {
+      for (const pendiente of ['js-promises', 'js-objects', 'js-es6-plus', 'js-errors']) {
         expect(ids).not.toContain(pendiente);
       }
     });
@@ -266,6 +292,13 @@ describe('StaticContentRepository (T019)', () => {
 
       expect(concept?.topicId).toBe('js-functions');
       expect(concept?.contentMarkdown).toContain('hoisting');
+    });
+
+    it('resuelve el concepto de Closures con su prosa', async () => {
+      const concept = await repo.getConceptById('js-closure-basics');
+
+      expect(concept?.topicId).toBe('js-closures');
+      expect(concept?.contentMarkdown).toContain('closure');
     });
 
     it('devuelve null para un concepto inexistente', async () => {
@@ -293,7 +326,7 @@ describe('StaticContentRepository (T019)', () => {
         }
       }
 
-      for (const conceptId of ['js-array-iteration', 'js-function-basics']) {
+      for (const conceptId of ['js-array-iteration', 'js-function-basics', 'js-closure-basics']) {
         const concept = await repo.getConceptById(conceptId);
         expect(concept).not.toBeNull();
         expect(topicIds).toContain(concept?.topicId);
@@ -310,14 +343,15 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 6 sesiones del repositorio son las de T017 y T018', async () => {
+    it('las 9 sesiones del repositorio son las de T017, T018 y T063', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
+        ...(await repo.getSessionsByConcept(CLOSURES_CONCEPT)),
       ];
 
-      expect(all).toHaveLength(6);
-      expect(new Set(all.map((s) => s.id)).size).toBe(6);
+      expect(all).toHaveLength(9);
+      expect(new Set(all.map((s) => s.id)).size).toBe(9);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length === 4)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);
@@ -432,6 +466,9 @@ describe('StaticContentRepository (T019)', () => {
       'js-functions-default-parameters-01',
       'js-functions-return-flow-01',
       'js-functions-scope-hoisting-01',
+      'js-closures-loop-capture-01',
+      'js-closures-shared-state-01',
+      'js-closures-live-binding-01',
     ];
 
     it('cada sesion resuelve su concepto, su topic y su tecnologia', async () => {

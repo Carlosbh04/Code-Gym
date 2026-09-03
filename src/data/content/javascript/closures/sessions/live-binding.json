@@ -1,0 +1,175 @@
+{
+  "id": "js-closures-live-binding-01",
+  "title": "El closure no guarda una foto",
+  "difficulty": "advanced",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué imprime la última línea?",
+      "code": "let nivel = 'info';\n\nfunction crearLogger(prefijo) {\n  return function registrar(mensaje) {\n    return `[${prefijo}] ${nivel}: ${mensaje}`;\n  };\n}\n\nconst log = crearLogger('api');\nnivel = 'debug';\n\nconsole.log(log('arranque'));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "[api] debug: arranque",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "[api] info: arranque",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "[debug] debug: arranque",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El closure no copia `nivel` cuando nace `log`: guarda el acceso a la variable. Al llamar `log`, `registrar` lee el valor que `nivel` tiene en ese momento, y ya es `'debug'`. `prefijo`, en cambio, queda fijo en `'api'`: es un parámetro de la llamada que creó el closure y nadie lo reasigna después.",
+      "hints": [
+        "¿Qué ve `registrar` cuando se ejecuta: el valor de `nivel` en la línea 2 o el actual?",
+        "Compara qué ocurre con `nivel` (variable exterior reasignable) y con `prefijo` (parámetro que nadie toca)."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "Se extrae el método `leer` a una variable suelta y se llama sin receptor. ¿Qué imprime la última línea?",
+      "code": "function crearReloj() {\n  let segundos = 0;\n  return {\n    tic() {\n      segundos += 1;\n      return segundos;\n    },\n    leer() {\n      return segundos;\n    },\n  };\n}\n\nconst reloj = crearReloj();\nreloj.tic();\nreloj.tic();\n\nconst copia = reloj.leer;\nconsole.log(copia());",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "2",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza un TypeError porque `copia` perdió su objeto",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El estado no vive en el objeto devuelto: vive en la variable `segundos` que ambos métodos capturaron. Por eso `copia()` sigue viendo los 2 acumulados. Y no hay error aunque se llame sin receptor: `leer` no usa `this` en ningún punto, así que perder al objeto no le afecta. Todo el estado privado del reloj viaja en el closure.",
+      "hints": [
+        "¿Dónde vive `segundos`: en el objeto o en el closure de los dos métodos?",
+        "`leer` no menciona `this` ni `reloj` en ninguna línea. ¿Qué necesita entonces?"
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Se quería que `precioFijo` congelara la moneda del momento en que se creó, pero después de reasignarla el precio cambia de divisa. Localiza la línea del error y clasifícalo.",
+      "code": "let moneda = 'EUR';\n\nfunction crearPrecio(base) {\n  return function precio() {\n    return `${base} ${moneda}`;\n  };\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: `precio` lee la variable viva en cada llamada; para fijar la moneda hay que copiarla al crear el closure",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: la comparación de `moneda` debería usarse con `===`",
+          "correct": false
+        },
+        {
+          "id": "logico",
+          "text": "Lógico: `base` no se usa dentro de la plantilla",
+          "correct": false
+        },
+        {
+          "id": "mutacion",
+          "text": "Mutación: la reasignación de `moneda` muta un objeto compartido",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        5
+      ],
+      "errorType": "scope",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La línea 5 lee `moneda` directamente: el binding vivo la enlaza con la reasignación exterior, así que el precio devuelve siempre la divisa del día. La función no está rota; está mal dirigida: si el requisito es congelar la moneda en la creación, `precio` debe leer una copia local que `crearPrecio` fije en el momento de fabricarla.",
+      "hints": [
+        "El problema no es quién escribe `moneda`, sino quién la lee y cuándo.",
+        "Un closure sobre una variable reasignable nunca es una foto: busca la línea que necesita una."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige `crearPrecio` para que cada precio fije la moneda en el momento de su creación: los precios ya creados no deben cambiar de divisa aunque `moneda` se reasigne después.",
+      "code": "let moneda = 'EUR';\n\nfunction crearPrecio(base) {\n  return function precio() {\n    return `${base} ${moneda}`;\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": "100 EUR",
+          "call": "(() => { const p = crearPrecio(100); moneda = 'USD'; return p(); })()",
+          "description": "un precio creado no cambia de divisa si la moneda se reasigna después"
+        },
+        {
+          "input": null,
+          "expected": "70 USD",
+          "call": "(() => { moneda = 'USD'; const p = crearPrecio(70); return p(); })()",
+          "description": "un precio creado tras el cambio refleja la moneda vigente al crearse"
+        },
+        {
+          "input": null,
+          "expected": "50 EUR",
+          "call": "(() => { const p = crearPrecio(50); return p(); })()",
+          "description": "sin reasignaciones devuelve la moneda vigente"
+        },
+        {
+          "input": null,
+          "expected": "100 EUR|100 EUR",
+          "call": "(() => { const p = crearPrecio(100); return p() + '|' + p(); })()",
+          "description": "las llamadas repetidas dan siempre el mismo precio"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Congela el valor con una copia local en el momento de crear el closure: `const monedaAlCrear = moneda;` como primera línea de `crearPrecio`, y `precio` devuelve `` `${base} ${monedaAlCrear}` ``. La función sigue siendo un closure, pero ahora captura una variable que nadie reasigna. Ojo: no vale escribir `'EUR'` a mano, porque el precio debe respetar la moneda vigente en su creación.",
+      "hints": [
+        "Añade una constante local en `crearPrecio` que copie `moneda` al crear el precio.",
+        "La plantilla debe usar la copia, no la variable exterior. Y cuidado con no escribir la divisa a mano."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}
