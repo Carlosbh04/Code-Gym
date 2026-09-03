@@ -34,5 +34,11 @@
     "name": "ES6+",
     "technologyId": "javascript",
     "description": "Destructuring, parámetros rest y operadores modernos para expresar valores opcionales sin confundir ausencia con valores falsy."
+  },
+  {
+    "id": "js-errors",
+    "name": "Errors",
+    "technologyId": "javascript",
+    "description": "Cómo lanzar, capturar y propagar errores sin ocultar fallos ni convertir resultados inválidos en datos aparentemente correctos."
   }
 ]
