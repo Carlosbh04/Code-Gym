@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { ContentProvider } from '@/contexts/ContentContext';
 import { ExecutionProvider } from '@/contexts/ExecutionContext';
+import { HistoryProvider } from '@/contexts/HistoryContext';
 import { ProgressProvider } from '@/contexts/ProgressContext';
 import { SessionCompletionProvider } from '@/contexts/SessionCompletionContext';
 import { SessionRecoveryProvider } from '@/contexts/SessionRecoveryContext';
@@ -85,16 +86,21 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <ProgressProvider repository={progressRepository}>
-      <SessionCompletionProvider
+      <HistoryProvider
         attemptRepository={attemptRepository}
         completedSessionRepository={completedSessionRepository}
       >
-        <SessionRecoveryProvider store={sessionRecoveryStore}>
-          <ContentProvider repository={contentRepository}>
-            <ExecutionProvider engine={execution}>{children}</ExecutionProvider>
-          </ContentProvider>
-        </SessionRecoveryProvider>
-      </SessionCompletionProvider>
+        <SessionCompletionProvider
+          attemptRepository={attemptRepository}
+          completedSessionRepository={completedSessionRepository}
+        >
+          <SessionRecoveryProvider store={sessionRecoveryStore}>
+            <ContentProvider repository={contentRepository}>
+              <ExecutionProvider engine={execution}>{children}</ExecutionProvider>
+            </ContentProvider>
+          </SessionRecoveryProvider>
+        </SessionCompletionProvider>
+      </HistoryProvider>
     </ProgressProvider>
   );
 }

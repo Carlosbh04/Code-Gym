@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { describe, expect, it, afterEach, beforeEach, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { useCodeExecution } from '@/hooks/useCodeExecution';
+import { useHistory } from '@/hooks/useHistory';
 import { useProgress } from '@/hooks/useProgress';
 import { useSessionCompletion } from '@/hooks/useSessionCompletion';
 import { useSessionRecoveryStore } from '@/hooks/useSessionRecovery';
@@ -32,6 +33,7 @@ const revoked: string[] = [];
 
 function Probe() {
   useCodeExecution();
+  useHistory();
   useSessionCompletion();
   useSessionRecoveryStore();
   const { isLoading } = useProgress();

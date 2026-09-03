@@ -9,12 +9,18 @@ export interface CodeBlockProps {
   code: string;
   language?: string;
   className?: string;
+  showLineNumbers?: boolean;
+  highlightedLines?: readonly number[];
+  highlightedLineLabel?: string;
 }
 
 export function CodeBlock({
   code,
   language = 'javascript',
   className,
+  showLineNumbers = false,
+  highlightedLines = [],
+  highlightedLineLabel = 'Línea relevante del ejercicio',
 }: CodeBlockProps) {
   const html = useMemo(() => {
     if (!hljs.getLanguage(language)) {
@@ -26,6 +32,8 @@ export function CodeBlock({
       return escapeHtml(code);
     }
   }, [code, language]);
+  const renderByLine = showLineNumbers || highlightedLines.length > 0;
+  const marked = useMemo(() => new Set(highlightedLines), [highlightedLines]);
 
   return (
     <div
@@ -34,14 +42,71 @@ export function CodeBlock({
         className,
       )}
     >
-      <pre className="overflow-x-auto p-4 font-mono text-sm text-foreground">
-        <code
-          className={cn('codegym-code', language ? `language-${language}` : undefined)}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+      <pre className={cn('overflow-x-auto font-mono text-sm text-foreground', renderByLine ? 'py-4' : 'p-4')}>
+        {renderByLine ? (
+          <code
+            className={cn(
+              'codegym-code block min-w-max',
+              language ? `language-${language}` : undefined,
+            )}
+          >
+            {code.split('\n').map((line, index) => {
+              const lineNumber = index + 1;
+              const isMarked = marked.has(lineNumber);
+              return (
+                <span
+                  key={lineNumber}
+                  className={cn(
+                    'block min-h-5 border-l-[3px] px-4',
+                    isMarked
+                      ? 'border-foreground bg-muted/40'
+                      : 'border-transparent',
+                  )}
+                >
+                  {showLineNumbers ? (
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'mr-4 inline-block w-6 select-none text-right text-muted-foreground',
+                        isMarked && 'font-semibold text-foreground',
+                      )}
+                    >
+                      {lineNumber}
+                    </span>
+                  ) : null}
+                  {isMarked ? (
+                    <span className="sr-only">{highlightedLineLabel}. </span>
+                  ) : null}
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: highlight(line, language),
+                    }}
+                  />
+                </span>
+              );
+            })}
+          </code>
+        ) : (
+          <code
+            className={cn(
+              'codegym-code',
+              language ? `language-${language}` : undefined,
+            )}
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        )}
       </pre>
     </div>
   );
+}
+
+function highlight(code: string, language: string): string {
+  if (!hljs.getLanguage(language)) return escapeHtml(code);
+  try {
+    return hljs.highlight(code, { language, ignoreIllegals: true }).value;
+  } catch {
+    return escapeHtml(code);
+  }
 }
 
 function escapeHtml(value: string): string {

@@ -45,6 +45,9 @@ const conceptMarkdownLoaders = import.meta.glob<string>(
 /** Conceptos ya compuestos, para no rehacer la mezcla en cada lectura. */
 const composedConcepts = new Map<string, Concept>();
 
+/** Rutas de concepto ya resueltas sin cargar payloads de sesiones ajenas. */
+const conceptPaths = new Map<string, string>();
+
 /** Rutas ordenadas, para que las consultas devuelvan un orden estable. */
 const sessionPaths = Object.keys(sessionLoaders).sort();
 
@@ -65,7 +68,10 @@ async function loadSession(path: string): Promise<ExerciseSession> {
 }
 
 export class StaticContentRepository implements IContentRepository {
-  private allSessions: Promise<ExerciseSession[]> | null = null;
+  private readonly sessionsByConcept = new Map<
+    string,
+    Promise<readonly ExerciseSession[]>
+  >();
 
   /** Tecnologías declaradas en `data/technologies.json`. */
   async getTechnologies(): Promise<Technology[]> {
@@ -125,8 +131,19 @@ export class StaticContentRepository implements IContentRepository {
 
   /** Sesiones que entrenan un concepto, en orden estable por ruta. */
   async getSessionsByConcept(conceptId: string): Promise<ExerciseSession[]> {
-    const sessions = await this.loadAll();
-    return sessions.filter((session) => session.conceptId === conceptId);
+    let pending = this.sessionsByConcept.get(conceptId);
+    if (pending === undefined) {
+      pending = this.loadSessionsByConcept(conceptId);
+      this.sessionsByConcept.set(conceptId, pending);
+    }
+
+    try {
+      // El array pertenece al llamante; las sesiones internas siguen congeladas.
+      return [...(await pending)];
+    } catch (error: unknown) {
+      this.sessionsByConcept.delete(conceptId);
+      throw error;
+    }
   }
 
   /**
@@ -144,8 +161,28 @@ export class StaticContentRepository implements IContentRepository {
     return null;
   }
 
-  private loadAll(): Promise<ExerciseSession[]> {
-    this.allSessions ??= Promise.all(sessionPaths.map(loadSession));
-    return this.allSessions;
+  private async loadSessionsByConcept(
+    conceptId: string,
+  ): Promise<readonly ExerciseSession[]> {
+    const conceptPath = await this.findConceptPath(conceptId);
+    if (conceptPath === null) return [];
+
+    const topicDirectory = conceptPath.replace(/index\.json$/, 'sessions/');
+    const paths = sessionPaths.filter((path) => path.startsWith(topicDirectory));
+    const sessions = await Promise.all(paths.map(loadSession));
+    return sessions.filter((session) => session.conceptId === conceptId);
+  }
+
+  private async findConceptPath(conceptId: string): Promise<string | null> {
+    const cached = conceptPaths.get(conceptId);
+    if (cached !== undefined) return cached;
+
+    for (const path of Object.keys(conceptLoaders).sort()) {
+      const metadata = (await conceptLoaders[path]()).default;
+      conceptPaths.set(metadata.id, path);
+      if (metadata.id === conceptId) return path;
+    }
+
+    return null;
   }
 }

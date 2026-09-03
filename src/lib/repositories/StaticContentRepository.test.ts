@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { ExerciseSession } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
@@ -71,6 +72,16 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('consulta por concepto sobre el contenido real', () => {
+    it('no conserva un camino loadAll para resolver sesiones por concepto', () => {
+      const source = readFileSync(
+        'src/lib/repositories/StaticContentRepository.ts',
+        'utf8',
+      );
+
+      expect(source).not.toContain('loadAll');
+      expect(source).toContain('path.startsWith(topicDirectory)');
+    });
+
     it('devuelve las 3 sesiones de Arrays', async () => {
       const sessions = await repo.getSessionsByConcept(ARRAYS_CONCEPT);
 
@@ -111,6 +122,14 @@ describe('StaticContentRepository (T019)', () => {
       const second = await repo.getSessionsByConcept(ARRAYS_CONCEPT);
 
       expect(first.map((s) => s.id)).toEqual(second.map((s) => s.id));
+    });
+
+    it('solo devuelve loaders del topic físico que contiene el concepto', async () => {
+      const arrays = await repo.getSessionsByConcept(ARRAYS_CONCEPT);
+
+      expect(arrays).toHaveLength(3);
+      expect(arrays.every((session) => session.id.startsWith('js-arrays-'))).toBe(true);
+      expect(arrays.some((session) => session.id.startsWith('js-functions-'))).toBe(false);
     });
   });
 

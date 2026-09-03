@@ -49,6 +49,7 @@ export function ContentProvider({
 
   const topicsCache = useRef(new Map<string, Topic[]>());
   const conceptCache = useRef(new Map<string, Concept>());
+  const conceptSessionsCache = useRef(new Map<string, ExerciseSession[]>());
   const sessionCache = useRef(new Map<string, ExerciseSession>());
 
   useEffect(() => {
@@ -134,16 +135,40 @@ export function ContentProvider({
     [repository],
   );
 
+  const getSessionsByConcept = useCallback(
+    async (conceptId: string): Promise<ExerciseSession[]> => {
+      const cached = conceptSessionsCache.current.get(conceptId);
+      if (cached) return cached;
+
+      const sessions = await repository.getSessionsByConcept(conceptId);
+      conceptSessionsCache.current.set(conceptId, sessions);
+      for (const session of sessions) {
+        sessionCache.current.set(session.id, session);
+      }
+      return sessions;
+    },
+    [repository],
+  );
+
   const value = useMemo<ContentContextValue>(
     () => ({
       technologies,
       getTechnology,
       getTopics,
       getConcept,
+      getSessionsByConcept,
       getSession,
       isLoading,
     }),
-    [technologies, getTechnology, getTopics, getConcept, getSession, isLoading],
+    [
+      technologies,
+      getTechnology,
+      getTopics,
+      getConcept,
+      getSessionsByConcept,
+      getSession,
+      isLoading,
+    ],
   );
 
   return (

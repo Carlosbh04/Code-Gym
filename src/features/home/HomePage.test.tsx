@@ -34,6 +34,7 @@ function renderHome({
     getTechnology: vi.fn(),
     getTopics: vi.fn(),
     getConcept: vi.fn(),
+    getSessionsByConcept: vi.fn(),
     getSession: vi.fn(),
   };
   const wrapper = ({ children }: { children: ReactNode }) => (
