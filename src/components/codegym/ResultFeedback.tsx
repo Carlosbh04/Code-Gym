@@ -32,8 +32,8 @@ export function ResultFeedback({
       className={cn(
         'flex flex-col gap-2 rounded-md border p-4',
         isCorrect
-          ? 'border-success bg-success/10'
-          : 'border-destructive bg-destructive/10',
+          ? 'animate-correct-pulse border-success bg-success/10'
+          : 'animate-shake border-destructive bg-destructive/10',
         className,
       )}
     >

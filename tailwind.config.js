@@ -106,10 +106,23 @@ export default {
           from: { opacity: '0', transform: 'translateY(8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        correctPulse: {
+          '0%': { boxShadow: '0 0 0 0 var(--success-glow)' },
+          '70%': { boxShadow: '0 0 0 8px transparent' },
+          '100%': { boxShadow: '0 0 0 0 transparent' },
+        },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-4px)' },
+          '75%': { transform: 'translateX(4px)' },
+        },
       },
       animation: {
         'fade-in-up':
           'fadeInUp var(--motion-duration-normal) var(--motion-ease-standard) both',
+        'correct-pulse':
+          'correctPulse var(--motion-duration-slow) var(--motion-ease-emphasized) both',
+        shake: 'shake var(--motion-duration-normal) var(--motion-ease-standard) both',
       },
     },
   },

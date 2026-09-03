@@ -11,6 +11,13 @@ const codeReadingStep = async (sessionId: string): Promise<ExerciseStep> =>
 
 describe('ResultFeedback (T030)', () => {
   describe('resultado correcto', () => {
+    it('aplica correctPulse como feedback visual', () => {
+      render(<ResultFeedback isCorrect explanation="Porque forEach devuelve undefined." />);
+
+      expect(screen.getByRole('status')).toHaveClass('animate-correct-pulse');
+      expect(screen.getByRole('status')).not.toHaveClass('animate-shake');
+    });
+
     it('lo indica con texto, no solo con color', () => {
       render(<ResultFeedback isCorrect explanation="Porque forEach devuelve undefined." />);
 
@@ -25,6 +32,13 @@ describe('ResultFeedback (T030)', () => {
   });
 
   describe('resultado incorrecto', () => {
+    it('aplica shake como feedback visual', () => {
+      render(<ResultFeedback isCorrect={false} explanation="map sí devuelve un array." />);
+
+      expect(screen.getByRole('status')).toHaveClass('animate-shake');
+      expect(screen.getByRole('status')).not.toHaveClass('animate-correct-pulse');
+    });
+
     it('lo indica con texto', () => {
       render(<ResultFeedback isCorrect={false} explanation="map sí devuelve un array." />);
 

@@ -36,4 +36,19 @@ describe('tokens de movimiento (T071)', () => {
     expect(css).toContain('animation-delay: var(--motion-duration-normal);');
     expect(css).toContain('animation-delay: var(--motion-duration-slow);');
   });
+
+  it('define correctPulse y shake con los tokens de movimiento', () => {
+    expect(tailwindConfig).toContain('correctPulse: {');
+    expect(tailwindConfig).toContain("boxShadow: '0 0 0 0 var(--success-glow)'");
+    expect(tailwindConfig).toContain("boxShadow: '0 0 0 8px transparent'");
+    expect(tailwindConfig).toContain('shake: {');
+    expect(tailwindConfig).toContain("transform: 'translateX(-4px)'");
+    expect(tailwindConfig).toContain("transform: 'translateX(4px)'");
+    expect(tailwindConfig).toContain(
+      "'correct-pulse':\n          'correctPulse var(--motion-duration-slow) var(--motion-ease-emphasized) both'",
+    );
+    expect(tailwindConfig).toContain(
+      "shake: 'shake var(--motion-duration-normal) var(--motion-ease-standard) both'",
+    );
+  });
 });
