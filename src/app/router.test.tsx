@@ -6,6 +6,9 @@ import { router } from './router';
 vi.mock('@/features/home/HomePage', () => ({
   default: () => <p data-testid="route-view">Inicio</p>,
 }));
+vi.mock('@/features/onboarding/OnboardingPage', () => ({
+  default: () => <p data-testid="route-view">Onboarding</p>,
+}));
 vi.mock('@/features/dashboard/DashboardPage', () => ({
   default: () => <p data-testid="route-view">Dashboard</p>,
 }));
@@ -52,6 +55,7 @@ describe('router', () => {
 
     for (const [path, expected] of [
       ['/', 'Inicio'],
+      ['/onboarding', 'Onboarding'],
       ['/dashboard', 'Dashboard'],
       ['/tech/javascript', 'Tecnología'],
       ['/tech/javascript/arrays', 'Tema'],

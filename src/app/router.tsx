@@ -8,12 +8,14 @@ import SessionPage from '@/features/session/SessionPage';
 import ReviewPage from '@/features/review/ReviewPage';
 import ResultsPage from '@/features/results/ResultsPage';
 import NotFoundPage from '@/features/NotFoundPage';
+import OnboardingPage from '@/features/onboarding/OnboardingPage';
 
 export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
       { path: '/', element: <HomePage /> },
+      { path: '/onboarding', element: <OnboardingPage /> },
       { path: '/dashboard', element: <DashboardPage /> },
       { path: '/tech/:technologyId', element: <TechnologyPage /> },
       { path: '/tech/:technologyId/:topicId', element: <TopicPage /> },
