@@ -22,5 +22,11 @@
     "name": "Promises",
     "technologyId": "javascript",
     "description": "Cómo encadenar resultados asíncronos, propagar errores y esperar una promesa antes de usar su valor."
+  },
+  {
+    "id": "js-objects",
+    "name": "Objects",
+    "technologyId": "javascript",
+    "description": "Propiedades, referencias y copias superficiales para leer y actualizar datos sin mutar estado compartido por accidente."
   }
 ]
