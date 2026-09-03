@@ -81,6 +81,7 @@ function renderResultsPage({
           <main>
             <Routes>
               <Route path="/results/:sessionId" element={children} />
+              <Route path="/review/:sessionId" element={<p>Revisión</p>} />
               <Route path="/dashboard" element={<p>Progreso</p>} />
             </Routes>
           </main>
@@ -123,6 +124,10 @@ describe('ResultsPage (T058)', () => {
     expect(screen.getByRole('link', { name: 'Ver mi progreso' })).toHaveAttribute(
       'href',
       '/dashboard',
+    );
+    expect(screen.getByRole('link', { name: 'Revisar respuestas' })).toHaveAttribute(
+      'href',
+      '/review/session-1',
     );
     expect(screen.queryByText(/dominio|score|puntuación/i)).not.toBeInTheDocument();
   });

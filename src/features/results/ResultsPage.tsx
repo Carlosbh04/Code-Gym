@@ -205,9 +205,17 @@ function ResultsPage() {
       </dl>
 
       <div className="mt-8">
-        <Link to="/dashboard" className={PRIMARY_ACTION}>
-          Ver mi progreso
-        </Link>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link to={`/review/${completedSession.sessionId}`} className={PRIMARY_ACTION}>
+            Revisar respuestas
+          </Link>
+          <Link
+            to="/dashboard"
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground ring-offset-background transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
+          >
+            Ver mi progreso
+          </Link>
+        </div>
       </div>
     </section>
   );

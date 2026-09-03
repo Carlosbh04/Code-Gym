@@ -18,7 +18,7 @@ export const router = createBrowserRouter([
       { path: '/tech/:technologyId', element: <TechnologyPage /> },
       { path: '/tech/:technologyId/:topicId', element: <TopicPage /> },
       { path: '/practice/:sessionId', element: <SessionPage /> },
-      { path: '/review', element: <ReviewPage /> },
+      { path: '/review/:sessionId', element: <ReviewPage /> },
       { path: '/results/:sessionId', element: <ResultsPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
