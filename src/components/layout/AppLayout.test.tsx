@@ -36,4 +36,13 @@ describe('AppLayout responsive móvil (T078)', () => {
     expect(container.querySelector('.min-w-0.flex-1')).toBeInTheDocument();
     expect(container.querySelector('h1')).toHaveTextContent('Contenido');
   });
+
+  it('activa sidebar y centra el contenido con ancho acotado en desktop', () => {
+    const { container } = renderLayout();
+
+    expect(container.firstElementChild).toHaveClass('lg:flex');
+    expect(container.querySelector('aside')).toHaveClass('lg:flex', 'w-64');
+    expect(container.querySelector('.min-w-0.flex-1')).toHaveClass('lg:flex', 'lg:justify-center');
+    expect(container.querySelector('.w-full.flex.flex-col')).toHaveClass('lg:max-w-[900px]');
+  });
 });
