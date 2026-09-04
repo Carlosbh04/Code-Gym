@@ -1,0 +1,7 @@
+[
+  { "id":"react-components", "name":"Componentes", "technologyId":"react", "description":"Divide una interfaz en piezas con una responsabilidad clara." },
+  { "id":"react-props", "name":"Props", "technologyId":"react", "description":"Pasa datos de forma explícita y predecible." },
+  { "id":"react-state", "name":"State y eventos", "technologyId":"react", "description":"Actualiza la UI a partir de interacciones." },
+  { "id":"react-lists", "name":"Listas y keys", "technologyId":"react", "description":"Renderiza colecciones con identidad estable." },
+  { "id":"react-effects", "name":"useEffect", "technologyId":"react", "description":"Sincroniza componentes con sistemas externos." }
+]

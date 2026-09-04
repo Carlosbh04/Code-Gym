@@ -1,0 +1,7 @@
+[
+  { "id":"sql-select", "name":"SELECT", "technologyId":"sql", "description":"Elige las columnas que necesitas leer." },
+  { "id":"sql-where", "name":"WHERE", "technologyId":"sql", "description":"Filtra filas con una condición explícita." },
+  { "id":"sql-order", "name":"ORDER BY", "technologyId":"sql", "description":"Ordena resultados antes de presentarlos." },
+  { "id":"sql-group", "name":"GROUP BY y agregados", "technologyId":"sql", "description":"Resume filas relacionadas sin perder el criterio." },
+  { "id":"sql-joins", "name":"JOIN", "technologyId":"sql", "description":"Relaciona tablas mediante claves coherentes." }
+]

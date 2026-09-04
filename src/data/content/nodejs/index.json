@@ -1,0 +1,7 @@
+[
+  { "id":"node-modules", "name":"Módulos", "technologyId":"nodejs", "description":"Organiza código y dependencias con imports explícitos." },
+  { "id":"node-npm", "name":"npm y package.json", "technologyId":"nodejs", "description":"Declara scripts y dependencias del proyecto." },
+  { "id":"node-async", "name":"Asincronía", "technologyId":"nodejs", "description":"Controla operaciones que terminan más tarde." },
+  { "id":"node-http", "name":"HTTP básico", "technologyId":"nodejs", "description":"Lee una petición y construye una respuesta de servidor." },
+  { "id":"node-errors", "name":"Errores de servidor", "technologyId":"nodejs", "description":"Propaga y comunica fallos sin ocultarlos." }
+]
