@@ -7,6 +7,7 @@ describe('CodeBlock · líneas relevantes (T055)', () => {
     const { container } = render(<CodeBlock code="const answer = 42;" />);
 
     expect(container.querySelector('pre')).toHaveTextContent('const answer = 42;');
+    expect(container.querySelector('pre')).toHaveClass('overflow-x-auto');
     expect(screen.queryByText('1')).toBeNull();
   });
 
@@ -21,6 +22,7 @@ describe('CodeBlock · líneas relevantes (T055)', () => {
 
     expect(container.querySelector('pre')).toHaveTextContent('1const value = 1;');
     expect(container.querySelector('pre')).toHaveTextContent('2Línea relevante del ejercicio. return value;');
+    expect(container.querySelector('code')).toHaveClass('min-w-max');
     expect(screen.getByText(/Línea relevante del ejercicio/)).toHaveClass('sr-only');
   });
 
