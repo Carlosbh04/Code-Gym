@@ -6,8 +6,11 @@ const FIX_CODE_BROKEN = 'function dobles(numeros) {\n  return numeros;\n}';
 test('completa una sesión real desde la navegación hasta el progreso', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByRole('heading', { name: 'CodeGym' })).toBeVisible();
-  await page.getByRole('link', { name: /JavaScript.*Practicar/i }).click();
+  const javascriptLink = page
+    .getByRole('region', { name: /Tecnologías/i })
+    .getByRole('link', { name: /JavaScript/i });
+  await expect(javascriptLink).toBeVisible();
+  await javascriptLink.click();
   await expect(page).toHaveURL('/tech/javascript');
   await expect(page.getByRole('heading', { name: 'JavaScript' })).toBeVisible();
 
