@@ -2,5 +2,12 @@
   "id": "js-promise-flow",
   "name": "Flujo, errores y espera asíncrona",
   "topicId": "js-promises",
-  "technologyId": "javascript"
+  "technologyId": "javascript",
+  "content": { "sections": [
+    { "type": "intro", "title": "Introducción", "body": "Una promesa representa un resultado que puede llegar más tarde o fallar." },
+    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Encadenar transformaciones", "Capturar rechazos"] },
+    { "type": "code", "title": "Ejemplo", "language": "javascript", "code": "const user = await fetchUser(id);" },
+    { "type": "warning", "title": "Error común", "body": "No manejar un rechazo deja una ruta de error sin explicación para la persona usuaria." },
+    { "type": "quick-check", "question": "¿Qué espera await?", "answer": "La resolución o el rechazo de una promesa." }
+  ] }
 }

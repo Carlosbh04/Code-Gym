@@ -4,6 +4,7 @@ import { EmptyState } from '@/components/codegym/EmptyState';
 import { useContent } from '@/hooks/useContent';
 import type { Concept, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
+import { LearningContent } from './components/LearningContent';
 
 type TopicsResult =
   | { technologyId: string; status: 'success'; topics: Topic[] }
@@ -256,12 +257,11 @@ function TopicPage() {
                 <h3 className="break-words text-lg font-semibold text-foreground">
                   {concept.name}
                 </h3>
-                <section
-                  aria-label={`Teoría de ${concept.name}`}
-                  className="mt-3 whitespace-pre-wrap break-words text-sm leading-relaxed text-muted-foreground"
-                >
-                  {concept.contentMarkdown}
-                </section>
+                <LearningContent
+                  content={concept.content}
+                  fallbackMarkdown={concept.contentMarkdown}
+                  conceptName={concept.name}
+                />
                 <ConceptSessions result={sessionsByConcept[concept.id]} />
               </li>
             ))}

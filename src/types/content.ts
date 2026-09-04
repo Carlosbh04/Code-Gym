@@ -1,5 +1,21 @@
 import type { ExerciseSession } from './exercise';
 
+export type LearningSection =
+  | { type: 'intro' | 'explanation' | 'key-point' | 'warning'; title: string; body: string }
+  | { type: 'objectives'; title: string; items: string[] }
+  | { type: 'code'; title: string; code: string; language: string; caption?: string }
+  | {
+      type: 'comparison';
+      title: string;
+      left: { title: string; body: string };
+      right: { title: string; body: string };
+    }
+  | { type: 'quick-check'; question: string; answer: string };
+
+export interface LearningContent {
+  sections: LearningSection[];
+}
+
 export interface Technology {
   id: string;
   name: string;
@@ -20,6 +36,8 @@ export interface Concept {
   topicId: string;
   technologyId: string;
   contentMarkdown: string;
+  /** Lección estructurada opcional; `contentMarkdown` mantiene compatibilidad. */
+  content?: LearningContent;
 }
 
 export interface ContentContextValue {

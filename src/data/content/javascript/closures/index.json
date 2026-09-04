@@ -2,5 +2,12 @@
   "id": "js-closure-basics",
   "name": "Captura, estado y binding vivo",
   "topicId": "js-closures",
-  "technologyId": "javascript"
+  "technologyId": "javascript",
+  "content": { "sections": [
+    { "type": "intro", "title": "Introducción", "body": "Un closure conserva acceso al entorno léxico donde se creó una función." },
+    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Reconocer variables capturadas", "Distinguir valor y binding"] },
+    { "type": "code", "title": "Ejemplo", "language": "javascript", "code": "function counter() { let value = 0; return () => ++value; }" },
+    { "type": "key-point", "title": "Punto clave", "body": "El closure mantiene el binding, por eso puede observar valores actualizados." },
+    { "type": "quick-check", "question": "¿Qué conserva la función devuelta?", "answer": "Acceso a value." }
+  ] }
 }

@@ -2,5 +2,12 @@
   "id": "js-function-basics",
   "name": "Parámetros, ámbito y retorno",
   "topicId": "js-functions",
-  "technologyId": "javascript"
+  "technologyId": "javascript",
+  "content": { "sections": [
+    { "type": "intro", "title": "Introducción", "body": "Las funciones agrupan una tarea, reciben datos y devuelven un resultado o un efecto." },
+    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Leer parámetros", "Seguir un return"] },
+    { "type": "code", "title": "Ejemplo", "language": "javascript", "code": "function total(price, tax = 0) { return price + tax; }" },
+    { "type": "warning", "title": "Error común", "body": "Olvidar return hace que una función que debía producir un valor devuelva undefined." },
+    { "type": "quick-check", "question": "¿Qué devuelve total(10, 2)?", "answer": "12." }
+  ] }
 }

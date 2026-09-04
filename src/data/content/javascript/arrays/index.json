@@ -2,5 +2,12 @@
   "id": "js-array-iteration",
   "name": "Métodos de iteración de arrays",
   "topicId": "js-arrays",
-  "technologyId": "javascript"
+  "technologyId": "javascript",
+  "content": { "sections": [
+    { "type": "intro", "title": "Introducción", "body": "Los métodos de arrays expresan una transformación, una selección o un efecto con intención clara." },
+    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Distinguir map de forEach", "Evitar mutaciones accidentales"] },
+    { "type": "code", "title": "Ejemplo", "language": "javascript", "code": "const doubles = numbers.map((number) => number * 2);" },
+    { "type": "comparison", "title": "map frente a forEach", "left": { "title": "map", "body": "Devuelve un nuevo array transformado." }, "right": { "title": "forEach", "body": "Ejecuta un efecto y devuelve undefined." } },
+    { "type": "quick-check", "question": "¿Qué método elegirías para crear un array nuevo?", "answer": "map." }
+  ] }
 }
