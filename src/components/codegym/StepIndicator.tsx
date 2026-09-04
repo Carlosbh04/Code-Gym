@@ -77,7 +77,12 @@ export function StepIndicator({
         })}
       </ol>
 
-      <p className="text-sm text-muted-foreground">
+      <p
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="text-sm text-muted-foreground"
+      >
         Paso {Math.min(currentStep + 1, totalSteps)} de {totalSteps}
       </p>
     </div>

@@ -95,6 +95,15 @@ describe('StepIndicator (T029)', () => {
       expect(screen.getByRole('list', { name: 'Progreso de la sesión' })).toBeInTheDocument();
     });
 
+    it('anuncia la posición actual cuando cambia el paso', () => {
+      renderIndicator(3, 1, 1);
+
+      const announcement = screen.getByRole('status');
+      expect(announcement).toHaveTextContent('Paso 2 de 3');
+      expect(announcement).toHaveAttribute('aria-live', 'polite');
+      expect(announcement).toHaveAttribute('aria-atomic', 'true');
+    });
+
     it('solo el paso actual lleva aria-current', () => {
       renderIndicator(4, 2, 2);
       const conCurrent = items().filter((li) => li.getAttribute('aria-current') === 'step');
