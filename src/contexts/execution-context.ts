@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { ValidationResult } from '@/lib/engine/types';
+import type { ExecutionResult, ValidationResult } from '@/lib/engine/types';
 import type { ExerciseStep } from '@/types/exercise';
 
 /**
@@ -16,6 +16,8 @@ import type { ExerciseStep } from '@/types/exercise';
  * sin necesidad de adaptadores.
  */
 export interface ExecutionContextValue {
+  /** Ejecuta tests canónicos sin convertir el intento en respuesta de sesión. */
+  executeFixCode(step: ExerciseStep, userCode: string): Promise<ExecutionResult>;
   /**
    * Valida un paso fix-code ejecutando su código. Ver
    * `ExerciseEngine.validateFixCode`: resuelve con el veredicto y **rechaza**

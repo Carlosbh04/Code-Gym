@@ -1,3 +1,7 @@
+import type { ExecutionResult as ExecutorExecutionResult } from '@/lib/executor/types';
+
+export type { ExecutionResult } from '@/lib/executor/types';
+
 /**
  * Tipos propios del engine (§16 los sitúa en este fichero).
  *
@@ -12,4 +16,6 @@
 export interface ValidationResult {
   isCorrect: boolean;
   explanation: string;
+  /** Resultado técnico del Worker cuando se valida código ejecutable. */
+  executionResult?: ExecutorExecutionResult;
 }

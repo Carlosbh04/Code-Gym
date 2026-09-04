@@ -212,6 +212,19 @@ describe('WorkerExecutor (T039)', () => {
 
       await expect(promesa).resolves.toEqual({ pass: true, results: [] });
     });
+
+    it('espera una Promise devuelta por el ejercicio antes de comparar', async () => {
+      const promesa = executor.execute(
+        'async function saludar(usuario) { return `Hola, ${usuario.nombre}`; }',
+        [caso({ nombre: 'Ada' }, 'Hola, Ada', 'saludar(input)')],
+      );
+      await tick();
+
+      await expect(promesa).resolves.toMatchObject({
+        pass: true,
+        results: [{ actual: 'Hola, Ada', pass: true }],
+      });
+    });
   });
 
   describe('errores del código del usuario: son resultados, no fallos', () => {

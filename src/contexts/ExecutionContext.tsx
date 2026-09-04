@@ -20,6 +20,7 @@ export interface ExecutionProviderProps {
 export function ExecutionProvider({ engine, children }: ExecutionProviderProps) {
   const value = useMemo<ExecutionContextValue>(
     () => ({
+      executeFixCode: (step, userCode) => engine.executeFixCode(step, userCode),
       validateFixCode: (step, userCode) => engine.validateFixCode(step, userCode),
     }),
     [engine],

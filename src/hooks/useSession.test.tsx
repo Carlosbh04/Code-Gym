@@ -254,7 +254,7 @@ describe('useSession · fix-code (T045.1)', () => {
     expect(view.result.current.canSubmit).toBe(true);
   });
 
-  it('reintentar tras el fallo registra la respuesta y limpia el error', async () => {
+  it('reintentar tras el fallo conserva el step editable y limpia el error', async () => {
     const execution = new FakeExecution();
     execution.rechaza('El worker falló durante la ejecución');
     const view = await hastaFixCode(execution);
@@ -266,9 +266,10 @@ describe('useSession · fix-code (T045.1)', () => {
     execution.resuelve(false);
     act(() => view.result.current.submit());
 
-    await waitFor(() => expect(view.result.current.state.answers).toHaveLength(4));
+    await waitFor(() => expect(view.result.current.executionStatus).toBe('failed'));
     expect(view.result.current.executionError).toBeNull();
-    expect(view.result.current.state.answers[3].isCorrect).toBe(false);
+    expect(view.result.current.state.answers).toHaveLength(3);
+    expect(view.result.current.isAnswered).toBe(false);
   });
 
   it('isValidating en curso bloquea el doble envío', async () => {

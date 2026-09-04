@@ -10,8 +10,8 @@ import { useSession } from '@/hooks/useSession';
 import { useDialogFocus } from '@/hooks/useDialogFocus';
 import { CodeReadingStep } from './steps/CodeReadingStep';
 import { FindErrorStep } from './steps/FindErrorStep';
-import { FixCodeStep } from './steps/FixCodeStep';
 import { PredictOutputStep } from './steps/PredictOutputStep';
+import { CodingWorkspace } from './workspace/CodingWorkspace';
 
 /**
  * Página de una sesión de ejercicios (§18, D004).
@@ -49,6 +49,8 @@ function SessionPage() {
     isAnswered,
     isLastStep,
     executionError,
+    executionResult,
+    executionStatus,
     recoveryStatus,
     recoverySessionId,
     storageWarning,
@@ -57,6 +59,7 @@ function SessionPage() {
     editCode,
     revealHint,
     submit,
+    execute,
     next,
     continueRecovery,
     startNewSession,
@@ -225,11 +228,21 @@ function SessionPage() {
               disabled={isAnswered}
             />
           ) : currentStep.type === 'fix-code' ? (
-            <FixCodeStep
+            <CodingWorkspace
+              sessionTitle={session.title}
               step={currentStep}
               value={fixCodeDraft}
               onChange={editCode}
               disabled={isAnswered}
+              isRunning={isValidating}
+              canRun={canSubmit}
+              status={executionStatus}
+              result={executionResult}
+              error={executionError}
+              hintsRevealed={state.hintsRevealed.length}
+              onRun={execute}
+              onCheck={submit}
+              onRevealHint={revealHint}
             />
           ) : (
             <p role="status" className="text-sm text-muted-foreground">
@@ -237,7 +250,7 @@ function SessionPage() {
             </p>
           )}
 
-          {currentStep !== null && (
+          {currentStep !== null && currentStep.type !== 'fix-code' && (
             <HintReveal
               hints={currentStep.hints}
               revealedCount={state.hintsRevealed.length}
@@ -246,7 +259,7 @@ function SessionPage() {
             />
           )}
 
-          {executionError !== null && (
+          {executionError !== null && currentStep?.type !== 'fix-code' && (
             <p
               role="alert"
               className="flex min-w-0 items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground"
@@ -267,15 +280,17 @@ function SessionPage() {
           )}
 
           <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={submit}
-              disabled={!canSubmit || isAnswered || isValidating}
-              aria-busy={isValidating}
-              className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
-            >
-              {isValidating ? 'Ejecutando…' : executionError !== null ? 'Reintentar' : 'Comprobar'}
-            </button>
+            {currentStep?.type !== 'fix-code' && (
+              <button
+                type="button"
+                onClick={submit}
+                disabled={!canSubmit || isAnswered || isValidating}
+                aria-busy={isValidating}
+                className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
+              >
+                {isValidating ? 'Ejecutando…' : executionError !== null ? 'Reintentar' : 'Comprobar'}
+              </button>
+            )}
 
             <button
               type="button"

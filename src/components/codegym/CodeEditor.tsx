@@ -96,7 +96,7 @@ export function CodeEditor({
       rows={Math.max(6, value.split('\n').length + 1)}
       aria-labelledby={labelId}
       className={cn(
-        'block w-full resize-y whitespace-pre rounded-md border border-code-border bg-code p-4 font-mono text-sm text-foreground',
+        'block min-h-64 w-full resize-y whitespace-pre rounded-md border border-code-border bg-code p-4 font-mono text-sm text-foreground',
         'overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         disabled && 'cursor-not-allowed opacity-60',
       )}
@@ -117,7 +117,7 @@ export function CodeEditor({
         <ErrorBoundary fallback={() => textarea}>
           <div
             id={editorId}
-            className="codegym-editor overflow-hidden rounded-md border border-code-border bg-code"
+            className="codegym-editor min-h-64 overflow-hidden rounded-md border border-code-border bg-code"
           >
             <CodeMirror
               value={value}

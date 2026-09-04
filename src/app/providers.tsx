@@ -57,6 +57,15 @@ export function AppProviders({ children }: { children: ReactNode }) {
   // el efecto de abajo y nunca como efecto colateral de renderizar.
   const execution = useMemo<ExecutionContextValue>(
     () => ({
+      executeFixCode: (step, userCode) => {
+        const engine = engineRef.current;
+
+        if (engine === null) {
+          return Promise.reject(new Error('El executor todavía no está preparado'));
+        }
+
+        return engine.executeFixCode(step, userCode);
+      },
       validateFixCode: (step, userCode) => {
         const engine = engineRef.current;
 

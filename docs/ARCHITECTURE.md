@@ -26,10 +26,14 @@ El registro canónico y completo está en [DECISIONS.md](DECISIONS.md).
 ## Flujo de datos
 
 El contenido sale de `StaticContentRepository`; el engine valida respuestas y
-el Worker ejecuta únicamente código de ejercicios `fix-code`. Los providers
-persisten progreso, intentos y sesiones completadas mediante sus interfaces de
-repositorio. Las rutas se cargan con `React.lazy`, y CodeMirror solo se importa
-cuando se muestra un paso de corrección.
+el Worker ejecuta únicamente código de ejercicios `fix-code`. `CodingWorkspace`
+compone el panel del reto, `FixCodeStep`, acciones, consola y resultados: pide
+ejecuciones al contexto, nunca al Worker directamente. `executeFixCode` corre
+los tests canónicos sin responder el step; `validateFixCode` añade el veredicto
+que permite progresar. Los providers persisten progreso, intentos y sesiones
+completadas mediante sus interfaces de repositorio. Las rutas se cargan con
+`React.lazy`, y CodeMirror solo se importa cuando se muestra un paso de
+corrección.
 
 ## Routing y despliegue
 

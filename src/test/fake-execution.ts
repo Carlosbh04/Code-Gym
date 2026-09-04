@@ -1,4 +1,5 @@
 import type { ExecutionContextValue } from '@/contexts/execution-context';
+import type { ExecutionResult } from '@/lib/executor/types';
 import type { ExerciseStep } from '@/types/exercise';
 import type { ValidationResult } from '@/lib/engine/types';
 
@@ -49,8 +50,45 @@ export class FakeExecution {
 
     this.liberar = null;
     this.desenlace = { tipo: 'resuelve', isCorrect };
-    liberar?.({ isCorrect, explanation: paso?.step.explanation ?? '' });
+    liberar?.({
+      isCorrect,
+      explanation: paso?.step.explanation ?? '',
+      executionResult: this.resultOf(paso?.step, isCorrect),
+    });
   }
+
+  private resultOf(step: ExerciseStep | undefined, pass: boolean): ExecutionResult {
+    const test = step?.testCases?.[0];
+
+    return {
+      pass,
+      results: test === undefined
+        ? []
+        : [{
+            input: test.input,
+            expected: test.expected,
+            actual: pass ? test.expected : null,
+            pass,
+            ...(pass ? {} : { error: 'El resultado no coincide con el esperado' }),
+          }],
+    };
+  }
+
+  executeFixCode = (step: ExerciseStep, userCode: string): Promise<ExecutionResult> => {
+    this.llamadas.push({ step, userCode });
+
+    if (this.desenlace.tipo === 'rechaza') {
+      return Promise.reject(this.desenlace.error);
+    }
+
+    if (this.desenlace.tipo === 'diferido') {
+      return new Promise<ExecutionResult>((resolve) => {
+        this.liberar = (result) => resolve(result.executionResult!);
+      });
+    }
+
+    return Promise.resolve(this.resultOf(step, this.desenlace.isCorrect));
+  };
 
   validateFixCode = (
     step: ExerciseStep,
@@ -71,10 +109,12 @@ export class FakeExecution {
     return Promise.resolve({
       isCorrect: this.desenlace.isCorrect,
       explanation: step.explanation,
+      executionResult: this.resultOf(step, this.desenlace.isCorrect),
     });
   };
 
   readonly value: ExecutionContextValue = {
+    executeFixCode: (step, userCode) => this.executeFixCode(step, userCode),
     validateFixCode: (step, userCode) => this.validateFixCode(step, userCode),
   };
 }

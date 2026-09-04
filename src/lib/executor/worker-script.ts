@@ -15,7 +15,7 @@
  * No se convierte en un resultado normal.
  */
 export const WORKER_SCRIPT = `
-self.onmessage = function (event) {
+self.onmessage = async function (event) {
   var data = event.data;
 
   if (!data || data.type !== 'execute') {
@@ -29,7 +29,7 @@ self.onmessage = function (event) {
 
     try {
       var fn = new Function('input', data.code + '\\nreturn (' + test.call + ');');
-      var actual = fn(test.input);
+      var actual = await fn(test.input);
 
       results.push({
         input: test.input,

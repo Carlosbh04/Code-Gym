@@ -242,7 +242,12 @@ describe('ExerciseEngine (T023)', () => {
 
       const result = await engine.validateFixCode(step, 'función correcta');
 
-      expect(result).toEqual({ isCorrect: true, explanation: step.explanation });
+      expect(result).toMatchObject({
+        isCorrect: true,
+        explanation: step.explanation,
+        executionResult: { pass: true },
+      });
+      expect(result.executionResult?.results).toHaveLength(step.testCases!.length);
     });
 
     it('un caso que falla basta para que isCorrect sea false', async () => {
@@ -287,13 +292,17 @@ describe('ExerciseEngine (T023)', () => {
       });
     });
 
-    it('el resultado no lleva más campos que los de ValidationResult', async () => {
+    it('el resultado conserva el detalle técnico del Worker para la UI', async () => {
       const step = await fixCodeStepOf('js-arrays-map-vs-foreach-01');
       executor.pasaTodo(step.testCases!);
 
       const result = await engine.validateFixCode(step, 'x');
 
-      expect(Object.keys(result).sort()).toEqual(['explanation', 'isCorrect']);
+      expect(Object.keys(result).sort()).toEqual([
+        'executionResult',
+        'explanation',
+        'isCorrect',
+      ]);
     });
 
     it('funciona con los 6 pasos fix-code del contenido real', async () => {
@@ -322,6 +331,17 @@ describe('ExerciseEngine (T023)', () => {
   });
 
   describe('T045 · contrato completo de validateFixCode', () => {
+    it('executeFixCode devuelve el resultado canónico sin construir una validación', async () => {
+      const step = await fixCodeStepOf('js-arrays-map-vs-foreach-01');
+      executor.pasaTodo(step.testCases!);
+
+      await expect(engine.executeFixCode(step, 'solución')).resolves.toMatchObject({
+        pass: true,
+        results: expect.any(Array),
+      });
+      expect(executor.llamadas).toHaveLength(1);
+    });
+
     it('mapea ExecutionResult.pass a isCorrect en ambos sentidos, leyendo `pass` y no `results`', async () => {
       const step = await fixCodeStepOf('js-arrays-map-vs-foreach-01');
 

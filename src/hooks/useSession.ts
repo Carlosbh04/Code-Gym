@@ -7,6 +7,7 @@ import {
   type SessionStorageWarning,
 } from '@/hooks/useSessionRecoveryController';
 import { validateSelection } from '@/lib/engine/validation';
+import type { ExecutionResult } from '@/lib/engine/types';
 import {
   createInitialSessionState,
   sessionReducer,
@@ -57,6 +58,8 @@ export interface UseSessionResult {
    * llegan al reducer ni cuentan como intento.
    */
   executionError: string | null;
+  executionResult: ExecutionResult | null;
+  executionStatus: 'idle' | 'running' | 'passed' | 'failed' | 'error';
   /** true mientras se persiste la finalización completa (D018). */
   isCompleting: boolean;
   /** Fallo de persistencia de la finalización, separado del error de carga. */
@@ -74,6 +77,7 @@ export interface UseSessionResult {
   revealHint: () => void;
   selectError: (next: FindErrorSelection) => void;
   submit: () => void;
+  execute: () => void;
   next: () => void;
   retryCompletion: () => void;
   continueRecovery: () => void;
@@ -91,6 +95,10 @@ export function useSession(sessionId: string): UseSessionResult {
     useState<FindErrorSelection>(NO_ERROR_SELECTION);
   const [fixCodeDraft, setFixCodeDraft] = useState<string | null>(null);
   const [executionError, setExecutionError] = useState<string | null>(null);
+  const [executionResult, setExecutionResult] = useState<ExecutionResult | null>(null);
+  const [executionStatus, setExecutionStatus] = useState<
+    'idle' | 'running' | 'passed' | 'failed' | 'error'
+  >('idle');
   const [isCompleting, setIsCompleting] = useState(false);
   const [completionError, setCompletionError] = useState<string | null>(null);
   const [state, dispatch] = useReducer(
@@ -118,6 +126,8 @@ export function useSession(sessionId: string): UseSessionResult {
     setSelectedError(NO_ERROR_SELECTION);
     setFixCodeDraft(null);
     setExecutionError(null);
+    setExecutionResult(null);
+    setExecutionStatus('idle');
     setCompletionError(null);
   }, []);
 
@@ -217,13 +227,21 @@ export function useSession(sessionId: string): UseSessionResult {
     // rechaza SUBMIT_ANSWER mientras esté puesto.
     validationInFlight.current = true;
     setExecutionError(null);
+    setExecutionStatus('running');
     dispatch({ type: 'SET_VALIDATING', payload: true });
 
     void execution
       .validateFixCode(currentStep, pendingAnswer as string)
       .then((result) => {
         dispatch({ type: 'SET_VALIDATING', payload: false });
-        registrar(result.isCorrect);
+        if (result.executionResult !== undefined) {
+          setExecutionResult(result.executionResult);
+          setExecutionStatus(result.executionResult.pass ? 'passed' : 'failed');
+        }
+
+        // Un fallo de tests permite corregir y reintentar el mismo código.
+        // Solo el pase de los casos canónicos convierte el step en respuesta.
+        if (result.isCorrect) registrar(true);
       })
       .catch((error: unknown) => {
         // §27: timeout, fallo del worker y executor destruido son recuperables
@@ -231,6 +249,7 @@ export function useSession(sessionId: string): UseSessionResult {
         // llegado a producir veredicto.
         dispatch({ type: 'SET_VALIDATING', payload: false });
         setExecutionError(error instanceof Error ? error.message : String(error));
+        setExecutionStatus('error');
       })
       .finally(() => {
         validationInFlight.current = false;
@@ -242,6 +261,38 @@ export function useSession(sessionId: string): UseSessionResult {
     state.hintsRevealed.length,
     state.isValidating,
   ]);
+
+  const execute = useCallback(() => {
+    if (
+      currentStep === null ||
+      currentStep.type !== 'fix-code' ||
+      pendingAnswer === null ||
+      state.isValidating ||
+      validationInFlight.current
+    ) {
+      return;
+    }
+
+    validationInFlight.current = true;
+    setExecutionError(null);
+    setExecutionStatus('running');
+    dispatch({ type: 'SET_VALIDATING', payload: true });
+
+    void execution
+      .executeFixCode(currentStep, pendingAnswer as string)
+      .then((result) => {
+        setExecutionResult(result);
+        setExecutionStatus(result.pass ? 'passed' : 'failed');
+      })
+      .catch((error: unknown) => {
+        setExecutionError(error instanceof Error ? error.message : String(error));
+        setExecutionStatus('error');
+      })
+      .finally(() => {
+        dispatch({ type: 'SET_VALIDATING', payload: false });
+        validationInFlight.current = false;
+      });
+  }, [currentStep, execution, pendingAnswer, state.isValidating]);
 
   const startCompletion = useCallback(() => {
     if (
@@ -293,6 +344,8 @@ export function useSession(sessionId: string): UseSessionResult {
     setSelectedError(NO_ERROR_SELECTION);
     setFixCodeDraft(null);
     setExecutionError(null);
+    setExecutionResult(null);
+    setExecutionStatus('idle');
     stepStartedAt.current = Date.now();
   }, [isLastStep, startCompletion]);
 
@@ -314,6 +367,8 @@ export function useSession(sessionId: string): UseSessionResult {
     isAnswered,
     isLastStep,
     executionError,
+    executionResult,
+    executionStatus,
     isCompleting,
     completionError,
     recoveryStatus: recovery.recoveryStatus,
@@ -324,6 +379,7 @@ export function useSession(sessionId: string): UseSessionResult {
     editCode,
     revealHint,
     submit,
+    execute,
     next,
     retryCompletion,
     continueRecovery: recovery.continueRecovery,

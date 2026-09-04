@@ -66,6 +66,37 @@ Una sesión necesita `id`, `title`, `conceptId`, `technologyId`, `difficulty`, `
 
 Usa `fix-code` únicamente para JavaScript ejecutable por el Worker actual. HTML, CSS, React, Node.js y SQL se entrenan por ahora con lectura, predicción y detección de errores: CodeGym no simula la ejecución de un navegador, un runtime Node, un bundler React ni una base de datos. No declares una sesión como ejecutable si esa capacidad no existe.
 
+## Authoring executable JavaScript exercises
+
+Un `fix-code` es una práctica real de escritura para JavaScript. `code` es el
+starter code que verá el usuario: debe contener la firma y contexto suficiente,
+pero nunca una solución disimulada. Usa comentarios breves como `// Tu código
+aquí` cuando ayuden a arrancar.
+
+Cada `testCases` declara `input`, `expected`, `call` y `description`. Incluye
+un caso normal y, cuando el concepto lo justifique, un borde relevante (array
+vacío, valor límite, dato ausente o error). La `description` se muestra como
+requisito y el resultado real del Worker muestra `Expected`, `Received` y el
+error de cada caso fallido.
+
+El flujo visible separa **Ejecutar tests** de **Comprobar**: ambos usan los
+casos canónicos en el Web Worker, pero solo una comprobación que pasa permite
+avanzar. Un fallo no bloquea el editor ni convierte el step en completado; el
+usuario puede corregir el mismo draft y ejecutar otra vez. No hay consola shell
+ni salida `console.log` libre en esta fase.
+
+El Worker evalúa únicamente el código y los `call` del ejercicio, sin DOM,
+filesystem, red, procesos ni acceso al hilo de UI. Puede esperar el valor que
+devuelva una función `async`, pero los resultados deben ser clonables y
+comparables mediante JSON. No uses timers, APIs del navegador, imports, fetch,
+dependencias externas ni valores que no se puedan serializar. Los errores de
+sintaxis y de ejecución se convierten en resultados de test; los timeouts o
+fallos del Worker son recuperables desde la interfaz.
+
+El borrador de código se conserva mientras el step está abierto. La recuperación
+de sesión actual no persiste drafts de editor: no añadas ese campo sin una
+decisión explícita de esquema de recovery.
+
 ## Calidad y validación
 
 Mantén texto pedagógico concreto: explica qué hace algo, cuándo usarlo y un error común o alternativa cuando aporte valor. Los hints y explanations deben provenir del contenido de la sesión.

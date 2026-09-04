@@ -81,8 +81,29 @@ export class ExerciseEngine {
       );
     }
 
-    const result = await this.executor.execute(userCode, step.testCases);
+    const executionResult = await this.executeFixCode(step, userCode);
 
-    return { isCorrect: result.pass, explanation: step.explanation };
+    return {
+      isCorrect: executionResult.pass,
+      explanation: step.explanation,
+      executionResult,
+    };
+  }
+
+  /** Ejecuta los casos canónicos sin registrar una respuesta de sesión. */
+  async executeFixCode(step: ExerciseStep, userCode: string) {
+    if (step.type !== 'fix-code') {
+      throw new Error(
+        `El paso ${step.id} es de tipo ${step.type}: executeFixCode solo ejecuta pasos fix-code`,
+      );
+    }
+
+    if (step.testCases === null || step.testCases.length === 0) {
+      throw new Error(
+        `El paso ${step.id} es fix-code pero no declara testCases con los que ejecutar`,
+      );
+    }
+
+    return this.executor.execute(userCode, step.testCases);
   }
 }

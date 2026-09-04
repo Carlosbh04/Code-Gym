@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const FIX_CODE_SOLUTION = 'function dobles(numeros) {\n  return numeros.map((n) => n * 2);\n}';
+const FIX_CODE_BROKEN = 'function dobles(numeros) {\n  return numeros;\n}';
 
 test('completa una sesión real desde la navegación hasta el progreso', async ({ page }) => {
   await page.goto('/');
@@ -38,7 +39,15 @@ test('completa una sesión real desde la navegación hasta el progreso', async (
 
   await expect(page.getByText(/Corrige `dobles`/)).toBeVisible();
   await page.getByRole('button', { name: 'Usar editor de texto simple' }).click();
-  await page.getByRole('textbox', { name: 'Editor de código' }).fill(FIX_CODE_SOLUTION);
+  const editor = page.getByRole('textbox', { name: 'Editor de código' });
+  await editor.fill(FIX_CODE_BROKEN);
+  await page.getByRole('button', { name: 'Ejecutar tests' }).click();
+  await expect(page.getByText('Hay tests que necesitan corrección.')).toBeVisible();
+  await expect(page.getByText('Expected').first()).toBeVisible();
+
+  await editor.fill(FIX_CODE_SOLUTION);
+  await page.getByRole('button', { name: 'Ejecutar tests' }).click();
+  await expect(page.getByText('Todos los tests han pasado.')).toBeVisible();
   await page.getByRole('button', { name: 'Comprobar' }).click();
   await expect(page.getByText('Respuesta correcta')).toBeVisible();
   await page.getByRole('button', { name: 'Terminar sesión' }).click();

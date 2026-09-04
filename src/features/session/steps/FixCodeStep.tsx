@@ -24,6 +24,8 @@ export interface FixCodeStepProps {
   onChange: (code: string) => void;
   /** Bloquea la edición, por ejemplo una vez validada la respuesta. */
   disabled?: boolean;
+  /** El workspace ya muestra el enunciado en su panel de problema. */
+  showPrompt?: boolean;
   className?: string;
 }
 
@@ -32,6 +34,7 @@ export function FixCodeStep({
   value,
   onChange,
   disabled = false,
+  showPrompt = true,
   className,
 }: FixCodeStepProps) {
   if (step.type !== 'fix-code') {
@@ -45,10 +48,16 @@ export function FixCodeStep({
   }
 
   return (
-    <fieldset disabled={disabled} className={cn('min-w-0', className)}>
-      <legend className="mb-4 text-base font-medium text-foreground">
-        {step.prompt}
-      </legend>
+    <fieldset
+      disabled={disabled}
+      aria-label={showPrompt ? undefined : step.prompt}
+      className={cn('min-w-0', className)}
+    >
+      {showPrompt && (
+        <legend className="mb-4 text-base font-medium text-foreground">
+          {step.prompt}
+        </legend>
+      )}
 
       <LazyCodeEditor value={value ?? step.code} onChange={onChange} disabled={disabled} />
     </fieldset>

@@ -378,7 +378,22 @@ describe('SessionPage (T027)', () => {
       expect(execution.llamadas[0].step.id).toBe('step-4');
     });
 
-    it('un código que no pasa los test cases es respuesta incorrecta', async () => {
+    it('Ejecutar tests muestra el resultado real sin completar el paso', async () => {
+      const execution = new FakeExecution();
+      execution.resuelve(true);
+      await loaded(SESSION_ID, repo, execution);
+      await llegarAFixCode();
+
+      await escribirCodigo(SOLUCION);
+      fireEvent.click(screen.getByRole('button', { name: 'Ejecutar tests' }));
+
+      await waitFor(() => expect(screen.getByText('Todos los tests han pasado.')).toBeInTheDocument());
+      expect(screen.queryByText('Respuesta correcta')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Terminar sesión' })).toBeDisabled();
+      expect(execution.llamadas).toHaveLength(1);
+    });
+
+    it('un código que no pasa los test cases muestra resultados y permite corregir', async () => {
       const execution = new FakeExecution();
       execution.resuelve(false);
       await loaded(SESSION_ID, repo, execution);
@@ -388,7 +403,10 @@ describe('SessionPage (T027)', () => {
       await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
       fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
 
-      await waitFor(() => expect(screen.getByText('Respuesta incorrecta')).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText('Resultados de tests')).toBeInTheDocument());
+      expect(screen.getByText('Expected')).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: 'Editor de código' })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Terminar sesión' })).toBeDisabled();
     });
 
     it('mientras ejecuta muestra «Ejecutando…», lo bloquea y no admite doble envío', async () => {
@@ -426,9 +444,7 @@ describe('SessionPage (T027)', () => {
 
       // §27: el timeout no es una respuesta incorrecta, es un error reintentable.
       const aviso = await screen.findByRole('alert');
-      expect(aviso).toHaveTextContent(
-        'No se pudo ejecutar tu código: La ejecución superó el límite de 3000 ms',
-      );
+      expect(aviso).toHaveTextContent('No se pudo ejecutar: La ejecución superó el límite de 3000 ms');
       expect(screen.queryByText('Respuesta incorrecta')).toBeNull();
       expect(screen.getByRole('button', { name: 'Reintentar' })).toBeEnabled();
 
