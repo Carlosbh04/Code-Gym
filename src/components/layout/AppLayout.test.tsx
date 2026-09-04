@@ -37,6 +37,16 @@ describe('AppLayout responsive móvil (T078)', () => {
     expect(container.querySelector('h1')).toHaveTextContent('Contenido');
   });
 
+  it('ofrece un salto de teclado al contenido principal', () => {
+    renderLayout();
+
+    expect(screen.getByRole('link', { name: 'Saltar al contenido principal' })).toHaveAttribute(
+      'href',
+      '#main-content',
+    );
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content');
+  });
+
   it('activa sidebar y centra el contenido con ancho acotado en desktop', () => {
     const { container } = renderLayout();
 

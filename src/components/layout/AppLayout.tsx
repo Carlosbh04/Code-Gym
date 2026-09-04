@@ -16,11 +16,17 @@ import { TopBar } from '@/components/layout/TopBar';
 export function AppLayout() {
   return (
     <div className="min-h-screen bg-background lg:flex">
+      <a
+        href="#main-content"
+        className="sr-only rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        Saltar al contenido principal
+      </a>
       <Sidebar />
       <div className="min-w-0 flex-1 lg:flex lg:justify-center">
         <div className="flex w-full flex-col lg:max-w-[900px]">
           <TopBar />
-          <main className="flex-1 px-4 pb-24 pt-6 sm:px-6 sm:pb-6 lg:px-8 lg:pt-8">
+          <main id="main-content" className="flex-1 px-4 pb-24 pt-6 sm:px-6 sm:pb-6 lg:px-8 lg:pt-8">
             <Outlet />
           </main>
         </div>
