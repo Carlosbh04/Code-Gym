@@ -1,3 +1,4 @@
+import { CircleCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useContent } from '@/hooks/useContent';
@@ -165,9 +166,15 @@ function ResultsPage() {
       <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
         codegym practice
       </p>
+      <div
+        aria-hidden="true"
+        className="mt-4 flex size-12 items-center justify-center rounded-full bg-success/10 text-success animate-celebrate-check"
+      >
+        <CircleCheck className="size-7" />
+      </div>
       <h1
         id="results-title"
-        className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+        className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
       >
         Resultado de la sesión
       </h1>
@@ -183,7 +190,7 @@ function ResultsPage() {
           </p>
         )}
 
-      <dl className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
+      <dl className="stagger-fade-in-up mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
         <div className="rounded-md border border-border bg-card px-5 py-4">
           <dt className="text-sm text-muted-foreground">Respuestas correctas</dt>
           <dd className="mt-1 text-xl font-bold text-foreground">

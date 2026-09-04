@@ -77,4 +77,13 @@ describe('tokens de movimiento (T071)', () => {
     expect(css).toContain('animation-iteration-count: 1 !important;');
     expect(css).toContain('transition-duration: 0.01ms !important;');
   });
+
+  it('define la entrada del checkmark de celebración con tokens existentes', () => {
+    expect(tailwindConfig).toContain('celebrateCheck: {');
+    expect(tailwindConfig).toContain("transform: 'scale(0.85)'");
+    expect(tailwindConfig).toContain("transform: 'scale(1.05)'");
+    expect(tailwindConfig).toContain(
+      "'celebrate-check':\n          'celebrateCheck var(--motion-duration-normal) var(--motion-ease-emphasized) both'",
+    );
+  });
 });

@@ -120,6 +120,11 @@ export default {
           from: { width: 'var(--from)' },
           to: { width: 'var(--to)' },
         },
+        celebrateCheck: {
+          from: { opacity: '0', transform: 'scale(0.85)' },
+          '70%': { opacity: '1', transform: 'scale(1.05)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
       },
       animation: {
         'fade-in-up':
@@ -129,6 +134,8 @@ export default {
         shake: 'shake var(--motion-duration-normal) var(--motion-ease-standard) both',
         'progress-fill':
           'progressFill var(--motion-duration-slow) var(--motion-ease-standard) both',
+        'celebrate-check':
+          'celebrateCheck var(--motion-duration-normal) var(--motion-ease-emphasized) both',
       },
     },
   },

@@ -130,6 +130,11 @@ describe('ResultsPage (T058)', () => {
       '/review/session-1',
     );
     expect(screen.queryByText(/dominio|score|puntuación/i)).not.toBeInTheDocument();
+
+    const celebration = rendered.container.querySelector('[aria-hidden="true"]');
+    expect(celebration).toHaveClass('animate-celebrate-check');
+    expect(celebration?.querySelector('svg')).toBeInTheDocument();
+    expect(rendered.container.querySelector('dl')).toHaveClass('stagger-fade-in-up');
   });
 
   it('distingue un resultado inexistente y no carga metadata ni attempts', async () => {
