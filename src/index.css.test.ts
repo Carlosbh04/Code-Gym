@@ -60,4 +60,14 @@ describe('tokens de movimiento (T071)', () => {
       "'progress-fill':\n          'progressFill var(--motion-duration-slow) var(--motion-ease-standard) both'",
     );
   });
+
+  it('tokeniza las microinteracciones de controles', () => {
+    expect(css).toContain(":where(button, [role='button']) {");
+    expect(css).toContain('transition-property: transform, background-color, border-color, color, box-shadow;');
+    expect(css).toContain('transition-duration: var(--motion-duration-fast);');
+    expect(css).toContain('transition-timing-function: var(--motion-ease-standard);');
+    expect(css).toContain(":where(button, [role='button']):focus-visible {");
+    expect(css).toContain(":where(button, [role='button']):not(:disabled):not([aria-disabled='true']):active {");
+    expect(css).toContain('transform: scale(0.98);');
+  });
 });

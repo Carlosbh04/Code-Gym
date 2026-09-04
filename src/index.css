@@ -133,6 +133,25 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+
+  /* T075: los controles comparten una transición corta y predecible para sus
+     estados hover/focus existentes, más una respuesta táctil al activarlos. */
+  :where(button, [role='button']) {
+    transition-property: transform, background-color, border-color, color, box-shadow;
+    transition-duration: var(--motion-duration-fast);
+    transition-timing-function: var(--motion-ease-standard);
+  }
+
+  :where(button, [role='button']):focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--ring)),
+      0 0 0 4px hsl(var(--background));
+  }
+
+  :where(button, [role='button']):not(:disabled):not([aria-disabled='true']):active {
+    transform: scale(0.98);
+  }
 }
 
 /* Editor de código. CodeMirror inyecta su tema como .cm-editor.<hash>, con la
