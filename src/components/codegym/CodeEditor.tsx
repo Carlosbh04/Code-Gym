@@ -81,9 +81,11 @@ export function CodeEditor({
 }: CodeEditorProps) {
   const [plainText, setPlainText] = useState(false);
   const labelId = useId();
+  const editorId = useId();
 
   const textarea = (
     <textarea
+      id={editorId}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       disabled={disabled}
@@ -113,7 +115,10 @@ export function CodeEditor({
         // Si CodeMirror no llega a montar, el textarea toma el relevo sin
         // perder lo escrito: comparten `value`.
         <ErrorBoundary fallback={() => textarea}>
-          <div className="codegym-editor overflow-hidden rounded-md border border-code-border bg-code">
+          <div
+            id={editorId}
+            className="codegym-editor overflow-hidden rounded-md border border-code-border bg-code"
+          >
             <CodeMirror
               value={value}
               onChange={onChange}
@@ -135,6 +140,8 @@ export function CodeEditor({
       <button
         type="button"
         onClick={() => setPlainText((previous) => !previous)}
+        aria-controls={editorId}
+        aria-pressed={plainText}
         className={TOGGLE}
       >
         {plainText ? 'Volver al editor con resaltado' : 'Usar editor de texto simple'}

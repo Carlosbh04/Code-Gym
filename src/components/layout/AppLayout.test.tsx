@@ -28,6 +28,7 @@ describe('AppLayout responsive móvil (T078)', () => {
     expect(mobileNav).toHaveClass('fixed', 'bottom-0', 'sm:hidden');
     expect(topBar).toHaveClass('hidden', 'sm:flex', 'lg:hidden');
     expect(sidebar).toHaveClass('hidden', 'lg:flex');
+    expect(sidebar).toHaveAccessibleName('Barra lateral');
   });
 
   it('mantiene el contenedor principal flexible para no desbordar en móvil', () => {

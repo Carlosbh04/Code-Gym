@@ -128,6 +128,8 @@ describe('CodeEditor (T040)', () => {
 
       expect(alternar()).toHaveAccessibleName('Usar editor de texto simple');
       expect(alternar()).toHaveAttribute('type', 'button');
+      expect(alternar()).toHaveAttribute('aria-pressed', 'false');
+      expect(alternar()).toHaveAttribute('aria-controls');
       expect(alternar().className).toContain('min-h-11');
       expect(alternar().className).toContain('focus-visible:ring-2');
     });
@@ -140,6 +142,7 @@ describe('CodeEditor (T040)', () => {
 
       fireEvent.click(alternar());
       expect(screen.getByRole('textbox').tagName).toBe('TEXTAREA');
+      expect(alternar()).toHaveAttribute('aria-pressed', 'true');
     });
   });
 

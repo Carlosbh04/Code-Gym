@@ -77,6 +77,7 @@ function SessionPage() {
     return (
       <section
         role="dialog"
+        aria-modal="true"
         aria-labelledby="recovery-title"
         aria-describedby="recovery-description"
         className="mx-auto flex max-w-lg flex-col gap-4 rounded-lg border border-border bg-card p-6"

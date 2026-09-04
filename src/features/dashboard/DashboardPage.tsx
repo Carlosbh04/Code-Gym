@@ -184,9 +184,9 @@ function DashboardPage() {
       <h2 id="reset-progress-title" className="text-sm font-semibold text-foreground">Restablecer progreso</h2>
       <p className="mt-2 text-sm text-muted-foreground">Elimina los datos de práctica guardados en este dispositivo.</p>
       <button type="button" className="mt-3 rounded-md border border-destructive px-4 py-2 text-sm font-semibold text-destructive" onClick={() => setResetOpen(true)}>Restablecer progreso</button>
-      {resetOpen && <div role="dialog" aria-modal="true" aria-labelledby="reset-dialog-title" className="mt-4 max-w-lg rounded-md border border-destructive/50 bg-muted p-4">
+      {resetOpen && <div role="dialog" aria-modal="true" aria-labelledby="reset-dialog-title" aria-describedby="reset-dialog-description" className="mt-4 max-w-lg rounded-md border border-destructive/50 bg-muted p-4">
         <h3 id="reset-dialog-title" className="font-semibold">¿Restablecer progreso?</h3>
-        <p className="mt-2 text-sm text-muted-foreground">Se eliminarán tu progreso, intentos y sesiones completadas guardadas en este dispositivo. Esta acción no se puede deshacer.</p>
+        <p id="reset-dialog-description" className="mt-2 text-sm text-muted-foreground">Se eliminarán tu progreso, intentos y sesiones completadas guardadas en este dispositivo. Esta acción no se puede deshacer.</p>
         {resetError && <p role="alert" className="mt-3 text-sm text-destructive">No se pudo restablecer el progreso: {resetError}</p>}
         <div className="mt-4 flex gap-3"><button type="button" disabled={resetting} onClick={() => setResetOpen(false)}>Cancelar</button><button type="button" disabled={resetting} onClick={confirmReset} className="rounded-md bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground">{resetting ? 'Restableciendo…' : 'Restablecer progreso'}</button></div>
       </div>}
