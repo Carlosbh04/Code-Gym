@@ -214,3 +214,15 @@
     animation-delay: var(--motion-duration-slow);
   }
 }
+
+/* T076: la información no depende de movimiento. Quien prefiera reducirlo
+   recibe el estado final de cada transición o animación prácticamente al instante. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -70,4 +70,11 @@ describe('tokens de movimiento (T071)', () => {
     expect(css).toContain(":where(button, [role='button']):not(:disabled):not([aria-disabled='true']):active {");
     expect(css).toContain('transform: scale(0.98);');
   });
+
+  it('respeta prefers-reduced-motion para animaciones y transiciones', () => {
+    expect(css).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(css).toContain('animation-duration: 0.01ms !important;');
+    expect(css).toContain('animation-iteration-count: 1 !important;');
+    expect(css).toContain('transition-duration: 0.01ms !important;');
+  });
 });
