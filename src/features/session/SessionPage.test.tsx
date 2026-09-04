@@ -336,8 +336,10 @@ describe('SessionPage (T027)', () => {
     };
 
     /** Pone el editor en modo texto y escribe la solución dada. */
-    const escribirCodigo = (codigo: string) => {
-      fireEvent.click(screen.getByRole('button', { name: 'Usar editor de texto simple' }));
+    const escribirCodigo = async (codigo: string) => {
+      fireEvent.click(
+        await screen.findByRole('button', { name: 'Usar editor de texto simple' }),
+      );
       fireEvent.change(screen.getByRole('textbox'), { target: { value: codigo } });
     };
 
@@ -348,7 +350,7 @@ describe('SessionPage (T027)', () => {
       const fixCode = await llegarAFixCode();
 
       expect(fixCode.type).toBe('fix-code');
-      expect(document.querySelector('.cm-editor')).not.toBeNull();
+      await waitFor(() => expect(document.querySelector('.cm-editor')).not.toBeNull());
       expect(screen.getByRole('textbox')).toHaveAccessibleName('Editor de código');
       expect(document.body.textContent).toContain('numeros.forEach');
     });
@@ -366,7 +368,7 @@ describe('SessionPage (T027)', () => {
       await loaded(SESSION_ID, repo, execution);
       await llegarAFixCode();
 
-      escribirCodigo(SOLUCION);
+      await escribirCodigo(SOLUCION);
       await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
       fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
 
@@ -382,7 +384,7 @@ describe('SessionPage (T027)', () => {
       await loaded(SESSION_ID, repo, execution);
       await llegarAFixCode();
 
-      escribirCodigo(SOLUCION);
+      await escribirCodigo(SOLUCION);
       await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
       fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
 
@@ -395,7 +397,7 @@ describe('SessionPage (T027)', () => {
       await loaded(SESSION_ID, repo, execution);
       await llegarAFixCode();
 
-      escribirCodigo(SOLUCION);
+      await escribirCodigo(SOLUCION);
       await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
       fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
 
@@ -418,7 +420,7 @@ describe('SessionPage (T027)', () => {
       await loaded(SESSION_ID, repo, execution);
       await llegarAFixCode();
 
-      escribirCodigo(SOLUCION);
+      await escribirCodigo(SOLUCION);
       await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
       fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
 
@@ -443,7 +445,7 @@ describe('SessionPage (T027)', () => {
       await loaded();
       await llegarAFixCode();
 
-      escribirCodigo('const mio = 1;');
+      await escribirCodigo('const mio = 1;');
 
       await waitFor(() =>
         expect(screen.getByRole('textbox')).toHaveValue('const mio = 1;'),

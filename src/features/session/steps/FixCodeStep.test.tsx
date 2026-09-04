@@ -14,8 +14,9 @@ const fixCodeStepOf = async (sessionId: string): Promise<ExerciseStep> => {
 
 const MAP_VS_FOREACH = 'js-arrays-map-vs-foreach-01';
 const silenceReactError = () => vi.spyOn(console, 'error').mockImplementation(() => {});
-const aTextarea = () =>
-  fireEvent.click(screen.getByRole('button', { name: 'Usar editor de texto simple' }));
+const highlightedEditor = () =>
+  screen.findByRole('button', { name: 'Usar editor de texto simple' });
+const aTextarea = async () => fireEvent.click(await highlightedEditor());
 
 describe('FixCodeStep (T041)', () => {
   describe('renderiza el paso', () => {
@@ -30,7 +31,7 @@ describe('FixCodeStep (T041)', () => {
       const step = await fixCodeStepOf(MAP_VS_FOREACH);
       render(<FixCodeStep step={step} value={null} onChange={() => {}} />);
 
-      aTextarea();
+      await aTextarea();
 
       expect(screen.getByRole('textbox')).toHaveValue(step.code);
     });
@@ -39,6 +40,7 @@ describe('FixCodeStep (T041)', () => {
       const step = await fixCodeStepOf(MAP_VS_FOREACH);
       render(<FixCodeStep step={step} value={null} onChange={() => {}} />);
 
+      await highlightedEditor();
       const grupo = screen.getByRole('group', { name: step.prompt });
       expect(within(grupo).getByRole('textbox')).toBeInTheDocument();
       expect(document.querySelector('.cm-editor')).not.toBeNull();
@@ -62,7 +64,7 @@ describe('FixCodeStep (T041)', () => {
       const step = await fixCodeStepOf(MAP_VS_FOREACH);
       render(<FixCodeStep step={step} value="const mio = 1;" onChange={() => {}} />);
 
-      aTextarea();
+      await aTextarea();
 
       expect(screen.getByRole('textbox')).toHaveValue('const mio = 1;');
       expect(screen.getByRole('textbox')).not.toHaveValue(step.code);
@@ -73,7 +75,7 @@ describe('FixCodeStep (T041)', () => {
       const onChange = vi.fn();
       render(<FixCodeStep step={step} value={null} onChange={onChange} />);
 
-      aTextarea();
+      await aTextarea();
       fireEvent.change(screen.getByRole('textbox'), { target: { value: 'nuevo();' } });
 
       expect(onChange).toHaveBeenCalledTimes(1);
@@ -84,7 +86,7 @@ describe('FixCodeStep (T041)', () => {
       const step = await fixCodeStepOf(MAP_VS_FOREACH);
       render(<FixCodeStep step={step} value="" onChange={() => {}} />);
 
-      aTextarea();
+      await aTextarea();
 
       expect(screen.getByRole('textbox')).toHaveValue('');
     });
@@ -95,6 +97,7 @@ describe('FixCodeStep (T041)', () => {
       const step = await fixCodeStepOf(MAP_VS_FOREACH);
       render(<FixCodeStep step={step} value={null} onChange={() => {}} disabled />);
 
+      await highlightedEditor();
       expect(document.querySelector('.cm-content')).toHaveAttribute(
         'contenteditable',
         'false',
@@ -106,7 +109,7 @@ describe('FixCodeStep (T041)', () => {
       const onChange = vi.fn();
       render(<FixCodeStep step={step} value={null} onChange={onChange} disabled />);
 
-      expect(screen.getByRole('button')).toBeDisabled();
+      expect(await highlightedEditor()).toBeDisabled();
       expect(onChange).not.toHaveBeenCalled();
     });
 
@@ -133,6 +136,7 @@ describe('FixCodeStep (T041)', () => {
       const step = await fixCodeStepOf(MAP_VS_FOREACH);
       render(<FixCodeStep step={step} value={null} onChange={() => {}} />);
 
+      await highlightedEditor();
       const content = document.querySelector('.cm-content') as HTMLElement;
       content.focus();
 
@@ -143,7 +147,7 @@ describe('FixCodeStep (T041)', () => {
       const step = await fixCodeStepOf(MAP_VS_FOREACH);
       render(<FixCodeStep step={step} value={null} onChange={() => {}} />);
 
-      const boton = screen.getByRole('button', { name: 'Usar editor de texto simple' });
+      const boton = await highlightedEditor();
       boton.focus();
 
       expect(document.activeElement).toBe(boton);
@@ -157,7 +161,7 @@ describe('FixCodeStep (T041)', () => {
       const log = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       render(<FixCodeStep step={step} value={null} onChange={() => {}} />);
-      aTextarea();
+      await aTextarea();
       fireEvent.change(screen.getByRole('textbox'), {
         target: { value: "console.log('ejecutado');" },
       });
@@ -230,7 +234,7 @@ describe('FixCodeStep (T041)', () => {
         );
 
         expect(screen.getByRole('group', { name: step.prompt })).toBeInTheDocument();
-        aTextarea();
+        await aTextarea();
         expect(screen.getByRole('textbox'), id).toHaveValue(step.code);
 
         unmount();

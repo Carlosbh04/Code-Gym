@@ -1,4 +1,4 @@
-import { CodeEditor } from '@/components/codegym/CodeEditor';
+import { LazyCodeEditor } from '@/components/codegym/LazyCodeEditor';
 import { cn } from '@/lib/utils';
 import type { ExerciseStep } from '@/types/exercise';
 
@@ -50,7 +50,7 @@ export function FixCodeStep({
         {step.prompt}
       </legend>
 
-      <CodeEditor value={value ?? step.code} onChange={onChange} disabled={disabled} />
+      <LazyCodeEditor value={value ?? step.code} onChange={onChange} disabled={disabled} />
     </fieldset>
   );
 }
