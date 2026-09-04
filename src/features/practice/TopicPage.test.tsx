@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
 import type { Concept, ContentContextValue, Technology, Topic } from '@/types/content';
+import type { ExerciseSession } from '@/types/exercise';
 import TopicPage from './TopicPage';
 
 const JAVASCRIPT: Technology = {
@@ -44,6 +45,12 @@ const CONCEPTS: Concept[] = [
   },
 ];
 
+const ARRAY_SESSION: ExerciseSession = {
+  id: 'arrays-01', title: 'Practica iteración', conceptId: 'array-iteration',
+  technologyId: 'javascript', difficulty: 'beginner', version: '1.0.0',
+  status: 'published', createdAt: '2026-09-01', updatedAt: null, steps: [],
+};
+
 function renderTopicPage({
   technologyId = 'javascript',
   topicId = 'arrays',
@@ -51,6 +58,7 @@ function renderTopicPage({
   isLoading = false,
   getTopics = vi.fn().mockResolvedValue([ARRAYS, FUNCTIONS]),
   getConceptsByTopic = vi.fn().mockResolvedValue(CONCEPTS),
+  getSessionsByConcept = vi.fn().mockResolvedValue([]),
 }: {
   technologyId?: string;
   topicId?: string;
@@ -58,6 +66,7 @@ function renderTopicPage({
   isLoading?: boolean;
   getTopics?: ContentContextValue['getTopics'];
   getConceptsByTopic?: ContentContextValue['getConceptsByTopic'];
+  getSessionsByConcept?: ContentContextValue['getSessionsByConcept'];
 } = {}) {
   const content: ContentContextValue = {
     technologies,
@@ -66,7 +75,7 @@ function renderTopicPage({
     getTopics,
     getConceptsByTopic,
     getConcept: vi.fn(),
-    getSessionsByConcept: vi.fn(),
+    getSessionsByConcept,
     getSession: vi.fn(),
   };
   const wrapper = ({ children }: { children: ReactNode }) => (
@@ -111,11 +120,11 @@ describe('TopicPage (T057)', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Arrays' })).toBeInTheDocument();
     await screen.findByText('Métodos de iteración de arrays');
     expect(screen.getByText('Métodos de iteración y colecciones.')).toBeInTheDocument();
+    expect(screen.getByText('# Iteración')).toBeInTheDocument();
     const concepts = screen.getByRole('region', { name: 'Conceptos' });
     expect(within(concepts).getByRole('heading', { level: 2, name: 'Conceptos' })).toBeInTheDocument();
-    expect(within(concepts).getAllByRole('listitem').map((item) => item.textContent)).toEqual([
-      'Métodos de iteración de arrays',
-      'Mutación de arrays',
+    expect(within(concepts).getAllByRole('heading', { level: 3 }).map((item) => item.textContent)).toEqual([
+      'Métodos de iteración de arrays', 'Mutación de arrays',
     ]);
   });
 
@@ -179,11 +188,16 @@ describe('TopicPage (T057)', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('no carga sesiones ni consulta progreso para listar conceptos', async () => {
-    const rendered = renderTopicPage();
+  it('deriva las sesiones de cada concepto y enlaza a la práctica real', async () => {
+    const getSessionsByConcept = vi.fn().mockImplementation((conceptId: string) =>
+      Promise.resolve(conceptId === 'array-iteration' ? [ARRAY_SESSION] : []),
+    );
+    const rendered = renderTopicPage({ getSessionsByConcept });
 
-    await screen.findByText('Métodos de iteración de arrays');
-    expect(rendered.content.getSessionsByConcept).not.toHaveBeenCalled();
+    expect(await screen.findByRole('link', { name: /Practica iteración.*Empezar práctica/i })).toHaveAttribute(
+      'href', '/practice/arrays-01',
+    );
+    expect(rendered.content.getSessionsByConcept).toHaveBeenCalledWith('array-iteration');
     expect(rendered.content.getSession).not.toHaveBeenCalled();
     expect(rendered.content.getConcept).not.toHaveBeenCalled();
   });

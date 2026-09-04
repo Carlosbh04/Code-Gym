@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { useContent } from '@/hooks/useContent';
 import type { Concept, Topic } from '@/types/content';
+import type { ExerciseSession } from '@/types/exercise';
 
 type TopicsResult =
   | { technologyId: string; status: 'success'; topics: Topic[] }
@@ -12,17 +13,22 @@ type ConceptsResult =
   | { topicId: string; status: 'success'; concepts: Concept[] }
   | { topicId: string; status: 'error'; message: string };
 
+type SessionsResult =
+  | { status: 'success'; sessions: ExerciseSession[] }
+  | { status: 'error'; message: string };
+
 function TopicPage() {
   const { technologyId, topicId } = useParams<{
     technologyId: string;
     topicId: string;
   }>();
-  const { getTechnology, getTopics, getConceptsByTopic, isLoading } =
+  const { getTechnology, getTopics, getConceptsByTopic, getSessionsByConcept, isLoading } =
     useContent();
   const technology = technologyId ? getTechnology(technologyId) : undefined;
   const [topicsResult, setTopicsResult] = useState<TopicsResult | null>(null);
   const [conceptsResult, setConceptsResult] =
     useState<ConceptsResult | null>(null);
+  const [sessionsByConcept, setSessionsByConcept] = useState<Record<string, SessionsResult>>({});
 
   useEffect(() => {
     if (isLoading || technology === undefined || technologyId === undefined) {
@@ -82,6 +88,40 @@ function TopicPage() {
       active = false;
     };
   }, [getConceptsByTopic, topic]);
+
+  const currentConcepts =
+    conceptsResult?.topicId === topic?.id ? conceptsResult : null;
+
+  useEffect(() => {
+    if (currentConcepts?.status !== 'success') return;
+
+    let active = true;
+    void Promise.all(
+      currentConcepts.concepts.map(async (concept) => {
+        try {
+          const sessions = await getSessionsByConcept(concept.id);
+          return [
+            concept.id,
+            { status: 'success', sessions: Array.isArray(sessions) ? sessions : [] } as SessionsResult,
+          ] as const;
+        } catch (error: unknown) {
+          return [
+            concept.id,
+            {
+              status: 'error',
+              message: error instanceof Error ? error.message : 'No se pudieron cargar las sesiones.',
+            } as SessionsResult,
+          ] as const;
+        }
+      }),
+    ).then((entries) => {
+      if (active) setSessionsByConcept(Object.fromEntries(entries));
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [currentConcepts, getSessionsByConcept]);
 
   if (isLoading) {
     return (
@@ -168,9 +208,6 @@ function TopicPage() {
     );
   }
 
-  const currentConcepts =
-    conceptsResult?.topicId === topic.id ? conceptsResult : null;
-
   return (
     <section aria-labelledby="topic-title" className="max-w-3xl py-2 sm:py-4">
       <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
@@ -210,20 +247,61 @@ function TopicPage() {
             className="mt-3 rounded-lg border border-border bg-card"
           />
         ) : (
-          <ul className="mt-5 space-y-3">
+          <ul className="mt-5 space-y-5">
             {currentConcepts.concepts.map((concept) => (
               <li
                 key={concept.id}
-                className="min-h-16 rounded-md border border-border bg-card px-5 py-4"
+                className="rounded-md border border-border bg-card p-5"
               >
-                <p className="break-words text-base font-semibold text-foreground">
+                <h3 className="break-words text-lg font-semibold text-foreground">
                   {concept.name}
-                </p>
+                </h3>
+                <section
+                  aria-label={`Teoría de ${concept.name}`}
+                  className="mt-3 whitespace-pre-wrap break-words text-sm leading-relaxed text-muted-foreground"
+                >
+                  {concept.contentMarkdown}
+                </section>
+                <ConceptSessions result={sessionsByConcept[concept.id]} />
               </li>
             ))}
           </ul>
         )}
       </section>
+    </section>
+  );
+}
+
+function ConceptSessions({ result }: { result: SessionsResult | undefined }) {
+  return (
+    <section aria-label="Sesiones disponibles" className="mt-6 border-t border-border pt-4">
+      <h4 className="text-sm font-semibold text-foreground">Sesiones disponibles</h4>
+      {result === undefined ? (
+        <p role="status" className="mt-2 text-sm text-muted-foreground">Cargando sesiones…</p>
+      ) : result.status === 'error' ? (
+        <p role="alert" className="mt-2 text-sm text-destructive">
+          No pudimos cargar las sesiones. {result.message}
+        </p>
+      ) : result.sessions.length === 0 ? (
+        <p className="mt-2 text-sm text-muted-foreground">No hay sesiones disponibles todavía.</p>
+      ) : (
+        <ul className="mt-3 space-y-3">
+          {result.sessions.map((session) => (
+            <li key={session.id}>
+              <Link
+                to={`/practice/${session.id}`}
+                className="flex min-h-11 flex-col gap-2 rounded-md border border-border bg-background p-4 ring-offset-background transition-colors hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <span className="font-medium text-foreground">{session.title}</span>
+                <span className="text-sm text-muted-foreground">
+                  {session.difficulty} · {session.steps.length} ejercicios
+                </span>
+                <span className="text-sm font-semibold text-primary">Empezar práctica <span aria-hidden="true">→</span></span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
