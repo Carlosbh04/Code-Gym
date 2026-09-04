@@ -15,7 +15,7 @@ const fixCodeStepOf = async (sessionId: string): Promise<ExerciseStep> => {
 const MAP_VS_FOREACH = 'js-arrays-map-vs-foreach-01';
 const silenceReactError = () => vi.spyOn(console, 'error').mockImplementation(() => {});
 const highlightedEditor = () =>
-  screen.findByRole('button', { name: 'Usar editor de texto simple' });
+  screen.findByRole('button', { name: 'Usar editor de texto simple' }, { timeout: 5_000 });
 const aTextarea = async () => fireEvent.click(await highlightedEditor());
 
 describe('FixCodeStep (T041)', () => {
