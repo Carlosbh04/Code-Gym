@@ -115,6 +115,8 @@ describe('HomePage (T054)', () => {
     expect(technologyLinks).toHaveLength(2);
     expect(technologyLinks[0]).toHaveAttribute('href', '/tech/javascript');
     expect(technologyLinks[1]).toHaveAttribute('href', '/tech/typescript');
+
+    expect(section.querySelector('ul')).toHaveClass('grid', 'sm:grid-cols-2');
   });
 
   it('conserva un único main y una jerarquía de headings significativa', () => {
