@@ -45,7 +45,10 @@ describe('router', () => {
     await navigate('/ruta-desconocida');
 
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Página no encontrada' }),
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'Página no encontrada',
+      }),
     ).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/ruta-desconocida');
   });
@@ -67,7 +70,7 @@ describe('router', () => {
     ]) {
       await navigate(path);
 
-      expect(screen.getByTestId('route-view')).toHaveTextContent(expected);
+      expect(await screen.findByTestId('route-view')).toHaveTextContent(expected);
       expect(screen.queryByRole('heading', { name: 'Página no encontrada' })).toBeNull();
     }
   });
