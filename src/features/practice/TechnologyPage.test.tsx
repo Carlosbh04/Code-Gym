@@ -3,6 +3,7 @@ import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
+import { ProgressContext } from '@/contexts/progress-context';
 import type { ContentContextValue, Technology, Topic } from '@/types/content';
 import TechnologyPage from './TechnologyPage';
 
@@ -51,20 +52,18 @@ function renderTechnologyPage({
     isLoading,
     getTechnology: (id) => technologies.find((technology) => technology.id === id),
     getTopics,
-    getConceptsByTopic: vi.fn(),
+    getConceptsByTopic: vi.fn().mockResolvedValue([]),
     getConcept: vi.fn(),
-    getSessionsByConcept: vi.fn(),
+    getSessionsByConcept: vi.fn().mockResolvedValue([]),
     getSession: vi.fn(),
   };
   const wrapper = ({ children }: { children: ReactNode }) => (
     <ContentContext.Provider value={content}>
-      <MemoryRouter initialEntries={[`/tech/${technologyId}`]}>
-        <main>
-          <Routes>
-            <Route path="/tech/:technologyId" element={children} />
-          </Routes>
-        </main>
-      </MemoryRouter>
+      <ProgressContext.Provider value={{ progress: new Map(), updateProgress: vi.fn(), getConceptDomain: vi.fn(), isLoading: false, error: null }}>
+        <MemoryRouter initialEntries={[`/tech/${technologyId}`]}>
+          <main><Routes><Route path="/tech/:technologyId" element={children} /></Routes></main>
+        </MemoryRouter>
+      </ProgressContext.Provider>
     </ContentContext.Provider>
   );
 
@@ -91,8 +90,7 @@ describe('TechnologyPage (T056)', () => {
       await screen.findByRole('heading', { level: 1, name: 'JavaScript' }),
     ).toBeInTheDocument();
     expect(screen.getByText('El lenguaje de la web.')).toBeInTheDocument();
-    const topics = screen.getByRole('region', { name: 'Temas' });
-    expect(within(topics).getByRole('heading', { level: 2, name: 'Temas' })).toBeInTheDocument();
+    const topics = screen.getByRole('region', { name: 'Temas de JavaScript' });
     expect(within(topics).getByText('Arrays')).toBeInTheDocument();
     expect(within(topics).getByText('Trabaja con colecciones y métodos de iteración.')).toBeInTheDocument();
     expect(within(topics).getByRole('link', { name: /Arrays/i })).toHaveAttribute(
@@ -165,12 +163,14 @@ describe('TechnologyPage (T056)', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('mantiene el alcance de contenido: no consulta conceptos ni sesiones', async () => {
+  it('deriva métricas desde conceptos y sesiones, sin consultar contenido ajeno', async () => {
     const rendered = renderTechnologyPage();
 
     await screen.findByRole('link', { name: /Arrays/i });
-    expect(rendered.content.getConcept).not.toHaveBeenCalled();
+    await screen.findAllByText('0 ejercicios');
+    expect(rendered.content.getConceptsByTopic).toHaveBeenCalledWith('arrays');
     expect(rendered.content.getSessionsByConcept).not.toHaveBeenCalled();
+    expect(rendered.content.getConcept).not.toHaveBeenCalled();
     expect(rendered.content.getSession).not.toHaveBeenCalled();
   });
 
@@ -180,7 +180,7 @@ describe('TechnologyPage (T056)', () => {
     await screen.findByRole('link', { name: /Arrays/i });
     expect(screen.getAllByRole('main')).toHaveLength(1);
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    const topics = screen.getByRole('region', { name: 'Temas' });
+    const topics = screen.getByRole('region', { name: 'Temas de JavaScript' });
     expect(within(topics).getByRole('list')).toBeInTheDocument();
     expect(within(topics).getAllByRole('listitem')).toHaveLength(2);
     expect(within(topics).getAllByRole('link')).toHaveLength(2);
