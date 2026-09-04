@@ -16,7 +16,7 @@ test('completa una sesión real desde la navegación hasta el progreso', async (
 
   await page.getByRole('link', { name: /Arrays.*Ver tema/i }).click();
   await expect(page).toHaveURL('/tech/javascript/js-arrays');
-  await expect(page.getByRole('heading', { name: 'Arrays' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Arrays', exact: true })).toBeVisible();
 
   await expect(page.getByRole('heading', { name: 'Métodos de iteración de arrays' })).toBeVisible();
   await page.getByRole('link', { name: /forEach no devuelve lo que crees.*Empezar práctica/i }).click();
