@@ -1,0 +1,11 @@
+{
+  "id": "html-semantic-landmarks", "name": "Landmarks semánticos", "topicId": "html-semantic", "technologyId": "html",
+  "content": { "sections": [
+    { "type": "intro", "title": "Introducción", "body": "La semántica describe la función del contenido aunque cambie su estilo visual." },
+    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Distinguir main de section", "Elegir navegación y encabezados coherentes"] },
+    { "type": "explanation", "title": "Concepto clave", "body": "Los landmarks permiten saltar a regiones importantes de una página sin recorrer cada enlace." },
+    { "type": "code", "title": "Ejemplo", "language": "html", "code": "<header>…</header>\n<nav aria-label=\"Principal\">…</nav>\n<main><article>…</article></main>\n<footer>…</footer>" },
+    { "type": "comparison", "title": "Comparación", "left": { "title": "div", "body": "Agrupa sin describir su función." }, "right": { "title": "main", "body": "Identifica el contenido principal único." } },
+    { "type": "quick-check", "question": "¿Cuántos main debe tener normalmente un documento?", "answer": "Uno: representa el contenido principal de esa página." }
+  ] }
+}

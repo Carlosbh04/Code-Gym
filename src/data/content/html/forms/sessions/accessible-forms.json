@@ -1,0 +1,7 @@
+{
+  "id": "html-accessible-forms-01", "title": "Relaciona etiquetas y campos", "conceptId": "html-accessible-forms", "technologyId": "html", "difficulty": "beginner", "version": "1.0.0", "status": "published", "createdAt": "2026-09-04", "updatedAt": null,
+  "steps": [
+    { "id": "html-forms-1", "type": "code-reading", "prompt": "¿Qué relación da nombre al campo?", "code": "<label for=\"email\">Correo</label>\n<input id=\"email\" type=\"email\">", "language": "html", "options": [{"id":"for-id","text":"for del label coincide con id del input","correct":true},{"id":"type","text":"type coincide con label","correct":false},{"id":"placeholder","text":"placeholder crea la relación","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "La coincidencia for/id crea la asociación programática.", "hints": ["Compara los dos identificadores."], "stepOrder": 1 },
+    { "id": "html-forms-2", "type": "code-reading", "prompt": "¿Qué tipo ayuda a validar una dirección de correo?", "code": "<input id=\"email\" type=\"email\">", "language": "html", "options": [{"id":"email","text":"email","correct":true},{"id":"text","text":"text","correct":false},{"id":"search","text":"search","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "type=email aporta semántica y validación nativa básica.", "hints": ["El atributo ya muestra la respuesta."], "stepOrder": 2 }
+  ]
+}

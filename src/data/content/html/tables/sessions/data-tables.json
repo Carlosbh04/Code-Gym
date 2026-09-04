@@ -1,0 +1,7 @@
+{
+  "id": "html-data-tables-01", "title": "Lee encabezados y datos", "conceptId": "html-data-tables", "technologyId": "html", "difficulty": "beginner", "version": "1.0.0", "status": "published", "createdAt": "2026-09-04", "updatedAt": null,
+  "steps": [
+    { "id": "html-tables-1", "type": "code-reading", "prompt": "¿Qué elemento representa el encabezado Curso?", "code": "<tr><th scope=\"col\">Curso</th><th scope=\"col\">Horas</th></tr>", "language": "html", "options": [{"id":"th","text":"th","correct":true},{"id":"td","text":"td","correct":false},{"id":"tr","text":"tr","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "th identifica un encabezado y scope aclara su dirección.", "hints": ["Busca la celda de cabecera."], "stepOrder": 1 },
+    { "id": "html-tables-2", "type": "code-reading", "prompt": "¿Cuál es el uso correcto de table?", "code": "<table><tr><th>Curso</th><td>HTML</td></tr></table>", "language": "html", "options": [{"id":"data","text":"Representar datos relacionados","correct":true},{"id":"layout","text":"Colocar columnas visuales","correct":false},{"id":"button","text":"Crear un botón","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "La semántica table pertenece a datos tabulares.", "hints": ["Piensa en filas y columnas con significado."], "stepOrder": 2 }
+  ]
+}

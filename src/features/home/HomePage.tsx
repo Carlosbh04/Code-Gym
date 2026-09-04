@@ -21,11 +21,11 @@ function HomePage() {
           CodeGym
         </h1>
         <p className="mt-5 max-w-2xl text-xl font-medium leading-relaxed text-foreground sm:text-2xl">
-          Practica JavaScript entendiendo el código, no memorizándolo.
+          Practica tecnología entendiendo el código, no memorizándolo.
         </p>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Sesiones cortas y enfocadas para entrenar conceptos, detectar errores
-          y mejorar tu razonamiento.
+          y mejorar tu razonamiento en cada tecnología disponible.
         </p>
         <a
           href="#technologies"

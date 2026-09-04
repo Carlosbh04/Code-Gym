@@ -1,0 +1,7 @@
+{
+  "id": "html-semantic-landmarks-01", "title": "Elige landmarks con significado", "conceptId": "html-semantic-landmarks", "technologyId": "html", "difficulty": "beginner", "version": "1.0.0", "status": "published", "createdAt": "2026-09-04", "updatedAt": null,
+  "steps": [
+    { "id": "html-semantic-1", "type": "code-reading", "prompt": "¿Qué elemento identifica el contenido principal?", "code": "<header>Noticias</header>\n<main><article>Actualidad</article></main>", "language": "html", "options": [{"id":"header","text":"header","correct":false},{"id":"main","text":"main","correct":true},{"id":"article","text":"article","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "main delimita la región principal del documento.", "hints": ["No es contenido complementario ni cabecera."], "stepOrder": 1 },
+    { "id": "html-semantic-2", "type": "code-reading", "prompt": "¿Qué elemento es más adecuado para enlaces de navegación?", "code": "<nav aria-label=\"Principal\"><a href=\"/cursos\">Cursos</a></nav>", "language": "html", "options": [{"id":"nav","text":"nav","correct":true},{"id":"span","text":"span","correct":false},{"id":"div","text":"div","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "nav comunica que ese grupo de enlaces sirve para navegar.", "hints": ["Existe un landmark específico para navegación."], "stepOrder": 2 }
+  ]
+}

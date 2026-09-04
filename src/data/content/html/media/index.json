@@ -1,0 +1,11 @@
+{
+  "id": "html-media-alternatives", "name": "Alternativas para medios", "topicId": "html-media", "technologyId": "html",
+  "content": { "sections": [
+    { "type": "intro", "title": "Introducción", "body": "Las alternativas textuales permiten entender una imagen cuando no se ve, no carga o no se puede oír." },
+    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Escribir alt con propósito", "Distinguir imágenes decorativas"] },
+    { "type": "explanation", "title": "Concepto clave", "body": "alt describe la información que aporta una imagen, no una lista literal de píxeles." },
+    { "type": "code", "title": "Ejemplo", "language": "html", "code": "<img src=\"ventas.png\" alt=\"Ventas suben un 18 % en marzo\">" },
+    { "type": "key-point", "title": "Punto clave", "body": "Una imagen puramente decorativa usa alt vacío para que no añada ruido." },
+    { "type": "quick-check", "question": "¿Una imagen decorativa necesita una descripción larga?", "answer": "No; alt vacío comunica que no añade contenido relevante." }
+  ] }
+}

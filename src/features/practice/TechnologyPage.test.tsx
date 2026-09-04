@@ -13,6 +13,13 @@ const JAVASCRIPT: Technology = {
   description: 'El lenguaje de la web.',
 };
 
+const HTML: Technology = {
+  id: 'html',
+  name: 'HTML',
+  icon: 'html',
+  description: 'Estructura documentos accesibles.',
+};
+
 const TOPICS: Topic[] = [
   {
     id: 'arrays',
@@ -95,6 +102,25 @@ describe('TechnologyPage (T056)', () => {
     expect(within(topics).getByRole('link', { name: /Functions/i })).toHaveAttribute(
       'href',
       '/tech/javascript/functions',
+    );
+  });
+
+  it('deriva los topics de cualquier tecnología publicada, sin asumir JavaScript', async () => {
+    const getTopics = vi.fn().mockResolvedValue([
+      {
+        id: 'html-document',
+        name: 'Estructura de documentos',
+        technologyId: 'html',
+        description: 'Construye una base válida.',
+      },
+    ] satisfies Topic[]);
+
+    renderTechnologyPage({ technologyId: 'html', technologies: [JAVASCRIPT, HTML], getTopics });
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'HTML' })).toBeInTheDocument();
+    expect(getTopics).toHaveBeenCalledWith('html');
+    expect(screen.getByRole('link', { name: /Estructura de documentos/i })).toHaveAttribute(
+      'href', '/tech/html/html-document',
     );
   });
 

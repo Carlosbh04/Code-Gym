@@ -1,0 +1,7 @@
+[
+  { "id": "html-document", "name": "Estructura de documentos", "technologyId": "html", "description": "Construye una base válida y legible para cada página." },
+  { "id": "html-semantic", "name": "Semántica y landmarks", "technologyId": "html", "description": "Elige elementos por su significado, no por su apariencia." },
+  { "id": "html-forms", "name": "Formularios accesibles", "technologyId": "html", "description": "Relaciona controles, etiquetas y mensajes de ayuda." },
+  { "id": "html-media", "name": "Multimedia con contexto", "technologyId": "html", "description": "Ofrece alternativas útiles para imágenes y medios." },
+  { "id": "html-tables", "name": "Tablas de datos", "technologyId": "html", "description": "Representa relaciones tabulares sin usar tablas para layout." }
+]

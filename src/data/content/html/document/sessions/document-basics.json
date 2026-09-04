@@ -1,0 +1,7 @@
+{
+  "id": "html-document-basics-01", "title": "Lee la estructura de un documento", "conceptId": "html-document-basics", "technologyId": "html", "difficulty": "beginner", "version": "1.0.0", "status": "published", "createdAt": "2026-09-04", "updatedAt": null,
+  "steps": [
+    { "id": "html-document-1", "type": "code-reading", "prompt": "¿Qué elemento contiene el contenido visible?", "code": "<html lang=\"es\">\n  <head><title>Perfil</title></head>\n  <body><main>Contenido</main></body>\n</html>", "language": "html", "options": [{"id":"head","text":"head","correct":false},{"id":"body","text":"body","correct":true},{"id":"title","text":"title","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "body contiene el contenido que forma la página; head describe el documento.", "hints": ["Busca el elemento que contiene main."], "stepOrder": 1 },
+    { "id": "html-document-2", "type": "code-reading", "prompt": "¿Qué atributo ayuda a anunciar el idioma principal?", "code": "<html lang=\"es\">", "language": "html", "options": [{"id":"lang","text":"lang","correct":true},{"id":"title","text":"title","correct":false},{"id":"class","text":"class","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "lang permite que lectores de pantalla y navegadores conozcan el idioma principal.", "hints": ["Es un atributo del elemento html."], "stepOrder": 2 }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "html-data-tables", "name": "Encabezados de tabla", "topicId": "html-tables", "technologyId": "html",
+  "content": { "sections": [
+    { "type": "intro", "title": "Introducción", "body": "Las tablas expresan relaciones entre filas y columnas de datos, no posiciones visuales." },
+    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Distinguir th de td", "Relacionar encabezados y datos"] },
+    { "type": "explanation", "title": "Concepto clave", "body": "th identifica una celda de encabezado; td contiene un valor de datos." },
+    { "type": "code", "title": "Ejemplo", "language": "html", "code": "<table>\n  <tr><th scope=\"col\">Curso</th><th scope=\"col\">Horas</th></tr>\n  <tr><td>HTML</td><td>4</td></tr>\n</table>" },
+    { "type": "warning", "title": "Error común", "body": "Usar una tabla para colocar columnas de una interfaz mezcla presentación y significado." },
+    { "type": "quick-check", "question": "¿Qué elemento contiene el nombre de una columna?", "answer": "th, normalmente con scope=col." }
+  ] }
+}

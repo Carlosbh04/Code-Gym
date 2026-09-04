@@ -58,7 +58,7 @@ describe('HomePage (T054)', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Practica JavaScript entendiendo el código, no memorizándolo.',
+        'Practica tecnología entendiendo el código, no memorizándolo.',
       ),
     ).toBeInTheDocument();
     expect(

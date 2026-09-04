@@ -1,0 +1,11 @@
+{
+  "id": "html-accessible-forms", "name": "Etiquetas y controles", "topicId": "html-forms", "technologyId": "html",
+  "content": { "sections": [
+    { "type": "intro", "title": "Introducción", "body": "Un formulario usable explica cada control antes de pedir una respuesta." },
+    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Asociar label e input", "Usar tipos de control apropiados"] },
+    { "type": "explanation", "title": "Concepto clave", "body": "for en label debe coincidir con id en input para crear un nombre accesible y ampliar el área de activación." },
+    { "type": "code", "title": "Ejemplo", "language": "html", "code": "<label for=\"email\">Correo</label>\n<input id=\"email\" type=\"email\" required>" },
+    { "type": "warning", "title": "Error común", "body": "Usar solo placeholder no sustituye una etiqueta: desaparece al escribir y no identifica siempre el control." },
+    { "type": "quick-check", "question": "¿Qué debe coincidir entre label e input?", "answer": "El for del label y el id del input." }
+  ] }
+}

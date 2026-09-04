@@ -1,0 +1,14 @@
+{
+  "id": "html-document-basics",
+  "name": "Documento HTML bien formado",
+  "topicId": "html-document",
+  "technologyId": "html",
+  "content": { "sections": [
+    { "type": "intro", "title": "Introducción", "body": "Un documento HTML comunica estructura al navegador y a las tecnologías de asistencia." },
+    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Reconocer la estructura mínima", "Entender el propósito de head y body"] },
+    { "type": "explanation", "title": "Concepto clave", "body": "doctype, html, head y body no son decoración: declaran el modo de renderizado, el idioma y el contenido visible." },
+    { "type": "code", "title": "Ejemplo", "language": "html", "code": "<!doctype html>\n<html lang=\"es\">\n  <head><title>Mi página</title></head>\n  <body><h1>Hola</h1></body>\n</html>" },
+    { "type": "warning", "title": "Error común", "body": "Poner metadata visible en body o contenido principal dentro de head hace el documento más difícil de interpretar." },
+    { "type": "quick-check", "question": "¿Dónde vive el contenido visible de la página?", "answer": "En body; head contiene metadata y recursos del documento." }
+  ] }
+}

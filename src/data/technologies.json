@@ -4,5 +4,35 @@
     "name": "JavaScript",
     "icon": "js",
     "description": "El lenguaje de la web. Entrena lectura de código, predicción de resultados y corrección de errores sobre JavaScript moderno."
+  },
+  {
+    "id": "html",
+    "name": "HTML",
+    "icon": "html",
+    "description": "Construye documentos comprensibles, semánticos y accesibles antes de añadir estilos o interacción."
+  },
+  {
+    "id": "css",
+    "name": "CSS",
+    "icon": "css",
+    "description": "Domina cascade, layout y responsive design leyendo reglas que el navegador puede aplicar de verdad."
+  },
+  {
+    "id": "react",
+    "name": "React",
+    "icon": "react",
+    "description": "Aprende a modelar interfaces con componentes, estado y efectos sin fingir un runtime de React en el Worker."
+  },
+  {
+    "id": "nodejs",
+    "name": "Node.js",
+    "icon": "node",
+    "description": "Razona sobre módulos, asincronía y APIs de servidor mediante lectura y depuración de código."
+  },
+  {
+    "id": "sql",
+    "name": "SQL",
+    "icon": "sql",
+    "description": "Consulta y transforma datos relacionales con ejercicios de lectura, predicción y detección de errores."
   }
 ]

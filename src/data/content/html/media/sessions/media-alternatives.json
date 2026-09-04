@@ -1,0 +1,7 @@
+{
+  "id": "html-media-alternatives-01", "title": "Describe medios con intención", "conceptId": "html-media-alternatives", "technologyId": "html", "difficulty": "beginner", "version": "1.0.0", "status": "published", "createdAt": "2026-09-04", "updatedAt": null,
+  "steps": [
+    { "id": "html-media-1", "type": "code-reading", "prompt": "¿Qué atributo ofrece una alternativa para la imagen?", "code": "<img src=\"equipo.jpg\" alt=\"Equipo celebrando una entrega\">", "language": "html", "options": [{"id":"alt","text":"alt","correct":true},{"id":"src","text":"src","correct":false},{"id":"class","text":"class","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "alt contiene la alternativa textual de la imagen.", "hints": ["No es la ruta del archivo."], "stepOrder": 1 },
+    { "id": "html-media-2", "type": "code-reading", "prompt": "¿Qué alt corresponde a un icono decorativo junto a un texto ya visible?", "code": "<img src=\"sparkle.svg\" alt=\"\"> Nuevo curso", "language": "html", "options": [{"id":"empty","text":"alt vacío","correct":true},{"id":"icon","text":"alt=\"icono\"","correct":false},{"id":"missing","text":"sin atributo alt","correct":false}], "errorLines": null, "errorType": null, "testCases": null, "expectedPatterns": null, "explanation": "El icono no añade información distinta del texto; alt vacío evita repetirla.", "hints": ["La imagen es decoración, no contenido."], "stepOrder": 2 }
+  ]
+}

@@ -1,0 +1,7 @@
+[
+  { "id":"css-cascade", "name":"Cascade y especificidad", "technologyId":"css", "description":"Resuelve qué regla gana sin depender del orden visual." },
+  { "id":"css-box-model", "name":"Box model", "technologyId":"css", "description":"Calcula el espacio que ocupa un elemento." },
+  { "id":"css-flexbox", "name":"Flexbox", "technologyId":"css", "description":"Alinea y distribuye elementos en un eje." },
+  { "id":"css-grid", "name":"Grid", "technologyId":"css", "description":"Construye layouts bidimensionales explícitos." },
+  { "id":"css-responsive", "name":"Diseño responsive", "technologyId":"css", "description":"Adapta la interfaz a cada ancho disponible." }
+]
