@@ -1,7 +1,8 @@
 # CodeGym
 
-Aplicación web para practicar JavaScript mediante sesiones cortas de lectura,
-predicción, detección de errores y corrección de código.
+Aplicación web para practicar JavaScript, HTML, CSS, React, Node.js y SQL
+mediante sesiones cortas de lectura, predicción, detección de errores y,
+cuando el motor lo soporta, corrección de código.
 
 ## Desarrollo
 

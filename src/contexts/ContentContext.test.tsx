@@ -340,8 +340,11 @@ describe('ContentContext + useContent (T020)', () => {
       const { result } = await mountHook(new StaticContentRepository());
 
       await expect(result.current.getSession('no-existe')).resolves.toBeNull();
-      expect(result.current.technologies.map((t) => t.id)).toEqual(['javascript']);
+      expect(result.current.technologies.map((t) => t.id)).toEqual([
+        'javascript', 'html', 'css', 'react', 'nodejs', 'sql',
+      ]);
       expect(result.current.getTechnology('javascript')?.name).toBe('JavaScript');
+      expect(result.current.getTechnology('sql')?.name).toBe('SQL');
     });
   });
 });

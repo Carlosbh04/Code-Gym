@@ -119,6 +119,21 @@ describe('StaticContentRepository (T019)', () => {
       expect(session?.steps).toHaveLength(4);
     });
 
+    it('devuelve una sesión de selección para cada tecnología sin fingir ejecución', async () => {
+      const samples = [
+        'html-document-basics-01', 'css-cascade-specificity-01', 'react-components-basics-01',
+        'node-modules-imports-01', 'sql-select-columns-01',
+      ];
+
+      for (const sessionId of samples) {
+        const session = await repo.getSessionById(sessionId);
+        expect(session, sessionId).not.toBeNull();
+        expect(session?.steps.length).toBeGreaterThan(0);
+        expect(session?.steps.every((step) => step.type === 'code-reading')).toBe(true);
+        expect(session?.steps.every((step) => step.testCases === null)).toBe(true);
+      }
+    });
+
     it('devuelve null cuando el id no existe', async () => {
       await expect(repo.getSessionById('js-arrays-no-existe-99')).resolves.toBeNull();
     });
@@ -325,13 +340,11 @@ describe('StaticContentRepository (T019)', () => {
     it('carga las tecnologias declaradas en technologies.json', async () => {
       const technologies = await repo.getTechnologies();
 
-      expect(technologies).toHaveLength(1);
-      expect(technologies[0]).toEqual({
-        id: 'javascript',
-        name: 'JavaScript',
-        icon: 'js',
-        description: expect.any(String),
-      });
+      expect(technologies.map((technology) => technology.id)).toEqual([
+        'javascript', 'html', 'css', 'react', 'nodejs', 'sql',
+      ]);
+      expect(technologies.every((technology) => technology.name.length > 0)).toBe(true);
+      expect(technologies.every((technology) => technology.description.length > 0)).toBe(true);
     });
 
     it('devuelve los topics de JavaScript', async () => {
@@ -348,6 +361,19 @@ describe('StaticContentRepository (T019)', () => {
       ]);
       expect(topics.every((t) => t.technologyId === 'javascript')).toBe(true);
       expect(topics.every((t) => t.name.length > 0 && t.description.length > 0)).toBe(true);
+    });
+
+    it('resuelve topics de cada tecnología ampliada sin cargar sesiones ajenas', async () => {
+      const samples = [
+        ['html', 'html-document'], ['css', 'css-cascade'], ['react', 'react-components'],
+        ['nodejs', 'node-modules'], ['sql', 'sql-select'],
+      ] as const;
+
+      for (const [technologyId, firstTopicId] of samples) {
+        const topics = await repo.getTopicsByTechnology(technologyId);
+        expect(topics.length, technologyId).toBeGreaterThanOrEqual(5);
+        expect(topics[0]?.id, technologyId).toBe(firstTopicId);
+      }
     });
 
     it('devuelve vacio para una tecnologia no declarada', async () => {
@@ -371,6 +397,7 @@ describe('StaticContentRepository (T019)', () => {
       expect(concept?.technologyId).toBe('javascript');
       expect(concept?.name.length).toBeGreaterThan(0);
       expect(concept?.contentMarkdown).toContain('forEach');
+      expect(concept?.content?.sections.length).toBeGreaterThanOrEqual(4);
     });
 
     it('resuelve el concepto de Functions con su prosa', async () => {
@@ -464,7 +491,7 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 21 sesiones del repositorio son las de T017, T018 y T063 a T067', async () => {
+    it('las 21 sesiones existentes de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
