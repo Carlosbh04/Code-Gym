@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
 import { useProgress } from '@/hooks/useProgress';
 import { useResetProgress } from '@/hooks/useResetProgress';
+import { useDialogFocus } from '@/hooks/useDialogFocus';
 import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
 import { DiagnosisVerdict } from './components/DiagnosisVerdict';
 import { EvidencePiece } from './components/EvidencePiece';
@@ -47,6 +48,8 @@ function DashboardPage() {
   const [resetOpen, setResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
+  const resetDialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(resetOpen, resetDialogRef);
   const confirmReset = async () => {
     if (resetting) return;
     setResetting(true); setResetError(null);
@@ -184,7 +187,7 @@ function DashboardPage() {
       <h2 id="reset-progress-title" className="text-sm font-semibold text-foreground">Restablecer progreso</h2>
       <p className="mt-2 text-sm text-muted-foreground">Elimina los datos de práctica guardados en este dispositivo.</p>
       <button type="button" className="mt-3 rounded-md border border-destructive px-4 py-2 text-sm font-semibold text-destructive" onClick={() => setResetOpen(true)}>Restablecer progreso</button>
-      {resetOpen && <div role="dialog" aria-modal="true" aria-labelledby="reset-dialog-title" aria-describedby="reset-dialog-description" className="mt-4 max-w-lg rounded-md border border-destructive/50 bg-muted p-4">
+      {resetOpen && <div ref={resetDialogRef} role="dialog" aria-modal="true" aria-labelledby="reset-dialog-title" aria-describedby="reset-dialog-description" className="mt-4 max-w-lg rounded-md border border-destructive/50 bg-muted p-4">
         <h3 id="reset-dialog-title" className="font-semibold">¿Restablecer progreso?</h3>
         <p id="reset-dialog-description" className="mt-2 text-sm text-muted-foreground">Se eliminarán tu progreso, intentos y sesiones completadas guardadas en este dispositivo. Esta acción no se puede deshacer.</p>
         {resetError && <p role="alert" className="mt-3 text-sm text-destructive">No se pudo restablecer el progreso: {resetError}</p>}

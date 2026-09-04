@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { AppLayout } from './AppLayout';
@@ -8,7 +8,8 @@ function renderLayout() {
     <MemoryRouter initialEntries={['/']}>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<section><h1>Contenido</h1></section>} />
+        <Route path="/" element={<section><h1>Contenido</h1></section>} />
+        <Route path="/dashboard" element={<section><h1>Progreso</h1></section>} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -46,6 +47,16 @@ describe('AppLayout responsive móvil (T078)', () => {
       '#main-content',
     );
     expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content');
+    expect(screen.getByRole('main')).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('mueve el foco al contenido principal después de navegar', async () => {
+    renderLayout();
+
+    fireEvent.click(screen.getAllByRole('link', { name: 'Progreso' })[0]);
+
+    expect(await screen.findByRole('heading', { name: 'Progreso' })).toBeInTheDocument();
+    expect(document.activeElement).toBe(screen.getByRole('main'));
   });
 
   it('activa sidebar y centra el contenido con ancho acotado en desktop', () => {

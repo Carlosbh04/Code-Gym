@@ -679,6 +679,7 @@ describe('SessionPage · recovery (T052)', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continuar' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Empezar de nuevo' })).toBeEnabled();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Continuar' }));
     expect(recovery.saves).toHaveLength(0);
     expect(screen.queryByRole('radio')).toBeNull();
   });

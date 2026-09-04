@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
@@ -7,6 +7,7 @@ import { HintReveal } from '@/components/codegym/HintReveal';
 import { ResultFeedback } from '@/components/codegym/ResultFeedback';
 import { SessionHeader } from '@/components/codegym/SessionHeader';
 import { useSession } from '@/hooks/useSession';
+import { useDialogFocus } from '@/hooks/useDialogFocus';
 import { CodeReadingStep } from './steps/CodeReadingStep';
 import { FindErrorStep } from './steps/FindErrorStep';
 import { FixCodeStep } from './steps/FixCodeStep';
@@ -63,6 +64,9 @@ function SessionPage() {
   } = useSession(sessionId);
 
   const isValidating = state.isValidating;
+  const recoveryDialogRef = useRef<HTMLElement>(null);
+
+  useDialogFocus(recoveryStatus === 'available', recoveryDialogRef);
 
   useEffect(() => {
     if (state.isComplete && session !== null) {
@@ -76,6 +80,7 @@ function SessionPage() {
   if (recoveryStatus === 'available') {
     return (
       <section
+        ref={recoveryDialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="recovery-title"

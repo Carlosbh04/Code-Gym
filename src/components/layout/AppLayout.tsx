@@ -1,4 +1,5 @@
-import { Outlet } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/layout/TopBar';
@@ -14,6 +15,13 @@ import { TopBar } from '@/components/layout/TopBar';
  * su propio `<h1>`.
  */
 export function AppLayout() {
+  const mainRef = useRef<HTMLElement>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    mainRef.current?.focus();
+  }, [location.pathname]);
+
   return (
     <div className="min-h-screen bg-background lg:flex">
       <a
@@ -26,7 +34,12 @@ export function AppLayout() {
       <div className="min-w-0 flex-1 lg:flex lg:justify-center">
         <div className="flex w-full flex-col lg:max-w-[900px]">
           <TopBar />
-          <main id="main-content" className="flex-1 px-4 pb-24 pt-6 sm:px-6 sm:pb-6 lg:px-8 lg:pt-8">
+          <main
+            ref={mainRef}
+            id="main-content"
+            tabIndex={-1}
+            className="flex-1 px-4 pb-24 pt-6 sm:px-6 sm:pb-6 lg:px-8 lg:pt-8"
+          >
             <Outlet />
           </main>
         </div>

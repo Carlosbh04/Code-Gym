@@ -187,11 +187,21 @@ describe('DashboardPage (T055)', () => {
   it('confirma el restablecimiento y cancelar no ejecuta la operación', () => {
     const resetProgress = vi.fn(async () => {});
     renderDashboard({ progress: [progressOf('arrays', 3, 2)], resetProgress });
-    fireEvent.click(screen.getByRole('button', { name: 'Restablecer progreso' }));
+    const trigger = screen.getByRole('button', { name: 'Restablecer progreso' });
+    trigger.focus();
+    fireEvent.click(trigger);
     expect(screen.getByRole('dialog')).toHaveTextContent('Esta acción no se puede deshacer');
-    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    const cancel = screen.getByRole('button', { name: 'Cancelar' });
+    const confirm = within(screen.getByRole('dialog')).getByRole('button', { name: 'Restablecer progreso' });
+    expect(document.activeElement).toBe(cancel);
+    fireEvent.keyDown(cancel, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(confirm);
+    fireEvent.keyDown(confirm, { key: 'Tab' });
+    expect(document.activeElement).toBe(cancel);
+    fireEvent.click(cancel);
     expect(resetProgress).not.toHaveBeenCalled();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(trigger);
   });
   it('muestra un estado loading accesible sin solicitar recomendaciones', () => {
     const { getSessionsByConcept } = renderDashboard({ progressLoading: true });
