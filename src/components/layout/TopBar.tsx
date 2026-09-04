@@ -1,34 +1,20 @@
 import { NavLink } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { NAV_ITEMS } from '@/components/layout/navigation';
 
+import { NAV_ITEMS } from '@/components/layout/navigation';
+import { cn } from '@/lib/utils';
+
+/** Navegación horizontal funcional para tablet y desktop. */
 export function TopBar() {
   return (
-    <nav
-      aria-label="Navegación principal"
-      className="sticky top-0 z-40 hidden h-16 w-full items-center border-b border-border bg-background px-6 sm:flex lg:hidden"
-    >
-      <span className="mr-8 text-lg font-bold text-primary">CodeGym</span>
-      <ul className="flex items-center gap-6">
+    <header className="sticky top-0 z-40 hidden h-16 border-b border-border bg-background/95 px-6 backdrop-blur sm:flex sm:items-center lg:px-10">
+      <nav aria-label="Navegación principal" className="flex min-w-0 items-center gap-1">
+        <span className="mr-5 text-sm font-bold tracking-tight text-primary lg:hidden">CodeGym</span>
         {NAV_ITEMS.map((item) => (
-          <li key={item.to}>
-            <NavLink
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) =>
-                cn(
-                  'text-sm font-medium transition-colors',
-                  isActive
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-foreground',
-                )
-              }
-            >
-              {item.label}
-            </NavLink>
-          </li>
+          <NavLink key={item.to} to={item.to} end={item.to === '/'} className={({ isActive }) => cn('inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background', isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
+            {item.label}
+          </NavLink>
         ))}
-      </ul>
-    </nav>
+      </nav>
+    </header>
   );
 }

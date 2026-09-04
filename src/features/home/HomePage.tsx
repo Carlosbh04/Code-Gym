@@ -1,118 +1,62 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { useContent } from '@/hooks/useContent';
+import { useHistory } from '@/hooks/useHistory';
+import { useProgress } from '@/hooks/useProgress';
+import type { ExerciseSession } from '@/types/exercise';
+import { ContinueCard } from './components/ContinueCard';
+import { HomeGreeting } from './components/HomeGreeting';
+import { MotivationCard } from './components/MotivationCard';
+import { StreakCard } from './components/StreakCard';
+import { TechnologyGrid } from './components/TechnologyGrid';
+import { TechnologyLoading } from './components/TechnologyLoading';
 
-const INTERACTIVE =
-  'inline-flex min-h-11 items-center justify-center rounded-md px-5 py-2.5 text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
+interface NextSession { session: ExerciseSession; conceptName: string }
 
 function HomePage() {
-  const { technologies, isLoading } = useContent();
+  const { technologies, getTopics, getConceptsByTopic, getSessionsByConcept, isLoading } = useContent();
+  const { recentCompletedSessions, completedSessionsLoading } = useHistory();
+  const { progress, isLoading: progressLoading } = useProgress();
+  const [topicCounts, setTopicCounts] = useState<Map<string, number>>(() => new Map());
+  const [nextSession, setNextSession] = useState<NextSession | null>(null);
 
-  return (
-    <div className="flex flex-col gap-14 sm:gap-16 lg:gap-20">
-      <section
-        aria-labelledby="home-title"
-        className="flex max-w-3xl flex-col items-start py-8 sm:py-12 lg:py-16"
-      >
-        <h1
-          id="home-title"
-          className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl"
-        >
-          CodeGym
-        </h1>
-        <p className="mt-5 max-w-2xl text-xl font-medium leading-relaxed text-foreground sm:text-2xl">
-          Practica tecnología entendiendo el código, no memorizándolo.
-        </p>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Sesiones cortas y enfocadas para entrenar conceptos, detectar errores
-          y mejorar tu razonamiento en cada tecnología disponible.
-        </p>
-        <a
-          href="#technologies"
-          className={`${INTERACTIVE} mt-8 w-full bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto`}
-        >
-          Empezar a practicar
-        </a>
-      </section>
+  useEffect(() => {
+    if (isLoading) return;
+    let active = true;
+    void Promise.all(technologies.map(async (technology) => [technology.id, (await getTopics(technology.id)).length] as const))
+      .then((entries) => { if (active) setTopicCounts(new Map(entries)); })
+      .catch(() => { if (active) setTopicCounts(new Map()); });
+    return () => { active = false; };
+  }, [getTopics, isLoading, technologies]);
 
-      <section
-        id="technologies"
-        aria-labelledby="technologies-title"
-        className="scroll-mt-6 border-t border-border pt-10 sm:scroll-mt-20 sm:pt-12"
-      >
-        <div className="max-w-2xl">
-          <h2
-            id="technologies-title"
-            className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
-          >
-            Tecnologías disponibles
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Elige una tecnología para comenzar una sesión de práctica enfocada.
-          </p>
-        </div>
+  useEffect(() => {
+    if (isLoading) return;
+    let active = true;
+    void getTopics('javascript').then(async (topics) => {
+      const topic = topics[0];
+      if (topic === undefined) return null;
+      const concept = (await getConceptsByTopic(topic.id))[0];
+      if (concept === undefined) return null;
+      const session = (await getSessionsByConcept(concept.id))[0];
+      return session === undefined ? null : { session, conceptName: concept.name };
+    }).then((value) => { if (active) setNextSession(value); }).catch(() => { if (active) setNextSession(null); });
+    return () => { active = false; };
+  }, [getConceptsByTopic, getSessionsByConcept, getTopics, isLoading]);
 
-        <div className="mt-7 sm:mt-8">
-          {isLoading ? (
-            <TechnologyLoading />
-          ) : technologies.length === 0 ? (
-            <EmptyState
-              title="No hay tecnologías disponibles"
-              description="Todavía no hay tecnologías preparadas para practicar."
-              className="rounded-lg border border-border bg-card"
-            />
-          ) : (
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {technologies.map((technology) => (
-                <li key={technology.id} className="min-w-0">
-                  <Link
-                    to={`/tech/${technology.id}`}
-                    className="flex h-full min-h-44 flex-col justify-between rounded-lg border border-border bg-card p-5 ring-offset-background transition-colors hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-6"
-                  >
-                    <span className="min-w-0">
-                      <span className="block break-words text-lg font-semibold text-foreground">
-                        {technology.name}
-                      </span>
-                      <span className="mt-2 block break-words text-sm leading-relaxed text-muted-foreground">
-                        {technology.description}
-                      </span>
-                    </span>
-                    <span className="mt-6 block text-sm font-semibold text-primary">
-                      Practicar
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function TechnologyLoading() {
-  return (
-    <div role="status" aria-live="polite">
-      <p className="text-sm text-muted-foreground">Cargando tecnologías…</p>
-      <div
-        aria-hidden="true"
-        className="mt-4 grid gap-4 sm:grid-cols-2"
-      >
-        {[0, 1].map((placeholder) => (
-          <div
-            key={placeholder}
-            className="min-h-44 rounded-lg border border-border bg-card p-5 sm:p-6"
-          >
-            <div className="h-5 w-1/3 rounded-sm bg-muted" />
-            <div className="mt-4 h-3 w-full rounded-sm bg-muted" />
-            <div className="mt-2 h-3 w-4/5 rounded-sm bg-muted" />
-            <div className="mt-8 h-4 w-20 rounded-sm bg-muted" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  const practicedConcepts = Array.from(progress.values()).filter((item) => item.totalAttempts > 0).length;
+  return <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-8 sm:gap-10 lg:gap-12">
+    <HomeGreeting />
+    <section aria-label="Resumen de entrenamiento" className="grid gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,0.75fr)]">
+      <ContinueCard session={nextSession?.session ?? null} conceptName={nextSession?.conceptName ?? null} isLoading={isLoading} practicedConcepts={practicedConcepts} />
+      <StreakCard completedSessions={recentCompletedSessions.length} isLoading={completedSessionsLoading} />
+    </section>
+    <section id="technologies" aria-labelledby="technologies-title" className="scroll-mt-24">
+      <div className="mb-5 flex items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Practica a tu ritmo</p><h2 id="technologies-title" className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Tecnologías</h2></div>{!progressLoading && <p className="text-sm text-muted-foreground">{practicedConcepts} conceptos practicados</p>}</div>
+      {isLoading ? <TechnologyLoading /> : technologies.length === 0 ? <EmptyState title="No hay tecnologías disponibles" description="Todavía no hay tecnologías preparadas para practicar." className="rounded-2xl border border-border bg-card" /> : <TechnologyGrid technologies={technologies} topicCounts={topicCounts} />}
+    </section>
+    <MotivationCard />
+  </div>;
 }
 
 export default HomePage;

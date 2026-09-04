@@ -1,3 +1,4 @@
+import { ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
@@ -210,8 +211,8 @@ function TopicPage() {
   }
 
   return (
-    <section aria-labelledby="topic-title" className="max-w-3xl py-2 sm:py-4">
-      <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
+    <section aria-labelledby="topic-title" className="mx-auto max-w-5xl py-2 sm:py-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
         {technology.name} · codegym practice
       </p>
       <h1
@@ -227,7 +228,7 @@ function TopicPage() {
       <section
         aria-busy={currentConcepts === null}
         aria-labelledby="concepts-heading"
-        className="mt-10 border-t border-border pt-8"
+        className="mt-10 border-t border-border pt-8 sm:mt-12"
       >
         <h2 id="concepts-heading" className="text-2xl font-bold text-foreground">
           Conceptos
@@ -252,7 +253,7 @@ function TopicPage() {
             {currentConcepts.concepts.map((concept) => (
               <li
                 key={concept.id}
-                className="rounded-md border border-border bg-card p-5"
+                className="rounded-2xl border border-border bg-card p-5 sm:p-6"
               >
                 <h3 className="break-words text-lg font-semibold text-foreground">
                   {concept.name}
@@ -274,7 +275,7 @@ function TopicPage() {
 
 function ConceptSessions({ result }: { result: SessionsResult | undefined }) {
   return (
-    <section aria-label="Sesiones disponibles" className="mt-6 border-t border-border pt-4">
+    <section aria-label="Sesiones disponibles" className="mt-6 border-t border-border pt-5">
       <h4 className="text-sm font-semibold text-foreground">Sesiones disponibles</h4>
       {result === undefined ? (
         <p role="status" className="mt-2 text-sm text-muted-foreground">Cargando sesiones…</p>
@@ -285,18 +286,18 @@ function ConceptSessions({ result }: { result: SessionsResult | undefined }) {
       ) : result.sessions.length === 0 ? (
         <p className="mt-2 text-sm text-muted-foreground">No hay sesiones disponibles todavía.</p>
       ) : (
-        <ul className="mt-3 space-y-3">
+        <ul className="mt-3 grid gap-3 md:grid-cols-2">
           {result.sessions.map((session) => (
             <li key={session.id}>
               <Link
                 to={`/practice/${session.id}`}
-                className="flex min-h-11 flex-col gap-2 rounded-md border border-border bg-background p-4 ring-offset-background transition-colors hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="group flex min-h-28 flex-col gap-2 rounded-xl border border-border bg-background p-4 ring-offset-background transition-all duration-fast hover:-translate-y-0.5 hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <span className="font-medium text-foreground">{session.title}</span>
                 <span className="text-sm text-muted-foreground">
                   {session.difficulty} · {session.steps.length} ejercicios
                 </span>
-                <span className="text-sm font-semibold text-primary">Empezar práctica <span aria-hidden="true">→</span></span>
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">Empezar práctica <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" /></span>
               </Link>
             </li>
           ))}

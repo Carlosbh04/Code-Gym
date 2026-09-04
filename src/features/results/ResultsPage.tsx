@@ -162,8 +162,8 @@ function ResultsPage() {
       : 'Sesión completada';
 
   return (
-    <section aria-labelledby="results-title" className="max-w-3xl py-2 sm:py-4">
-      <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
+    <section aria-labelledby="results-title" className="mx-auto max-w-4xl py-2 sm:py-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
         codegym practice
       </p>
       <div
@@ -191,19 +191,19 @@ function ResultsPage() {
         )}
 
       <dl className="stagger-fade-in-up mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
-        <div className="rounded-md border border-border bg-card px-5 py-4">
+        <div className="rounded-2xl border border-border bg-card px-5 py-4 sm:px-6">
           <dt className="text-sm text-muted-foreground">Respuestas correctas</dt>
           <dd className="mt-1 text-xl font-bold text-foreground">
             {completedSession.correctSteps} de {completedSession.totalSteps}
           </dd>
         </div>
-        <div className="rounded-md border border-border bg-card px-5 py-4">
+        <div className="rounded-2xl border border-border bg-card px-5 py-4 sm:px-6">
           <dt className="text-sm text-muted-foreground">Precisión</dt>
           <dd className="mt-1 text-xl font-bold text-foreground">
             {completedSession.accuracy}%
           </dd>
         </div>
-        <div className="rounded-md border border-border bg-card px-5 py-4">
+        <div className="rounded-2xl border border-border bg-card px-5 py-4 sm:px-6">
           <dt className="text-sm text-muted-foreground">Tiempo empleado</dt>
           <dd className="mt-1 text-xl font-bold text-foreground">
             {formatDuration(completedSession.timeSpentMs)}

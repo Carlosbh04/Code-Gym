@@ -48,8 +48,8 @@ export function CodingWorkspace({
   }
 
   return (
-    <section aria-label="Espacio de código" className="grid min-w-0 gap-5 lg:grid-cols-[minmax(17rem,0.7fr)_minmax(0,1.3fr)]">
-      <aside className="order-1 flex flex-col gap-4 rounded-lg border border-border bg-card p-4 lg:row-span-2">
+    <section aria-label="Espacio de código" className="grid min-w-0 gap-5 xl:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1.28fr)]">
+      <aside className="order-1 flex flex-col gap-5 rounded-2xl border border-border bg-card p-5 xl:row-span-2 xl:p-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Reto de código</p>
           <h2 className="mt-1 text-lg font-semibold text-foreground">{sessionTitle}</h2>
@@ -63,8 +63,8 @@ export function CodingWorkspace({
         </div>
       </aside>
 
-      <div className="order-2 min-w-0 rounded-lg border border-border bg-card p-4">
-        <h2 className="mb-3 text-sm font-semibold text-foreground">Tu solución</h2>
+      <div className="order-2 min-w-0 rounded-2xl border border-border bg-card p-4 sm:p-5 xl:p-6">
+        <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-sm font-semibold text-foreground">Tu solución</h2><span className="text-xs text-muted-foreground">JavaScript</span></div>
         <FixCodeStep step={step} value={value} onChange={onChange} disabled={disabled} showPrompt={false} />
         <div className="mt-4 flex flex-wrap gap-3">
           <button type="button" onClick={onRun} disabled={!canRun || disabled || isRunning} aria-busy={isRunning} className={cn(BUTTON, 'border border-border bg-card text-foreground hover:bg-accent')}>
@@ -78,8 +78,8 @@ export function CodingWorkspace({
         </div>
       </div>
 
-      <div className="order-3 min-w-0"><ExecutionPanel status={status} result={result} error={error} testCases={step.testCases} /></div>
-      <div className="order-4 lg:col-start-1"><HintReveal hints={step.hints} revealedCount={hintsRevealed} onReveal={onRevealHint} disabled={disabled} /></div>
+      <div className="order-3 min-w-0 xl:col-start-2"><ExecutionPanel status={status} result={result} error={error} testCases={step.testCases} /></div>
+      <div className="order-4 xl:col-start-1"><HintReveal hints={step.hints} revealedCount={hintsRevealed} onReveal={onRevealHint} disabled={disabled} /></div>
     </section>
   );
 }

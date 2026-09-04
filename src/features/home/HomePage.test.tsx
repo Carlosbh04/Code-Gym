@@ -3,6 +3,8 @@ import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
+import { HistoryContext } from '@/contexts/history-context';
+import { ProgressContext } from '@/contexts/progress-context';
 import type { ContentContextValue, Technology } from '@/types/content';
 import HomePage from './HomePage';
 
@@ -32,17 +34,19 @@ function renderHome({
     technologies,
     isLoading,
     getTechnology: vi.fn(),
-    getTopics: vi.fn(),
-    getConceptsByTopic: vi.fn(),
+    getTopics: vi.fn().mockResolvedValue([]),
+    getConceptsByTopic: vi.fn().mockResolvedValue([]),
     getConcept: vi.fn(),
-    getSessionsByConcept: vi.fn(),
+    getSessionsByConcept: vi.fn().mockResolvedValue([]),
     getSession: vi.fn(),
   };
   const wrapper = ({ children }: { children: ReactNode }) => (
     <ContentContext.Provider value={content}>
-      <MemoryRouter>
-        <main>{children}</main>
-      </MemoryRouter>
+      <HistoryContext.Provider value={{ recentCompletedSessions: [], completedSessionsLoading: false, completedSessionsError: null, getCompletedSession: vi.fn(), getAttemptsBySession: vi.fn(), attemptsLoading: false, attemptsError: null }}>
+        <ProgressContext.Provider value={{ progress: new Map(), updateProgress: vi.fn(), getConceptDomain: vi.fn(), isLoading: false, error: null }}>
+          <MemoryRouter><main>{children}</main></MemoryRouter>
+        </ProgressContext.Provider>
+      </HistoryContext.Provider>
     </ContentContext.Provider>
   );
 
@@ -50,35 +54,35 @@ function renderHome({
 }
 
 describe('HomePage (T054)', () => {
-  it('presenta CodeGym y lleva el CTA a la sección de tecnologías', () => {
+  it('presenta el saludo y un CTA hacia una práctica real', () => {
     renderHome({ technologies: [JAVASCRIPT] });
 
     expect(
-      screen.getByRole('heading', { level: 1, name: 'CodeGym' }),
+      screen.getByRole('heading', { level: 1, name: 'Hola, Carlos' }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Practica tecnología entendiendo el código, no memorizándolo.',
+        'Sigue practicando. La constancia te lleva lejos.',
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Sesiones cortas y enfocadas para entrenar conceptos/i),
+      screen.getByText('Empieza tu próxima sesión'),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Empezar a practicar' }),
-    ).toHaveAttribute('href', '#technologies');
+      screen.getByRole('link', { name: 'Explorar JavaScript' }),
+    ).toHaveAttribute('href', '/tech/javascript');
   });
 
-  it('mantiene el Hero visible y anuncia la carga de tecnologías', () => {
+  it('mantiene el saludo visible y anuncia la carga de tecnologías', () => {
     renderHome({ isLoading: true });
 
-    expect(screen.getByRole('heading', { name: 'CodeGym' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Hola, Carlos' })).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent(
       'Cargando tecnologías…',
     );
     expect(
       within(
-        screen.getByRole('region', { name: 'Tecnologías disponibles' }),
+        screen.getByRole('region', { name: 'Tecnologías' }),
       ).queryByRole('link'),
     ).toBeNull();
   });
@@ -91,7 +95,7 @@ describe('HomePage (T054)', () => {
     );
     expect(
       within(
-        screen.getByRole('region', { name: 'Tecnologías disponibles' }),
+        screen.getByRole('region', { name: 'Tecnologías' }),
       ).queryByRole('link'),
     ).toBeNull();
   });
@@ -100,15 +104,11 @@ describe('HomePage (T054)', () => {
     renderHome({ technologies: [JAVASCRIPT, TYPESCRIPT] });
 
     const section = screen.getByRole('region', {
-      name: 'Tecnologías disponibles',
+      name: 'Tecnologías',
     });
     expect(within(section).getByText('JavaScript')).toBeInTheDocument();
     expect(
       within(section).getByText('TypeScript para aplicaciones de gran escala'),
-    ).toBeInTheDocument();
-    expect(within(section).getByText('El lenguaje de la web.')).toBeInTheDocument();
-    expect(
-      within(section).getByText(/JavaScript con tipos para construir aplicaciones/),
     ).toBeInTheDocument();
 
     const technologyLinks = within(section).getAllByRole('link');
@@ -116,7 +116,7 @@ describe('HomePage (T054)', () => {
     expect(technologyLinks[0]).toHaveAttribute('href', '/tech/javascript');
     expect(technologyLinks[1]).toHaveAttribute('href', '/tech/typescript');
 
-    expect(section.querySelector('ul')).toHaveClass('grid', 'sm:grid-cols-2');
+    expect(section.querySelector('ul')).toHaveClass('grid', 'grid-cols-2', 'md:grid-cols-3');
   });
 
   it('conserva un único main y una jerarquía de headings significativa', () => {
@@ -125,10 +125,10 @@ describe('HomePage (T054)', () => {
     expect(screen.getAllByRole('main')).toHaveLength(1);
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Tecnologías disponibles' }),
+      screen.getByRole('heading', { level: 2, name: 'Tecnologías' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('region', { name: 'Tecnologías disponibles' }),
+      screen.getByRole('region', { name: 'Tecnologías' }),
     ).toHaveAttribute('id', 'technologies');
   });
 });

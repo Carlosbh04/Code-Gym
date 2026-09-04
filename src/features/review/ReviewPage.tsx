@@ -154,8 +154,8 @@ function ReviewPage() {
     attemptsResult?.sessionId === sessionId ? attemptsResult : null;
 
   return (
-    <section aria-labelledby="review-title" className="max-w-3xl py-2 sm:py-4">
-      <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
+    <section aria-labelledby="review-title" className="mx-auto max-w-4xl py-2 sm:py-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
         codegym review
       </p>
       <h1

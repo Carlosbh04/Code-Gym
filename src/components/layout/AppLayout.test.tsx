@@ -22,13 +22,13 @@ describe('AppLayout responsive móvil (T078)', () => {
 
     const main = screen.getByRole('main');
     const mobileNav = container.querySelector('nav.sm\\:hidden');
-    const topBar = container.querySelector('nav.hidden.sm\\:flex');
+    const topBar = container.querySelector('header.hidden.sm\\:flex');
     const sidebar = container.querySelector('aside');
 
-    expect(main).toHaveClass('px-4', 'pb-24', 'sm:px-6', 'sm:pb-6');
-    expect(mobileNav).toHaveClass('fixed', 'bottom-0', 'sm:hidden');
-    expect(topBar).toHaveClass('hidden', 'sm:flex', 'lg:hidden');
-    expect(sidebar).toHaveClass('hidden', 'lg:flex');
+    expect(main).toHaveClass('px-4', 'pb-28', 'sm:px-6', 'sm:pb-8');
+    expect(mobileNav).toHaveClass('fixed', 'bottom-3', 'sm:hidden');
+    expect(topBar).toHaveClass('hidden', 'sm:flex');
+    expect(sidebar).toHaveClass('hidden', 'sm:flex', 'sm:w-20', 'lg:w-64');
     expect(sidebar).toHaveAccessibleName('Barra lateral');
   });
 
@@ -62,9 +62,9 @@ describe('AppLayout responsive móvil (T078)', () => {
   it('activa sidebar y centra el contenido con ancho acotado en desktop', () => {
     const { container } = renderLayout();
 
-    expect(container.firstElementChild).toHaveClass('lg:flex');
-    expect(container.querySelector('aside')).toHaveClass('lg:flex', 'w-64');
-    expect(container.querySelector('.min-w-0.flex-1')).toHaveClass('lg:flex', 'lg:justify-center');
-    expect(container.querySelector('.w-full.flex.flex-col')).toHaveClass('lg:max-w-[900px]');
+    expect(container.querySelector('.min-h-screen.sm\\:flex')).toBeInTheDocument();
+    expect(container.querySelector('aside')).toHaveClass('sm:flex', 'sm:w-20', 'lg:w-64');
+    expect(container.querySelector('.min-w-0.flex-1')).toBeInTheDocument();
+    expect(container.querySelector('div[class*="max-w-"]')).toHaveClass('max-w-[1440px]');
   });
 });

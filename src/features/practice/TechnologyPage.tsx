@@ -1,3 +1,4 @@
+import { ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
@@ -9,7 +10,7 @@ type TopicsResult =
   | { technologyId: string; status: 'error'; message: string };
 
 const TOPIC_LINK_CLASSES =
-  'group flex min-h-24 flex-col justify-between rounded-md border border-border bg-card p-5 ring-offset-background transition-colors hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
+  'group flex min-h-32 flex-col justify-between rounded-2xl border border-border bg-card p-5 ring-offset-background transition-all duration-fast hover:-translate-y-0.5 hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-6';
 
 function TechnologyPage() {
   const { technologyId } = useParams<{ technologyId: string }>();
@@ -100,8 +101,8 @@ function TechnologyPage() {
     topicsResult?.technologyId === technologyId ? topicsResult : null;
 
   return (
-    <section aria-labelledby="technology-title" className="max-w-3xl py-2 sm:py-4">
-      <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
+    <section aria-labelledby="technology-title" className="mx-auto max-w-5xl py-2 sm:py-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
         codegym practice
       </p>
       <h1
@@ -114,7 +115,7 @@ function TechnologyPage() {
         {technology.description}
       </p>
 
-      <section aria-labelledby="topics-heading" className="mt-10 border-t border-border pt-8">
+      <section aria-labelledby="topics-heading" className="mt-10 border-t border-border pt-8 sm:mt-12">
         <h2 id="topics-heading" className="text-2xl font-bold text-foreground">
           Temas
         </h2>
@@ -134,7 +135,7 @@ function TechnologyPage() {
             className="mt-3 rounded-lg border border-border bg-card"
           />
         ) : (
-          <ul className="mt-5 space-y-3">
+          <ul className="mt-5 grid gap-3 md:grid-cols-2">
             {currentTopics.topics.map((topic) => (
               <li key={topic.id}>
                 <Link
@@ -149,9 +150,7 @@ function TechnologyPage() {
                       {topic.description}
                     </span>
                   </span>
-                  <span className="mt-4 text-sm font-semibold text-primary">
-                    Ver tema <span aria-hidden="true">→</span>
-                  </span>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">Ver tema <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" /></span>
                 </Link>
               </li>
             ))}

@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
+
 import { Outlet, useLocation } from 'react-router-dom';
+
 import { MobileNav } from '@/components/layout/MobileNav';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/layout/TopBar';
@@ -7,12 +9,11 @@ import { TopBar } from '@/components/layout/TopBar';
 /**
  * Layout raíz de la aplicación.
  *
- * CONVENCIÓN: este layout es el propietario único del landmark `main`.
- * Las páginas que se renderizan en el `<Outlet />` NO deben incluir su
- * propio `<main>`: anidarlo produce HTML inválido y dos landmarks
- * principales, lo que incumple el requisito de HTML semántico del
- * Master Plan §14. Una página usa `<section>` o un fragmento y aporta
- * su propio `<h1>`.
+ * CONVENCIÓN:
+ * Este layout es el propietario único del landmark `main`.
+ *
+ * Las páginas renderizadas dentro de <Outlet /> NO deben incluir
+ * su propio <main>.
  */
 export function AppLayout() {
   const mainRef = useRef<HTMLElement>(null);
@@ -23,27 +24,79 @@ export function AppLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-background lg:flex">
+    <div className="min-h-screen bg-background">
       <a
         href="#main-content"
-        className="sr-only rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        className="
+          sr-only
+          rounded-md
+          bg-primary
+          px-4
+          py-2
+          font-medium
+          text-primary-foreground
+
+          focus:absolute
+          focus:left-4
+          focus:top-4
+          focus:z-50
+          focus:not-sr-only
+          focus:outline-none
+          focus:ring-2
+          focus:ring-ring
+          focus:ring-offset-2
+          focus:ring-offset-background
+        "
       >
         Saltar al contenido principal
       </a>
-      <Sidebar />
-      <div className="min-w-0 flex-1 lg:flex lg:justify-center">
-        <div className="flex w-full flex-col lg:max-w-[900px]">
-          <TopBar />
-          <main
-            ref={mainRef}
-            id="main-content"
-            tabIndex={-1}
-            className="flex-1 px-4 pb-24 pt-6 sm:px-6 sm:pb-6 lg:px-8 lg:pt-8"
+
+      <div className="min-h-screen sm:flex">
+        <Sidebar />
+
+        <div className="min-w-0 flex-1">
+          <div
+            className="
+              mx-auto
+              flex
+              min-h-screen
+              w-full
+              max-w-[1440px]
+              flex-col
+            "
           >
-            <Outlet />
-          </main>
+            <TopBar />
+
+            <main
+              ref={mainRef}
+              id="main-content"
+              tabIndex={-1}
+              className="
+                flex-1
+
+                px-4
+                pb-28
+                pt-5
+
+                sm:px-6
+                sm:pb-8
+                sm:pt-6
+
+                md:px-7
+
+                lg:px-10
+                lg:pb-10
+                lg:pt-8
+
+                xl:px-12
+              "
+            >
+              <Outlet />
+            </main>
+          </div>
         </div>
       </div>
+
       <MobileNav />
     </div>
   );
