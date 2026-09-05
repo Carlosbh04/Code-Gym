@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { CircleCheck, CircleX } from 'lucide-react';
 import { CodeBlock } from '@/components/codegym/CodeBlock';
 import { cn } from '@/lib/utils';
 import type { ExerciseStep } from '@/types/exercise';
@@ -65,8 +66,9 @@ export function PredictOutputStep({
       )}
 
       <ul className="flex flex-col gap-2">
-        {step.options.map((option) => {
+        {step.options.map((option, index) => {
           const selected = option.id === value;
+          const answeredState = disabled && selected ? option.correct : null;
 
           return (
             <li key={option.id}>
@@ -74,7 +76,11 @@ export function PredictOutputStep({
                 className={cn(
                   'flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-4 py-3 transition-colors',
                   'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background',
-                  selected
+                  answeredState === true
+                    ? 'border-success bg-success/10 text-foreground'
+                    : answeredState === false
+                      ? 'border-destructive bg-destructive/10 text-foreground'
+                    : selected
                     ? 'border-primary bg-primary/10 text-foreground'
                     : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground',
                   disabled && 'cursor-not-allowed opacity-60 hover:bg-card',
@@ -89,9 +95,17 @@ export function PredictOutputStep({
                   disabled={disabled}
                   className="size-4 shrink-0 accent-primary"
                 />
+                <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full border border-current text-xs font-semibold">
+                  {String.fromCharCode(65 + index)}
+                </span>
                 <span className="min-w-0 whitespace-pre-wrap break-words font-mono text-sm">
                   {option.text}
                 </span>
+                {answeredState !== null && (
+                  <>
+                    {answeredState ? <CircleCheck aria-hidden="true" className="ml-auto size-5 shrink-0 text-success" /> : <CircleX aria-hidden="true" className="ml-auto size-5 shrink-0 text-destructive" />}
+                  </>
+                )}
               </label>
             </li>
           );

@@ -91,16 +91,17 @@ beforeEach(() => {
   localStorage.clear();
   sessionStorage.clear();
   vi.stubGlobal('Worker', FakeWorker);
-  vi.stubGlobal('URL', {
-    ...URL,
-    createObjectURL: (blob: Blob) => {
+  class URLWithObjectUrl extends URL {
+    static createObjectURL(blob: Blob): string {
       void blob;
       return 'blob:fix-code-flow';
-    },
-    revokeObjectURL: (url: string) => {
+    }
+
+    static revokeObjectURL(url: string): void {
       void url;
-    },
-  });
+    }
+  }
+  vi.stubGlobal('URL', URLWithObjectUrl);
 });
 
 afterEach(() => {
@@ -216,6 +217,8 @@ describe('SessionPage · persistencia integrada de sesión (T053)', () => {
     storageOperations.length = 0;
     fireEvent.click(screen.getByRole('button', { name: 'Terminar sesión' }));
 
+    await screen.findByRole('heading', { name: '¡Sesión completada!' });
+    fireEvent.click(screen.getByRole('link', { name: 'Ver resultados' }));
     await screen.findByRole('heading', { name: 'Resultado de la sesión' });
     await waitFor(() => expect(sessionStorage.getItem(RECOVERY_KEY)).toBeNull());
 

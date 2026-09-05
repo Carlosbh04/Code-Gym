@@ -18,10 +18,12 @@ describe('ExerciseCard (T059)', () => {
     expect(card).toHaveClass(
       'min-w-0',
       'animate-fade-in-up',
-      'rounded-lg',
+      'rounded-2xl',
+      'border',
       'bg-card',
       'p-4',
       'sm:p-6',
+      'lg:p-7',
       'mt-6',
     );
     expect(card).toHaveTextContent('Lee el código antes de responder.');

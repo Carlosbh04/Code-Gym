@@ -13,6 +13,7 @@ import type { Difficulty } from '@/types/exercise';
 export interface SessionHeaderProps {
   title: string;
   concept: string;
+  technology?: string;
   difficulty: Difficulty;
   totalSteps: number;
   currentStep: number;
@@ -23,6 +24,7 @@ export interface SessionHeaderProps {
 export function SessionHeader({
   title,
   concept,
+  technology,
   difficulty,
   totalSteps,
   currentStep,
@@ -30,11 +32,12 @@ export function SessionHeader({
   className,
 }: SessionHeaderProps) {
   return (
-    <header className={cn('min-w-0', className)}>
+    <header className={cn('min-w-0 rounded-2xl border border-border bg-card/70 p-4 shadow-sm sm:p-6', className)}>
       <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="break-words text-sm font-medium text-muted-foreground">
-            Concepto: {concept}
+            {technology !== undefined && <span>{technology} / </span>}
+            <span className="break-words">Concepto: {concept}</span>
           </p>
           <h1 className="mt-1 break-words text-xl font-bold text-foreground sm:text-2xl">
             {title}

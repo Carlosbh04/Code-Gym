@@ -373,6 +373,8 @@ describe('SessionPage (T027)', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
 
       await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
+      expect(screen.getByRole('heading', { name: 'Código correcto' })).toBeInTheDocument();
+      expect(document.querySelector('[data-confetti-event]')).not.toBeNull();
       expect(execution.llamadas).toHaveLength(1);
       expect(execution.llamadas[0].userCode).toBe(SOLUCION);
       expect(execution.llamadas[0].step.id).toBe('step-4');
@@ -390,6 +392,7 @@ describe('SessionPage (T027)', () => {
       await waitFor(() => expect(screen.getByText('Todos los tests han pasado.')).toBeInTheDocument());
       expect(screen.queryByText('Respuesta correcta')).toBeNull();
       expect(screen.getByRole('button', { name: 'Terminar sesión' })).toBeDisabled();
+      expect(screen.getByRole('heading', { name: 'Código correcto' })).toBeInTheDocument();
       expect(execution.llamadas).toHaveLength(1);
     });
 
@@ -475,6 +478,20 @@ describe('SessionPage (T027)', () => {
 
       expect(log).not.toHaveBeenCalled();
       log.mockRestore();
+    });
+
+    it('muestra la celebración de sesión solo después de la finalización canónica', async () => {
+      await loaded();
+      await llegarAFixCode();
+      await escribirCodigo(SOLUCION);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
+      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
+      fireEvent.click(screen.getByRole('button', { name: 'Terminar sesión' }));
+
+      await waitFor(() => expect(screen.getByRole('heading', { name: '¡Sesión completada!' })).toBeInTheDocument());
+      expect(screen.getByRole('link', { name: 'Ver resultados' })).toHaveAttribute('href', `/results/${SESSION_ID}`);
+      expect(document.querySelector('[data-confetti-event]')).not.toBeNull();
     });
   });
 
@@ -644,6 +661,7 @@ describe('SessionPage (T027)', () => {
 
       await waitFor(() => expect(screen.getByText('Respuesta incorrecta')).toBeInTheDocument());
       expect(screen.getByText(real.steps[0].explanation)).toBeInTheDocument();
+      expect(document.querySelector('[data-confetti-event]')).toBeNull();
     });
 
     it('el indicador avanza al pasar de paso y marca el anterior completado', async () => {

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import type { ExecutionResult } from '@/lib/engine/types';
 import type { ExerciseStep } from '@/types/exercise';
 import { ExecutionPanel } from './ExecutionPanel';
+import { CodeSuccessPanel } from './CodeSuccessPanel';
 
 const BUTTON =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
@@ -24,6 +25,7 @@ export interface CodingWorkspaceProps {
   onRun: () => void;
   onCheck: () => void;
   onRevealHint: () => void;
+  successEventId?: string | null;
 }
 
 /** Composición responsive del reto, editor y consola de un step fix-code. */
@@ -42,14 +44,15 @@ export function CodingWorkspace({
   onRun,
   onCheck,
   onRevealHint,
+  successEventId = null,
 }: CodingWorkspaceProps) {
   if (step.type !== 'fix-code' || step.testCases === null) {
     throw new Error('CodingWorkspace solo puede mostrar pasos fix-code con tests');
   }
 
   return (
-    <section aria-label="Espacio de código" className="grid min-w-0 gap-5 xl:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1.28fr)]">
-      <aside className="order-1 flex flex-col gap-5 rounded-2xl border border-border bg-card p-5 xl:row-span-2 xl:p-6">
+    <section aria-label="Espacio de código" className="grid min-w-0 gap-5 lg:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1.28fr)]">
+      <aside className="order-1 flex flex-col gap-5 rounded-2xl border border-border bg-card p-5 lg:row-span-3 lg:p-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Reto de código</p>
           <h2 className="mt-1 text-lg font-semibold text-foreground">{sessionTitle}</h2>
@@ -63,10 +66,12 @@ export function CodingWorkspace({
         </div>
       </aside>
 
-      <div className="order-2 min-w-0 rounded-2xl border border-border bg-card p-4 sm:p-5 xl:p-6">
-        <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-sm font-semibold text-foreground">Tu solución</h2><span className="text-xs text-muted-foreground">JavaScript</span></div>
+      <div className="order-2 min-w-0 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5 lg:p-6">
+        <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-sm font-semibold text-foreground">Tu solución</h2><span className="text-xs text-muted-foreground">{step.language ?? 'Código'}</span></div>
         <FixCodeStep step={step} value={value} onChange={onChange} disabled={disabled} showPrompt={false} />
-        <div className="mt-4 flex flex-wrap gap-3">
+      </div>
+
+      <div aria-label="Acciones de código" className="order-3 flex flex-wrap gap-3 rounded-2xl border border-border bg-card p-4 sm:p-5 lg:col-start-2 lg:p-6">
           <button type="button" onClick={onRun} disabled={!canRun || disabled || isRunning} aria-busy={isRunning} className={cn(BUTTON, 'border border-border bg-card text-foreground hover:bg-accent')}>
             <Play aria-hidden="true" className="size-4" />
             {isRunning ? 'Ejecutando…' : 'Ejecutar tests'}
@@ -75,11 +80,13 @@ export function CodingWorkspace({
             <ShieldCheck aria-hidden="true" className="size-4" />
             {status === 'error' ? 'Reintentar' : 'Comprobar'}
           </button>
-        </div>
       </div>
 
-      <div className="order-3 min-w-0 xl:col-start-2"><ExecutionPanel status={status} result={result} error={error} testCases={step.testCases} /></div>
-      <div className="order-4 xl:col-start-1"><HintReveal hints={step.hints} revealedCount={hintsRevealed} onReveal={onRevealHint} disabled={disabled} /></div>
+      <div className="order-4 min-w-0 lg:col-start-2">
+        {status === 'passed' && result !== null && <div className="mb-5"><CodeSuccessPanel result={result} successEventId={successEventId} /></div>}
+        <ExecutionPanel status={status} result={result} error={error} testCases={step.testCases} />
+      </div>
+      <div className="order-5 lg:col-start-1"><HintReveal hints={step.hints} revealedCount={hintsRevealed} onReveal={onRevealHint} disabled={disabled} /></div>
     </section>
   );
 }

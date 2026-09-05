@@ -28,7 +28,7 @@ export function ExecutionPanel({ status, result, error, testCases }: ExecutionPa
   return (
     <section
       aria-labelledby="execution-panel-title"
-      className="min-w-0 rounded-lg border border-code-border bg-code p-4 text-code-foreground"
+      className="min-w-0 rounded-2xl border border-code-border bg-code p-4 text-code-foreground shadow-inner sm:p-5"
     >
       <div className="flex items-center gap-2">
         <Terminal aria-hidden="true" className="size-4 text-muted-foreground" />
@@ -39,7 +39,7 @@ export function ExecutionPanel({ status, result, error, testCases }: ExecutionPa
       <p
         role={status === 'error' ? 'alert' : 'status'}
         aria-live="polite"
-        className="mt-3 flex items-start gap-2 font-mono text-sm"
+        className={`mt-3 flex items-start gap-2 font-mono text-sm ${status === 'passed' ? 'text-success' : status === 'failed' || status === 'error' ? 'text-destructive' : 'text-code-foreground'}`}
       >
         <Icon
           aria-hidden="true"

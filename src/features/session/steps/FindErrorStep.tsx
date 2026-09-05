@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { CircleCheck, CircleX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { FindErrorSelection } from '@/features/session/session-types';
 import type { ExerciseStep } from '@/types/exercise';
@@ -32,6 +33,7 @@ export interface FindErrorStepProps {
   onChange: (next: FindErrorSelection) => void;
   /** Bloquea la elección, por ejemplo una vez validada la respuesta. */
   disabled?: boolean;
+  isCorrect?: boolean;
   className?: string;
 }
 
@@ -43,6 +45,7 @@ export function FindErrorStep({
   value,
   onChange,
   disabled = false,
+  isCorrect,
   className,
 }: FindErrorStepProps) {
   const groupId = useId();
@@ -84,7 +87,11 @@ export function FindErrorStep({
                 <label
                   className={cn(
                     ROW,
-                    selected
+                    selected && disabled && isCorrect === true
+                      ? 'border-success bg-success/10 text-foreground'
+                      : selected && disabled && isCorrect === false
+                        ? 'border-destructive bg-destructive/10 text-foreground'
+                      : selected
                       ? 'border-primary bg-primary/10 text-foreground'
                       : 'border-transparent text-foreground hover:bg-accent',
                     disabled && 'cursor-not-allowed opacity-60 hover:bg-transparent',
@@ -107,6 +114,7 @@ export function FindErrorStep({
                     {line}
                   </span>
                   <span className="min-w-0 whitespace-pre-wrap break-words">{text}</span>
+                  {selected && disabled && isCorrect !== undefined && (isCorrect ? <CircleCheck aria-hidden="true" className="ml-auto size-5 shrink-0 text-success" /> : <CircleX aria-hidden="true" className="ml-auto size-5 shrink-0 text-destructive" />)}
                 </label>
               </li>
             );
@@ -129,7 +137,11 @@ export function FindErrorStep({
                   className={cn(
                     'flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-4 py-3 text-sm transition-colors',
                     'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background',
-                    selected
+                    selected && disabled && isCorrect === true
+                      ? 'border-success bg-success/10 text-foreground'
+                      : selected && disabled && isCorrect === false
+                        ? 'border-destructive bg-destructive/10 text-foreground'
+                      : selected
                       ? 'border-primary bg-primary/10 text-foreground'
                       : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground',
                     disabled && 'cursor-not-allowed opacity-60 hover:bg-card',
@@ -143,8 +155,13 @@ export function FindErrorStep({
                     onChange={() => onChange({ ...value, errorType: option.id })}
                     disabled={disabled}
                     className="size-4 shrink-0 accent-primary"
-                  />
-                  <span className="min-w-0">{option.text}</span>
+                />
+                <span className="min-w-0">{option.text}</span>
+                {selected && disabled && isCorrect !== undefined && (
+                  <>
+                    {isCorrect ? <CircleCheck aria-hidden="true" className="ml-auto size-5 shrink-0 text-success" /> : <CircleX aria-hidden="true" className="ml-auto size-5 shrink-0 text-destructive" />}
+                  </>
+                )}
                 </label>
               </li>
             );

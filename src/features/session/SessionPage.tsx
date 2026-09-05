@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
@@ -7,11 +7,14 @@ import { HintReveal } from '@/components/codegym/HintReveal';
 import { ResultFeedback } from '@/components/codegym/ResultFeedback';
 import { SessionHeader } from '@/components/codegym/SessionHeader';
 import { useSession } from '@/hooks/useSession';
+import { useContent } from '@/hooks/useContent';
 import { useDialogFocus } from '@/hooks/useDialogFocus';
 import { CodeReadingStep } from './steps/CodeReadingStep';
 import { FindErrorStep } from './steps/FindErrorStep';
 import { PredictOutputStep } from './steps/PredictOutputStep';
 import { CodingWorkspace } from './workspace/CodingWorkspace';
+import { SessionCompleteCelebration } from './components/feedback/SessionCompleteCelebration';
+import { useSuccessCelebration } from './components/feedback/useSuccessCelebration';
 
 /**
  * Página de una sesión de ejercicios (§18, D004).
@@ -37,6 +40,7 @@ const BUTTON =
 function SessionPage() {
   const { sessionId = '' } = useParams();
   const navigate = useNavigate();
+  const { getTechnology } = useContent();
   const {
     session,
     currentStep,
@@ -51,6 +55,8 @@ function SessionPage() {
     executionError,
     executionResult,
     executionStatus,
+    isCompleting,
+    completionError,
     recoveryStatus,
     recoverySessionId,
     storageWarning,
@@ -64,6 +70,7 @@ function SessionPage() {
     continueRecovery,
     startNewSession,
     retryRecoveryPersistence,
+    retryCompletion,
   } = useSession(sessionId);
 
   const isValidating = state.isValidating;
@@ -71,14 +78,12 @@ function SessionPage() {
 
   useDialogFocus(recoveryStatus === 'available', recoveryDialogRef);
 
-  useEffect(() => {
-    if (state.isComplete && session !== null) {
-      navigate(`/results/${session.id}`, { replace: true });
-    }
-  }, [navigate, session, state.isComplete]);
-
   // El resultado ya lo calculó el engine al responder (D012): aquí solo se lee.
   const answer = state.answers[state.currentStep];
+  const successEventId = answer?.isCorrect && currentStep !== null
+    ? `${sessionId}:${answer.stepId}:${state.startTime}`
+    : null;
+  const celebration = useSuccessCelebration(successEventId);
 
   if (recoveryStatus === 'available') {
     return (
@@ -182,11 +187,18 @@ function SessionPage() {
     );
   }
 
+  if (state.isComplete) {
+    return <SessionCompleteCelebration session={session} answers={state.answers} />;
+  }
+
+  const technology = getTechnology(session.technologyId)?.name ?? session.technologyId;
+
   return (
-    <section className="flex flex-col gap-6">
+    <section className="relative flex min-w-0 flex-col gap-5 sm:gap-6">
       <SessionHeader
         title={session.title}
         concept={session.conceptId}
+        technology={technology}
         difficulty={session.difficulty}
         totalSteps={session.steps.length}
         currentStep={state.currentStep}
@@ -200,7 +212,7 @@ function SessionPage() {
         />
       )}
 
-      <ExerciseCard state={isAnswered ? 'answered' : 'default'}>
+      <ExerciseCard state={isAnswered ? 'answered' : 'default'} className="min-w-0 rounded-2xl border-border bg-card shadow-sm">
         <div className="flex flex-col gap-6">
           {currentStep === null ? (
             <p role="status" className="text-sm text-muted-foreground">
@@ -226,6 +238,7 @@ function SessionPage() {
               value={selectedError}
               onChange={selectError}
               disabled={isAnswered}
+              isCorrect={answer?.isCorrect}
             />
           ) : currentStep.type === 'fix-code' ? (
             <CodingWorkspace
@@ -243,6 +256,7 @@ function SessionPage() {
               onRun={execute}
               onCheck={submit}
               onRevealHint={revealHint}
+              successEventId={answer?.isCorrect ? celebration?.eventId ?? null : null}
             />
           ) : (
             <p role="status" className="text-sm text-muted-foreground">
@@ -276,10 +290,12 @@ function SessionPage() {
             <ResultFeedback
               isCorrect={answer.isCorrect}
               explanation={currentStep.explanation}
+              successMessage={answer.isCorrect ? celebration?.message : undefined}
+              successEventId={answer.isCorrect ? celebration?.eventId ?? null : null}
             />
           )}
 
-          <div className="flex flex-wrap gap-3">
+          <div aria-label="Acciones de la sesión" className="flex flex-wrap gap-3 rounded-2xl border border-border bg-background/30 p-4">
             {currentStep?.type !== 'fix-code' && (
               <button
                 type="button"
@@ -295,12 +311,20 @@ function SessionPage() {
             <button
               type="button"
               onClick={next}
-              disabled={!isAnswered}
+              disabled={!isAnswered || isCompleting}
+              aria-busy={isCompleting}
               className={`${BUTTON} border border-border bg-card text-foreground hover:bg-accent`}
             >
-              {isLastStep ? 'Terminar sesión' : 'Siguiente paso'}
+              {isCompleting ? 'Guardando…' : isLastStep ? 'Terminar sesión' : 'Siguiente paso'}
             </button>
           </div>
+
+          {completionError !== null && isLastStep && isAnswered && (
+            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-foreground">
+              <span>No se pudo guardar la finalización: {completionError}</span>
+              <button type="button" onClick={retryCompletion} className={`${BUTTON} border border-border bg-card text-foreground hover:bg-accent`}>Reintentar</button>
+            </div>
+          )}
         </div>
       </ExerciseCard>
     </section>
