@@ -1,5 +1,4 @@
 import { readFileSync } from 'node:fs';
-import { createElement, forwardRef } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { CodeEditor } from './CodeEditor';
@@ -10,17 +9,21 @@ import { CodeEditor } from './CodeEditor';
  */
 const romperCodeMirror = { activo: false };
 
-vi.mock('@uiw/react-codemirror', async (importOriginal) => {
-  const real = await importOriginal<typeof import('@uiw/react-codemirror')>();
+vi.mock('@codemirror/view', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@codemirror/view')>();
 
-  return {
-    ...real,
-    default: forwardRef<unknown, Record<string, unknown>>((props, ref) => {
+  class TestEditorView extends real.EditorView {
+    constructor(config: ConstructorParameters<typeof real.EditorView>[0]) {
       if (romperCodeMirror.activo) {
         throw new Error('CodeMirror no disponible');
       }
-      return createElement(real.default, { ...props, ref } as never);
-    }),
+      super(config);
+    }
+  }
+
+  return {
+    ...real,
+    EditorView: TestEditorView,
   };
 });
 

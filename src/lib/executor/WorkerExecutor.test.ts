@@ -120,18 +120,19 @@ describe('WorkerExecutor (T039)', () => {
 
     vi.stubGlobal('Blob', BlobEspia);
     vi.stubGlobal('Worker', FakeWorker);
-    vi.stubGlobal('URL', {
-      ...URL,
-      createObjectURL: (blob: Blob) => {
+    class URLWithObjectUrl extends URL {
+      static createObjectURL(blob: Blob): string {
         blobs.push(blob);
         const url = `blob:fake/${blobs.length}`;
         creadas.push(url);
         return url;
-      },
-      revokeObjectURL: (url: string) => {
+      }
+
+      static revokeObjectURL(url: string): void {
         revocadas.push(url);
-      },
-    });
+      }
+    }
+    vi.stubGlobal('URL', URLWithObjectUrl);
 
     executor = new WorkerExecutor();
   });

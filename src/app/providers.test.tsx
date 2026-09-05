@@ -45,14 +45,17 @@ describe('AppProviders · ciclo de vida de ejecución (T045.1)', () => {
     FakeWorker.instances = [];
     revoked.length = 0;
     vi.stubGlobal('Worker', FakeWorker);
-    vi.stubGlobal('URL', {
-      ...URL,
-      createObjectURL: (blob: Blob) => {
+    class URLWithObjectUrl extends URL {
+      static createObjectURL(blob: Blob): string {
         void blob;
         return `blob:provider/${FakeWorker.instances.length + 1}`;
-      },
-      revokeObjectURL: (url: string) => revoked.push(url),
-    });
+      }
+
+      static revokeObjectURL(url: string): void {
+        revoked.push(url);
+      }
+    }
+    vi.stubGlobal('URL', URLWithObjectUrl);
   });
 
   afterEach(() => {

@@ -18,4 +18,11 @@ describe('configuracion de testing (T008)', () => {
       '<div data-testid="node"><span class="x">texto</span></div>';
     expect(screen.getByTestId('node')).toBeInTheDocument();
   });
+
+  it('proporciona las mediciones vacías que necesita CodeMirror en jsdom', () => {
+    const range = document.createRange();
+
+    expect(range.getClientRects()).toHaveLength(0);
+    expect(range.getBoundingClientRect()).toBeInstanceOf(DOMRect);
+  });
 });

@@ -27,4 +27,8 @@ export const router = createBrowserRouter([
       { path: '*', element: <LazyNotFoundPage /> },
     ],
   },
-]);
+], {
+  future: {
+    v7_relativeSplatPath: true,
+  },
+});
