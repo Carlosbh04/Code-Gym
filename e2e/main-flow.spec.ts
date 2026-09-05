@@ -3,6 +3,8 @@ import { expect, test } from '@playwright/test';
 const FIX_CODE_SOLUTION = 'function dobles(numeros) {\n  return numeros.map((n) => n * 2);\n}';
 const FIX_CODE_BROKEN = 'function dobles(numeros) {\n  return numeros;\n}';
 
+test.use({ reducedMotion: 'no-preference' });
+
 test('completa una sesión real desde la navegación hasta el progreso', async ({ page }) => {
   await page.goto('/');
 
@@ -12,9 +14,9 @@ test('completa una sesión real desde la navegación hasta el progreso', async (
   await expect(javascriptLink).toBeVisible();
   await javascriptLink.click();
   await expect(page).toHaveURL('/tech/javascript');
-  await expect(page.getByRole('heading', { name: 'JavaScript' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'JavaScript', exact: true })).toBeVisible();
 
-  await page.getByRole('link', { name: /Arrays.*Ver tema/i }).click();
+  await page.getByRole('link', { name: /^Arrays\b/ }).click();
   await expect(page).toHaveURL('/tech/javascript/js-arrays');
   await expect(page.getByRole('heading', { name: 'Arrays', exact: true })).toBeVisible();
 
@@ -25,14 +27,16 @@ test('completa una sesión real desde la navegación hasta el progreso', async (
   await page.getByRole('button', { name: /Ver una pista/i }).click();
   await expect(page.getByText(/Pista 1 de/)).toBeVisible();
 
-  await page.getByRole('radio').first().check();
+  await page.getByRole('radio', { name: 'undefined' }).check();
   await expect(page.getByRole('button', { name: 'Comprobar' })).toBeEnabled();
   await page.getByRole('button', { name: 'Comprobar' }).click();
-  await expect(page.getByText(/Respuesta (correcta|incorrecta)/)).toBeVisible();
+  await expect(page.getByText('Respuesta correcta')).toBeVisible();
+  await expect(page.locator('[data-confetti-mode="inline"]')).toBeVisible();
   await page.getByRole('button', { name: 'Siguiente paso' }).click();
 
   await page.getByRole('radio').first().check();
   await page.getByRole('button', { name: 'Comprobar' }).click();
+  await expect(page.locator('[data-confetti-mode="inline"]')).toBeVisible();
   await page.getByRole('button', { name: 'Siguiente paso' }).click();
 
   await page.getByRole('group', { name: 'Línea del error' }).getByRole('radio').first().check();
@@ -53,18 +57,37 @@ test('completa una sesión real desde la navegación hasta el progreso', async (
   await expect(page.getByText('Todos los tests han pasado.')).toBeVisible();
   await page.getByRole('button', { name: 'Comprobar' }).click();
   await expect(page.getByText('Respuesta correcta')).toBeVisible();
+  await expect(page.locator('[data-confetti-mode="code"]')).toBeVisible();
   await page.getByRole('button', { name: 'Terminar sesión' }).click();
 
+  await expect(page.getByRole('heading', { name: '¡Sesión completada!' })).toBeVisible();
+  await expect(page.locator('[data-confetti-mode="complete"]')).toBeVisible();
+  await page.getByRole('link', { name: 'Ver resultados' }).click();
+
   await expect(page).toHaveURL('/results/js-arrays-map-vs-foreach-01');
-  await expect(page.getByRole('heading', { name: 'Resultado de la sesión' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Tu resultado' })).toBeVisible();
   await page.getByRole('link', { name: 'Revisar respuestas' }).click();
 
   await expect(page).toHaveURL('/review/js-arrays-map-vs-foreach-01');
-  await expect(page.getByRole('heading', { name: 'Revisión de la sesión' })).toBeVisible();
-  await page.getByRole('link', { name: 'Volver al resultado' }).click();
+  await expect(page.getByRole('heading', { name: 'Revisión de respuestas' })).toBeVisible();
+  await expect(page.getByText(/Pregunta 1 de/)).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Tu respuesta' })).toBeVisible();
+  await page.getByRole('button', { name: 'Siguiente' }).click();
+  await expect(page.getByText(/Pregunta 2 de/)).toBeVisible();
+  await page.getByRole('button', { name: 'Anterior' }).click();
+  await expect(page.getByText(/Pregunta 1 de/)).toBeVisible();
+  await page.getByRole('link', { name: 'Volver a resultados' }).click();
 
   await expect(page).toHaveURL('/results/js-arrays-map-vs-foreach-01');
   await page.getByRole('link', { name: 'Ver mi progreso' }).click();
   await expect(page).toHaveURL('/dashboard');
-  await expect(page.locator('p').filter({ hasText: /codegym progress.*conceptos practicados/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Actividad reciente' })).toBeVisible();
+  for (const width of [320, 390, 768, 1024, 1280, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
+  }
+  await page.locator('a[href="/tech/javascript"]', { hasText: 'Ver tecnología' }).click();
+  await expect(page).toHaveURL('/tech/javascript');
 });
