@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes codegym-confetti {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(var(--confetti-rotate-start)) scale(0.65); }
+  16% { opacity: 0.92; }
+  100% { opacity: 0; transform: translate3d(var(--confetti-x), var(--confetti-y), 0) rotate(var(--confetti-rotate-end)) scale(0.92); }
+}
+
 /* ==========================================================================
    SISTEMA DE TOKENS — jerarquía obligatoria (D008)
 
@@ -58,6 +64,7 @@
     --error: 0 84.2% 60.2%;           /* #ef4444 */
     --error-glow: hsl(var(--error) / 0.15);
     --warning: 37.7 92.1% 50.2%;      /* #f59e0b */
+    --celebration-pink: 326 78% 64%;  /* Acento ocasional de celebración. */
 
     /* Código */
     --code-bg: 216 28% 7%;            /* #0d1117 */

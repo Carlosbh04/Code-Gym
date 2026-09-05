@@ -11,6 +11,20 @@ const codeReadingStep = async (sessionId: string): Promise<ExerciseStep> =>
 
 describe('ResultFeedback (T030)', () => {
   describe('resultado correcto', () => {
+    it('monta una celebración inline para un evento de éxito real', () => {
+      render(
+        <ResultFeedback
+          isCorrect
+          explanation="Porque forEach devuelve undefined."
+          successEventId="session:step-1:success"
+        />,
+      );
+
+      const confetti = document.querySelector('[data-confetti-event="session:step-1:success"]');
+      expect(confetti).toHaveAttribute('data-confetti-mode', 'inline');
+      expect(confetti?.querySelectorAll('span')).toHaveLength(4);
+    });
+
     it('aplica correctPulse como feedback visual', () => {
       render(<ResultFeedback isCorrect explanation="Porque forEach devuelve undefined." />);
 
