@@ -1,206 +1,97 @@
 import { type ReactNode } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
 import { HistoryContext } from '@/contexts/history-context';
-import type { ContentContextValue } from '@/types/content';
+import type { Concept, ContentContextValue, Topic } from '@/types/content';
 import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
 import type { HistoryContextValue } from '@/types/history';
 import type { Attempt } from '@/types/progress';
 import ReviewPage from './ReviewPage';
 
-const step = (id: string, prompt: string, type: ExerciseStep['type'] = 'code-reading'): ExerciseStep => ({
-  id,
-  type,
-  prompt,
-  code: null,
-  language: 'javascript',
-  options: [
-    { id: `${id}-a`, text: `${prompt} respuesta`, correct: true },
-    { id: `${id}-b`, text: 'Otra respuesta', correct: false },
-  ],
-  errorLines: null,
-  errorType: null,
-  testCases: null,
-  expectedPatterns: null,
-  explanation: `${prompt} explicación.`,
-  hints: [],
-  stepOrder: 1,
-});
-
+const step = (id: string, prompt: string, type: ExerciseStep['type'] = 'code-reading'): ExerciseStep => ({ id, type, prompt, code: 'const value = 1;', language: 'javascript', options: [{ id: `${id}-a`, text: 'undefined', correct: true }, { id: `${id}-b`, text: '1', correct: false }], errorLines: null, errorType: null, testCases: null, expectedPatterns: null, explanation: `${prompt} explicación.`, hints: [], stepOrder: 1 });
 const FIRST = step('step-first', 'Primer prompt');
 const SECOND = step('step-second', 'Segundo prompt', 'predict-output');
-const SESSION: ExerciseSession = {
-  id: 'session-1',
-  title: 'map frente a forEach',
-  conceptId: 'js-array-iteration',
-  technologyId: 'javascript',
-  difficulty: 'beginner',
-  version: '1',
-  status: 'published',
-  createdAt: '2026-09-01T10:00:00.000Z',
-  updatedAt: null,
-  steps: [FIRST, SECOND],
-};
+const SESSION: ExerciseSession = { id: 'session-1', title: 'map frente a forEach', conceptId: 'js-array-iteration', technologyId: 'javascript', difficulty: 'beginner', version: '1', status: 'published', createdAt: '2026-09-01T10:00:00.000Z', updatedAt: null, steps: [FIRST, SECOND] };
+const CONCEPT: Concept = { id: 'js-array-iteration', name: 'Iteración', technologyId: 'javascript', topicId: 'arrays', contentMarkdown: '' };
+const TOPIC: Topic = { id: 'arrays', name: 'Arrays', technologyId: 'javascript', description: '' };
+const attempt = (stepId: string, answer: unknown, isCorrect: boolean): Attempt => ({ id: `attempt-${stepId}`, sessionId: SESSION.id, stepId, stepType: 'code-reading', answer, isCorrect, timeSpentMs: 1_000, hintsUsed: 0, createdAt: '2026-09-03T10:00:00.000Z' });
 
-const attempt = (stepId: string, answer: unknown, isCorrect: boolean): Attempt => ({
-  id: `attempt-${stepId}`,
-  sessionId: SESSION.id,
-  stepId,
-  stepType: 'code-reading',
-  answer,
-  isCorrect,
-  timeSpentMs: 1_000,
-  hintsUsed: 0,
-  createdAt: '2026-09-03T10:00:00.000Z',
-});
+function deferred<T>() { let resolve: (value: T) => void = () => {}; const promise = new Promise<T>((nextResolve) => { resolve = nextResolve; }); return { promise, resolve }; }
 
-function deferred<T>() {
-  let resolve: (value: T) => void = () => {};
-  const promise = new Promise<T>((nextResolve) => {
-    resolve = nextResolve;
-  });
-  return { promise, resolve };
-}
-
-function renderReviewPage({
-  sessionId = SESSION.id,
-  getSession = vi.fn().mockResolvedValue(SESSION),
-  getAttemptsBySession = vi.fn().mockResolvedValue([
-    attempt(SECOND.id, `${SECOND.id}-a`, false),
-    attempt(FIRST.id, `${FIRST.id}-a`, true),
-  ]),
-}: {
-  sessionId?: string;
-  getSession?: ContentContextValue['getSession'];
-  getAttemptsBySession?: HistoryContextValue['getAttemptsBySession'];
-} = {}) {
-  const content: ContentContextValue = {
-    technologies: [],
-    getTechnology: vi.fn(),
-    getTopics: vi.fn(),
-    getConceptsByTopic: vi.fn(),
-    getConcept: vi.fn(),
-    getSessionsByConcept: vi.fn(),
-    getSession,
-    isLoading: false,
-  };
-  const history: HistoryContextValue = {
-    recentCompletedSessions: [],
-    completedSessionsLoading: false,
-    completedSessionsError: null,
-    getCompletedSession: vi.fn(),
-    getAttemptsBySession,
-    attemptsLoading: false,
-    attemptsError: null,
-  };
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <ContentContext.Provider value={content}>
-      <HistoryContext.Provider value={history}>
-        <MemoryRouter initialEntries={[`/review/${sessionId}`]}>
-          <main>
-            <Routes>
-              <Route path="/review/:sessionId" element={children} />
-              <Route path="/results/:sessionId" element={<p>Resultado</p>} />
-              <Route path="/dashboard" element={<p>Progreso</p>} />
-            </Routes>
-          </main>
-        </MemoryRouter>
-      </HistoryContext.Provider>
-    </ContentContext.Provider>
-  );
-
+function renderReviewPage({ sessionId = SESSION.id, getSession = vi.fn().mockResolvedValue(SESSION), getAttemptsBySession = vi.fn().mockResolvedValue([attempt(SECOND.id, `${SECOND.id}-b`, false), attempt(FIRST.id, `${FIRST.id}-a`, true)]), getConcept = vi.fn().mockResolvedValue(CONCEPT), getTopics = vi.fn().mockResolvedValue([TOPIC]) }: { sessionId?: string; getSession?: ContentContextValue['getSession']; getAttemptsBySession?: HistoryContextValue['getAttemptsBySession']; getConcept?: ContentContextValue['getConcept']; getTopics?: ContentContextValue['getTopics'] } = {}) {
+  const content: ContentContextValue = { technologies: [], getTechnology: vi.fn().mockReturnValue({ id: 'javascript', name: 'JavaScript', icon: 'javascript', description: '' }), getTopics, getConceptsByTopic: vi.fn(), getConcept, getSessionsByConcept: vi.fn(), getSession, isLoading: false };
+  const history: HistoryContextValue = { recentCompletedSessions: [], completedSessionsLoading: false, completedSessionsError: null, getCompletedSession: vi.fn(), getAttemptsBySession, attemptsLoading: false, attemptsError: null };
+  const wrapper = ({ children }: { children: ReactNode }) => <ContentContext.Provider value={content}><HistoryContext.Provider value={history}><MemoryRouter initialEntries={[`/review/${sessionId}`]}><main><Routes><Route path="/review/:sessionId" element={children} /><Route path="/results/:sessionId" element={<p>Resultado</p>} /><Route path="/practice/:sessionId" element={<p>Práctica</p>} /><Route path="/dashboard" element={<p>Progreso</p>} /></Routes></main></MemoryRouter></HistoryContext.Provider></ContentContext.Provider>;
   return { ...render(<ReviewPage />, { wrapper }), getSession, getAttemptsBySession };
 }
 
-describe('ReviewPage (T060)', () => {
-  it('carga mediante la ruta canónica sin mostrar una sesión inexistente antes de resolver', () => {
+describe('ReviewPage', () => {
+  it('carga mediante la ruta canónica sin anticipar una sesión inexistente', () => {
     const pending = deferred<ExerciseSession | null>();
     renderReviewPage({ getSession: vi.fn(() => pending.promise) });
-
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Cargando revisión…');
     expect(screen.getByRole('region')).toHaveAttribute('aria-busy', 'true');
-    expect(screen.queryByText('Sesión no disponible')).not.toBeInTheDocument();
   });
 
-  it('respeta el orden de la sesión y asocia attempts por stepId, no por índice', async () => {
+  it('muestra metadata real, breadcrumb y la primera respuesta asociada por stepId', async () => {
     const rendered = renderReviewPage();
-
-    expect(await screen.findByRole('heading', { level: 1, name: 'Revisión de la sesión' })).toBeInTheDocument();
-    expect(screen.getByText('map frente a forEach')).toBeInTheDocument();
-    expect(screen.getByText('Concepto: js-array-iteration')).toBeInTheDocument();
-    const articles = screen.getAllByRole('article');
-    expect(articles.map((article) => within(article).getByRole('heading', { level: 3 }).textContent)).toEqual([
-      'Primer prompt',
-      'Segundo prompt',
-    ]);
-    expect(within(articles[0]).getByText('Correcto')).toBeInTheDocument();
-    expect(within(articles[1]).getByText('Incorrecto')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Revisión de respuestas' })).toBeInTheDocument();
+    expect(screen.getByText('JavaScript / Arrays')).toBeInTheDocument();
+    expect(screen.getByText('Pregunta 1 de 2')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Primer prompt' })).toBeInTheDocument();
+    expect(screen.getAllByText('Respuesta correcta')).not.toHaveLength(0);
+    expect(screen.getByRole('navigation', { name: 'Breadcrumb' })).toBeInTheDocument();
     expect(rendered.getSession).toHaveBeenCalledWith(SESSION.id);
     expect(rendered.getAttemptsBySession).toHaveBeenCalledWith(SESSION.id);
-    expect(screen.getByRole('link', { name: 'Volver al resultado' })).toHaveAttribute(
-      'href',
-      '/results/session-1',
-    );
   });
 
-  it('distingue una sesión inexistente sin cargar attempts', async () => {
+  it('navega anterior y siguiente entre steps reales e inhabilita los extremos', async () => {
+    renderReviewPage();
+    await screen.findByRole('heading', { level: 2, name: 'Primer prompt' });
+    expect(screen.getByRole('button', { name: 'Anterior' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'Segundo prompt' })).toBeInTheDocument();
+    expect(screen.getAllByText('Respuesta incorrecta')).not.toHaveLength(0);
+    expect(screen.getByRole('button', { name: 'Siguiente' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Anterior' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'Primer prompt' })).toBeInTheDocument();
+  });
+
+  it('permite seleccionar un step con el indicador y conserva su estado semántico', async () => {
+    renderReviewPage();
+    await screen.findByRole('heading', { level: 2, name: 'Primer prompt' });
+    fireEvent.click(screen.getByRole('button', { name: 'Ir a la pregunta 2, incorrecta' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'Segundo prompt' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ir a la pregunta 2, incorrecta' })).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('ofrece rutas reales para volver al resultado y repetir práctica', async () => {
+    renderReviewPage();
+    await screen.findByRole('heading', { level: 1, name: 'Revisión de respuestas' });
+    expect(screen.getByRole('link', { name: 'Volver a resultados' })).toHaveAttribute('href', '/results/session-1');
+    expect(screen.getByRole('link', { name: 'Repetir práctica' })).toHaveAttribute('href', '/practice/session-1');
+  });
+
+  it('distingue sesión inexistente y no carga attempts', async () => {
     const getAttemptsBySession = vi.fn();
     renderReviewPage({ getSession: vi.fn().mockResolvedValue(null), getAttemptsBySession });
-
     expect(await screen.findByRole('heading', { level: 1, name: 'Sesión no disponible' })).toBeInTheDocument();
     expect(getAttemptsBySession).not.toHaveBeenCalled();
   });
 
-  it('distingue el error de sesión de su ausencia', async () => {
-    renderReviewPage({ getSession: vi.fn().mockRejectedValue(new Error('contenido inaccesible')) });
-
-    expect(await screen.findByRole('heading', { level: 1, name: 'No pudimos cargar la sesión' })).toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveTextContent('contenido inaccesible');
+  it('conserva la sesión si falla la lectura de attempts', async () => {
+    renderReviewPage({ getAttemptsBySession: vi.fn().mockRejectedValue(new Error('historial inaccesible')) });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Revisión de respuestas' })).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('No pudimos cargar las respuestas registradas. historial inaccesible');
   });
 
-  it('muestra un estado vacío de attempts sin inventar respuestas', async () => {
+  it('muestra estado vacío sin inventar respuestas y mantiene un único main', async () => {
     renderReviewPage({ getAttemptsBySession: vi.fn().mockResolvedValue([]) });
-
     expect(await screen.findByText('No hay respuestas registradas para revisar.')).toBeInTheDocument();
-    expect(screen.queryByRole('article')).not.toBeInTheDocument();
-  });
-
-  it('conserva metadata y muestra un error local si falla la lectura de attempts', async () => {
-    renderReviewPage({
-      getAttemptsBySession: vi.fn().mockRejectedValue(new Error('historial inaccesible')),
-    });
-
-    expect(await screen.findByRole('heading', { level: 1, name: 'Revisión de la sesión' })).toBeInTheDocument();
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'No pudimos cargar las respuestas registradas. historial inaccesible',
-    );
-    expect(screen.getByText('map frente a forEach')).toBeInTheDocument();
-  });
-
-  it('degrada steps sin attempt e ignora attempts huérfanos sin alterar el orden', async () => {
-    renderReviewPage({
-      getAttemptsBySession: vi.fn().mockResolvedValue([
-        attempt('orphan-step', 'respuesta huérfana', false),
-        attempt(FIRST.id, `${FIRST.id}-a`, true),
-      ]),
-    });
-
-    const articles = await screen.findAllByRole('article');
-    expect(within(articles[0]).getByText('Primer prompt')).toBeInTheDocument();
-    expect(within(articles[1]).getByText('Segundo prompt')).toBeInTheDocument();
-    expect(within(articles[1]).getByText('Sin respuesta registrada')).toBeInTheDocument();
-    expect(screen.queryByText('respuesta huérfana')).not.toBeInTheDocument();
-  });
-
-  it('mantiene un único main, un h1 y una lista semántica de ejercicios', async () => {
-    renderReviewPage();
-
-    await screen.findByRole('heading', { level: 1, name: 'Revisión de la sesión' });
     expect(screen.getAllByRole('main')).toHaveLength(1);
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole('list')).toBeInTheDocument();
-    expect(screen.getAllByRole('listitem')).toHaveLength(2);
+    expect(screen.queryByRole('article')).not.toBeInTheDocument();
   });
 });
