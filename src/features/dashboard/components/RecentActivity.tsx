@@ -1,80 +1,39 @@
-import type { CompletedSession } from '@/types/progress';
+import { ArrowUpRight, CheckCircle2, Clock3 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { formatDuration } from './dashboard-formatters';
+import type { DashboardActivity } from './dashboard-types';
 
 export interface RecentActivityProps {
-  sessions: CompletedSession[];
-  sessionNames?: ReadonlyMap<string, string>;
+  activities: DashboardActivity[];
   isLoading: boolean;
   error: string | null;
 }
 
-export function RecentActivity({
-  sessions,
-  sessionNames = new Map(),
-  isLoading,
-  error,
-}: RecentActivityProps) {
+export function RecentActivity({ activities, isLoading, error }: RecentActivityProps) {
   return (
-    <section aria-labelledby="recent-activity-title" className="border-t border-border pt-8">
-      <h2 id="recent-activity-title" className="text-xl font-bold text-foreground">
-        Actividad reciente
-      </h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Último resultado guardado de cada sesión practicada.
-      </p>
-
-      {isLoading ? (
-        <p role="status" aria-live="polite" className="mt-4 text-sm text-muted-foreground">
-          Cargando actividad…
-        </p>
-      ) : error ? (
-        <p role="alert" className="mt-4 border-l-4 border-destructive pl-4 text-sm text-destructive">
-          No se pudo cargar la actividad reciente: {error}
-        </p>
-      ) : sessions.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Todavía no hay actividad reciente.
-        </p>
-      ) : (
-        <ul className="mt-4 divide-y divide-border border-y border-border">
-          {sessions.map((session) => (
-            <li key={session.id} className="grid gap-2 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
-              <div className="min-w-0">
-                <p className="break-words font-semibold text-foreground">
-                  {sessionNames.get(session.sessionId) ?? session.sessionId}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {session.correctSteps}/{session.totalSteps} aciertos · {formatDuration(session.timeSpentMs)}
-                </p>
-              </div>
-              <div className="flex items-baseline justify-between gap-4 sm:block sm:text-right">
-                <p className="font-mono font-semibold text-foreground">
-                  {Math.round(session.accuracy)} %
-                </p>
-                <time
-                  dateTime={session.completedAt}
-                  className="text-xs text-muted-foreground"
-                >
-                  {formatDate(session.completedAt)}
-                </time>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+    <section aria-labelledby="recent-activity-title" className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div><p className="text-sm font-semibold text-primary">Historial</p><h2 id="recent-activity-title" className="mt-1 text-xl font-bold text-foreground">Actividad reciente</h2></div>
+        {!isLoading && error === null && activities.length > 0 ? <p className="text-xs text-muted-foreground">La más reciente primero</p> : null}
+      </div>
+      {isLoading ? <p role="status" aria-live="polite" className="mt-5 text-sm text-muted-foreground">Cargando actividad…</p>
+        : error ? <p role="alert" className="mt-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">No se pudo cargar la actividad reciente: {error}</p>
+          : activities.length === 0 ? <p className="mt-5 text-sm text-muted-foreground">Aún no has completado sesiones.</p>
+            : <ul className="mt-5 divide-y divide-border border-y border-border">{activities.map((activity) => <ActivityRow key={activity.completedSession.id} activity={activity} />)}</ul>}
     </section>
   );
 }
 
-function formatDuration(milliseconds: number): string {
-  const seconds = Math.max(0, Math.round(milliseconds / 1_000));
-  if (seconds < 60) return `${seconds} s`;
-  const minutes = Math.floor(seconds / 60);
-  const remainder = seconds % 60;
-  return remainder === 0 ? `${minutes} min` : `${minutes} min ${remainder} s`;
+function ActivityRow({ activity }: { activity: DashboardActivity }) {
+  const { completedSession } = activity;
+  return (
+    <li className="grid min-w-0 gap-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+      <div className="min-w-0"><div className="flex min-w-0 items-center gap-2"><CheckCircle2 className="size-4 shrink-0 text-success" aria-hidden="true" /><p className="truncate font-semibold text-foreground">{activity.sessionTitle}</p></div><p className="mt-1 break-words text-sm text-muted-foreground">{activity.technologyName}{activity.topicName ? ` · ${activity.topicName}` : ''}</p><div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"><span>{completedSession.correctSteps}/{completedSession.totalSteps} aciertos</span><span className="inline-flex items-center gap-1"><Clock3 className="size-3.5" aria-hidden="true" />{formatDuration(completedSession.timeSpentMs)}</span></div></div>
+      <div className="flex items-center justify-between gap-4 sm:justify-end"><div className="text-right"><p className="font-semibold text-foreground">{Math.round(completedSession.accuracy)}%</p><time dateTime={completedSession.completedAt} className="text-xs text-muted-foreground">{formatDate(completedSession.completedAt)}</time></div><Link to={`/results/${completedSession.sessionId}`} aria-label={`Ver resultado de ${activity.sessionTitle}`} className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><ArrowUpRight className="size-5" aria-hidden="true" /></Link></div>
+    </li>
+  );
 }
 
 function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium' }).format(
-    new Date(iso),
-  );
+  return new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium' }).format(new Date(iso));
 }
