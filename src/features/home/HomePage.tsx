@@ -20,18 +20,19 @@ function HomePage() {
   const { progress, isLoading: progressLoading } = useProgress();
   const [topicCounts, setTopicCounts] = useState<Map<string, number>>(() => new Map());
   const [nextSession, setNextSession] = useState<NextSession | null>(null);
+  const hasTechnologies = technologies.length > 0;
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !hasTechnologies) return;
     let active = true;
     void Promise.all(technologies.map(async (technology) => [technology.id, (await getTopics(technology.id)).length] as const))
       .then((entries) => { if (active) setTopicCounts(new Map(entries)); })
       .catch(() => { if (active) setTopicCounts(new Map()); });
     return () => { active = false; };
-  }, [getTopics, isLoading, technologies]);
+  }, [getTopics, hasTechnologies, isLoading, technologies]);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !hasTechnologies) return;
     let active = true;
     void getTopics('javascript').then(async (topics) => {
       const topic = topics[0];
@@ -42,7 +43,7 @@ function HomePage() {
       return session === undefined ? null : { session, conceptName: concept.name };
     }).then((value) => { if (active) setNextSession(value); }).catch(() => { if (active) setNextSession(null); });
     return () => { active = false; };
-  }, [getConceptsByTopic, getSessionsByConcept, getTopics, isLoading]);
+  }, [getConceptsByTopic, getSessionsByConcept, getTopics, hasTechnologies, isLoading]);
 
   const practicedConcepts = Array.from(progress.values()).filter((item) => item.totalAttempts > 0).length;
   return <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-8 sm:gap-10 lg:gap-12">

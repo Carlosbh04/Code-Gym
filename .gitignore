@@ -13,6 +13,11 @@ dist-ssr
 bundle-stats.html
 *.local
 
+# Local environment
+.env
+.env.*
+!.env.example
+
 # Editor
 .vscode/*
 !.vscode/extensions.json
