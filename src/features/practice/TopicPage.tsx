@@ -1,11 +1,12 @@
-import { ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { useContent } from '@/hooks/useContent';
+import { useProgress } from '@/hooks/useProgress';
 import type { Concept, Topic } from '@/types/content';
-import type { ExerciseSession } from '@/types/exercise';
 import { LearningContent } from './components/LearningContent';
+import { TopicHeader } from './components/TopicHeader';
+import { TopicSessionList, type TopicSessionResult } from './components/TopicSessionList';
 
 type TopicsResult =
   | { technologyId: string; status: 'success'; topics: Topic[] }
@@ -15,9 +16,7 @@ type ConceptsResult =
   | { topicId: string; status: 'success'; concepts: Concept[] }
   | { topicId: string; status: 'error'; message: string };
 
-type SessionsResult =
-  | { status: 'success'; sessions: ExerciseSession[] }
-  | { status: 'error'; message: string };
+type SessionsResult = TopicSessionResult;
 
 function TopicPage() {
   const { technologyId, topicId } = useParams<{
@@ -26,6 +25,7 @@ function TopicPage() {
   }>();
   const { getTechnology, getTopics, getConceptsByTopic, getSessionsByConcept, isLoading } =
     useContent();
+  const { progress } = useProgress();
   const technology = technologyId ? getTechnology(technologyId) : undefined;
   const [topicsResult, setTopicsResult] = useState<TopicsResult | null>(null);
   const [conceptsResult, setConceptsResult] =
@@ -210,99 +210,73 @@ function TopicPage() {
     );
   }
 
+  const concepts = currentConcepts?.status === 'success' ? currentConcepts.concepts : [];
+  const practicedConcepts = concepts.filter(
+    (concept) => (progress.get(concept.id)?.totalAttempts ?? 0) > 0,
+  ).length;
+
   return (
-    <section aria-labelledby="topic-title" className="mx-auto max-w-5xl py-2 sm:py-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-        {technology.name} · codegym practice
-      </p>
-      <h1
-        id="topic-title"
-        className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
-      >
-        {topic.name}
-      </h1>
-      <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-        {topic.description}
-      </p>
+    <section aria-labelledby="topic-title" className="mx-auto w-full max-w-7xl py-2 sm:py-4">
+      <TopicHeader
+        technology={technology}
+        topic={topic}
+        conceptCount={concepts.length}
+        practicedConcepts={practicedConcepts}
+      />
 
-      <section
-        aria-busy={currentConcepts === null}
-        aria-labelledby="concepts-heading"
-        className="mt-10 border-t border-border pt-8 sm:mt-12"
-      >
-        <h2 id="concepts-heading" className="text-2xl font-bold text-foreground">
-          Conceptos
-        </h2>
-
-        {currentConcepts === null ? (
-          <div role="status" aria-live="polite" className="mt-5 text-sm text-muted-foreground">
-            Cargando conceptos…
+      <div className="mt-7 grid gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.8fr)] lg:items-start">
+        <section
+          aria-busy={currentConcepts === null}
+          aria-labelledby="concepts-heading"
+          className="min-w-0"
+        >
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Aprendizaje</p>
+              <h2 id="concepts-heading" className="mt-1 text-2xl font-bold tracking-tight text-foreground">
+                Teoría y conceptos
+              </h2>
+            </div>
           </div>
-        ) : currentConcepts.status === 'error' ? (
-          <p role="alert" className="mt-5 border-l-4 border-destructive pl-4 text-sm text-destructive">
-            No pudimos cargar los conceptos de este tema. {currentConcepts.message}
-          </p>
-        ) : currentConcepts.concepts.length === 0 ? (
-          <EmptyState
-            title="Todavía no hay conceptos disponibles"
-            description="Este tema está disponible, pero aún no tiene conceptos preparados para practicar."
-            className="mt-3 rounded-lg border border-border bg-card"
-          />
-        ) : (
-          <ul className="mt-5 space-y-5">
-            {currentConcepts.concepts.map((concept) => (
-              <li
-                key={concept.id}
-                className="rounded-2xl border border-border bg-card p-5 sm:p-6"
-              >
-                <h3 className="break-words text-lg font-semibold text-foreground">
-                  {concept.name}
-                </h3>
-                <LearningContent
-                  content={concept.content}
-                  fallbackMarkdown={concept.contentMarkdown}
-                  conceptName={concept.name}
-                />
-                <ConceptSessions result={sessionsByConcept[concept.id]} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </section>
-  );
-}
 
-function ConceptSessions({ result }: { result: SessionsResult | undefined }) {
-  return (
-    <section aria-label="Sesiones disponibles" className="mt-6 border-t border-border pt-5">
-      <h4 className="text-sm font-semibold text-foreground">Sesiones disponibles</h4>
-      {result === undefined ? (
-        <p role="status" className="mt-2 text-sm text-muted-foreground">Cargando sesiones…</p>
-      ) : result.status === 'error' ? (
-        <p role="alert" className="mt-2 text-sm text-destructive">
-          No pudimos cargar las sesiones. {result.message}
-        </p>
-      ) : result.sessions.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">No hay sesiones disponibles todavía.</p>
-      ) : (
-        <ul className="mt-3 grid gap-3 md:grid-cols-2">
-          {result.sessions.map((session) => (
-            <li key={session.id}>
-              <Link
-                to={`/practice/${session.id}`}
-                className="group flex min-h-28 flex-col gap-2 rounded-xl border border-border bg-background p-4 ring-offset-background transition-all duration-fast hover:-translate-y-0.5 hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <span className="font-medium text-foreground">{session.title}</span>
-                <span className="text-sm text-muted-foreground">
-                  {session.difficulty} · {session.steps.length} ejercicios
-                </span>
-                <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">Empezar práctica <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" /></span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+          {currentConcepts === null ? (
+            <div role="status" aria-live="polite" className="mt-5 rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">
+              Cargando conceptos…
+            </div>
+          ) : currentConcepts.status === 'error' ? (
+            <p role="alert" className="mt-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+              No pudimos cargar los conceptos de este tema. {currentConcepts.message}
+            </p>
+          ) : concepts.length === 0 ? (
+            <EmptyState
+              title="Todavía no hay conceptos disponibles"
+              description="Este tema está disponible, pero aún no tiene conceptos preparados para practicar."
+              className="mt-5 rounded-2xl border border-border bg-card"
+            />
+          ) : (
+            <ul className="mt-5 space-y-5">
+              {concepts.map((concept) => (
+                <li key={concept.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+                  <h3 className="break-words text-xl font-semibold tracking-tight text-foreground">
+                    {concept.name}
+                  </h3>
+                  <LearningContent
+                    content={concept.content}
+                    fallbackMarkdown={concept.contentMarkdown}
+                    conceptName={concept.name}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {currentConcepts?.status === 'success' && concepts.length > 0 ? (
+          <aside className="min-w-0 lg:sticky lg:top-20">
+            <TopicSessionList concepts={concepts} results={sessionsByConcept} progress={progress} />
+          </aside>
+        ) : null}
+      </div>
     </section>
   );
 }

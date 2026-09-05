@@ -3,8 +3,10 @@ import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
+import { ProgressContext } from '@/contexts/progress-context';
 import type { Concept, ContentContextValue, Technology, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
+import type { ConceptProgress, ProgressContextValue } from '@/types/progress';
 import TopicPage from './TopicPage';
 
 const JAVASCRIPT: Technology = {
@@ -59,6 +61,7 @@ function renderTopicPage({
   getTopics = vi.fn().mockResolvedValue([ARRAYS, FUNCTIONS]),
   getConceptsByTopic = vi.fn().mockResolvedValue(CONCEPTS),
   getSessionsByConcept = vi.fn().mockResolvedValue([]),
+  progress = new Map<string, ConceptProgress>(),
 }: {
   technologyId?: string;
   topicId?: string;
@@ -67,6 +70,7 @@ function renderTopicPage({
   getTopics?: ContentContextValue['getTopics'];
   getConceptsByTopic?: ContentContextValue['getConceptsByTopic'];
   getSessionsByConcept?: ContentContextValue['getSessionsByConcept'];
+  progress?: Map<string, ConceptProgress>;
 } = {}) {
   const content: ContentContextValue = {
     technologies,
@@ -78,16 +82,25 @@ function renderTopicPage({
     getSessionsByConcept,
     getSession: vi.fn(),
   };
+  const progressValue: ProgressContextValue = {
+    progress,
+    updateProgress: vi.fn(),
+    getConceptDomain: (conceptId) => progress.get(conceptId)?.domain ?? 0,
+    isLoading: false,
+    error: null,
+  };
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <ContentContext.Provider value={content}>
-      <MemoryRouter initialEntries={[`/tech/${technologyId}/${topicId}`]}>
-        <main>
-          <Routes>
-            <Route path="/tech/:technologyId/:topicId" element={children} />
-          </Routes>
-        </main>
-      </MemoryRouter>
-    </ContentContext.Provider>
+    <ProgressContext.Provider value={progressValue}>
+      <ContentContext.Provider value={content}>
+        <MemoryRouter initialEntries={[`/tech/${technologyId}/${topicId}`]}>
+          <main>
+            <Routes>
+              <Route path="/tech/:technologyId/:topicId" element={children} />
+            </Routes>
+          </main>
+        </MemoryRouter>
+      </ContentContext.Provider>
+    </ProgressContext.Provider>
   );
 
   return { ...render(<TopicPage />, { wrapper }), content };
@@ -118,11 +131,11 @@ describe('TopicPage (T057)', () => {
     renderTopicPage();
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Arrays' })).toBeInTheDocument();
-    await screen.findByText('Métodos de iteración de arrays');
+    await screen.findByRole('heading', { level: 3, name: 'Métodos de iteración de arrays' });
     expect(screen.getByText('Métodos de iteración y colecciones.')).toBeInTheDocument();
     expect(screen.getByText('# Iteración')).toBeInTheDocument();
-    const concepts = screen.getByRole('region', { name: 'Conceptos' });
-    expect(within(concepts).getByRole('heading', { level: 2, name: 'Conceptos' })).toBeInTheDocument();
+    const concepts = screen.getByRole('region', { name: 'Teoría y conceptos' });
+    expect(within(concepts).getByRole('heading', { level: 2, name: 'Teoría y conceptos' })).toBeInTheDocument();
     expect(within(concepts).getAllByRole('heading', { level: 3 }).map((item) => item.textContent)).toEqual([
       'Métodos de iteración de arrays', 'Mutación de arrays',
     ]);
@@ -202,13 +215,35 @@ describe('TopicPage (T057)', () => {
     expect(rendered.content.getConcept).not.toHaveBeenCalled();
   });
 
+  it('muestra el breadcrumb real y progreso únicamente cuando existe actividad', async () => {
+    renderTopicPage({
+      progress: new Map([
+        ['array-iteration', {
+          conceptId: 'array-iteration', domain: 0.5, totalAttempts: 3, correctAttempts: 2,
+          difficultyDistribution: { beginner: { total: 3, correct: 2 }, intermediate: { total: 0, correct: 0 }, advanced: { total: 0, correct: 0 } },
+          recentErrors: [], lastPracticed: '2026-09-04', schemaVersion: 1,
+        }],
+      ]),
+    });
+
+    await screen.findByRole('heading', { level: 1, name: 'Arrays' });
+    await screen.findByText('# Iteración');
+    expect(screen.getByRole('link', { name: 'Entrenar' })).toHaveAttribute('href', '/#technologies');
+    expect(screen.getByRole('link', { name: 'JavaScript' })).toHaveAttribute('href', '/tech/javascript');
+    expect(screen.getByLabelText('Progreso del tema')).toHaveTextContent('1 de 2 conceptos practicados');
+    expect(screen.getByRole('progressbar', { name: 'Progreso en Arrays' })).toHaveAttribute(
+      'aria-valuetext',
+      '1 de 2 conceptos practicados',
+    );
+  });
+
   it('mantiene un único main, headings consecutivos y lista semántica', async () => {
     renderTopicPage();
 
-    await screen.findByText('Métodos de iteración de arrays');
+    await screen.findByRole('heading', { level: 3, name: 'Métodos de iteración de arrays' });
     expect(screen.getAllByRole('main')).toHaveLength(1);
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    const concepts = screen.getByRole('region', { name: 'Conceptos' });
+    const concepts = screen.getByRole('region', { name: 'Teoría y conceptos' });
     expect(within(concepts).getByRole('list')).toBeInTheDocument();
     expect(within(concepts).getAllByRole('listitem')).toHaveLength(2);
   });

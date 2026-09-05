@@ -91,7 +91,7 @@ describe('TechnologyPage (T056)', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('El lenguaje de la web.')).toBeInTheDocument();
     const topics = screen.getByRole('region', { name: 'Temas de JavaScript' });
-    expect(within(topics).getByText('Arrays')).toBeInTheDocument();
+    expect(await within(topics).findByText('Arrays')).toBeInTheDocument();
     expect(within(topics).getByText('Trabaja con colecciones y métodos de iteración.')).toBeInTheDocument();
     expect(within(topics).getByRole('link', { name: /Arrays/i })).toHaveAttribute(
       'href',
