@@ -6,6 +6,11 @@ const FIX_CODE_BROKEN = 'function dobles(numeros) {\n  return numeros;\n}';
 test.use({ reducedMotion: 'no-preference' });
 
 test('completa una sesión real desde la navegación hasta el progreso', async ({ page }) => {
+  // El recorrido ejercita sesión, editor, resultados, revisión y seis
+  // breakpoints. Firefox puede superar el límite general bajo la carga de los
+  // tres navegadores, por lo que el presupuesto queda acotado a este flujo.
+  test.setTimeout(45_000);
+
   await page.goto('/');
 
   const javascriptLink = page
