@@ -3,10 +3,14 @@ import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
+import { HistoryContext } from '@/contexts/history-context';
 import { ProgressContext } from '@/contexts/progress-context';
+import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
 import type { Concept, ContentContextValue, Technology, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
-import type { ConceptProgress, ProgressContextValue } from '@/types/progress';
+import type { HistoryContextValue } from '@/types/history';
+import type { CompletedSession, ConceptProgress, ProgressContextValue } from '@/types/progress';
+import type { ISessionRecoveryStore, SessionRecoverySnapshot } from '@/lib/recovery/ISessionRecoveryStore';
 import TopicPage from './TopicPage';
 
 const JAVASCRIPT: Technology = {
@@ -53,6 +57,18 @@ const ARRAY_SESSION: ExerciseSession = {
   status: 'published', createdAt: '2026-09-01', updatedAt: null, steps: [],
 };
 
+const COMPLETED_SESSION: CompletedSession = {
+  id: 'completed-arrays-01', sessionId: ARRAY_SESSION.id, technologyId: 'javascript',
+  conceptId: 'array-iteration', totalSteps: 4, correctSteps: 3, accuracy: 75,
+  timeSpentMs: 60_000, completedAt: '2026-09-06T10:00:00.000Z',
+};
+
+const RECOVERY: ISessionRecoveryStore = {
+  load: () => null,
+  save: () => {},
+  clear: () => {},
+};
+
 function renderTopicPage({
   technologyId = 'javascript',
   topicId = 'arrays',
@@ -62,6 +78,8 @@ function renderTopicPage({
   getConceptsByTopic = vi.fn().mockResolvedValue(CONCEPTS),
   getSessionsByConcept = vi.fn().mockResolvedValue([]),
   progress = new Map<string, ConceptProgress>(),
+  getCompletedSession = vi.fn().mockResolvedValue(null),
+  recoveryStore = RECOVERY,
 }: {
   technologyId?: string;
   topicId?: string;
@@ -71,6 +89,8 @@ function renderTopicPage({
   getConceptsByTopic?: ContentContextValue['getConceptsByTopic'];
   getSessionsByConcept?: ContentContextValue['getSessionsByConcept'];
   progress?: Map<string, ConceptProgress>;
+  getCompletedSession?: HistoryContextValue['getCompletedSession'];
+  recoveryStore?: ISessionRecoveryStore;
 } = {}) {
   const content: ContentContextValue = {
     technologies,
@@ -89,17 +109,30 @@ function renderTopicPage({
     isLoading: false,
     error: null,
   };
+  const historyValue: HistoryContextValue = {
+    recentCompletedSessions: [],
+    completedSessionsLoading: false,
+    completedSessionsError: null,
+    getCompletedSession,
+    getAttemptsBySession: vi.fn().mockResolvedValue([]),
+    attemptsLoading: false,
+    attemptsError: null,
+  };
   const wrapper = ({ children }: { children: ReactNode }) => (
     <ProgressContext.Provider value={progressValue}>
-      <ContentContext.Provider value={content}>
-        <MemoryRouter initialEntries={[`/tech/${technologyId}/${topicId}`]}>
-          <main>
-            <Routes>
-              <Route path="/tech/:technologyId/:topicId" element={children} />
-            </Routes>
-          </main>
-        </MemoryRouter>
-      </ContentContext.Provider>
+      <HistoryContext.Provider value={historyValue}>
+        <SessionRecoveryContext.Provider value={recoveryStore}>
+          <ContentContext.Provider value={content}>
+            <MemoryRouter initialEntries={[`/tech/${technologyId}/${topicId}`]}>
+              <main>
+                <Routes>
+                  <Route path="/tech/:technologyId/:topicId" element={children} />
+                </Routes>
+              </main>
+            </MemoryRouter>
+          </ContentContext.Provider>
+        </SessionRecoveryContext.Provider>
+      </HistoryContext.Provider>
     </ProgressContext.Provider>
   );
 
@@ -207,12 +240,63 @@ describe('TopicPage (T057)', () => {
     );
     const rendered = renderTopicPage({ getSessionsByConcept });
 
-    expect(await screen.findByRole('link', { name: /Practica iteración.*Empezar práctica/i })).toHaveAttribute(
+    const sessionTitle = await screen.findByRole('heading', { level: 3, name: 'Practica iteración' });
+    expect(sessionTitle).toHaveClass('break-normal', 'whitespace-normal');
+    expect(sessionTitle).not.toHaveClass('break-words');
+    expect(await screen.findByRole('link', { name: 'Empezar práctica' })).toHaveAttribute(
       'href', '/practice/arrays-01',
     );
     expect(rendered.content.getSessionsByConcept).toHaveBeenCalledWith('array-iteration');
     expect(rendered.content.getSession).not.toHaveBeenCalled();
     expect(rendered.content.getConcept).not.toHaveBeenCalled();
+  });
+
+  it('deriva completada, en progreso, disponible y bloqueada desde historial, recovery y publicación canónicos', async () => {
+    const draftSession: ExerciseSession = { ...ARRAY_SESSION, id: 'arrays-draft', title: 'Sesión pendiente de publicar', status: 'draft' };
+    const availableSession: ExerciseSession = { ...ARRAY_SESSION, id: 'arrays-available', title: 'Practica disponible' };
+    const freshSession: ExerciseSession = { ...ARRAY_SESSION, id: 'arrays-fresh', title: 'Nueva práctica disponible' };
+    const completedAvailable: CompletedSession = { ...COMPLETED_SESSION, sessionId: availableSession.id };
+    const recovery: ISessionRecoveryStore = {
+      ...RECOVERY,
+      load: () => ({ sessionId: ARRAY_SESSION.id, currentStep: 1, answers: [], elapsedMs: 1_000, hintsRevealed: [], startTime: 1 } satisfies SessionRecoverySnapshot),
+    };
+    const getCompletedSession = vi.fn().mockImplementation(async (sessionId: string) =>
+      sessionId === availableSession.id ? completedAvailable : null,
+    );
+
+    renderTopicPage({
+      getSessionsByConcept: vi.fn().mockImplementation((conceptId: string) => Promise.resolve(conceptId === 'array-iteration' ? [ARRAY_SESSION, availableSession, freshSession, draftSession] : [])),
+      getCompletedSession,
+      recoveryStore: recovery,
+    });
+
+    expect(await screen.findByText('En progreso')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Continuar práctica' })).toHaveAttribute('href', '/practice/arrays-01');
+    expect(await screen.findByText('Completada')).toBeInTheDocument();
+    expect(screen.getByText('75% de aciertos')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: 'Sesiones completadas' })).toHaveAttribute(
+      'aria-valuetext',
+      '1 de 4 sesiones completadas',
+    );
+    expect(screen.getByRole('link', { name: 'Repetir práctica' })).toHaveAttribute('href', '/practice/arrays-available');
+    expect(screen.getByRole('link', { name: 'Ver resultado' })).toHaveAttribute('href', '/results/arrays-available');
+    expect(screen.getByText('Disponible')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Empezar práctica' })).toHaveAttribute('href', '/practice/arrays-fresh');
+    expect(screen.getByText('Bloqueada')).toBeInTheDocument();
+    expect(screen.getByText('Esta sesión aún no está publicada.')).toBeInTheDocument();
+  });
+
+  it('no inventa un estado cuando el historial o recovery no se pueden consultar', async () => {
+    const recovery: ISessionRecoveryStore = { ...RECOVERY, load: () => { throw new Error('storage temporal no disponible'); } };
+    renderTopicPage({
+      getSessionsByConcept: vi.fn().mockImplementation((conceptId: string) => Promise.resolve(conceptId === 'array-iteration' ? [ARRAY_SESSION] : [])),
+      getCompletedSession: vi.fn().mockRejectedValue(new Error('historial no disponible')),
+      recoveryStore: recovery,
+    });
+
+    expect(await screen.findByText('Estado no disponible')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('No se pudo comprobar el estado: historial no disponible');
+    expect(screen.queryByText('Disponible')).not.toBeInTheDocument();
   });
 
   it('muestra el breadcrumb real y progreso únicamente cuando existe actividad', async () => {
