@@ -151,7 +151,7 @@ describe('AuthPanel', () => {
     expect(screen.getByRole('button', { name: 'Ocultar contraseña' })).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('envía al backend solo el contrato final y navega al dashboard', async () => {
+  it('envía al backend solo el contrato final y navega al inicio', async () => {
     render(<AuthPanel initialMode="register" />);
     fireEvent.change(screen.getByLabelText(/Cómo te gustaría/), { target: { value: 'Charlie' } });
     reachConfirmationStep();
@@ -163,7 +163,7 @@ describe('AuthPanel', () => {
       password: 'Segura123!CodeGym',
       displayName: 'Charlie',
     }));
-    expect(navigateMock).toHaveBeenCalledWith('/dashboard', { replace: true });
+    expect(navigateMock).toHaveBeenCalledWith('/', { replace: true });
   });
 
   it('envía la credencial Google al AuthContext y navega tras autenticar', async () => {
@@ -191,7 +191,7 @@ describe('AuthPanel', () => {
     expect(
       navigateMock,
     ).toHaveBeenCalledWith(
-      '/dashboard',
+      '/',
       {
         replace: true,
       },

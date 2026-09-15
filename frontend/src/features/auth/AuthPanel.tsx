@@ -211,7 +211,7 @@ export function AuthPanel({
         });
 
         navigate(
-          '/dashboard',
+          '/',
           {
             replace: true,
           },
@@ -281,7 +281,7 @@ export function AuthPanel({
         );
 
         navigate(
-          '/dashboard',
+          '/',
           {
             replace: true,
           },
@@ -333,7 +333,7 @@ export function AuthPanel({
         );
 
         navigate(
-          '/dashboard',
+          '/',
           {
             replace: true,
           },
