@@ -171,6 +171,7 @@ const refreshResult: RefreshResult = {
   accessToken: 'new.header.payload.signature',
 
   refreshToken: 'B'.repeat(43),
+  remembered: true,
 
 };
 
@@ -417,6 +418,72 @@ describe('POST /auth/refresh', () => {
 
     );
 
+  });
+
+
+  it('keeps a browser-session refresh cookie non-persistent after rotation', async () => {
+    const refresh = vi
+      .fn<RefreshService['refresh']>()
+      .mockResolvedValue({
+        ...refreshResult,
+        remembered:
+          false,
+      });
+
+    const response =
+      await request(
+        testApp(
+          refreshService(
+            refresh,
+          ),
+        ),
+      )
+        .post('/auth/refresh')
+        .set(
+          'Cookie',
+          `codegym_refresh=${'A'.repeat(43)}`,
+        );
+
+    expect(
+      response.status,
+    ).toBe(200);
+
+    const cookies: unknown =
+      response.headers[
+        'set-cookie'
+      ];
+
+    const cookie =
+      typeof cookies === 'string'
+        ? cookies
+        : Array.isArray(cookies)
+          && typeof cookies[0] === 'string'
+          ? cookies[0]
+          : '';
+
+    expect(
+      cookie,
+    ).not.toContain(
+      'Max-Age=',
+    );
+
+    expect(
+      cookie,
+    ).not.toContain(
+      'Expires=',
+    );
+
+    expect(
+      cookie,
+    ).toContain(
+      'HttpOnly',
+    );
+
+    expect(
+      cookie,
+    ).toContain(
+      'SameSite=Strict',
+    );
   });
 
   it('returns safe 401 and clears the cookie when no refresh cookie is present', async () => {

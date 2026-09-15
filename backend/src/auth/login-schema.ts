@@ -15,6 +15,9 @@ export const loginRequestSchema = z
       .string()
       .min(1)
       .max(512),
+    remember: z
+      .boolean()
+      .default(false),
   })
   .strict();
 

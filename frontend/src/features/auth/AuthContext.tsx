@@ -361,6 +361,8 @@ export function AuthProvider({
 
             password:
               input.password,
+            remember:
+              false,
           });
 
         await establishAuthentication(

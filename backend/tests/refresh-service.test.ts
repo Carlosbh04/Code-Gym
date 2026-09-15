@@ -32,6 +32,7 @@ const activeSession: AuthSessionRecord = {
   expiresAt: new Date(
     now.getTime() + 60_000,
   ),
+  remembered: false,
   rotatedAt: null,
   revokedAt: null,
 };
@@ -178,6 +179,10 @@ describe('refresh service', () => {
     expect(result.refreshToken).not.toBe(
       currentRefreshToken.token,
     );
+
+    expect(
+      result.remembered,
+    ).toBe(false);
 
     const claims =
       await accessTokenService.verify(

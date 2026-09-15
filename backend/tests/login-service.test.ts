@@ -75,6 +75,8 @@ const storedSession:
             * 1_000,
       ),
 
+    remembered:
+      true,
     rotatedAt:
       null,
 
@@ -275,6 +277,8 @@ describe(
 
           password:
             'correct horse battery staple',
+            remember:
+              true,
         });
 
       expect(
@@ -319,6 +323,11 @@ describe(
       ).toBeInstanceOf(
         Uint8Array,
       );
+
+      expect(
+        createdSession
+          ?.remembered,
+      ).toBe(true);
 
       expect(
         createdSession

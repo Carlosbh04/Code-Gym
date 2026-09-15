@@ -10,6 +10,7 @@ import {
 export interface RefreshResult {
   readonly accessToken: string;
   readonly refreshToken: string;
+  readonly remembered: boolean;
 }
 
 export class InvalidRefreshSessionError extends Error {
@@ -87,6 +88,7 @@ export class RefreshService {
     return Object.freeze({
       accessToken,
       refreshToken: nextRefreshToken.token,
+      remembered: session.remembered,
     });
   }
 }

@@ -44,6 +44,7 @@ export class AuthenticatedSessionIssuer {
 
   public async issue(
     user: PublicUserSource,
+    remembered: boolean = true,
   ): Promise<AuthenticatedSessionResult> {
     const refreshToken =
       issueRefreshToken();
@@ -64,6 +65,7 @@ export class AuthenticatedSessionIssuer {
           refreshTokenDigest:
             refreshToken.digest,
           expiresAt,
+          remembered,
         });
 
     const accessToken =

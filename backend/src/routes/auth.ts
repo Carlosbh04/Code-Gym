@@ -365,6 +365,7 @@ export function createAuthRouter({
           result.refreshToken,
           refreshCookieOptions(
             config,
+            request.body.remember,
           ),
         );
 
@@ -531,6 +532,7 @@ export function createAuthRouter({
           result.refreshToken,
           refreshCookieOptions(
             config,
+            result.remembered,
           ),
         );
 

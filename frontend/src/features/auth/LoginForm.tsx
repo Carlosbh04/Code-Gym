@@ -59,6 +59,11 @@ export function LoginForm({
             'password',
           );
 
+        const remember =
+          formData.get(
+            'remember',
+          ) === 'on';
+
         if (
           typeof email !== 'string'
           || typeof password !== 'string'
@@ -69,6 +74,7 @@ export function LoginForm({
         onSubmit({
           email,
           password,
+          remember,
         });
       }}
     >

@@ -105,6 +105,7 @@ export class LoginService {
 
     return sessionIssuer.issue(
       user,
+      input.remember,
     );
   }
 }

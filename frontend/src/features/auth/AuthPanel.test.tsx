@@ -115,6 +115,150 @@ describe('AuthPanel', () => {
     expect(screen.getByRole('button', { name: 'Continuar con Google' })).toBeInTheDocument();
   });
 
+
+  it('envía remember=false cuando Recordarme está desmarcado', async () => {
+    render(<AuthPanel />);
+
+    const email =
+      screen.getByLabelText('Email');
+
+    const password =
+      screen.getByLabelText('Contraseña');
+
+    fireEvent.change(
+      email,
+      {
+        target: {
+          value:
+            'carlos@example.com',
+        },
+      },
+    );
+
+    fireEvent.change(
+      password,
+      {
+        target: {
+          value:
+            'Segura123!CodeGym',
+        },
+      },
+    );
+
+    const form =
+      email.closest('form');
+
+    if (form === null) {
+      throw new Error(
+        'Login form not found',
+      );
+    }
+
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(
+        loginMock,
+      ).toHaveBeenCalledWith({
+        email:
+          'carlos@example.com',
+        password:
+          'Segura123!CodeGym',
+        remember:
+          false,
+      });
+    });
+
+    expect(
+      navigateMock,
+    ).toHaveBeenCalledWith(
+      '/',
+      {
+        replace: true,
+      },
+    );
+  });
+
+  it('envía remember=true cuando Recordarme está marcado', async () => {
+    render(<AuthPanel />);
+
+    const email =
+      screen.getByLabelText('Email');
+
+    const password =
+      screen.getByLabelText('Contraseña');
+
+    const remember =
+      screen.getByRole(
+        'checkbox',
+        {
+          name:
+            /Recordarme/i,
+        },
+      );
+
+    fireEvent.change(
+      email,
+      {
+        target: {
+          value:
+            'carlos@example.com',
+        },
+      },
+    );
+
+    fireEvent.change(
+      password,
+      {
+        target: {
+          value:
+            'Segura123!CodeGym',
+        },
+      },
+    );
+
+    fireEvent.click(
+      remember,
+    );
+
+    expect(
+      remember,
+    ).toBeChecked();
+
+    const form =
+      email.closest('form');
+
+    if (form === null) {
+      throw new Error(
+        'Login form not found',
+      );
+    }
+
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(
+        loginMock,
+      ).toHaveBeenCalledWith({
+        email:
+          'carlos@example.com',
+        password:
+          'Segura123!CodeGym',
+        remember:
+          true,
+      });
+    });
+
+    expect(
+      navigateMock,
+    ).toHaveBeenCalledWith(
+      '/',
+      {
+        replace: true,
+      },
+    );
+  });
+
   it('cambia a registro progresivo y expone fortaleza real en el segundo paso', () => {
     render(<AuthPanel />);
     fireEvent.click(screen.getByRole('tab', { name: 'Crear cuenta' }));

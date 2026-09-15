@@ -338,6 +338,8 @@ describe('POST /auth/login', () => {
       password:
 
         'correct horse battery staple',
+        remember:
+          false,
 
     });
 
@@ -409,13 +411,9 @@ describe('POST /auth/login', () => {
     );
 
     expect(
-
       cookie,
-
-    ).toContain(
-
-      'Max-Age=2592000',
-
+    ).not.toContain(
+      'Max-Age=',
     );
 
     expect(
@@ -428,6 +426,61 @@ describe('POST /auth/login', () => {
 
     );
 
+  });
+
+
+  it('sets a persistent refresh cookie when remember is true', async () => {
+    const login = vi
+      .fn<LoginService['login']>()
+      .mockResolvedValue(
+        loginResult,
+      );
+
+    const response =
+      await request(
+        testApp(
+          loginService(
+            login,
+          ),
+        ),
+      )
+        .post('/auth/login')
+        .send({
+          email:
+            'person@example.test',
+          password:
+            'correct horse battery staple',
+          remember:
+            true,
+        });
+
+    expect(
+      response.status,
+    ).toBe(200);
+
+    expect(
+      login,
+    ).toHaveBeenCalledWith({
+      email:
+        'person@example.test',
+      password:
+        'correct horse battery staple',
+      remember:
+        true,
+    });
+
+    const cookie =
+      extractSetCookie(
+        response.headers[
+          'set-cookie'
+        ],
+      );
+
+    expect(
+      cookie,
+    ).toContain(
+      'Max-Age=2592000',
+    );
   });
 
   it('returns the same safe 401 contract for invalid credentials', async () => {

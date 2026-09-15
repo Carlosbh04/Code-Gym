@@ -6,6 +6,7 @@ export interface CreateAuthSessionRecord {
   readonly userId: string;
   readonly refreshTokenDigest: Uint8Array;
   readonly expiresAt: Date;
+  readonly remembered: boolean;
 }
 
 export interface RotateAuthSessionRecord {
@@ -39,6 +40,7 @@ export interface AuthSessionRecord {
   readonly refreshTokenDigest: Uint8Array;
   readonly createdAt: Date;
   readonly expiresAt: Date;
+  readonly remembered: boolean;
   readonly rotatedAt: Date | null;
   readonly revokedAt: Date | null;
 }
@@ -97,6 +99,7 @@ const authSessionSelect = {
   refreshTokenDigest: true,
   createdAt: true,
   expiresAt: true,
+  remembered: true,
   rotatedAt: true,
   revokedAt: true,
 } as const;
@@ -137,6 +140,8 @@ implements AuthSessionRepository {
 
         expiresAt:
           session.expiresAt,
+        remembered:
+          session.remembered,
       },
 
       select:

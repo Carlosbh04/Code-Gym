@@ -7,10 +7,24 @@ export const refreshCookieName = 'codegym_refresh';
 export type RefreshCookieConfig = Pick<AppConfig, 'auth' | 'isProduction'>;
 
 /** Host-only cookie options for the future refresh endpoints. */
-export function refreshCookieOptions(config: RefreshCookieConfig): Readonly<CookieOptions> {
+export function refreshCookieOptions(
+  config: RefreshCookieConfig,
+  persistent: boolean = true,
+): Readonly<CookieOptions> {
+  const baseOptions =
+    baseRefreshCookieOptions(config);
+
+  if (!persistent) {
+    return Object.freeze(
+      baseOptions,
+    );
+  }
+
   return Object.freeze({
-    ...baseRefreshCookieOptions(config),
-    maxAge: config.auth.refreshTokenTtlSeconds * 1_000,
+    ...baseOptions,
+    maxAge:
+      config.auth.refreshTokenTtlSeconds
+      * 1_000,
   });
 }
 

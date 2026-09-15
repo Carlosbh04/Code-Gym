@@ -85,6 +85,7 @@ model AuthSession {
   refreshTokenDigest Bytes     @unique(map: "auth_sessions_refresh_token_digest_key") @map("refresh_token_digest") @db.Binary(32)
   createdAt          DateTime  @default(now()) @map("created_at") @db.DateTime(3)
   expiresAt          DateTime  @map("expires_at") @db.DateTime(3)
+  remembered         Boolean   @default(true) @map("remembered")
   rotatedAt          DateTime? @map("rotated_at") @db.DateTime(3)
   revokedAt          DateTime? @map("revoked_at") @db.DateTime(3)
 

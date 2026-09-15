@@ -18,6 +18,7 @@ export interface AuthUser {
 export interface LoginInput {
   readonly email: string;
   readonly password: string;
+  readonly remember: boolean;
 }
 
 export interface LoginResponse {
