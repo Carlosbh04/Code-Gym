@@ -1,0 +1,62 @@
+{
+  "name": "codegym-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^22.13.0 || ^24.0.0 || >=26.0.0"
+  },
+  "scripts": {
+    "postinstall": "npm run db:generate",
+    "dev": "tsx watch src/server.ts",
+    "build": "npm run db:generate && tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --exclude \"tests/integration/**\" --exclude \".manual-backup-*/**\" --maxWorkers=4",
+    "test:watch": "vitest --exclude \"tests/integration/**\" --exclude \".manual-backup-content/**\"",
+    "pretest:db": "npm run db:generate",
+    "test:db": "tsx scripts/run-database-tests.ts",
+    "db:validate": "prisma validate",
+    "db:generate": "prisma generate",
+    "db:migrate:dev": "tsx scripts/prisma-migrate-dev.ts",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:status": "prisma migrate status",
+    "check": "npm run db:validate && npm run db:generate && npm run lint && npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "@prisma/adapter-mariadb": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "argon2": "0.45.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.1.0",
+    "jose": "6.2.12",
+    "pino": "^9.9.4",
+    "pino-http": "^10.5.0",
+    "quickjs-emscripten": "0.32.0",
+    "resend": "^6.28.0",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.1",
+    "@types/supertest": "^6.0.3",
+    "eslint": "^10.10.0",
+    "prisma": "7.10.0",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.42.0",
+    "vitest": "^5.0.0"
+  },
+  "overrides": {
+    "deepmerge-ts": "8.0.2",
+    "mariadb": "3.5.4",
+    "mysql2": "3.24.4"
+  }
+}

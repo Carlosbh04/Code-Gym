@@ -1,0 +1,310 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes codegym-confetti {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(var(--confetti-rotate-start)) scale(0.65); }
+  16% { opacity: 0.92; }
+  100% { opacity: 0; transform: translate3d(var(--confetti-x), var(--confetti-y), 0) rotate(var(--confetti-rotate-end)) scale(0.92); }
+}
+
+/* ==========================================================================
+   SISTEMA DE TOKENS — jerarquía obligatoria (D008)
+
+     CAPA 1  PRIMITIVAS   valores del Master Plan §12. Fuente única de verdad.
+        ↓
+     CAPA 2  SEMÁNTICAS   contrato shadcn/ui. Derivadas con var(), sin literales.
+        ↓
+     CAPA 3  TAILWIND     tailwind.config.js → hsl(var(--semántica))
+        ↓
+     CAPA 4  COMPONENTES  consumen utilidades (bg-background, text-foreground…)
+
+   Los componentes NO leen primitivas directamente.
+
+   Las primitivas de color se declaran como canales HSL «H S% L%» (sin envolver
+   en hsl()) por dos motivos: permite que la capa semántica las derive con
+   var(), y permite que Tailwind aplique modificadores de opacidad, que compilan
+   como hsl(var(--primary) / .2). El hex del Master Plan queda documentado en
+   el comentario de cada token; todas las conversiones reproducen el hex exacto.
+   ========================================================================== */
+
+@layer base {
+  :root {
+    /* ---------------------------------------------------------------- */
+    /* CAPA 1 · PRIMITIVAS                                              */
+    /* ---------------------------------------------------------------- */
+
+    /* Superficies — de más profunda a más elevada */
+    --bg-primary: 240 20% 5%;         /* #0a0a0f */
+    --bg-secondary: 240 18.2% 8.6%;   /* #12121a */
+    --bg-tertiary: 240 17.5% 12.4%;   /* #1a1a25 */
+    --bg-surface: 240 17% 14%;        /* #1e1e2a */
+    --bg-elevated: 240 17.8% 17.6%;   /* #252535 */
+
+    /* Texto — de más a menos prominente */
+    --text-primary: 240 20% 95%;      /* #f0f0f5 */
+    --text-secondary: 240 12.4% 66.9%;/* #a0a0b5 */
+    --text-muted: 240 9.9% 41.8%;     /* #606075 */
+    --state-foreground: 240 20% 95%;
+
+    /* Acento (D007) — dos tonos con roles distintos y excluyentes */
+    --accent: 238.7 83.5% 66.7%;      /* #6366f1 · marca. NO textual:
+                                         bordes, iconos, focus ring, glows.
+                                         4.42:1 sobre --bg-primary: cumple el
+                                         3:1 no textual, NO el 4.5:1 de texto. */
+    --accent-text: 234.5 89.5% 73.9%; /* #818cf8 · texto e interacción.
+                                         6.62:1 sobre --bg-primary: cumple AA. */
+    --accent-hover: var(--accent-text);/* §12 lo define con el mismo valor que
+                                         --accent-text; se declara como alias
+                                         para no duplicar el literal. */
+    --accent-glow: hsl(var(--accent) / 0.15);
+
+    /* Estado */
+    --success: 142.1 70.6% 45.3%;     /* #22c55e */
+    --success-glow: hsl(var(--success) / 0.15);
+    --error: 0 84.2% 60.2%;           /* #ef4444 */
+    --error-glow: hsl(var(--error) / 0.15);
+    --warning: 37.7 92.1% 50.2%;      /* #f59e0b */
+    --celebration-pink: 326 78% 64%;  /* Acento ocasional de celebración. */
+
+    /* Código */
+    --code-bg: 216 28% 7%;            /* #0d1117 */
+    --code-border: 215 15.4% 15.3%;   /* #21262d */
+    --code-foreground: 220 20% 92%;
+    --code-surface: 220 20% 13%;
+    --code-muted: 220 12% 66%;
+    --code-accent: 234.5 89.5% 73.9%;
+    --code-success: 142.1 70.6% 45.3%;
+    --code-error: 0 84.2% 60.2%;
+    --code-warning: 37.7 92.1% 50.2%;
+
+    /* Tipografía */
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    /* Radios — consumidos por tailwind.config.js (rounded-sm|md|lg|xl|full) */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+
+    /* Movimiento — base reutilizable para transiciones y animaciones (T071).
+       Las keyframes y su aplicación por componente se añaden en T072–T077. */
+    --motion-duration-fast: 150ms;
+    --motion-duration-normal: 200ms;
+    --motion-duration-slow: 300ms;
+    --theme-transition-duration: 140ms;
+    --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* NOTA sobre --space-*: la escala de espaciado de §12 (4,8,12,16,20,24,
+       32,40,48,64 px) es idéntica a la de Tailwind (1,2,3,4,5,6,8,10,12,16).
+       Se consume vía utilidades (p-4, gap-6…) y no se duplica como variables
+       CSS sin consumidor. Ver D008. */
+
+    /* ---------------------------------------------------------------- */
+    /* CAPA 2 · SEMÁNTICAS (contrato shadcn/ui) — todas derivadas         */
+    /* ---------------------------------------------------------------- */
+
+    --background: var(--bg-primary);
+    --foreground: var(--text-primary);
+
+    --card: var(--bg-secondary);
+    --card-foreground: var(--text-primary);
+
+    --popover: var(--bg-secondary);
+    --popover-foreground: var(--text-primary);
+
+    /* primary = superficie e interacción de marca. Usa --accent-text y no
+       --accent porque ningún color de texto alcanza AA sobre #6366f1
+       (blanco 3.93:1, casi-negro 4.42:1). Ver D007. */
+    --primary: var(--accent-text);
+    --primary-foreground: var(--bg-primary);
+
+    --secondary: var(--bg-tertiary);
+    --secondary-foreground: var(--text-primary);
+
+    --muted: var(--bg-tertiary);
+    --muted-foreground: var(--text-secondary);
+
+    /* En shadcn, «accent» es la superficie sutil de hover/activo, no el color
+       de marca. Se nombra --surface-hover para no colisionar con la primitiva
+       --accent; tailwind.config.js mapea la utilidad `accent` a este token. */
+    --surface-hover: var(--bg-tertiary);
+    --surface-hover-foreground: var(--text-primary);
+
+    --destructive: var(--error);
+    --destructive-foreground: var(--state-foreground);
+
+    --border: var(--bg-elevated);
+    --input: var(--bg-elevated);
+    --ring: var(--accent);
+  }
+
+  :root.light {
+    /* Superficies claras con separación perceptible sin perder densidad. */
+    --bg-primary: 225 40% 98%;
+    --bg-secondary: 0 0% 100%;
+    --bg-tertiary: 230 32% 95%;
+    --bg-surface: 230 24% 92%;
+    --bg-elevated: 230 20% 86%;
+
+    /* Contraste AA sobre las superficies claras. */
+    --text-primary: 235 28% 14%;
+    --text-secondary: 235 14% 38%;
+    --text-muted: 235 10% 52%;
+    --state-foreground: 0 0% 100%;
+
+    /* El tono interactivo se oscurece para conservar contraste en light. */
+    --accent: 239 84% 67%;
+    --accent-text: 243 75% 52%;
+
+    --success: 142 72% 34%;
+    --error: 0 72% 51%;
+    --warning: 32 95% 44%;
+    --celebration-pink: 326 70% 48%;
+
+    /* Las superficies de código permanecen oscuras deliberadamente. */
+    --code-bg: 222 24% 10%;
+    --code-border: 220 16% 24%;
+    --code-foreground: 220 20% 92%;
+    --code-surface: 220 20% 16%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply bg-background;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  /* T075: los controles comparten una transición corta y predecible para sus
+     estados hover/focus existentes, más una respuesta táctil al activarlos. */
+  :where(button, [role='button']) {
+    transition-property: transform, background-color, border-color, color, box-shadow;
+    transition-duration: var(--motion-duration-fast);
+    transition-timing-function: var(--motion-ease-standard);
+  }
+
+  :where(button, [role='button']):focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--ring)),
+      0 0 0 4px hsl(var(--background));
+  }
+
+  :where(button, [role='button']):not(:disabled):not([aria-disabled='true']):active {
+    transform: scale(0.98);
+  }
+}
+
+/* Solo se activa al cambiar un tema ya pintado; el bootstrap inicial no
+   añade esta clase y por tanto no introduce flash ni animación de entrada.
+
+   Se limitan los candidatos a quienes consumen tokens visuales de Tailwind.
+   Evitar el selector universal impide animar cientos de nodos internos
+   (especialmente CodeMirror) y quitar shadow/fill/stroke evita colas de
+   composición que hacían que algunas superficies parecieran llegar tarde. */
+html.theme-transition,
+html.theme-transition body,
+html.theme-transition :where(
+  [class*='bg-'],
+  [class*='text-'],
+  [class*='border-']
+),
+html.theme-transition :where(
+  [class*='bg-'],
+  [class*='text-'],
+  [class*='border-']
+)::before,
+html.theme-transition :where(
+  [class*='bg-'],
+  [class*='text-'],
+  [class*='border-']
+)::after,
+html.theme-transition :where(input, textarea)::placeholder {
+  transition-property: background-color, border-color, color;
+  transition-duration: var(--theme-transition-duration);
+  transition-timing-function: var(--motion-ease-standard);
+  transition-delay: 0ms;
+}
+
+/* Editor de código. CodeMirror inyecta su tema como .cm-editor.<hash>, con la
+   misma especificidad que cualquier regla nuestra, así que el orden de
+   inyección decidía el fondo. Repetir la clase sube la especificidad y hace
+   que gane el token del sistema sin recurrir a !important. */
+.codegym-editor .cm-editor.cm-editor,
+.codegym-editor .cm-gutters {
+  background-color: hsl(var(--code-bg));
+  color: hsl(var(--code-foreground));
+}
+
+/* Resaltado de código. Consume primitivas de forma justificada: son tonos del
+   sistema §12 sin equivalente en la capa semántica de shadcn. */
+.codegym-code .hljs-comment {
+  color: hsl(var(--code-muted));
+}
+.codegym-code .hljs-keyword,
+.codegym-code .hljs-selector-tag,
+.codegym-code .hljs-name {
+  color: hsl(var(--code-accent));
+}
+.codegym-code .hljs-string,
+.codegym-code .hljs-regexp,
+.codegym-code .hljs-addition {
+  color: hsl(var(--code-success));
+}
+.codegym-code .hljs-number,
+.codegym-code .hljs-literal,
+.codegym-code .hljs-boolean {
+  color: hsl(var(--code-warning));
+}
+.codegym-code .hljs-title,
+.codegym-code .hljs-function,
+.codegym-code .hljs-built_in,
+.codegym-code .hljs-type {
+  color: hsl(var(--code-foreground));
+}
+.codegym-code .hljs-params,
+.codegym-code .hljs-attr,
+.codegym-code .hljs-property {
+  color: hsl(var(--code-muted));
+}
+
+/* T072: utilitario para entradas escalonadas. La animación base está en
+   Tailwind y consume los tokens de T071; solo el retraso cambia por ítem. */
+@layer utilities {
+  .stagger-fade-in-up > * {
+    animation: fadeInUp var(--motion-duration-normal) var(--motion-ease-standard) both;
+  }
+
+  .stagger-fade-in-up > :nth-child(2) {
+    animation-delay: var(--motion-duration-fast);
+  }
+
+  .stagger-fade-in-up > :nth-child(3) {
+    animation-delay: var(--motion-duration-normal);
+  }
+
+  .stagger-fade-in-up > :nth-child(4) {
+    animation-delay: var(--motion-duration-slow);
+  }
+}
+
+/* T076: la información no depende de movimiento. Quien prefiera reducirlo
+   recibe el estado final de cada transición o animación prácticamente al instante. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
