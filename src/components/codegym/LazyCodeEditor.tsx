@@ -17,7 +17,7 @@ function CodeEditorLoading({ value, onChange, disabled, className }: CodeEditorP
         disabled={disabled}
         spellCheck={false}
         rows={Math.max(6, value.split('\n').length + 1)}
-        className="block min-h-64 w-full resize-y whitespace-pre rounded-md border border-code-border bg-code p-4 font-mono text-sm text-foreground lg:min-h-[26rem]"
+        className="block min-h-64 w-full resize-y whitespace-pre rounded-md border border-code-border bg-code p-4 font-mono text-sm text-code-foreground lg:min-h-[26rem]"
       />
       <p role="status" className="mt-2 text-sm text-muted-foreground">
         Cargando editor…

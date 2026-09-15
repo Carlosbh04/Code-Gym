@@ -33,19 +33,19 @@ export interface ExerciseStep {
   code: string | null;
   language: string | null;
   options: AnswerOption[] | null;
-  errorLines: number[] | null;
-  errorType: string | null;
-  testCases: TestCase[] | null;
-  expectedPatterns: string[] | null;
-  explanation: string;
-  hints: string[];
+  requirements: string[];
+  hintCount: number;
   stepOrder: number;
+}
+
+export interface RevealedHint {
+  readonly index: number;
+  readonly text: string;
 }
 
 export interface AnswerOption {
   id: string;
   text: string;
-  correct: boolean;
 }
 
 /**
@@ -71,10 +71,3 @@ export interface FindErrorAnswer {
  * ya estaba admitido en §17 y se conserva.
  */
 export type StepAnswer = string | number | FindErrorAnswer;
-
-export interface TestCase {
-  input: unknown;
-  expected: unknown;
-  call: string;
-  description: string;
-}

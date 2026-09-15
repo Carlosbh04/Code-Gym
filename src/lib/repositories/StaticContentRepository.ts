@@ -1,5 +1,5 @@
 import type { Concept, Technology, Topic } from '@/types/content';
-import type { ExerciseSession } from '@/types/exercise';
+import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
 
 /**
@@ -17,7 +17,18 @@ import type { IContentRepository } from '@/types/repository';
  * un consumidor no pueda corromper el contenido compartido por descuido.
  */
 
-const sessionLoaders = import.meta.glob<{ default: ExerciseSession }>(
+interface PrivateExerciseStep extends Omit<ExerciseStep, 'options' | 'requirements' | 'hintCount'> {
+  readonly options: readonly ({ readonly id: string; readonly text: string; readonly correct?: boolean })[] | null;
+  readonly hints: readonly string[];
+  readonly testCases: readonly ({ readonly description?: string })[] | null;
+  readonly requirements?: readonly string[];
+}
+
+interface PrivateExerciseSession extends Omit<ExerciseSession, 'steps'> {
+  readonly steps: readonly PrivateExerciseStep[];
+}
+
+const sessionLoaders = import.meta.glob<{ default: PrivateExerciseSession }>(
   '/src/data/content/*/*/sessions/*.json',
 );
 
@@ -51,6 +62,18 @@ const conceptPaths = new Map<string, string>();
 /** Rutas ordenadas, para que las consultas devuelvan un orden estable. */
 const sessionPaths = Object.keys(sessionLoaders).sort();
 
+/**
+ * Sesiones públicas ya saneadas.
+ *
+ * El módulo privado se transforma una sola vez. Las lecturas posteriores
+ * reutilizan exactamente la misma instancia congelada sin volver a exponer
+ * hints, respuestas correctas, testCases ni explicaciones privadas.
+ */
+const publicSessions = new Map<
+  string,
+  Promise<ExerciseSession>
+>();
+
 type ConceptMetadata = Omit<Concept, 'contentMarkdown'>;
 
 function deepFreeze<T>(value: T): T {
@@ -65,8 +88,55 @@ function deepFreeze<T>(value: T): T {
 }
 
 async function loadSession(path: string): Promise<ExerciseSession> {
-  const module = await sessionLoaders[path]();
-  return deepFreeze(module.default);
+  let pending = publicSessions.get(path);
+
+  if (pending === undefined) {
+    const load = sessionLoaders[path];
+
+    if (load === undefined) {
+      throw new Error(`No existe loader para la sesión: ${path}`);
+    }
+
+    pending = load().then((module) =>
+      deepFreeze({
+        ...module.default,
+        steps: module.default.steps.map(toPublicExerciseStep),
+      }),
+    );
+
+    publicSessions.set(path, pending);
+  }
+
+  try {
+    return await pending;
+  } catch (error: unknown) {
+    publicSessions.delete(path);
+    throw error;
+  }
+}
+
+function toPublicExerciseStep(step: PrivateExerciseStep): ExerciseStep {
+  const requirements = step.requirements
+    ?? step.testCases?.flatMap((testCase) =>
+      typeof testCase.description === 'string' && testCase.description.length > 0
+        ? [testCase.description]
+        : [])
+    ?? [];
+
+  return {
+    id: step.id,
+    type: step.type,
+    prompt: step.prompt,
+    code: step.code,
+    language: step.language,
+    options: step.options?.map((option) => ({
+      id: option.id,
+      text: option.text,
+    })) ?? null,
+    requirements: [...requirements],
+    hintCount: step.hints.length,
+    stepOrder: step.stepOrder,
+  };
 }
 
 async function composeConcept(

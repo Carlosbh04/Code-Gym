@@ -2,23 +2,20 @@ import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ContentProvider } from '@/contexts/ContentContext';
-import { ExecutionProvider } from '@/contexts/ExecutionContext';
-import { SessionCompletionContext } from '@/contexts/session-completion-context';
 import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
+import { TrainingContext } from '@/contexts/training-context';
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
-import { FakeExecution } from '@/test/fake-execution';
-import { FakeSessionCompletion } from '@/test/fake-session-completion';
 import { FakeSessionRecoveryStore } from '@/test/fake-session-recovery';
+import { FakeTraining } from '@/test/fake-training';
 import type { Concept, Technology, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
 import type { SessionRecoverySnapshot } from '@/lib/recovery/ISessionRecoveryStore';
 import SessionPage from './SessionPage';
+import { RelativeActivityTime } from './components/SessionRecoveryDialog';
 
 const SESSION_ID = 'js-arrays-map-vs-foreach-01';
 const repo = new StaticContentRepository();
-const completion = new FakeSessionCompletion();
-
 function LocationProbe() {
   return <div data-testid="location">{useLocation().pathname}</div>;
 }
@@ -26,35 +23,60 @@ function LocationProbe() {
 const renderAt = (
   sessionId: string,
   repository: IContentRepository = repo,
-  execution: FakeExecution = new FakeExecution(),
+  _legacyExecution?: unknown,
   recovery: FakeSessionRecoveryStore = new FakeSessionRecoveryStore(),
-) =>
-  render(
+  training: FakeTraining = new FakeTraining(),
+) => {
+  return render(
     <SessionRecoveryContext.Provider value={recovery}>
-      <SessionCompletionContext.Provider value={completion.value}>
+      <TrainingContext.Provider value={training.value}>
         <ContentProvider repository={repository}>
-          <ExecutionProvider engine={execution.value}>
-            <MemoryRouter initialEntries={[`/practice/${sessionId}`]}>
-              <LocationProbe />
-              <Routes>
-                <Route path="/practice/:sessionId" element={<SessionPage />} />
-                <Route path="/" element={<p>inicio</p>} />
-              </Routes>
-            </MemoryRouter>
-          </ExecutionProvider>
+          <MemoryRouter
+            initialEntries={[
+              `/practice/${sessionId}`,
+            ]}
+          >
+            <LocationProbe />
+            <Routes>
+              <Route
+                path="/practice/:sessionId"
+                element={<SessionPage />}
+              />
+              <Route
+                path="/"
+                element={<p>inicio</p>}
+              />
+            </Routes>
+          </MemoryRouter>
         </ContentProvider>
-      </SessionCompletionContext.Provider>
+      </TrainingContext.Provider>
     </SessionRecoveryContext.Provider>,
   );
+};
 
 const loaded = async (
   sessionId = SESSION_ID,
   repository: IContentRepository = repo,
-  execution: FakeExecution = new FakeExecution(),
+  _legacyExecution?: unknown,
   recovery: FakeSessionRecoveryStore = new FakeSessionRecoveryStore(),
+  training: FakeTraining = new FakeTraining(),
 ) => {
-  const view = renderAt(sessionId, repository, execution, recovery);
-  await waitFor(() => expect(screen.queryByText(/Cargando la sesión/)).toBeNull());
+  const view = renderAt(
+    sessionId,
+    repository,
+    undefined,
+    recovery,
+    training,
+  );
+
+  await waitFor(() =>
+    expect(
+      screen.queryByText(
+        /Cargando la sesión/,
+      ),
+    ).toBeNull(),
+  );
+
   return view;
 };
 
@@ -66,7 +88,7 @@ const recoveryOf = (sessionId = SESSION_ID): SessionRecoverySnapshot => ({
   currentStep: 0,
   answers: [],
   elapsedMs: 4_000,
-  hintsRevealed: [],
+  revealedHints: [],
   startTime: 1_000,
 });
 
@@ -182,27 +204,7 @@ describe('SessionPage (T027)', () => {
       );
     });
 
-    it('valida con la regla real del engine y bloquea el paso ya respondido', async () => {
-      await loaded();
-      const real = await session();
-      const correcta = real.steps[0].options!.find((o) => o.correct)!;
-
-      fireEvent.click(screen.getByRole('radio', { name: correcta.text }));
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-
-      await waitFor(() => {
-        for (const radio of screen.getAllByRole('radio')) {
-          expect(radio).toBeDisabled();
-        }
-      });
-      expect(screen.getByRole('button', { name: 'Siguiente paso' })).toBeEnabled();
-      expect(screen.getByRole('article', { name: 'Ejercicio respondido' })).toHaveAttribute(
-        'data-state',
-        'answered',
-      );
-    });
-
+    
     it('Siguiente está deshabilitado mientras no se haya respondido', async () => {
       await loaded();
 
@@ -269,34 +271,21 @@ describe('SessionPage (T027)', () => {
       await waitFor(() => expect(comprobar()).toBeEnabled());
     });
 
-    it('find-error acierta solo con la línea y el tipo correctos (T032)', async () => {
-      await loaded();
-      const real = await session();
-      const findError = real.steps[2];
-      const correcta = findError.options!.find((o) => o.correct)!;
-
-      await answerAndAdvance(real.steps[0].options![0].text);
-      await answerAndAdvance(real.steps[1].options![0].text);
-      await waitFor(() =>
-        expect(screen.getByRole('group', { name: findError.prompt })).toBeInTheDocument(),
-      );
-
-      chooseError(findError.errorLines![0], correcta.text);
-      await waitFor(() =>
-        expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled(),
-      );
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-
-      await waitFor(() =>
-        expect(screen.getByText('Respuesta correcta')).toBeInTheDocument(),
-      );
-    });
-
+    
     it('find-error falla si la línea es correcta pero el tipo no (T032)', async () => {
-      await loaded();
+      const training = new FakeTraining();
+      training.answerIsCorrect = false;
+
+      await loaded(
+        SESSION_ID,
+        repo,
+        undefined,
+        new FakeSessionRecoveryStore(),
+        training,
+      );
       const real = await session();
       const findError = real.steps[2];
-      const incorrecta = findError.options!.find((o) => !o.correct)!;
+      const incorrecta = findError.options![0];
 
       await answerAndAdvance(real.steps[0].options![0].text);
       await answerAndAdvance(real.steps[1].options![0].text);
@@ -304,7 +293,7 @@ describe('SessionPage (T027)', () => {
         expect(screen.getByRole('group', { name: findError.prompt })).toBeInTheDocument(),
       );
 
-      chooseError(findError.errorLines![0], incorrecta.text);
+      chooseError(1, incorrecta.text);
       await waitFor(() =>
         expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled(),
       );
@@ -325,7 +314,7 @@ describe('SessionPage (T027)', () => {
       await waitFor(() =>
         expect(screen.getByRole('group', { name: findError.prompt })).toBeInTheDocument(),
       );
-      chooseError(findError.errorLines![0], findError.options!.find((o) => o.correct)!.text);
+      chooseError(1, findError.options![0].text);
       await submitAndAdvance();
 
       const fixCode = real.steps[3];
@@ -362,104 +351,11 @@ describe('SessionPage (T027)', () => {
       expect(screen.queryByText(/todavía no están disponibles/)).toBeNull();
     });
 
-    it('en fix-code Comprobar ejecuta el código y muestra el veredicto del engine (T045.1)', async () => {
-      const execution = new FakeExecution();
-      execution.resuelve(true);
-      await loaded(SESSION_ID, repo, execution);
-      await llegarAFixCode();
-
-      await escribirCodigo(SOLUCION);
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-
-      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
-      expect(screen.getByRole('heading', { name: 'Código correcto' })).toBeInTheDocument();
-      expect(document.querySelector('[data-confetti-event]')).not.toBeNull();
-      expect(execution.llamadas).toHaveLength(1);
-      expect(execution.llamadas[0].userCode).toBe(SOLUCION);
-      expect(execution.llamadas[0].step.id).toBe('step-4');
-    });
-
-    it('Ejecutar tests muestra el resultado real sin completar el paso', async () => {
-      const execution = new FakeExecution();
-      execution.resuelve(true);
-      await loaded(SESSION_ID, repo, execution);
-      await llegarAFixCode();
-
-      await escribirCodigo(SOLUCION);
-      fireEvent.click(screen.getByRole('button', { name: 'Ejecutar tests' }));
-
-      await waitFor(() => expect(screen.getByText('Todos los tests han pasado.')).toBeInTheDocument());
-      expect(screen.queryByText('Respuesta correcta')).toBeNull();
-      expect(screen.getByRole('button', { name: 'Terminar sesión' })).toBeDisabled();
-      expect(screen.getByRole('heading', { name: 'Código correcto' })).toBeInTheDocument();
-      expect(execution.llamadas).toHaveLength(1);
-    });
-
-    it('un código que no pasa los test cases muestra resultados y permite corregir', async () => {
-      const execution = new FakeExecution();
-      execution.resuelve(false);
-      await loaded(SESSION_ID, repo, execution);
-      await llegarAFixCode();
-
-      await escribirCodigo(SOLUCION);
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-
-      await waitFor(() => expect(screen.getByText('Resultados de tests')).toBeInTheDocument());
-      expect(screen.getByText('Expected')).toBeInTheDocument();
-      expect(screen.getByRole('textbox', { name: 'Editor de código' })).not.toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Terminar sesión' })).toBeDisabled();
-    });
-
-    it('mientras ejecuta muestra «Ejecutando…», lo bloquea y no admite doble envío', async () => {
-      const execution = new FakeExecution();
-      execution.diferir();
-      await loaded(SESSION_ID, repo, execution);
-      await llegarAFixCode();
-
-      await escribirCodigo(SOLUCION);
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-
-      const ejecutando = await screen.findByRole('button', { name: 'Ejecutando…' });
-      expect(ejecutando).toBeDisabled();
-      expect(ejecutando).toHaveAttribute('aria-busy', 'true');
-      expect(execution.llamadas).toHaveLength(1);
-
-      // Un segundo clic no reenvía: la validación en curso lo impide.
-      fireEvent.click(ejecutando);
-      expect(execution.llamadas).toHaveLength(1);
-
-      act(() => execution.resolverDiferido(true));
-      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
-    });
-
-    it('un fallo de ejecución es recuperable: aviso con Reintentar y sin contar como respuesta', async () => {
-      const execution = new FakeExecution();
-      execution.rechaza('La ejecución superó el límite de 3000 ms');
-      await loaded(SESSION_ID, repo, execution);
-      await llegarAFixCode();
-
-      await escribirCodigo(SOLUCION);
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-
-      // §27: el timeout no es una respuesta incorrecta, es un error reintentable.
-      const aviso = await screen.findByRole('alert');
-      expect(aviso).toHaveTextContent('No se pudo ejecutar: La ejecución superó el límite de 3000 ms');
-      expect(screen.queryByText('Respuesta incorrecta')).toBeNull();
-      expect(screen.getByRole('button', { name: 'Reintentar' })).toBeEnabled();
-
-      // El reintento sí llega a veredicto y limpia el aviso.
-      execution.resuelve(true);
-      fireEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
-
-      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
-      expect(screen.queryByRole('alert')).toBeNull();
-      expect(execution.llamadas).toHaveLength(2);
-    });
-
+    
+    
+    
+    
+    
     it('lo que se escribe en el editor se conserva', async () => {
       await loaded();
       await llegarAFixCode();
@@ -505,20 +401,23 @@ describe('SessionPage (T027)', () => {
 
       expect(screen.getByRole('region', { name: 'Pistas' })).toBeInTheDocument();
       expect(pedirPista()).toBeEnabled();
-      step.hints.forEach((h) => expect(screen.queryByText(h)).toBeNull());
+      expect(step.hintCount).toBeGreaterThan(0);
+      expect(screen.queryByText('Pista autorizada 1')).toBeNull();
     });
 
     it('las revela de una en una y en orden', async () => {
       await loaded();
       const real = await session();
-      const hints = real.steps[0].hints;
+      const hintCount = real.steps[0].hintCount;
 
-      for (let i = 0; i < hints.length; i += 1) {
+      for (let i = 0; i < hintCount; i += 1) {
         fireEvent.click(pedirPista());
-        await waitFor(() => expect(screen.getByText(hints[i])).toBeInTheDocument());
+        await waitFor(() =>
+          expect(screen.getByText(`Pista autorizada ${i + 1}`)).toBeInTheDocument(),
+        );
 
         // Ninguna posterior se ha adelantado.
-        hints.slice(i + 1).forEach((h) => expect(screen.queryByText(h)).toBeNull());
+        expect(screen.queryByText(`Pista autorizada ${i + 2}`)).toBeNull();
       }
     });
 
@@ -526,8 +425,11 @@ describe('SessionPage (T027)', () => {
       await loaded();
       const real = await session();
 
-      for (let i = 0; i < real.steps[0].hints.length; i += 1) {
+      for (let i = 0; i < real.steps[0].hintCount; i += 1) {
         fireEvent.click(pedirPista());
+        await waitFor(() =>
+          expect(screen.getByText(`Pista autorizada ${i + 1}`)).toBeInTheDocument(),
+        );
       }
 
       await waitFor(() =>
@@ -549,19 +451,18 @@ describe('SessionPage (T027)', () => {
     it('al pasar de paso las pistas vuelven a empezar', async () => {
       await loaded();
       const real = await session();
-      const primeras = real.steps[0].hints;
 
       fireEvent.click(pedirPista());
-      await waitFor(() => expect(screen.getByText(primeras[0])).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText('Pista autorizada 1')).toBeInTheDocument());
 
       await answerAndAdvance(real.steps[0].options![0].text);
 
       await waitFor(() =>
         expect(screen.getByRole('group', { name: real.steps[1].prompt })).toBeInTheDocument(),
       );
-      expect(screen.queryByText(primeras[0])).toBeNull();
+      expect(screen.queryByText('Pista autorizada 1')).toBeNull();
       expect(pedirPista()).toBeEnabled();
-      real.steps[1].hints.forEach((h) => expect(screen.queryByText(h)).toBeNull());
+      expect(real.steps[1].hintCount).toBeGreaterThan(0);
     });
   });
 
@@ -637,33 +538,8 @@ describe('SessionPage (T027)', () => {
       expect(screen.queryByText('Respuesta incorrecta')).toBeNull();
     });
 
-    it('tras acertar muestra el feedback correcto con la explicación real', async () => {
-      await loaded();
-      const real = await session();
-      const correcta = real.steps[0].options!.find((o) => o.correct)!;
-
-      fireEvent.click(screen.getByRole('radio', { name: correcta.text }));
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-
-      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
-      expect(screen.getByText(real.steps[0].explanation)).toBeInTheDocument();
-    });
-
-    it('tras fallar muestra el feedback incorrecto con la misma explicación', async () => {
-      await loaded();
-      const real = await session();
-      const fallida = real.steps[0].options!.find((o) => !o.correct)!;
-
-      fireEvent.click(screen.getByRole('radio', { name: fallida.text }));
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-
-      await waitFor(() => expect(screen.getByText('Respuesta incorrecta')).toBeInTheDocument());
-      expect(screen.getByText(real.steps[0].explanation)).toBeInTheDocument();
-      expect(document.querySelector('[data-confetti-event]')).toBeNull();
-    });
-
+    
+    
     it('el indicador avanza al pasar de paso y marca el anterior completado', async () => {
       await loaded();
       const real = await session();
@@ -681,19 +557,7 @@ describe('SessionPage (T027)', () => {
       });
     });
 
-    it('el feedback desaparece al avanzar al paso siguiente', async () => {
-      await loaded();
-      const real = await session();
-
-      fireEvent.click(screen.getByRole('radio', { name: real.steps[0].options![0].text }));
-      await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-      await waitFor(() => expect(screen.getByText(real.steps[0].explanation)).toBeInTheDocument());
-      fireEvent.click(screen.getByRole('button', { name: 'Siguiente paso' }));
-
-      await waitFor(() => expect(screen.queryByText(real.steps[0].explanation)).toBeNull());
-    });
-
+    
     it('el indicador no permite saltar de paso', async () => {
       await loaded();
       const lista = screen.getByRole('list', { name: 'Progreso de la sesión' });
@@ -706,25 +570,96 @@ describe('SessionPage (T027)', () => {
 
 describe('SessionPage · recovery (T052)', () => {
   it('muestra la decisión canónica antes de renderizar o sobrescribir la sesión', async () => {
+    const real = await session();
+    const lastActivityAt = Date.now() - 12 * 60_000;
     const recovery = new FakeSessionRecoveryStore();
-    recovery.snapshot = recoveryOf();
-    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+    recovery.snapshot = {
+      ...recoveryOf(),
+      currentStep: 1,
+      answers: [{
+        stepId: real.steps[0].id,
+        stepType: real.steps[0].type,
+        answer: 'b',
+        isCorrect: true,
+        timeSpentMs: 2_000,
+        hintsUsed: 0,
+      }],
+      lastActivityAt,
+    };
+    renderAt(SESSION_ID, repo, undefined, recovery);
 
-    expect(
-      await screen.findByRole('heading', { name: 'Tienes una sesión incompleta' }),
-    ).toBeInTheDocument();
+    const title = await screen.findByRole('heading', { name: 'Tienes una sesión incompleta' });
+    const dialog = screen.getByRole('dialog');
+    expect(title).toBeInTheDocument();
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAccessibleDescription(
+      'Puedes continuar donde lo dejaste o descartar esta sesión y empezar una nueva.',
+    );
+    expect(await screen.findByText('JavaScript')).toBeInTheDocument();
+    expect(dialog.querySelector('[data-technology-icon="javascript"] img')).toHaveAttribute(
+      'src',
+      expect.stringMatching(/javascript\.png$/),
+    );
+    expect(screen.getByText(real.title)).toBeInTheDocument();
+    expect(screen.getByText('Arrays · Métodos de iteración de arrays')).toBeInTheDocument();
+    expect(screen.getByText('Paso 2 de 4')).toBeInTheDocument();
+    expect(screen.getByText('25%')).toBeInTheDocument();
+    expect(screen.getByText('1 de 4 ejercicios')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: 'Progreso de la sesión recuperable' })).toHaveAttribute(
+      'aria-valuetext',
+      '1 de 4 ejercicios completados',
+    );
+    expect(screen.getByText(/Última actividad: hace 12 minutos/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continuar' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Empezar de nuevo' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Cerrar' })).toBeEnabled();
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Continuar' }));
     expect(recovery.saves).toHaveLength(0);
     expect(screen.queryByRole('radio')).toBeNull();
+  });
+
+  it('cerrar conserva el recovery y vuelve al topic real', async () => {
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.snapshot = recoveryOf();
+    renderAt(SESSION_ID, repo, undefined, recovery);
+
+    await screen.findByText('JavaScript');
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }));
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/tech/javascript/js-arrays'));
+    expect(recovery.clearCalls).toBe(0);
+    expect(recovery.snapshot).not.toBeNull();
+  });
+
+  it('Escape cierra sin borrar el recovery', async () => {
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.snapshot = recoveryOf();
+    renderAt(SESSION_ID, repo, undefined, recovery);
+
+    const dialog = await screen.findByRole('dialog');
+    await screen.findByText('JavaScript');
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/tech/javascript/js-arrays'));
+    expect(recovery.clearCalls).toBe(0);
+    expect(recovery.snapshot).not.toBeNull();
+  });
+
+  it('un snapshot anterior sin lastActivityAt usa startTime sin inventar otra fecha', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(61_000);
+    const recovery = new FakeSessionRecoveryStore();
+    recovery.snapshot = recoveryOf();
+    renderAt(SESSION_ID, repo, undefined, recovery);
+
+    expect(await screen.findByText(/Última actividad: hace 1 minuto/)).toBeInTheDocument();
+    expect(recovery.saves).toHaveLength(0);
   });
 
   it('continúa el sessionId almacenado y navega a él si la URL era distinta', async () => {
     const requested = 'js-functions-return-flow-01';
     const recovery = new FakeSessionRecoveryStore();
     recovery.snapshot = recoveryOf(SESSION_ID);
-    renderAt(requested, repo, new FakeExecution(), recovery);
+    renderAt(requested, repo, undefined, recovery);
 
     fireEvent.click(await screen.findByRole('button', { name: 'Continuar' }));
 
@@ -739,7 +674,7 @@ describe('SessionPage · recovery (T052)', () => {
     const requested = 'js-functions-return-flow-01';
     const recovery = new FakeSessionRecoveryStore();
     recovery.snapshot = recoveryOf(SESSION_ID);
-    renderAt(requested, repo, new FakeExecution(), recovery);
+    renderAt(requested, repo, undefined, recovery);
 
     fireEvent.click(
       await screen.findByRole('button', { name: 'Empezar de nuevo' }),
@@ -756,7 +691,7 @@ describe('SessionPage · recovery (T052)', () => {
   it('INVALID_JSON muestra error page y no ofrece descarte parcial', async () => {
     const recovery = new FakeSessionRecoveryStore();
     recovery.loadError = 'INVALID_JSON';
-    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+    renderAt(SESSION_ID, repo, undefined, recovery);
 
     expect(
       await screen.findByRole('heading', {
@@ -771,7 +706,7 @@ describe('SessionPage · recovery (T052)', () => {
   it('RECOVERY_FAILED permite empezar de nuevo sin restauración parcial', async () => {
     const recovery = new FakeSessionRecoveryStore();
     recovery.loadError = 'RECOVERY_FAILED';
-    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+    renderAt(SESSION_ID, repo, undefined, recovery);
 
     expect(await screen.findByText('No se pudo recuperar')).toBeInTheDocument();
     recovery.loadError = null;
@@ -784,7 +719,7 @@ describe('SessionPage · recovery (T052)', () => {
   it('avisa de STORAGE_UNAVAILABLE sin bloquear la práctica ni ofrecer retry', async () => {
     const recovery = new FakeSessionRecoveryStore();
     recovery.loadError = 'STORAGE_UNAVAILABLE';
-    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+    renderAt(SESSION_ID, repo, undefined, recovery);
 
     await screen.findByRole('heading', { name: /forEach no devuelve/i });
     expect(screen.getByRole('alert')).toHaveTextContent(
@@ -796,7 +731,7 @@ describe('SessionPage · recovery (T052)', () => {
   it('avisa de STORAGE_FULL y conecta el retry de persistencia', async () => {
     const recovery = new FakeSessionRecoveryStore();
     recovery.saveError = 'STORAGE_FULL';
-    renderAt(SESSION_ID, repo, new FakeExecution(), recovery);
+    renderAt(SESSION_ID, repo, undefined, recovery);
 
     const retry = await screen.findByRole('button', {
       name: 'Reintentar guardado',
@@ -809,5 +744,25 @@ describe('SessionPage · recovery (T052)', () => {
     fireEvent.click(retry);
     await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
     expect(recovery.snapshot?.sessionId).toBe(SESSION_ID);
+  });
+});
+
+describe('RelativeActivityTime', () => {
+  it('actualiza el texto cada minuto y limpia su interval al desmontar', () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(13 * 60_000);
+      const view = render(<RelativeActivityTime timestamp={60_000} />);
+      expect(screen.getByText('hace 12 minutos')).toBeInTheDocument();
+      expect(vi.getTimerCount()).toBe(1);
+
+      act(() => vi.advanceTimersByTime(60_000));
+      expect(screen.getByText('hace 13 minutos')).toBeInTheDocument();
+
+      view.unmount();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

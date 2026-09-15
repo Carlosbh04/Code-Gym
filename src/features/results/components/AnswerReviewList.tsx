@@ -1,11 +1,11 @@
 import { ChevronRight, CircleCheck, CircleX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { ExerciseSession } from '@/types/exercise';
-import type { Attempt } from '@/types/progress';
+import type { HistoryAttempt } from '@/types/history';
 
 export interface AnswerReviewListProps {
   session: ExerciseSession;
-  attempts: Attempt[] | null;
+  attempts: HistoryAttempt[] | null;
   error: string | null;
 }
 

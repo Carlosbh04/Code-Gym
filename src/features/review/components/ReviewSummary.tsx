@@ -1,7 +1,7 @@
 import { CircleCheck, CircleX, Hash, Layers3 } from 'lucide-react';
 import { DifficultyBadge } from '@/components/codegym/DifficultyBadge';
 import type { Difficulty } from '@/types/exercise';
-import type { Attempt } from '@/types/progress';
+import type { HistoryAttempt } from '@/types/history';
 
 export interface ReviewSummaryProps {
   technologyName: string;
@@ -10,7 +10,7 @@ export interface ReviewSummaryProps {
   difficulty: Difficulty;
   position: number;
   totalSteps: number;
-  attempt: Attempt | undefined;
+  attempt: HistoryAttempt | undefined;
   attemptCount: number;
 }
 

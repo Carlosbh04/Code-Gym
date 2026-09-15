@@ -79,6 +79,13 @@ export default {
         code: {
           DEFAULT: 'hsl(var(--code-bg))',
           border: 'hsl(var(--code-border))',
+          foreground: 'hsl(var(--code-foreground))',
+          surface: 'hsl(var(--code-surface))',
+          muted: 'hsl(var(--code-muted))',
+          accent: 'hsl(var(--code-accent))',
+          success: 'hsl(var(--code-success))',
+          error: 'hsl(var(--code-error))',
+          warning: 'hsl(var(--code-warning))',
         },
       },
       /* Escala de radios del Master Plan §12, consumida desde las primitivas

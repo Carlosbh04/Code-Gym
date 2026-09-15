@@ -9,17 +9,22 @@ export function Sidebar() {
       aria-label="Barra lateral"
       className="
         hidden
-        min-h-screen
+        sticky
+        top-0
+        z-30
+        h-dvh
         shrink-0
+        self-start
         flex-col
+        overflow-y-auto
         border-r
         border-border
-        bg-background
+        bg-card/30
 
         sm:flex
         sm:w-20
 
-        lg:w-64
+        xl:w-60
       "
     >
       <div
@@ -30,10 +35,10 @@ export function Sidebar() {
           justify-center
           border-b
           border-border
-          px-3
+          px-2
 
-          lg:justify-start
-          lg:px-6
+          xl:justify-start
+          xl:px-5
         "
       >
         <span
@@ -44,10 +49,12 @@ export function Sidebar() {
             tracking-tight
             text-primary
 
-            lg:inline
+            xl:inline
           "
+          aria-label="CodeGym"
         >
-          CodeGym
+          <span className="text-foreground">Code</span>
+          <span>Gym</span>
         </span>
 
         <span
@@ -58,10 +65,12 @@ export function Sidebar() {
             tracking-tight
             text-primary
 
-            lg:hidden
+            xl:hidden
           "
+          aria-label="CodeGym"
         >
-          CG
+          <span className="text-foreground">C</span>
+          <span>G</span>
         </span>
       </div>
 
@@ -72,12 +81,12 @@ export function Sidebar() {
           flex-1
           flex-col
           px-2
-          py-4
+          py-3
 
-          lg:px-3
+          xl:px-3
         "
       >
-        <ul className="flex flex-col gap-1.5">
+        <ul className="flex flex-col gap-1">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
 
@@ -95,8 +104,9 @@ export function Sidebar() {
                         min-h-11
                         items-center
                         justify-center
+                        relative
                         rounded-lg
-                        px-3
+                        px-2.5
                         text-sm
                         font-medium
                         transition-colors
@@ -109,14 +119,27 @@ export function Sidebar() {
                         focus-visible:ring-offset-2
                         focus-visible:ring-offset-background
 
-                        lg:justify-start
-                        lg:gap-3
+                        xl:justify-start
+                        xl:gap-3
+                        xl:px-3
                       `,
                       isActive
-                        ? 'bg-primary/10 text-primary'
+                        ? `
+                          bg-primary/[0.08]
+                          text-primary
+                          before:absolute
+                          before:left-0
+                          before:top-1/2
+                          before:h-6
+                          before:w-0.5
+                          before:-translate-y-1/2
+                          before:rounded-full
+                          before:bg-primary
+                          hover:bg-primary/[0.08]
+                        `
                         : `
                           text-muted-foreground
-                          hover:bg-accent
+                          hover:bg-muted/40
                           hover:text-foreground
                         `,
                     )
@@ -124,21 +147,18 @@ export function Sidebar() {
                 >
                   <Icon
                     className="
-                      h-5
-                      w-5
+                      size-[1.375rem]
                       shrink-0
-                      transition-transform
+                      transition-colors
                       duration-fast
                       ease-standard
-
-                      group-hover:scale-105
                     "
                     aria-hidden="true"
                   />
 
-                  <span className="hidden lg:inline">{item.label}</span>
+                  <span className="hidden xl:inline">{item.label}</span>
 
-                  <span className="sr-only lg:hidden">{item.label}</span>
+                  <span className="sr-only xl:hidden">{item.label}</span>
                 </NavLink>
               </li>
             );

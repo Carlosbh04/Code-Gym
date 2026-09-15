@@ -21,7 +21,7 @@ export function createInitialSessionState(
     answers: [],
     startTime,
     elapsedMs: 0,
-    hintsRevealed: [],
+    revealedHints: [],
     isValidating: false,
     isComplete: false,
     error: null,
@@ -44,9 +44,13 @@ export function sessionReducer(
 ): SessionState {
   switch (action.type) {
     case 'SUBMIT_ANSWER': {
-      // §18: no se puede responder mientras hay una validación en curso.
-      // Y una respuesta por paso: repetir la acción no duplica la entrada.
-      if (state.isValidating || currentStepIsAnswered(state)) {
+      // La orquestación mantiene isValidating=true mientras espera el
+      // veredicto autoritativo del backend. SUBMIT_ANSWER es precisamente
+      // el resultado de esa validación, por lo que no debe rechazarse por
+      // isValidating. La guarda síncrona vive en useSession.
+      //
+      // El reducer sí conserva la garantía de una sola respuesta por paso.
+      if (currentStepIsAnswered(state)) {
         return state;
       }
 
@@ -59,19 +63,26 @@ export function sessionReducer(
         return state;
       }
 
-      // Las pistas son de un paso, no de la sesión: §6 las declara en
-      // ExerciseStep.hints y §17 registra hintsUsed en cada UserAnswer. Sin
-      // vaciarlas aquí, el paso siguiente arrancaría con las suyas ya
-      // reveladas y contaría pistas que nadie pidió.
-      return { ...state, currentStep: state.currentStep + 1, hintsRevealed: [] };
+      // Las pistas autorizadas pertenecen al paso actual. El siguiente paso
+      // no hereda textos previamente revelados.
+      return { ...state, currentStep: state.currentStep + 1, revealedHints: [] };
     }
 
     case 'REVEAL_HINT': {
-      if (state.hintsRevealed.includes(action.payload)) {
+      if (
+        action.payload.index
+        !== state.revealedHints.length
+      ) {
         return state;
       }
 
-      return { ...state, hintsRevealed: [...state.hintsRevealed, action.payload] };
+      return {
+        ...state,
+        revealedHints: [
+          ...state.revealedHints,
+          action.payload,
+        ],
+      };
     }
 
     case 'SET_VALIDATING':

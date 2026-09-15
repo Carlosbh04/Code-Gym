@@ -1,229 +1,340 @@
-import { StrictMode, type ReactNode } from 'react';
-import { act, renderHook, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import { useHistory } from '@/hooks/useHistory';
-import type { Attempt, CompletedSession } from '@/types/progress';
-import type {
-  IAttemptRepository,
-  ICompletedSessionRepository,
-} from '@/types/repository';
-import { HistoryProvider } from './HistoryContext';
+import {
+  act,
+  renderHook,
+  waitFor,
+} from '@testing-library/react';
 
-const COMPLETED: CompletedSession = {
+import {
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+
+import {
+  getHistoryAttempts,
+  getHistoryCompletedSession,
+} from '@/features/history/history-api';
+
+import {
+  useAuth,
+} from '@/features/auth/AuthContext';
+
+import {
+  useDashboard,
+} from '@/hooks/useDashboard';
+
+import {
+  useHistory,
+} from '@/hooks/useHistory';
+
+import {
+  HistoryProvider,
+} from './HistoryContext';
+
+vi.mock('@/features/auth/AuthContext', () => ({
+  useAuth: vi.fn(),
+}));
+
+vi.mock('@/hooks/useDashboard', () => ({
+  useDashboard: vi.fn(),
+}));
+
+vi.mock('@/features/history/history-api', () => ({
+  ApiError: class ApiError extends Error {
+    readonly status: number;
+    readonly code: string;
+
+    constructor(
+      status: number,
+      code: string,
+      message: string,
+    ) {
+      super(message);
+      this.status = status;
+      this.code = code;
+    }
+  },
+  getHistoryAttempts: vi.fn(),
+  getHistoryCompletedSession: vi.fn(),
+}));
+
+const authMock = vi.mocked(useAuth);
+const dashboardMock = vi.mocked(useDashboard);
+const attemptsMock = vi.mocked(getHistoryAttempts);
+const completionMock = vi.mocked(
+  getHistoryCompletedSession,
+);
+
+const COMPLETION = {
   id: 'completion-1',
   sessionId: 'session-1',
   technologyId: 'javascript',
+  topicId: 'arrays',
   conceptId: 'concept-1',
-  totalSteps: 4,
-  correctSteps: 3,
-  accuracy: 75,
-  timeSpentMs: 12_000,
-  completedAt: '2026-09-02T10:00:00.000Z',
-};
+  totalExercises: 4,
+  correctExercises: 3,
+  accuracy: 0.75,
+  durationMs: 12000,
+  hintsUsed: 1,
+  completedAt: '2026-09-12T12:00:00.000Z',
+} as const;
 
-const ATTEMPT: Attempt = {
-  id: 'attempt-1',
-  sessionId: 'session-1',
-  stepId: 'step-1',
-  stepType: 'code-reading',
-  answer: 'a',
-  isCorrect: true,
-  timeSpentMs: 1_000,
-  hintsUsed: 0,
-  createdAt: '2026-09-02T10:00:00.000Z',
-};
-
-function repositories({
-  completed = [COMPLETED],
-  completedError,
-  completedSession = COMPLETED,
-  completedSessionError,
-  attempts = [ATTEMPT],
-  attemptsError,
+function wrapper({
+  children,
 }: {
-  completed?: CompletedSession[];
-  completedError?: Error;
-  completedSession?: CompletedSession | null;
-  completedSessionError?: Error;
-  attempts?: Attempt[];
-  attemptsError?: Error;
-} = {}) {
-  const attemptRepository: IAttemptRepository = {
-    saveAttempt: vi.fn(),
-    getAttemptsBySession: vi.fn(async () => {
-      if (attemptsError) throw attemptsError;
-      return attempts;
-    }),
-    getRecentAttempts: vi.fn(),
-    clearAttempts: vi.fn(),
-  };
-  const completedSessionRepository: ICompletedSessionRepository = {
-    save: vi.fn(),
-    getBySessionId: vi.fn(async () => {
-      if (completedSessionError) throw completedSessionError;
-      return completedSession;
-    }),
-    getRecent: vi.fn(async () => {
-      if (completedError) throw completedError;
-      return completed;
-    }),
-    clear: vi.fn(),
-  };
-
-  return { attemptRepository, completedSessionRepository };
+  readonly children: React.ReactNode;
+}) {
+  return (
+    <HistoryProvider>
+      {children}
+    </HistoryProvider>
+  );
 }
 
-function wrapperFor(
-  repos: ReturnType<typeof repositories>,
-  strict = false,
-) {
-  return function Wrapper({ children }: { children: ReactNode }) {
-    const provider = (
-      <HistoryProvider
-        attemptRepository={repos.attemptRepository}
-        completedSessionRepository={repos.completedSessionRepository}
-      >
-        {children}
-      </HistoryProvider>
+beforeEach(() => {
+  vi.clearAllMocks();
+
+  authMock.mockReturnValue(
+    {
+      status: 'authenticated',
+      accessToken: 'access-token',
+    } as ReturnType<typeof useAuth>,
+  );
+
+  dashboardMock.mockReturnValue(
+    {
+      dashboard: {
+        progress: [],
+        recentCompletedSessions: [
+          COMPLETION,
+        ],
+        review: {
+          overview: {
+            totalAttempts: 0,
+            correctAttempts: 0,
+            accuracy: null,
+            evidenceLevel: 'none',
+          },
+          candidates: [],
+        },
+        badges: {
+          summary: {
+            totalAttempts: 0,
+            correctAttempts: 0,
+            completedSessions: 0,
+            accuracy: null,
+          },
+          badges: [],
+        },
+      },
+      isLoading: false,
+      error: null,
+      refresh: vi.fn(),
+      resetState: vi.fn(),
+    } as ReturnType<typeof useDashboard>,
+  );
+
+  attemptsMock.mockResolvedValue({
+    attempts: [],
+  });
+
+  completionMock.mockResolvedValue({
+    completedSession: COMPLETION,
+  });
+});
+
+describe('HistoryContext backend', () => {
+  it('usa Dashboard para las sesiones recientes', () => {
+    const { result } = renderHook(
+      () => useHistory(),
+      { wrapper },
     );
-    return strict ? <StrictMode>{provider}</StrictMode> : provider;
-  };
-}
 
-describe('HistoryContext + useHistory (T055)', () => {
-  it('empieza cargando y expone las cinco sesiones recientes solicitadas', async () => {
-    const repos = repositories();
-    const { result } = renderHook(() => useHistory(), {
-      wrapper: wrapperFor(repos),
-    });
-
-    expect(result.current.completedSessionsLoading).toBe(true);
-    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
-    expect(result.current.recentCompletedSessions).toEqual([COMPLETED]);
-    expect(repos.completedSessionRepository.getRecent).toHaveBeenCalledWith(5);
+    expect(
+      result.current.recentCompletedSessions,
+    ).toEqual([
+      {
+        id: 'completion-1',
+        sessionId: 'session-1',
+        technologyId: 'javascript',
+        conceptId: 'concept-1',
+        totalSteps: 4,
+        correctSteps: 3,
+        accuracy: 75,
+        timeSpentMs: 12000,
+        completedAt:
+          '2026-09-12T12:00:00.000Z',
+      },
+    ]);
   });
 
-  it('representa un historial vacío sin error', async () => {
-    const repos = repositories({ completed: [] });
-    const { result } = renderHook(() => useHistory(), {
-      wrapper: wrapperFor(repos),
-    });
+  it('no carga attempts durante montaje', () => {
+    renderHook(
+      () => useHistory(),
+      { wrapper },
+    );
 
-    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
-    expect(result.current.recentCompletedSessions).toEqual([]);
-    expect(result.current.completedSessionsError).toBeNull();
+    expect(
+      attemptsMock,
+    ).not.toHaveBeenCalled();
   });
 
-  it('expone un error de completed sessions sin convertirlo en datos', async () => {
-    const repos = repositories({ completedError: new Error('historial no disponible') });
-    const { result } = renderHook(() => useHistory(), {
-      wrapper: wrapperFor(repos),
+  it('lee attempts desde backend bajo demanda', async () => {
+    attemptsMock.mockResolvedValue({
+      attempts: [
+        {
+          id: 'attempt-1',
+          sessionId: 'session-1',
+          exerciseId: 'step-1',
+          conceptId: 'concept-1',
+          technologyId: 'javascript',
+          isCorrect: true,
+          attemptedAt:
+            '2026-09-12T12:01:00.000Z',
+          durationMs: 1500,
+          hintsUsed: 1,
+        },
+      ],
     });
 
-    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
-    expect(result.current.recentCompletedSessions).toEqual([]);
-    expect(result.current.completedSessionsError).toBe('historial no disponible');
-  });
+    const { result } = renderHook(
+      () => useHistory(),
+      { wrapper },
+    );
 
-  it('no carga attempts durante el montaje', async () => {
-    const repos = repositories();
-    const { result } = renderHook(() => useHistory(), {
-      wrapper: wrapperFor(repos),
-    });
-
-    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
-    expect(repos.attemptRepository.getAttemptsBySession).not.toHaveBeenCalled();
-    expect(repos.attemptRepository.getRecentAttempts).not.toHaveBeenCalled();
-  });
-
-  it('consulta attempts de forma lazy y mantiene su error independiente', async () => {
-    const repos = repositories({ attemptsError: new Error('attempts no disponibles') });
-    const { result } = renderHook(() => useHistory(), {
-      wrapper: wrapperFor(repos),
-    });
-    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
+    let attempts:
+      Awaited<
+        ReturnType<
+          typeof result.current.getAttemptsBySession
+        >
+      > = [];
 
     await act(async () => {
-      await expect(result.current.getAttemptsBySession('session-1')).rejects.toThrow(
-        'attempts no disponibles',
-      );
+      attempts =
+        await result.current.getAttemptsBySession(
+          'session-1',
+        );
     });
 
-    expect(result.current.attemptsError).toBe('attempts no disponibles');
-    expect(result.current.completedSessionsError).toBeNull();
-    expect(result.current.recentCompletedSessions).toEqual([COMPLETED]);
-  });
-
-  it('permite leer attempts aunque completed sessions falle', async () => {
-    const repos = repositories({ completedError: new Error('fallo completed') });
-    const { result } = renderHook(() => useHistory(), {
-      wrapper: wrapperFor(repos),
-    });
-    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
-
-    let attempts: Attempt[] = [];
-    await act(async () => {
-      attempts = await result.current.getAttemptsBySession('session-1');
-    });
-
-    expect(attempts).toEqual([ATTEMPT]);
-    expect(result.current.attemptsError).toBeNull();
-    expect(result.current.completedSessionsError).toBe('fallo completed');
-  });
-
-  it('expone la lectura puntual de una sesión completada sin cargar attempts', async () => {
-    const repos = repositories();
-    const { result } = renderHook(() => useHistory(), {
-      wrapper: wrapperFor(repos),
-    });
-
-    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
-
-    let completedSession: CompletedSession | null = null;
-    await act(async () => {
-      completedSession = await result.current.getCompletedSession('session-1');
-    });
-
-    expect(completedSession).toEqual(COMPLETED);
-    expect(repos.completedSessionRepository.getBySessionId).toHaveBeenCalledWith(
+    expect(
+      attemptsMock,
+    ).toHaveBeenCalledWith(
+      'access-token',
       'session-1',
     );
-    expect(repos.attemptRepository.getAttemptsBySession).not.toHaveBeenCalled();
+
+    expect(attempts).toEqual([
+      {
+        id: 'attempt-1',
+        sessionId: 'session-1',
+        stepId: 'step-1',
+        isCorrect: true,
+        timeSpentMs: 1500,
+        hintsUsed: 1,
+        createdAt:
+          '2026-09-12T12:01:00.000Z',
+      },
+    ]);
   });
 
-  it('propaga el error de lectura puntual de una sesión completada', async () => {
-    const repos = repositories({
-      completedSessionError: new Error('resultado no disponible'),
-    });
-    const { result } = renderHook(() => useHistory(), {
-      wrapper: wrapperFor(repos),
-    });
+  it('expone error independiente de attempts', async () => {
+    attemptsMock.mockRejectedValue(
+      new Error(
+        'attempts no disponibles',
+      ),
+    );
 
-    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
+    const { result } = renderHook(
+      () => useHistory(),
+      { wrapper },
+    );
 
     await act(async () => {
-      await expect(result.current.getCompletedSession('session-1')).rejects.toThrow(
-        'resultado no disponible',
-      );
-    });
-  });
-
-  it('termina en un estado coherente bajo StrictMode', async () => {
-    const repos = repositories();
-    const { result } = renderHook(() => useHistory(), {
-      wrapper: wrapperFor(repos, true),
+      await result.current
+        .getAttemptsBySession(
+          'session-1',
+        )
+        .catch(() => undefined);
     });
 
-    await waitFor(() => expect(result.current.completedSessionsLoading).toBe(false));
-    expect(result.current.recentCompletedSessions).toEqual([COMPLETED]);
-    expect(result.current.completedSessionsError).toBeNull();
-  });
-
-  it('falla explícitamente fuera del provider', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => renderHook(() => useHistory())).toThrow(
-      'useHistory debe usarse dentro de <HistoryProvider>',
+    expect(
+      result.current.attemptsError,
+    ).toBe(
+      'attempts no disponibles',
     );
-    consoleError.mockRestore();
+
+    expect(
+      result.current.completedSessionsError,
+    ).toBeNull();
+  });
+
+  it('lee una completion concreta desde backend', async () => {
+    const { result } = renderHook(
+      () => useHistory(),
+      { wrapper },
+    );
+
+    let completion:
+      Awaited<
+        ReturnType<
+          typeof result.current.getCompletedSession
+        >
+      > = null;
+
+    await act(async () => {
+      completion =
+        await result.current.getCompletedSession(
+          'session-1',
+        );
+    });
+
+    expect(
+      completionMock,
+    ).toHaveBeenCalledWith(
+      'access-token',
+      'session-1',
+    );
+
+    expect(completion).toMatchObject({
+      sessionId: 'session-1',
+      totalSteps: 4,
+      correctSteps: 3,
+      accuracy: 75,
+    });
+  });
+
+  it('reset limpia el error de attempts', async () => {
+    attemptsMock.mockRejectedValue(
+      new Error('boom'),
+    );
+
+    const { result } = renderHook(
+      () => useHistory(),
+      { wrapper },
+    );
+
+    await act(async () => {
+      await result.current
+        .getAttemptsBySession(
+          'session-1',
+        )
+        .catch(() => undefined);
+    });
+
+    expect(
+      result.current.attemptsError,
+    ).toBe('boom');
+
+    act(() => {
+      result.current.resetState?.();
+    });
+
+    await waitFor(() => {
+      expect(
+        result.current.attemptsError,
+      ).toBeNull();
+    });
   });
 });

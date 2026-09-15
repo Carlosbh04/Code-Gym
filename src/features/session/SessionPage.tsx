@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
@@ -8,13 +7,13 @@ import { ResultFeedback } from '@/components/codegym/ResultFeedback';
 import { SessionHeader } from '@/components/codegym/SessionHeader';
 import { useSession } from '@/hooks/useSession';
 import { useContent } from '@/hooks/useContent';
-import { useDialogFocus } from '@/hooks/useDialogFocus';
 import { CodeReadingStep } from './steps/CodeReadingStep';
 import { FindErrorStep } from './steps/FindErrorStep';
 import { PredictOutputStep } from './steps/PredictOutputStep';
 import { CodingWorkspace } from './workspace/CodingWorkspace';
 import { SessionCompleteCelebration } from './components/feedback/SessionCompleteCelebration';
 import { useSuccessCelebration } from './components/feedback/useSuccessCelebration';
+import { SessionRecoveryDialog } from './components/SessionRecoveryDialog';
 
 /**
  * Página de una sesión de ejercicios (§18, D004).
@@ -53,19 +52,20 @@ function SessionPage() {
     isAnswered,
     isLastStep,
     executionError,
-    executionResult,
     executionStatus,
     isCompleting,
     completionError,
+    hintError,
+    isRevealingHint,
     recoveryStatus,
     recoverySessionId,
+    recoverySnapshot,
     storageWarning,
     select,
     selectError,
     editCode,
     revealHint,
     submit,
-    execute,
     next,
     continueRecovery,
     startNewSession,
@@ -74,10 +74,6 @@ function SessionPage() {
   } = useSession(sessionId);
 
   const isValidating = state.isValidating;
-  const recoveryDialogRef = useRef<HTMLElement>(null);
-
-  useDialogFocus(recoveryStatus === 'available', recoveryDialogRef);
-
   // El resultado ya lo calculó el engine al responder (D012): aquí solo se lee.
   const answer = state.answers[state.currentStep];
   const successEventId = answer?.isCorrect && currentStep !== null
@@ -85,48 +81,20 @@ function SessionPage() {
     : null;
   const celebration = useSuccessCelebration(successEventId);
 
-  if (recoveryStatus === 'available') {
+  if (recoveryStatus === 'available' && recoverySnapshot !== null) {
     return (
-      <section
-        ref={recoveryDialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="recovery-title"
-        aria-describedby="recovery-description"
-        className="mx-auto flex max-w-lg flex-col gap-4 rounded-lg border border-border bg-card p-6"
-      >
-        <div className="space-y-2">
-          <h1 id="recovery-title" className="text-xl font-semibold text-foreground">
-            Tienes una sesión incompleta
-          </h1>
-          <p id="recovery-description" className="text-sm text-muted-foreground">
-            Puedes continuar donde lo dejaste o descartar esa sesión y empezar
-            una nueva.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              const target = recoverySessionId;
-              continueRecovery();
-              if (target !== null && target !== sessionId) {
-                navigate(`/practice/${target}`, { replace: true });
-              }
-            }}
-            className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
-          >
-            Continuar
-          </button>
-          <button
-            type="button"
-            onClick={startNewSession}
-            className={`${BUTTON} border border-border bg-card text-foreground hover:bg-accent`}
-          >
-            Empezar de nuevo
-          </button>
-        </div>
-      </section>
+      <SessionRecoveryDialog
+        snapshot={recoverySnapshot}
+        onContinue={() => {
+          const target = recoverySessionId;
+          continueRecovery();
+          if (target !== null && target !== sessionId) {
+            navigate(`/practice/${target}`, { replace: true });
+          }
+        }}
+        onRestart={startNewSession}
+        onClose={(destination) => navigate(destination)}
+      />
     );
   }
 
@@ -224,6 +192,7 @@ function SessionPage() {
               value={selectedOptionId}
               onChange={select}
               disabled={isAnswered}
+                isCorrect={answer?.isCorrect}
             />
           ) : currentStep.type === 'predict-output' ? (
             <PredictOutputStep
@@ -231,6 +200,7 @@ function SessionPage() {
               value={selectedOptionId}
               onChange={select}
               disabled={isAnswered}
+                isCorrect={answer?.isCorrect}
             />
           ) : currentStep.type === 'find-error' ? (
             <FindErrorStep
@@ -250,13 +220,11 @@ function SessionPage() {
               isRunning={isValidating}
               canRun={canSubmit}
               status={executionStatus}
-              result={executionResult}
               error={executionError}
-              hintsRevealed={state.hintsRevealed.length}
-              onRun={execute}
+              revealedHints={state.revealedHints}
+              isRevealingHint={isRevealingHint}
               onCheck={submit}
               onRevealHint={revealHint}
-              successEventId={answer?.isCorrect ? celebration?.eventId ?? null : null}
             />
           ) : (
             <p role="status" className="text-sm text-muted-foreground">
@@ -266,11 +234,21 @@ function SessionPage() {
 
           {currentStep !== null && currentStep.type !== 'fix-code' && (
             <HintReveal
-              hints={currentStep.hints}
-              revealedCount={state.hintsRevealed.length}
+              totalHints={currentStep.hintCount}
+              revealedHints={state.revealedHints}
               onReveal={revealHint}
               disabled={isAnswered}
+              isRevealing={isRevealingHint}
             />
+          )}
+
+          {hintError !== null && (
+            <p
+              role="alert"
+              className="rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground"
+            >
+              No se pudo mostrar la pista: {hintError}. Puedes volver a intentarlo.
+            </p>
           )}
 
           {executionError !== null && currentStep?.type !== 'fix-code' && (
@@ -289,7 +267,11 @@ function SessionPage() {
           {answer !== undefined && currentStep !== null && (
             <ResultFeedback
               isCorrect={answer.isCorrect}
-              explanation={currentStep.explanation}
+              explanation={
+                answer.isCorrect
+                  ? 'El servidor confirmó que tu respuesta es correcta.'
+                  : 'El servidor comprobó la respuesta y todavía necesita corrección.'
+              }
               successMessage={answer.isCorrect ? celebration?.message : undefined}
               successEventId={answer.isCorrect ? celebration?.eventId ?? null : null}
             />

@@ -1,13 +1,17 @@
-import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
-import { useCodeExecution } from '@/hooks/useCodeExecution';
-import { useSessionCompletion } from '@/hooks/useSessionCompletion';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
+import { useTraining } from '@/hooks/useTraining';
 import {
   useSessionRecoveryController,
   type RecoveryStatus,
   type SessionStorageWarning,
 } from '@/hooks/useSessionRecoveryController';
-import { validateSelection } from '@/lib/engine/validation';
-import type { ExecutionResult } from '@/lib/engine/types';
 import {
   createInitialSessionState,
   sessionReducer,
@@ -17,21 +21,20 @@ import type {
   SessionState,
 } from '@/features/session/session-types';
 import type { ExerciseSession, ExerciseStep, StepAnswer } from '@/types/exercise';
+import type { SessionRecoverySnapshot } from '@/lib/recovery/ISessionRecoveryStore';
 
 /**
  * Orquesta una sesión de ejercicios (§15, §18).
  *
- * Es la capa que §15 autoriza a hablar con el engine: la UI solo usa hooks y
- * contextos.
+ * La UI coordina estado temporal y delega la corrección
+ * persistente al backend mediante TrainingRun.
  *
- * Dos caminos de validación, y no por capricho:
+ * Todos los tipos de ejercicio, incluido `fix-code`, se envían
+ * al backend. El navegador representa exclusivamente el
+ * veredicto autorizado recibido en `result.attempt.isCorrect`.
  *
- * - Los tres tipos que se resuelven eligiendo usan `validateSelection` de
- *   `lib/engine/validation`, que es aritmética pura y síncrona: exactamente lo
- *   que `ExerciseEngine.validateSelection` delega.
- * - `fix-code` ejecuta código, así que pasa por `useCodeExecution`, que lleva
- *   al `ExerciseEngine` construido en `providers.tsx` y de ahí al Worker
- *   (D001, D017). Es asíncrono y puede fallar por infraestructura.
+ * Para `fix-code`, los tests privados se ejecutan en backend y
+ * el cliente recibe únicamente feedback público de ejecución.
  */
 
 const NO_ERROR_SELECTION: FindErrorSelection = { line: null, errorType: null };
@@ -58,26 +61,30 @@ export interface UseSessionResult {
    * llegan al reducer ni cuentan como intento.
    */
   executionError: string | null;
-  executionResult: ExecutionResult | null;
   executionStatus: 'idle' | 'running' | 'passed' | 'failed' | 'error';
   /** true mientras se persiste la finalización completa (D018). */
   isCompleting: boolean;
   /** Fallo de persistencia de la finalización, separado del error de carga. */
   completionError: string | null;
+  /** Fallo recuperable al solicitar una pista al backend. */
+  hintError: string | null;
+  /** true mientras el backend autoriza y devuelve la siguiente pista. */
+  isRevealingHint: boolean;
   /** Estado del diálogo/estado de recuperación previo a iniciar la sesión. */
   recoveryStatus: RecoveryStatus;
   /** Identidad de la sesión recuperable, incluso si no coincide con la URL. */
   recoverySessionId: string | null;
+  /** Snapshot pendiente que alimenta el resumen visual sin restaurarlo todavía. */
+  recoverySnapshot: SessionRecoverySnapshot | null;
   /** Aviso no bloqueante cuando la persistencia temporal no está disponible. */
   storageWarning: SessionStorageWarning | null;
   select: (optionId: string) => void;
   /** Guarda el código del paso fix-code en curso. No lo valida. */
   editCode: (code: string) => void;
-  /** Pide la siguiente pista del paso actual, en el orden de `hints`. */
+  /** Pide al backend la siguiente pista canónica del paso actual. */
   revealHint: () => void;
   selectError: (next: FindErrorSelection) => void;
   submit: () => void;
-  execute: () => void;
   next: () => void;
   retryCompletion: () => void;
   continueRecovery: () => void;
@@ -88,19 +95,23 @@ export interface UseSessionResult {
 }
 
 export function useSession(sessionId: string): UseSessionResult {
-  const execution = useCodeExecution();
-  const completion = useSessionCompletion();
+  const training = useTraining();
+
+  const [
+    trainingRunId,
+    setTrainingRunId,
+  ] = useState<string | null>(null);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [selectedError, setSelectedError] =
     useState<FindErrorSelection>(NO_ERROR_SELECTION);
   const [fixCodeDraft, setFixCodeDraft] = useState<string | null>(null);
   const [executionError, setExecutionError] = useState<string | null>(null);
-  const [executionResult, setExecutionResult] = useState<ExecutionResult | null>(null);
   const [executionStatus, setExecutionStatus] = useState<
     'idle' | 'running' | 'passed' | 'failed' | 'error'
   >('idle');
-  const [isCompleting, setIsCompleting] = useState(false);
   const [completionError, setCompletionError] = useState<string | null>(null);
+  const [hintError, setHintError] = useState<string | null>(null);
+  const [isRevealingHint, setIsRevealingHint] = useState(false);
   const [state, dispatch] = useReducer(
     sessionReducer,
     createInitialSessionState(sessionId, 0),
@@ -113,31 +124,140 @@ export function useSession(sessionId: string): UseSessionResult {
   // cierra el hueco entre el primer clic y ese render, donde dos submit seguidos
   // podrían llamar al executor antes de que `isValidating` se hiciera visible.
   const validationInFlight = useRef(false);
-  // Igual que la validación, la finalización necesita una guarda síncrona: dos
-  // clics pueden entrar antes de que React publique isCompleting.
-  const completionInFlight = useRef(false);
-  const completionSucceeded = useRef(false);
+  const hintRevealInFlight = useRef(false);
+  /**
+   * La última respuesta del TrainingRun debe traer `completion`.
+   * Esta referencia solo confirma que el backend ya hizo atómicamente:
+   * Attempt + TrainingRun completed + CompletedSession + ConceptProgress.
+   */
+  const serverCompletionConfirmed = useRef(false);
 
-  const onSessionReady = useCallback((resumedAt: number) => {
+  /**
+   * Una creación de run puede sobrevivir a renders intermedios
+   * donde trainingRunId todavía no se ha publicado.
+   *
+   * Esto evita dos POST /training/runs por doble ejecución
+   * del efecto o por renders consecutivos.
+   */
+  const trainingRunStart = useRef<{
+    sessionId: string;
+    promise: Promise<string>;
+  } | null>(null);
+
+  const onSessionReady = useCallback((
+    resumedAt: number,
+    restoredTrainingRunId: string | null,
+  ) => {
     stepStartedAt.current = resumedAt;
-    completionInFlight.current = false;
-    completionSucceeded.current = false;
+    setTrainingRunId(restoredTrainingRunId);
+    serverCompletionConfirmed.current = false;
     setSelectedOptionId(null);
     setSelectedError(NO_ERROR_SELECTION);
     setFixCodeDraft(null);
     setExecutionError(null);
-    setExecutionResult(null);
     setExecutionStatus('idle');
     setCompletionError(null);
+    setHintError(null);
+    setIsRevealingHint(false);
+    hintRevealInFlight.current = false;
   }, []);
 
   const recovery = useSessionRecoveryController({
     requestedSessionId: sessionId,
     state,
+    trainingRunId,
     dispatch,
     onSessionReady,
   });
   const { session } = recovery;
+
+  /**
+   * Devuelve la identidad backend de este TrainingRun.
+   *
+   * Es idempotente dentro del ciclo de vida del hook: si el efecto de
+   * inicialización y submit() llegan al mismo tiempo, ambos comparten
+   * exactamente la misma Promise y solo existe un POST /training/runs.
+   */
+  const ensureTrainingRun = useCallback((): Promise<string> => {
+    if (trainingRunId !== null) {
+      return Promise.resolve(
+        trainingRunId,
+      );
+    }
+
+    if (session === null) {
+      return Promise.reject(
+        new Error(
+          'Training session is not ready',
+        ),
+      );
+    }
+
+    const existing =
+      trainingRunStart.current;
+
+    if (
+      existing !== null &&
+      existing.sessionId === session.id
+    ) {
+      return existing.promise;
+    }
+
+    const promise = training
+      .startRun(session.id)
+      .then((run) => run.id);
+
+    trainingRunStart.current = {
+      sessionId: session.id,
+      promise,
+    };
+
+    void promise
+      .then((runId) => {
+        setTrainingRunId(runId);
+      })
+      .catch(() => {
+        if (
+          trainingRunStart.current
+            ?.promise === promise
+        ) {
+          trainingRunStart.current =
+            null;
+        }
+      });
+
+    return promise;
+  }, [
+    session,
+    training,
+    trainingRunId,
+  ]);
+
+  useEffect(() => {
+    if (
+      session === null ||
+      recovery.recoveryStatus !== 'none' ||
+      trainingRunId !== null
+    ) {
+      return;
+    }
+
+    void ensureTrainingRun()
+      .catch((reason: unknown) => {
+        dispatch({
+          type: 'SET_ERROR',
+          payload:
+            reason instanceof Error
+              ? reason.message
+              : String(reason),
+        });
+      });
+  }, [
+    ensureTrainingRun,
+    recovery.recoveryStatus,
+    session,
+    trainingRunId,
+  ]);
 
   const currentStep = session?.steps[state.currentStep] ?? null;
   const isAnswered = state.answers.length > state.currentStep;
@@ -157,19 +277,74 @@ export function useSession(sessionId: string): UseSessionResult {
   }, []);
 
   /**
-   * Revela la siguiente pista (§6: una cada vez, en orden). El índice sale de
-   * cuántas hay ya reveladas, así que no se salta ninguna ni se repite, y no
-   * se pide ninguna más allá de las que declara el paso.
+   * Solicita la siguiente pista al backend. El cliente nunca conoce el texto
+   * futuro ni decide su índice y solo actualiza la UI tras recibir confirmación.
    */
   const revealHint = useCallback(() => {
-    const next = state.hintsRevealed.length;
-
-    if (currentStep === null || next >= currentStep.hints.length) {
+    if (
+      currentStep === null
+      || isAnswered
+      || state.isValidating
+      || hintRevealInFlight.current
+      || state.revealedHints.length
+        >= currentStep.hintCount
+    ) {
       return;
     }
 
-    dispatch({ type: 'REVEAL_HINT', payload: next });
-  }, [currentStep, state.hintsRevealed.length]);
+    const expectedIndex =
+      state.revealedHints.length;
+
+    hintRevealInFlight.current = true;
+    setIsRevealingHint(true);
+    setHintError(null);
+
+    void ensureTrainingRun()
+      .then((runId) =>
+        training.revealHint(
+          runId,
+          currentStep.id,
+        ),
+      )
+      .then((hint) => {
+        if (
+          hint.index !== expectedIndex
+          || hint.totalHints
+            !== currentStep.hintCount
+          || hint.text.trim() === ''
+        ) {
+          throw new Error(
+            'El backend devolvió una pista incompatible con la sesión',
+          );
+        }
+
+        dispatch({
+          type: 'REVEAL_HINT',
+          payload: {
+            index: hint.index,
+            text: hint.text,
+          },
+        });
+      })
+      .catch((error: unknown) => {
+        setHintError(
+          error instanceof Error
+            ? error.message
+            : String(error),
+        );
+      })
+      .finally(() => {
+        hintRevealInFlight.current = false;
+        setIsRevealingHint(false);
+      });
+  }, [
+    currentStep,
+    ensureTrainingRun,
+    isAnswered,
+    state.revealedHints.length,
+    state.isValidating,
+    training,
+  ]);
 
   /**
    * La respuesta lista para enviar, o null si el paso todavía está a medias.
@@ -198,12 +373,25 @@ export function useSession(sessionId: string): UseSessionResult {
       currentStep === null ||
       pendingAnswer === null ||
       state.isValidating ||
+      hintRevealInFlight.current ||
       validationInFlight.current
     ) {
       return;
     }
 
-    const registrar = (isCorrect: boolean) => {
+    const runPromise =
+      ensureTrainingRun();
+
+    const durationMs =
+      Math.max(
+        0,
+        Date.now() - stepStartedAt.current,
+      );
+
+    const registerServerAnswer = (
+      isCorrect: boolean,
+      hintsUsed: number,
+    ) => {
       dispatch({
         type: 'SUBMIT_ANSWER',
         payload: {
@@ -211,88 +399,112 @@ export function useSession(sessionId: string): UseSessionResult {
           stepType: currentStep.type,
           answer: pendingAnswer,
           isCorrect,
-          timeSpentMs: Date.now() - stepStartedAt.current,
-          hintsUsed: state.hintsRevealed.length,
+          timeSpentMs: durationMs,
+          hintsUsed,
         },
       });
     };
 
+    const submitToServer = async () => {
+      const runId = await runPromise;
+
+      const result =
+        await training.submitAnswer(
+          runId,
+          {
+            exerciseId:
+              currentStep.id,
+            answer:
+              pendingAnswer,
+            durationMs,
+          },
+        );
+
+      if (result.completion !== null) {
+        serverCompletionConfirmed.current = true;
+      }
+
+      registerServerAnswer(
+        result.attempt.isCorrect,
+        result.attempt.hintsUsed,
+      );
+
+      return result;
+    };
+
+    validationInFlight.current = true;
+    setExecutionError(null);
+    dispatch({
+      type: 'SET_VALIDATING',
+      payload: true,
+    });
+
     if (currentStep.type !== 'fix-code') {
-      registrar(validateSelection(currentStep, pendingAnswer).isCorrect);
+      void submitToServer()
+        .catch((error: unknown) => {
+          setExecutionError(
+            error instanceof Error
+              ? error.message
+              : String(error),
+          );
+        })
+        .finally(() => {
+          dispatch({
+            type: 'SET_VALIDATING',
+            payload: false,
+          });
+
+          validationInFlight.current =
+            false;
+        });
+
       return;
     }
 
-    // fix-code ejecuta código: es asíncrono y puede fallar sin que la respuesta
-    // sea mala. `isValidating` bloquea el doble envío, y el reducer además
-    // rechaza SUBMIT_ANSWER mientras esté puesto.
-    validationInFlight.current = true;
-    setExecutionError(null);
+    // `Comprobar` es autoritativo del backend. El frontend envía el código
+    // del usuario y únicamente representa el veredicto devuelto por el servidor.
+    // Un resultado previo de «Ejecutar tests» no se reutiliza como verdad.
     setExecutionStatus('running');
-    dispatch({ type: 'SET_VALIDATING', payload: true });
 
-    void execution
-      .validateFixCode(currentStep, pendingAnswer as string)
+    void submitToServer()
       .then((result) => {
-        dispatch({ type: 'SET_VALIDATING', payload: false });
-        if (result.executionResult !== undefined) {
-          setExecutionResult(result.executionResult);
-          setExecutionStatus(result.executionResult.pass ? 'passed' : 'failed');
+        if (result.execution === null) {
+          throw new Error(
+            'El backend no devolvió feedback de ejecución para fix-code',
+          );
         }
 
-        // Un fallo de tests permite corregir y reintentar el mismo código.
-        // Solo el pase de los casos canónicos convierte el step en respuesta.
-        if (result.isCorrect) registrar(true);
+        setExecutionStatus(
+          result.execution.passed
+            ? 'passed'
+            : 'failed',
+        );
       })
       .catch((error: unknown) => {
-        // §27: timeout, fallo del worker y executor destruido son recuperables
-        // y reintentables. No se registran como respuesta: el intento no ha
-        // llegado a producir veredicto.
-        dispatch({ type: 'SET_VALIDATING', payload: false });
-        setExecutionError(error instanceof Error ? error.message : String(error));
+        setExecutionError(
+          error instanceof Error
+            ? error.message
+            : String(error),
+        );
+
         setExecutionStatus('error');
       })
       .finally(() => {
-        validationInFlight.current = false;
+        dispatch({
+          type: 'SET_VALIDATING',
+          payload: false,
+        });
+
+        validationInFlight.current =
+          false;
       });
   }, [
     currentStep,
-    execution,
+    ensureTrainingRun,
     pendingAnswer,
-    state.hintsRevealed.length,
     state.isValidating,
+    training,
   ]);
-
-  const execute = useCallback(() => {
-    if (
-      currentStep === null ||
-      currentStep.type !== 'fix-code' ||
-      pendingAnswer === null ||
-      state.isValidating ||
-      validationInFlight.current
-    ) {
-      return;
-    }
-
-    validationInFlight.current = true;
-    setExecutionError(null);
-    setExecutionStatus('running');
-    dispatch({ type: 'SET_VALIDATING', payload: true });
-
-    void execution
-      .executeFixCode(currentStep, pendingAnswer as string)
-      .then((result) => {
-        setExecutionResult(result);
-        setExecutionStatus(result.pass ? 'passed' : 'failed');
-      })
-      .catch((error: unknown) => {
-        setExecutionError(error instanceof Error ? error.message : String(error));
-        setExecutionStatus('error');
-      })
-      .finally(() => {
-        dispatch({ type: 'SET_VALIDATING', payload: false });
-        validationInFlight.current = false;
-      });
-  }, [currentStep, execution, pendingAnswer, state.isValidating]);
 
   const startCompletion = useCallback(() => {
     if (
@@ -300,38 +512,27 @@ export function useSession(sessionId: string): UseSessionResult {
       !isLastStep ||
       !isAnswered ||
       state.answers.length !== session.steps.length ||
-      completionInFlight.current ||
-      completionSucceeded.current
+      state.isComplete
     ) {
       return;
     }
 
-    completionInFlight.current = true;
-    setIsCompleting(true);
+    if (!serverCompletionConfirmed.current) {
+      setCompletionError(
+        'El backend no confirmó la finalización del TrainingRun',
+      );
+      return;
+    }
+
     setCompletionError(null);
-
-    // startTime distingue dos ejecuciones legítimas de la misma sesión y se
-    // conserva en el recovery canónico que implementará T052.
-    const operationId = `${session.id}:${state.startTime}`;
-
-    void Promise.resolve()
-      .then(() =>
-        completion.completeSession(operationId, session, state.answers),
-      )
-      .then(() => {
-        completionSucceeded.current = true;
-        dispatch({ type: 'SET_COMPLETE' });
-      })
-      .catch((reason: unknown) => {
-        setCompletionError(
-          reason instanceof Error ? reason.message : String(reason),
-        );
-      })
-      .finally(() => {
-        completionInFlight.current = false;
-        setIsCompleting(false);
-      });
-  }, [completion, isAnswered, isLastStep, session, state.answers, state.startTime]);
+    dispatch({ type: 'SET_COMPLETE' });
+  }, [
+    isAnswered,
+    isLastStep,
+    session,
+    state.answers.length,
+    state.isComplete,
+  ]);
 
   const next = useCallback(() => {
     if (isLastStep) {
@@ -344,8 +545,8 @@ export function useSession(sessionId: string): UseSessionResult {
     setSelectedError(NO_ERROR_SELECTION);
     setFixCodeDraft(null);
     setExecutionError(null);
-    setExecutionResult(null);
     setExecutionStatus('idle');
+    setHintError(null);
     stepStartedAt.current = Date.now();
   }, [isLastStep, startCompletion]);
 
@@ -363,23 +564,27 @@ export function useSession(sessionId: string): UseSessionResult {
     selectedOptionId,
     selectedError,
     fixCodeDraft,
-    canSubmit: pendingAnswer !== null && !state.isValidating,
+    canSubmit:
+      pendingAnswer !== null
+      && !state.isValidating
+      && !isRevealingHint,
     isAnswered,
     isLastStep,
     executionError,
-    executionResult,
     executionStatus,
-    isCompleting,
+    isCompleting: false,
     completionError,
+    hintError,
+    isRevealingHint,
     recoveryStatus: recovery.recoveryStatus,
     recoverySessionId: recovery.recoverySessionId,
+    recoverySnapshot: recovery.recoverySnapshot,
     storageWarning: recovery.storageWarning,
     select,
     selectError,
     editCode,
     revealHint,
     submit,
-    execute,
     next,
     retryCompletion,
     continueRecovery: recovery.continueRecovery,

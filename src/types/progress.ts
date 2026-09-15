@@ -15,13 +15,17 @@ export interface ErrorRecord {
 
 export interface ConceptProgress {
   conceptId: string;
-  domain: number;
+  /** @deprecated No forma parte del progreso autoritativo del backend. */
+  domain?: number;
   totalAttempts: number;
   correctAttempts: number;
-  difficultyDistribution: DifficultyDistribution;
-  recentErrors: ErrorRecord[];
+  /** @deprecated No forma parte del progreso autoritativo del backend. */
+  difficultyDistribution?: DifficultyDistribution;
+  /** @deprecated No forma parte del progreso autoritativo del backend. */
+  recentErrors?: ErrorRecord[];
   lastPracticed: string;
-  schemaVersion: number;
+  /** @deprecated Solo pertenecía a la persistencia local antigua. */
+  schemaVersion?: number;
 }
 
 export interface Attempt {
@@ -72,14 +76,36 @@ export interface SessionScore {
   domainImpact: DomainImpact;
 }
 
+/**
+ * Proyección mínima y veraz del progreso confirmado por el backend.
+ *
+ * No contiene domain, difficultyDistribution, recentErrors ni schemaVersion
+ * porque el Dashboard API no expone esos datos.
+ */
+export interface ProgressSummary {
+  readonly conceptId: string;
+  readonly totalAttempts: number;
+  readonly correctAttempts: number;
+  readonly lastPracticed: string;
+}
+
 export interface ProgressContextValue {
-  progress: Map<string, ConceptProgress>;
-  updateProgress: (
+  readonly progress: Map<string, ProgressSummary>;
+  readonly isLoading: boolean;
+  readonly error: string | null;
+
+  /**
+   * Compatibilidad temporal para fixtures antiguos.
+   * El provider backend-authoritative no implementa escritura local.
+   */
+  readonly updateProgress?: (
     conceptId: string,
     update: Partial<ConceptProgress>,
   ) => Promise<void>;
-  getConceptDomain: (conceptId: string) => number;
-  resetState?: () => void;
-  isLoading: boolean;
-  error: string | null;
+
+  readonly getConceptDomain?: (
+    conceptId: string,
+  ) => number;
+
+  readonly resetState?: () => void;
 }

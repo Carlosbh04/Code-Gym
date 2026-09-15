@@ -9,6 +9,9 @@ export default defineConfig(
       setupFiles: ['./src/test/setup.ts'],
       globals: true,
       css: true,
+      // Evita que una máquina con muchos cores cree un JSDOM por fichero a la
+      // vez y convierta tests asíncronos sanos en timeouts por saturación.
+      maxWorkers: 4,
     },
   }),
 );

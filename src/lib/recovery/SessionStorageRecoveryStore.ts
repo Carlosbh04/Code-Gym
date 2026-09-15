@@ -54,6 +54,17 @@ function isUserAnswer(value: unknown): value is UserAnswer {
   );
 }
 
+function isRevealedHint(
+  value: unknown,
+): value is SessionRecoverySnapshot['revealedHints'][number] {
+  return (
+    isRecord(value)
+    && isNonNegativeInteger(value.index)
+    && typeof value.text === 'string'
+    && value.text.trim().length > 0
+  );
+}
+
 function normalizeSnapshot(value: unknown): SessionRecoverySnapshot {
   if (!isRecord(value)) {
     throw new SessionRecoveryError(
@@ -64,17 +75,22 @@ function normalizeSnapshot(value: unknown): SessionRecoverySnapshot {
 
   const {
     sessionId,
+    trainingRunId,
     currentStep,
     answers,
     elapsedMs,
-    hintsRevealed,
+    revealedHints,
     startTime,
+    lastActivityAt,
   } = value;
 
   const validHints =
-    Array.isArray(hintsRevealed) &&
-    hintsRevealed.every(isNonNegativeInteger) &&
-    new Set(hintsRevealed).size === hintsRevealed.length;
+    Array.isArray(revealedHints)
+    && revealedHints.every(isRevealedHint)
+    && revealedHints.every(
+      (hint, index) =>
+        hint.index === index,
+    );
   const validAnswers = Array.isArray(answers) && answers.every(isUserAnswer);
   const validPosition =
     validAnswers &&
@@ -84,10 +100,18 @@ function normalizeSnapshot(value: unknown): SessionRecoverySnapshot {
   if (
     typeof sessionId !== 'string' ||
     sessionId.length === 0 ||
+    (
+      trainingRunId !== undefined &&
+      (
+        typeof trainingRunId !== 'string' ||
+        trainingRunId.length === 0
+      )
+    ) ||
     !validPosition ||
     !isNonNegativeFinite(elapsedMs) ||
     !validHints ||
-    !isNonNegativeFinite(startTime)
+    !isNonNegativeFinite(startTime) ||
+    (lastActivityAt !== undefined && !isNonNegativeFinite(lastActivityAt))
   ) {
     throw new SessionRecoveryError(
       'RECOVERY_FAILED',
@@ -97,11 +121,15 @@ function normalizeSnapshot(value: unknown): SessionRecoverySnapshot {
 
   return {
     sessionId,
+    ...(trainingRunId === undefined
+      ? {}
+      : { trainingRunId }),
     currentStep,
     answers,
     elapsedMs,
-    hintsRevealed,
+    revealedHints,
     startTime,
+    ...(lastActivityAt === undefined ? {} : { lastActivityAt }),
   };
 }
 

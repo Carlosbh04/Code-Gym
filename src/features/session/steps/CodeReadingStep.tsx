@@ -23,6 +23,8 @@ export interface CodeReadingStepProps {
   onChange: (optionId: string) => void;
   /** Bloquea la elección, por ejemplo una vez validada la respuesta. */
   disabled?: boolean;
+  /** Veredicto autoritativo recibido del backend para la respuesta elegida. */
+  isCorrect?: boolean;
   className?: string;
 }
 
@@ -31,6 +33,7 @@ export function CodeReadingStep({
   value,
   onChange,
   disabled = false,
+  isCorrect,
   className,
 }: CodeReadingStepProps) {
   const groupName = useId();
@@ -62,7 +65,10 @@ export function CodeReadingStep({
       <ul className="stagger-fade-in-up flex flex-col gap-2">
         {step.options.map((option, index) => {
           const selected = option.id === value;
-          const answeredState = disabled && selected ? option.correct : null;
+          const answeredState =
+            disabled && selected && isCorrect !== undefined
+              ? isCorrect
+              : null;
 
           return (
             <li key={option.id}>

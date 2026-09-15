@@ -36,3 +36,25 @@ bundle-stats.html
 coverage
 playwright-report
 test-results
+
+# Local AI tooling and design explorations
+.claude/
+design-lab/
+
+# Manual/local backups
+.manual-backup-*/
+*.bak
+*.bak-*
+*.backup
+*.backup-*
+*.tmp
+*.temp
+
+# OS / temporary files
+.DS_Store
+Thumbs.db
+
+# Local generated reports
+playwright-report/
+test-results/
+coverage/

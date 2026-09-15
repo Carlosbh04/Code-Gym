@@ -5,7 +5,8 @@ import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
 import type { Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
-import type { Attempt, CompletedSession } from '@/types/progress';
+import type { CompletedSession } from '@/types/progress';
+import type { HistoryAttempt } from '@/types/history';
 import { AnswerReviewList } from './components/AnswerReviewList';
 import { ResultsHero } from './components/ResultsHero';
 import { ResultsProgress } from './components/ResultsProgress';
@@ -21,7 +22,7 @@ type MetadataState =
   | { sessionId: string; status: 'success'; session: ExerciseSession; topic: Topic | null }
   | { sessionId: string; status: 'unavailable' };
 type AttemptsState =
-  | { sessionId: string; status: 'success'; attempts: Attempt[] }
+  | { sessionId: string; status: 'success'; attempts: HistoryAttempt[] }
   | { sessionId: string; status: 'error'; message: string };
 
 const ACTION = 'inline-flex min-h-11 w-full items-center justify-center rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto';

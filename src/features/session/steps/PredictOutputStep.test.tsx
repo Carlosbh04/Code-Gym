@@ -70,7 +70,7 @@ describe('PredictOutputStep (T031)', () => {
       );
 
       expect(container.innerHTML).not.toContain('correct');
-      expect(container.textContent).not.toContain(step.explanation);
+      expect(container.textContent).not.toContain('`map` construye un array nuevo');
     });
   });
 

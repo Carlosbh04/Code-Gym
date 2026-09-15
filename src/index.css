@@ -45,6 +45,7 @@
     --text-primary: 240 20% 95%;      /* #f0f0f5 */
     --text-secondary: 240 12.4% 66.9%;/* #a0a0b5 */
     --text-muted: 240 9.9% 41.8%;     /* #606075 */
+    --state-foreground: 240 20% 95%;
 
     /* Acento (D007) — dos tonos con roles distintos y excluyentes */
     --accent: 238.7 83.5% 66.7%;      /* #6366f1 · marca. NO textual:
@@ -69,6 +70,13 @@
     /* Código */
     --code-bg: 216 28% 7%;            /* #0d1117 */
     --code-border: 215 15.4% 15.3%;   /* #21262d */
+    --code-foreground: 220 20% 92%;
+    --code-surface: 220 20% 13%;
+    --code-muted: 220 12% 66%;
+    --code-accent: 234.5 89.5% 73.9%;
+    --code-success: 142.1 70.6% 45.3%;
+    --code-error: 0 84.2% 60.2%;
+    --code-warning: 37.7 92.1% 50.2%;
 
     /* Tipografía */
     --font-sans: 'Inter', system-ui, sans-serif;
@@ -86,6 +94,7 @@
     --motion-duration-fast: 150ms;
     --motion-duration-normal: 200ms;
     --motion-duration-slow: 300ms;
+    --theme-transition-duration: 140ms;
     --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
     --motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -126,15 +135,49 @@
     --surface-hover-foreground: var(--text-primary);
 
     --destructive: var(--error);
-    --destructive-foreground: var(--text-primary);
+    --destructive-foreground: var(--state-foreground);
 
     --border: var(--bg-elevated);
     --input: var(--bg-elevated);
     --ring: var(--accent);
   }
 
+  :root.light {
+    /* Superficies claras con separación perceptible sin perder densidad. */
+    --bg-primary: 225 40% 98%;
+    --bg-secondary: 0 0% 100%;
+    --bg-tertiary: 230 32% 95%;
+    --bg-surface: 230 24% 92%;
+    --bg-elevated: 230 20% 86%;
+
+    /* Contraste AA sobre las superficies claras. */
+    --text-primary: 235 28% 14%;
+    --text-secondary: 235 14% 38%;
+    --text-muted: 235 10% 52%;
+    --state-foreground: 0 0% 100%;
+
+    /* El tono interactivo se oscurece para conservar contraste en light. */
+    --accent: 239 84% 67%;
+    --accent-text: 243 75% 52%;
+
+    --success: 142 72% 34%;
+    --error: 0 72% 51%;
+    --warning: 32 95% 44%;
+    --celebration-pink: 326 70% 48%;
+
+    /* Las superficies de código permanecen oscuras deliberadamente. */
+    --code-bg: 222 24% 10%;
+    --code-border: 220 16% 24%;
+    --code-foreground: 220 20% 92%;
+    --code-surface: 220 20% 16%;
+  }
+
   * {
     @apply border-border;
+  }
+
+  html {
+    @apply bg-background;
   }
 
   body {
@@ -161,6 +204,37 @@
   }
 }
 
+/* Solo se activa al cambiar un tema ya pintado; el bootstrap inicial no
+   añade esta clase y por tanto no introduce flash ni animación de entrada.
+
+   Se limitan los candidatos a quienes consumen tokens visuales de Tailwind.
+   Evitar el selector universal impide animar cientos de nodos internos
+   (especialmente CodeMirror) y quitar shadow/fill/stroke evita colas de
+   composición que hacían que algunas superficies parecieran llegar tarde. */
+html.theme-transition,
+html.theme-transition body,
+html.theme-transition :where(
+  [class*='bg-'],
+  [class*='text-'],
+  [class*='border-']
+),
+html.theme-transition :where(
+  [class*='bg-'],
+  [class*='text-'],
+  [class*='border-']
+)::before,
+html.theme-transition :where(
+  [class*='bg-'],
+  [class*='text-'],
+  [class*='border-']
+)::after,
+html.theme-transition :where(input, textarea)::placeholder {
+  transition-property: background-color, border-color, color;
+  transition-duration: var(--theme-transition-duration);
+  transition-timing-function: var(--motion-ease-standard);
+  transition-delay: 0ms;
+}
+
 /* Editor de código. CodeMirror inyecta su tema como .cm-editor.<hash>, con la
    misma especificidad que cualquier regla nuestra, así que el orden de
    inyección decidía el fondo. Repetir la clase sube la especificidad y hace
@@ -168,38 +242,39 @@
 .codegym-editor .cm-editor.cm-editor,
 .codegym-editor .cm-gutters {
   background-color: hsl(var(--code-bg));
+  color: hsl(var(--code-foreground));
 }
 
 /* Resaltado de código. Consume primitivas de forma justificada: son tonos del
    sistema §12 sin equivalente en la capa semántica de shadcn. */
 .codegym-code .hljs-comment {
-  color: hsl(var(--text-muted));
+  color: hsl(var(--code-muted));
 }
 .codegym-code .hljs-keyword,
 .codegym-code .hljs-selector-tag,
 .codegym-code .hljs-name {
-  color: hsl(var(--accent-text));
+  color: hsl(var(--code-accent));
 }
 .codegym-code .hljs-string,
 .codegym-code .hljs-regexp,
 .codegym-code .hljs-addition {
-  color: hsl(var(--success));
+  color: hsl(var(--code-success));
 }
 .codegym-code .hljs-number,
 .codegym-code .hljs-literal,
 .codegym-code .hljs-boolean {
-  color: hsl(var(--warning));
+  color: hsl(var(--code-warning));
 }
 .codegym-code .hljs-title,
 .codegym-code .hljs-function,
 .codegym-code .hljs-built_in,
 .codegym-code .hljs-type {
-  color: hsl(var(--text-primary));
+  color: hsl(var(--code-foreground));
 }
 .codegym-code .hljs-params,
 .codegym-code .hljs-attr,
 .codegym-code .hljs-property {
-  color: hsl(var(--text-secondary));
+  color: hsl(var(--code-muted));
 }
 
 /* T072: utilitario para entradas escalonadas. La animación base está en

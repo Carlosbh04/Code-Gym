@@ -1,10 +1,16 @@
 import { type ReactNode } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
+import { HistoryContext } from '@/contexts/history-context';
 import { ProgressContext } from '@/contexts/progress-context';
-import type { ContentContextValue, Technology, Topic } from '@/types/content';
+import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
+import { FakeSessionRecoveryStore } from '@/test/fake-session-recovery';
+import type { Concept, ContentContextValue, Technology, Topic } from '@/types/content';
+import type { ExerciseSession } from '@/types/exercise';
+import type { HistoryContextValue } from '@/types/history';
+import type { CompletedSession, ConceptProgress, ProgressContextValue } from '@/types/progress';
 import TechnologyPage from './TechnologyPage';
 
 const JAVASCRIPT: Technology = {
@@ -36,33 +42,128 @@ const TOPICS: Topic[] = [
   },
 ];
 
+const STATUS_TOPICS: Topic[] = [
+  TOPICS[0],
+  TOPICS[1],
+  {
+    id: 'closures',
+    name: 'Closures',
+    technologyId: 'javascript',
+    description: 'Practica el estado capturado por funciones internas.',
+  },
+];
+
+const STATUS_CONCEPTS: Concept[] = STATUS_TOPICS.map((topic) => ({
+  id: `${topic.id}-concept`,
+  name: `Concepto de ${topic.name}`,
+  topicId: topic.id,
+  technologyId: 'javascript',
+  contentMarkdown: `# ${topic.name}`,
+}));
+
+function sessionFor(concept: Concept): ExerciseSession {
+  return {
+    id: `${concept.id}-session`,
+    title: `Práctica de ${concept.name}`,
+    conceptId: concept.id,
+    technologyId: 'javascript',
+    difficulty: 'beginner',
+    version: '1.0.0',
+    status: 'published',
+    createdAt: '2026-09-01',
+    updatedAt: null,
+    steps: [{
+      id: `${concept.id}-step`,
+      type: 'code-reading',
+      prompt: 'Lee el código.',
+      code: 'const value = 1;',
+      language: 'javascript',
+      options: [],
+      requirements: [],
+      hintCount: 0,
+      stepOrder: 1,
+    }],
+  };
+}
+
+const STATUS_SESSIONS = STATUS_CONCEPTS.map(sessionFor);
+
+function progressFor(conceptId: string): ConceptProgress {
+  return {
+    conceptId,
+    domain: 0,
+    totalAttempts: 2,
+    correctAttempts: 1,
+    difficultyDistribution: {
+      beginner: { total: 2, correct: 1 },
+      intermediate: { total: 0, correct: 0 },
+      advanced: { total: 0, correct: 0 },
+    },
+    recentErrors: [],
+    lastPracticed: '2026-09-06T10:00:00.000Z',
+    schemaVersion: 1,
+  };
+}
+
 function renderTechnologyPage({
   technologyId = 'javascript',
   technologies = [JAVASCRIPT],
   isLoading = false,
   getTopics = vi.fn().mockResolvedValue(TOPICS),
+  getConceptsByTopic = vi.fn().mockResolvedValue([]),
+  getSessionsByConcept = vi.fn().mockResolvedValue([]),
+  progress = new Map<string, ConceptProgress>(),
+  getCompletedSession = vi.fn().mockResolvedValue(null),
+  initialSearch = '',
+  recoveryStore = new FakeSessionRecoveryStore(),
 }: {
   technologyId?: string;
   technologies?: Technology[];
   isLoading?: boolean;
   getTopics?: ContentContextValue['getTopics'];
+  getConceptsByTopic?: ContentContextValue['getConceptsByTopic'];
+  getSessionsByConcept?: ContentContextValue['getSessionsByConcept'];
+  progress?: Map<string, ConceptProgress>;
+  getCompletedSession?: HistoryContextValue['getCompletedSession'];
+  initialSearch?: string;
+  recoveryStore?: FakeSessionRecoveryStore;
 } = {}) {
   const content: ContentContextValue = {
     technologies,
     isLoading,
     getTechnology: (id) => technologies.find((technology) => technology.id === id),
     getTopics,
-    getConceptsByTopic: vi.fn().mockResolvedValue([]),
+    getConceptsByTopic,
     getConcept: vi.fn(),
-    getSessionsByConcept: vi.fn().mockResolvedValue([]),
+    getSessionsByConcept,
     getSession: vi.fn(),
+  };
+  const progressValue: ProgressContextValue = {
+    progress,
+    updateProgress: vi.fn(),
+    getConceptDomain: (conceptId) => progress.get(conceptId)?.domain ?? 0,
+    isLoading: false,
+    error: null,
+  };
+  const historyValue: HistoryContextValue = {
+    recentCompletedSessions: [],
+    completedSessionsLoading: false,
+    completedSessionsError: null,
+    getCompletedSession,
+    getAttemptsBySession: vi.fn().mockResolvedValue([]),
+    attemptsLoading: false,
+    attemptsError: null,
   };
   const wrapper = ({ children }: { children: ReactNode }) => (
     <ContentContext.Provider value={content}>
-      <ProgressContext.Provider value={{ progress: new Map(), updateProgress: vi.fn(), getConceptDomain: vi.fn(), isLoading: false, error: null }}>
-        <MemoryRouter initialEntries={[`/tech/${technologyId}`]}>
-          <main><Routes><Route path="/tech/:technologyId" element={children} /></Routes></main>
-        </MemoryRouter>
+      <ProgressContext.Provider value={progressValue}>
+        <HistoryContext.Provider value={historyValue}>
+          <SessionRecoveryContext.Provider value={recoveryStore}>
+            <MemoryRouter initialEntries={[`/tech/${technologyId}${initialSearch}`]}>
+              <main><Routes><Route path="/tech/:technologyId" element={children} /></Routes></main>
+            </MemoryRouter>
+          </SessionRecoveryContext.Provider>
+        </HistoryContext.Provider>
       </ProgressContext.Provider>
     </ContentContext.Provider>
   );
@@ -156,7 +257,7 @@ describe('TechnologyPage (T056)', () => {
     });
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'No pudimos cargar los temas de esta tecnología. índice inaccesible',
+      'No pudimos cargar esta tecnología. índice inaccesible',
     );
     expect(
       screen.queryByRole('heading', { level: 3, name: 'Todavía no hay temas disponibles' }),
@@ -184,5 +285,235 @@ describe('TechnologyPage (T056)', () => {
     expect(within(topics).getByRole('list')).toBeInTheDocument();
     expect(within(topics).getAllByRole('listitem')).toHaveLength(2);
     expect(within(topics).getAllByRole('link')).toHaveLength(2);
+  });
+
+  it('deriva resumen, siguiente práctica y estados desde progreso e historial reales', async () => {
+    const completed: CompletedSession = {
+      id: 'completed-arrays',
+      sessionId: STATUS_SESSIONS[0].id,
+      technologyId: 'javascript',
+      conceptId: STATUS_CONCEPTS[0].id,
+      totalSteps: 1,
+      correctSteps: 1,
+      accuracy: 100,
+      timeSpentMs: 30_000,
+      completedAt: '2026-09-06T10:00:00.000Z',
+    };
+    const progress = new Map([
+      [STATUS_CONCEPTS[1].id, progressFor(STATUS_CONCEPTS[1].id)],
+    ]);
+
+    renderTechnologyPage({
+      getTopics: vi.fn().mockResolvedValue(STATUS_TOPICS),
+      getConceptsByTopic: vi.fn(async (topicId) =>
+        STATUS_CONCEPTS.filter((concept) => concept.topicId === topicId),
+      ),
+      getSessionsByConcept: vi.fn(async (conceptId) =>
+        STATUS_SESSIONS.filter((session) => session.conceptId === conceptId),
+      ),
+      progress,
+      getCompletedSession: vi.fn(async (sessionId) =>
+        sessionId === STATUS_SESSIONS[0].id ? completed : null,
+      ),
+    });
+
+    const summary = await screen.findByRole('region', {
+      name: 'Resumen de progreso en JavaScript',
+    });
+    expect(within(summary).getByText('33%')).toBeInTheDocument();
+    expect(summary).toHaveTextContent('1 / 3');
+    expect(within(summary).getByText(STATUS_SESSIONS[1].title)).toBeInTheDocument();
+    expect(within(summary).getByRole('link', { name: /Continuar/i })).toHaveAttribute(
+      'href',
+      `/practice/${STATUS_SESSIONS[1].id}`,
+    );
+
+    const topics = screen.getByRole('region', { name: 'Temas de JavaScript' });
+    expect(within(topics).getByText('Completado')).toBeInTheDocument();
+    expect(within(topics).getByText('En progreso')).toBeInTheDocument();
+    expect(within(topics).getByText('Pendiente')).toBeInTheDocument();
+    expect(within(topics).getAllByText('1 ejercicio')).toHaveLength(3);
+
+    const arraysProgress = within(topics).getByRole('progressbar', {
+      name: 'Progreso de Arrays',
+    });
+    expect(arraysProgress).toHaveAttribute('aria-valuenow', '1');
+    expect(arraysProgress).toHaveAttribute(
+      'aria-valuetext',
+      '1 de 1 concepto completado',
+    );
+  });
+
+  it('expone las tres secciones como enlaces y activa Temas por defecto', async () => {
+    renderTechnologyPage();
+
+    await screen.findByRole('link', { name: /Arrays/i });
+    const tabs = screen.getByRole('navigation', { name: 'Secciones de tecnología' });
+    expect(within(tabs).getByRole('link', { name: 'Temas' })).toHaveAttribute('aria-current', 'page');
+    expect(within(tabs).getByRole('link', { name: 'Ejercicios' })).toHaveAttribute('href', '/tech/javascript?tab=exercises');
+    expect(within(tabs).getByRole('link', { name: 'Resultados' })).toHaveAttribute('href', '/tech/javascript?tab=results');
+  });
+
+  it('respeta el tab explícito y hace fallback a Temas con un valor inválido', async () => {
+    const exercises = renderTechnologyPage({ initialSearch: '?tab=exercises' });
+    const tabs = await screen.findByRole('navigation', { name: 'Secciones de tecnología' });
+    expect(within(tabs).getByRole('link', { name: 'Ejercicios' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('heading', { name: 'Ejercicios de JavaScript' })).toBeInTheDocument();
+    exercises.unmount();
+
+    renderTechnologyPage({ initialSearch: '?tab=desconocido' });
+    const fallbackTabs = await screen.findByRole('navigation', { name: 'Secciones de tecnología' });
+    expect(within(fallbackTabs).getByRole('link', { name: 'Temas' })).toHaveAttribute('aria-current', 'page');
+    expect(await screen.findByRole('region', { name: 'Temas de JavaScript' })).toBeInTheDocument();
+  });
+
+  it('deriva estados, recuperación, CTAs y filtros de Ejercicios desde datos reales', async () => {
+    const completed: CompletedSession = {
+      id: 'completed-arrays',
+      sessionId: STATUS_SESSIONS[0].id,
+      technologyId: 'javascript',
+      conceptId: STATUS_CONCEPTS[0].id,
+      totalSteps: 1,
+      correctSteps: 1,
+      accuracy: 100,
+      timeSpentMs: 30_000,
+      completedAt: '2026-09-06T10:00:00.000Z',
+    };
+    const recoveryStore = new FakeSessionRecoveryStore();
+    recoveryStore.snapshot = {
+      sessionId: STATUS_SESSIONS[1].id,
+      currentStep: 0,
+      answers: [],
+      elapsedMs: 4_000,
+      revealedHints: [],
+      startTime: 1,
+    };
+    const getCompletedSession = vi.fn(async (sessionId: string) =>
+      sessionId === STATUS_SESSIONS[0].id ? completed : null,
+    );
+
+    renderTechnologyPage({
+      initialSearch: '?tab=exercises',
+      getTopics: vi.fn().mockResolvedValue(STATUS_TOPICS),
+      getConceptsByTopic: vi.fn(async (topicId) =>
+        STATUS_CONCEPTS.filter((concept) => concept.topicId === topicId),
+      ),
+      getSessionsByConcept: vi.fn(async (conceptId) =>
+        STATUS_SESSIONS.filter((session) => session.conceptId === conceptId),
+      ),
+      getCompletedSession,
+      recoveryStore,
+    });
+
+    const exercises = await screen.findByRole('region', { name: 'Ejercicios de JavaScript' });
+    expect(within(exercises).getByText('Completado')).toBeInTheDocument();
+    expect(within(exercises).getAllByText('En progreso')).toHaveLength(2);
+    expect(within(exercises).getByText('Disponible')).toBeInTheDocument();
+    expect(within(exercises).getByText('1/1 ejercicios')).toBeInTheDocument();
+    expect(within(exercises).getByRole('link', { name: /Repetir/i })).toHaveAttribute('href', `/practice/${STATUS_SESSIONS[0].id}`);
+    expect(within(exercises).getByRole('link', { name: 'Ver resultado' })).toHaveAttribute('href', `/results/${STATUS_SESSIONS[0].id}`);
+    expect(within(exercises).getByRole('link', { name: /Continuar/i })).toHaveAttribute('href', `/practice/${STATUS_SESSIONS[1].id}`);
+    expect(within(exercises).getByRole('link', { name: /Empezar/i })).toHaveAttribute('href', `/practice/${STATUS_SESSIONS[2].id}`);
+    expect(getCompletedSession).toHaveBeenCalledTimes(3);
+
+    fireEvent.click(within(exercises).getByRole('button', { name: 'Completados' }));
+    expect(within(exercises).getByText(STATUS_SESSIONS[0].title)).toBeInTheDocument();
+    expect(within(exercises).queryByText(STATUS_SESSIONS[1].title)).not.toBeInTheDocument();
+    expect(within(exercises).getByRole('button', { name: 'Completados' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('pagina los ejercicios filtrados de ocho en ocho y reinicia al cambiar filtro', async () => {
+    const topic = STATUS_TOPICS[0];
+    const concept = STATUS_CONCEPTS[0];
+    const paginatedSessions = Array.from({ length: 10 }, (_, index) => ({
+      ...sessionFor(concept),
+      id: `pagination-session-${index + 1}`,
+      title: `Sesión paginada ${index + 1}`,
+    }));
+
+    renderTechnologyPage({
+      initialSearch: '?tab=exercises&page=2',
+      getTopics: vi.fn().mockResolvedValue([topic]),
+      getConceptsByTopic: vi.fn().mockResolvedValue([concept]),
+      getSessionsByConcept: vi.fn().mockResolvedValue(paginatedSessions),
+    });
+
+    const exercises = await screen.findByRole('region', { name: 'Ejercicios de JavaScript' });
+    const pagination = within(exercises).getByRole('navigation', { name: 'Paginación de ejercicios' });
+    expect(within(exercises).getAllByRole('article')).toHaveLength(2);
+    expect(within(exercises).getByText('Sesión paginada 9')).toBeInTheDocument();
+    expect(pagination).toHaveTextContent('Mostrando 9–10 de 10 ejercicios');
+    expect(within(exercises).getByRole('button', { name: 'Ir a la página 2' })).toHaveAttribute('aria-current', 'page');
+    expect(within(exercises).getByRole('button', { name: 'Página siguiente' })).toBeDisabled();
+
+    fireEvent.click(within(exercises).getByRole('button', { name: 'Página anterior' }));
+    expect(await within(exercises).findByText('Sesión paginada 1')).toBeInTheDocument();
+    expect(within(exercises).getAllByRole('article')).toHaveLength(8);
+    expect(within(exercises).queryByText('Sesión paginada 9')).not.toBeInTheDocument();
+
+    fireEvent.click(within(exercises).getByRole('button', { name: 'Completados' }));
+    expect(within(exercises).getByText('No hay ejercicios completados todavía')).toBeInTheDocument();
+    expect(within(exercises).queryByRole('navigation', { name: 'Paginación de ejercicios' })).not.toBeInTheDocument();
+
+    fireEvent.click(within(exercises).getByRole('button', { name: 'Todos' }));
+    expect(await within(exercises).findByText('Sesión paginada 1')).toBeInTheDocument();
+    expect(within(exercises).queryByText('Sesión paginada 9')).not.toBeInTheDocument();
+  });
+
+  it('muestra resultados persistidos con métricas honestas y enlaces de detalle', async () => {
+    const completed: CompletedSession = {
+      id: 'completed-arrays',
+      sessionId: STATUS_SESSIONS[0].id,
+      technologyId: 'javascript',
+      conceptId: STATUS_CONCEPTS[0].id,
+      totalSteps: 5,
+      correctSteps: 4,
+      accuracy: 80,
+      timeSpentMs: 90_000,
+      completedAt: '2026-09-06T10:00:00.000Z',
+    };
+
+    renderTechnologyPage({
+      initialSearch: '?tab=results',
+      getTopics: vi.fn().mockResolvedValue(STATUS_TOPICS),
+      getConceptsByTopic: vi.fn(async (topicId) =>
+        STATUS_CONCEPTS.filter((concept) => concept.topicId === topicId),
+      ),
+      getSessionsByConcept: vi.fn(async (conceptId) =>
+        STATUS_SESSIONS.filter((session) => session.conceptId === conceptId),
+      ),
+      progress: new Map([[STATUS_CONCEPTS[0].id, progressFor(STATUS_CONCEPTS[0].id)]]),
+      getCompletedSession: vi.fn(async (sessionId) =>
+        sessionId === STATUS_SESSIONS[0].id ? completed : null,
+      ),
+    });
+
+    const results = await screen.findByRole('region', { name: 'Resultados de JavaScript' });
+    const summary = within(results).getByLabelText('Resumen de resultados en JavaScript');
+    expect(summary).toHaveTextContent('Resultados guardados1');
+    expect(summary).toHaveTextContent('Precisión media80%');
+    expect(summary).toHaveTextContent('Conceptos practicados1 / 3');
+    expect(summary).toHaveTextContent('Tiempo registrado1 min 30 s');
+    expect(within(results).getByText('4/5')).toBeInTheDocument();
+    expect(within(results).getByRole('link', { name: /Ver resultado/i })).toHaveAttribute('href', `/results/${STATUS_SESSIONS[0].id}`);
+    expect(within(results).getByRole('link', { name: /Revisar/i })).toHaveAttribute('href', `/review/${STATUS_SESSIONS[0].id}`);
+  });
+
+  it('distingue historial vacío de un fallo al consultar resultados', async () => {
+    const empty = renderTechnologyPage({ initialSearch: '?tab=results' });
+    expect(await screen.findByRole('heading', { name: 'Todavía no tienes resultados de JavaScript' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Explorar ejercicios' })).toHaveAttribute('href', '/tech/javascript?tab=exercises');
+    empty.unmount();
+
+    renderTechnologyPage({
+      initialSearch: '?tab=results',
+      getTopics: vi.fn().mockResolvedValue([STATUS_TOPICS[0]]),
+      getConceptsByTopic: vi.fn().mockResolvedValue([STATUS_CONCEPTS[0]]),
+      getSessionsByConcept: vi.fn().mockResolvedValue([STATUS_SESSIONS[0]]),
+      getCompletedSession: vi.fn().mockRejectedValue(new Error('historial inaccesible')),
+    });
+    expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo consultar el resultado de 1 sesión');
+    expect(screen.getByRole('heading', { name: 'No pudimos cargar resultados verificables' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Explorar ejercicios' })).not.toBeInTheDocument();
   });
 });

@@ -1,20 +1,26 @@
-import { NavLink } from 'react-router-dom';
+import { useContext } from 'react';
+import { ContentContext } from '@/contexts/content-context';
+import { SearchPopover } from '@/components/search/SearchPopover';
+import { ThemeMenu } from '@/components/theme/ThemeMenu';
+import { UserMenu } from '@/components/layout/UserMenu';
 
-import { NAV_ITEMS } from '@/components/layout/navigation';
-import { cn } from '@/lib/utils';
-
-/** Navegación horizontal funcional para tablet y desktop. */
+/** Utilidades e identidad local; la navegación vive en Sidebar/MobileNav. */
 export function TopBar() {
+  const content = useContext(ContentContext);
+
   return (
-    <header className="sticky top-0 z-40 hidden h-16 border-b border-border bg-background/95 px-6 backdrop-blur sm:flex sm:items-center lg:px-10">
-      <nav aria-label="Navegación principal" className="flex min-w-0 items-center gap-1">
-        <span className="mr-5 text-sm font-bold tracking-tight text-primary lg:hidden">CodeGym</span>
-        {NAV_ITEMS.map((item) => (
-          <NavLink key={item.to} to={item.to} end={item.to === '/'} className={({ isActive }) => cn('inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background', isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
+    <header aria-label="Barra de usuario" className="sticky top-0 z-40 flex h-14 w-full shrink-0 items-center border-b border-border bg-background/95 px-4 backdrop-blur sm:h-16 sm:px-6 lg:px-8">
+      <span className="text-sm font-bold tracking-tight text-primary sm:hidden">CodeGym</span>
+
+      <div className="ml-auto flex min-w-0 items-center gap-2.5 sm:gap-3 md:ml-0 md:w-full">
+        <SearchPopover content={content} />
+
+        <span aria-hidden="true" className="hidden h-8 w-px bg-border md:ml-auto md:block" />
+
+        <ThemeMenu />
+
+        <UserMenu />
+      </div>
     </header>
   );
 }

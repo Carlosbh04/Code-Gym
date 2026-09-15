@@ -49,7 +49,7 @@ type RecoveryStateFields = Pick<
   | 'currentStep'
   | 'answers'
   | 'elapsedMs'
-  | 'hintsRevealed'
+  | 'revealedHints'
   | 'startTime'
 >;
 
@@ -57,6 +57,7 @@ export interface SessionRecoveryController {
   session: ExerciseSession | null;
   recoveryStatus: RecoveryStatus;
   recoverySessionId: string | null;
+  recoverySnapshot: SessionRecoverySnapshot | null;
   storageWarning: SessionStorageWarning | null;
   continueRecovery: () => void;
   startNewSession: () => void;
@@ -67,8 +68,12 @@ export interface SessionRecoveryController {
 interface SessionRecoveryControllerOptions {
   requestedSessionId: string;
   state: SessionState;
+  trainingRunId: string | null;
   dispatch: Dispatch<SessionAction>;
-  onSessionReady: (resumedAt: number) => void;
+  onSessionReady: (
+    resumedAt: number,
+    trainingRunId: string | null,
+  ) => void;
 }
 
 /**
@@ -80,6 +85,7 @@ interface SessionRecoveryControllerOptions {
 export function useSessionRecoveryController({
   requestedSessionId,
   state,
+  trainingRunId,
   dispatch,
   onSessionReady,
 }: SessionRecoveryControllerOptions): SessionRecoveryController {
@@ -130,16 +136,21 @@ export function useSessionRecoveryController({
 
   const snapshotOf = useCallback((current: RecoveryStateFields) => {
     const clock = activeClock.current;
+    const now = Date.now();
     return {
       sessionId: current.sessionId,
+      ...(trainingRunId === null
+        ? {}
+        : { trainingRunId }),
       currentStep: current.currentStep,
       answers: current.answers,
       elapsedMs:
-        clock.accumulatedMs + Math.max(0, Date.now() - clock.resumedAt),
-      hintsRevealed: current.hintsRevealed,
+        clock.accumulatedMs + Math.max(0, now - clock.resumedAt),
+      revealedHints: current.revealedHints,
       startTime: current.startTime,
+      lastActivityAt: now,
     } satisfies SessionRecoverySnapshot;
-  }, []);
+  }, [trainingRunId]);
 
   useEffect(() => {
     if (handledRoute.current === requestedSessionId) return;
@@ -243,7 +254,10 @@ export function useSessionRecoveryController({
         });
         dispatch({ type: 'RESTORE', payload: nextState });
         completionCleanupAttempted.current = false;
-        onSessionReady(now);
+        onSessionReady(
+          now,
+          restored?.trainingRunId ?? null,
+        );
         setLoadPlan(null);
       })
       .catch((error: unknown) => {
@@ -297,7 +311,7 @@ export function useSessionRecoveryController({
       currentStep: state.currentStep,
       answers: state.answers,
       elapsedMs: state.elapsedMs,
-      hintsRevealed: state.hintsRevealed,
+      revealedHints: state.revealedHints,
       startTime: state.startTime,
     });
     let active = true;
@@ -319,12 +333,13 @@ export function useSessionRecoveryController({
     state.answers,
     state.currentStep,
     state.elapsedMs,
-    state.hintsRevealed,
+    state.revealedHints,
     state.isComplete,
     state.sessionId,
     state.startTime,
     status,
     store,
+    trainingRunId,
   ]);
 
   useEffect(() => {
@@ -424,6 +439,7 @@ export function useSessionRecoveryController({
     session,
     recoveryStatus: status,
     recoverySessionId: pending?.sessionId ?? null,
+    recoverySnapshot: pending,
     storageWarning: warning,
     continueRecovery,
     startNewSession,
@@ -462,6 +478,10 @@ function canRestore(
   const current = session.steps[snapshot.currentStep];
   return (
     current !== undefined &&
-    snapshot.hintsRevealed.every((index) => index < current.hints.length)
+    snapshot.revealedHints.every(
+      (hint, index) =>
+        hint.index === index
+        && hint.index < current.hintCount,
+    )
   );
 }

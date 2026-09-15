@@ -15,6 +15,7 @@ export interface TechnologyProgress {
   totalAttempts: number;
   correctAttempts: number;
   accuracy: number | undefined;
+  lastPracticedAt: string | undefined;
 }
 
 export interface DashboardActivity {

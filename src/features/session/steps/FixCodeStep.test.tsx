@@ -52,10 +52,8 @@ describe('FixCodeStep (T041)', () => {
         <FixCodeStep step={step} value={null} onChange={() => {}} />,
       );
 
-      expect(container.textContent).not.toContain(step.explanation);
-      for (const test of step.testCases!) {
-        expect(container.textContent).not.toContain(test.description);
-      }
+      expect(container.textContent).not.toContain('Basta con cambiar `forEach` por `map`');
+      expect(container.textContent).not.toContain('dobles(input)');
     });
   });
 

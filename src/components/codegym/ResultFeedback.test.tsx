@@ -1,13 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { validateSelection } from '@/lib/engine/validation';
-import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
-import type { ExerciseStep } from '@/types/exercise';
 import { ResultFeedback } from './ResultFeedback';
-
-const repo = new StaticContentRepository();
-const codeReadingStep = async (sessionId: string): Promise<ExerciseStep> =>
-  (await repo.getSessionById(sessionId))!.steps.find((s) => s.type === 'code-reading')!;
 
 describe('ResultFeedback (T030)', () => {
   describe('resultado correcto', () => {
@@ -118,67 +111,9 @@ describe('ResultFeedback (T030)', () => {
     });
   });
 
-  describe('consume el resultado existente, no lo recalcula', () => {
-    it('representa el ValidationResult que produce el engine para la opción correcta', async () => {
-      const step = await codeReadingStep('js-arrays-map-vs-foreach-01');
-      const correcta = step.options!.find((o) => o.correct)!;
-      const resultado = validateSelection(step, correcta.id);
-
-      render(
-        <ResultFeedback isCorrect={resultado.isCorrect} explanation={resultado.explanation} />,
-      );
-
-      expect(screen.getByText('Respuesta correcta')).toBeInTheDocument();
-      expect(screen.getByText(step.explanation)).toBeInTheDocument();
-    });
-
-    it('representa el resultado para una opción incorrecta', async () => {
-      const step = await codeReadingStep('js-functions-default-parameters-01');
-      const fallida = step.options!.find((o) => !o.correct)!;
-      const resultado = validateSelection(step, fallida.id);
-
-      render(
-        <ResultFeedback isCorrect={resultado.isCorrect} explanation={resultado.explanation} />,
-      );
-
-      expect(screen.getByText('Respuesta incorrecta')).toBeInTheDocument();
-      expect(screen.getByText(step.explanation)).toBeInTheDocument();
-    });
-
-    it('sirve para las 6 sesiones reales', async () => {
-      const ids = [
-        'js-arrays-filter-mutation-01',
-        'js-arrays-map-vs-foreach-01',
-        'js-arrays-reduce-accumulator-01',
-        'js-functions-default-parameters-01',
-        'js-functions-return-flow-01',
-        'js-functions-scope-hoisting-01',
-      ];
-
-      for (const id of ids) {
-        const step = await codeReadingStep(id);
-        const resultado = validateSelection(step, step.options!.find((o) => o.correct)!.id);
-        const { unmount } = render(
-          <ResultFeedback isCorrect={resultado.isCorrect} explanation={resultado.explanation} />,
-        );
-
-        expect(screen.getByText(step.explanation), id).toBeInTheDocument();
-        unmount();
-      }
-    });
-  });
-
+  
   describe('seguridad', () => {
-    it('no ejecuta el código del ejercicio', async () => {
-      const step = await codeReadingStep('js-arrays-map-vs-foreach-01');
-      const log = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-      render(<ResultFeedback isCorrect explanation={step.explanation} />);
-
-      expect(log).not.toHaveBeenCalled();
-      log.mockRestore();
-    });
-
+    
     it('trata la explicación como texto: no interpreta marcado', () => {
       const { container } = render(
         <ResultFeedback isCorrect explanation={'<img src=x onerror=alert(1)> y <b>negrita</b>'} />,

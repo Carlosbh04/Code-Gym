@@ -10,7 +10,7 @@ import type { HistoryContextValue } from '@/types/history';
 import type { Attempt } from '@/types/progress';
 import ReviewPage from './ReviewPage';
 
-const step = (id: string, prompt: string, type: ExerciseStep['type'] = 'code-reading'): ExerciseStep => ({ id, type, prompt, code: 'const value = 1;', language: 'javascript', options: [{ id: `${id}-a`, text: 'undefined', correct: true }, { id: `${id}-b`, text: '1', correct: false }], errorLines: null, errorType: null, testCases: null, expectedPatterns: null, explanation: `${prompt} explicación.`, hints: [], stepOrder: 1 });
+const step = (id: string, prompt: string, type: ExerciseStep['type'] = 'code-reading'): ExerciseStep => ({ id, type, prompt, code: 'const value = 1;', language: 'javascript', options: [{ id: `${id}-a`, text: 'undefined' }, { id: `${id}-b`, text: '1' }], requirements: [], hintCount: 0, stepOrder: 1 });
 const FIRST = step('step-first', 'Primer prompt');
 const SECOND = step('step-second', 'Segundo prompt', 'predict-output');
 const SESSION: ExerciseSession = { id: 'session-1', title: 'map frente a forEach', conceptId: 'js-array-iteration', technologyId: 'javascript', difficulty: 'beginner', version: '1', status: 'published', createdAt: '2026-09-01T10:00:00.000Z', updatedAt: null, steps: [FIRST, SECOND] };

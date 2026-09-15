@@ -13,12 +13,8 @@ const step = (n: number): ExerciseStep => ({
   code: null,
   language: null,
   options: null,
-  errorLines: null,
-  errorType: null,
-  testCases: null,
-  expectedPatterns: null,
-  explanation: `explicación ${n}`,
-  hints: [],
+  requirements: [],
+  hintCount: 0,
   stepOrder: n,
 });
 

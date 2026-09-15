@@ -7,7 +7,7 @@ import { HistoryContext } from '@/contexts/history-context';
 import { ProgressContext } from '@/contexts/progress-context';
 import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
 import type { Concept, ContentContextValue, Technology, Topic } from '@/types/content';
-import type { ExerciseSession } from '@/types/exercise';
+import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
 import type { HistoryContextValue } from '@/types/history';
 import type { CompletedSession, ConceptProgress, ProgressContextValue } from '@/types/progress';
 import type { ISessionRecoveryStore, SessionRecoverySnapshot } from '@/lib/recovery/ISessionRecoveryStore';
@@ -51,10 +51,32 @@ const CONCEPTS: Concept[] = [
   },
 ];
 
+const STEP: ExerciseStep = {
+  id: 'step-1',
+  type: 'predict-output',
+  prompt: '¿Qué devuelve?',
+  code: '[1, 2].map((value) => value * 2)',
+  language: 'javascript',
+  options: [
+    { id: 'a', text: '[2, 4]' },
+    { id: 'b', text: '[1, 2]' },
+  ],
+  requirements: [],
+  hintCount: 0,
+  stepOrder: 1,
+};
+
+const SECOND_STEP: ExerciseStep = {
+  ...STEP,
+  id: 'step-2',
+  prompt: '¿Qué método filtra?',
+  stepOrder: 2,
+};
+
 const ARRAY_SESSION: ExerciseSession = {
   id: 'arrays-01', title: 'Practica iteración', conceptId: 'array-iteration',
   technologyId: 'javascript', difficulty: 'beginner', version: '1.0.0',
-  status: 'published', createdAt: '2026-09-01', updatedAt: null, steps: [],
+  status: 'published', createdAt: '2026-09-01', updatedAt: null, steps: [STEP, SECOND_STEP],
 };
 
 const COMPLETED_SESSION: CompletedSession = {
@@ -174,6 +196,35 @@ describe('TopicPage (T057)', () => {
     ]);
   });
 
+  it('renderiza el LearningContent estructurado real sin convertirlo en texto genérico', async () => {
+    const structuredConcept: Concept = {
+      ...CONCEPTS[0],
+      content: {
+        sections: [
+          { type: 'intro', title: 'Qué vas a aprender', body: 'Transformar colecciones sin mutarlas.' },
+          { type: 'objectives', title: 'Objetivos', items: ['Elegir map o filter'] },
+          { type: 'code', title: 'Ejemplo', code: 'const dobles = valores.map(x => x * 2);', language: 'javascript' },
+          {
+            type: 'comparison',
+            title: 'Compara',
+            left: { title: 'map', body: 'Transforma cada elemento.' },
+            right: { title: 'filter', body: 'Selecciona elementos.' },
+          },
+          { type: 'quick-check', question: '¿map muta el array?', answer: 'No, devuelve uno nuevo.' },
+        ],
+      },
+    };
+    renderTopicPage({ getConceptsByTopic: vi.fn().mockResolvedValue([structuredConcept]) });
+
+    expect(await screen.findByRole('heading', { level: 4, name: 'Qué vas a aprender' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 4, name: 'Objetivos' })).toBeInTheDocument();
+    expect(screen.getByText('Elegir map o filter')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 4, name: 'Ejemplo' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 4, name: 'Compara' })).toBeInTheDocument();
+    expect(screen.getByText('¿map muta el array?')).toBeInTheDocument();
+    expect(screen.getByText('Ver respuesta')).toBeInTheDocument();
+  });
+
   it('muestra una tecnología no disponible sin consultar topics ni conceptos', () => {
     const getTopics = vi.fn();
     const getConceptsByTopic = vi.fn();
@@ -240,9 +291,11 @@ describe('TopicPage (T057)', () => {
     );
     const rendered = renderTopicPage({ getSessionsByConcept });
 
-    const sessionTitle = await screen.findByRole('heading', { level: 3, name: 'Practica iteración' });
+    const sessionTitle = await screen.findByRole('heading', { level: 4, name: 'Practica iteración' });
     expect(sessionTitle).toHaveClass('break-normal', 'whitespace-normal');
     expect(sessionTitle).not.toHaveClass('break-words');
+    expect(screen.getByRole('heading', { level: 3, name: 'Principiante · 1 sesión' })).toBeInTheDocument();
+    expect(screen.getByText('2 ejercicios')).toBeInTheDocument();
     expect(await screen.findByRole('link', { name: 'Empezar práctica' })).toHaveAttribute(
       'href', '/practice/arrays-01',
     );
@@ -252,13 +305,13 @@ describe('TopicPage (T057)', () => {
   });
 
   it('deriva completada, en progreso, disponible y bloqueada desde historial, recovery y publicación canónicos', async () => {
-    const draftSession: ExerciseSession = { ...ARRAY_SESSION, id: 'arrays-draft', title: 'Sesión pendiente de publicar', status: 'draft' };
+    const draftSession: ExerciseSession = { ...ARRAY_SESSION, id: 'arrays-draft', title: 'Sesión pendiente de publicar', difficulty: 'advanced', status: 'draft' };
     const availableSession: ExerciseSession = { ...ARRAY_SESSION, id: 'arrays-available', title: 'Practica disponible' };
-    const freshSession: ExerciseSession = { ...ARRAY_SESSION, id: 'arrays-fresh', title: 'Nueva práctica disponible' };
+    const freshSession: ExerciseSession = { ...ARRAY_SESSION, id: 'arrays-fresh', title: 'Nueva práctica disponible', difficulty: 'intermediate', steps: [STEP] };
     const completedAvailable: CompletedSession = { ...COMPLETED_SESSION, sessionId: availableSession.id };
     const recovery: ISessionRecoveryStore = {
       ...RECOVERY,
-      load: () => ({ sessionId: ARRAY_SESSION.id, currentStep: 1, answers: [], elapsedMs: 1_000, hintsRevealed: [], startTime: 1 } satisfies SessionRecoverySnapshot),
+      load: () => ({ sessionId: ARRAY_SESSION.id, currentStep: 1, answers: [], elapsedMs: 1_000, revealedHints: [], startTime: 1 } satisfies SessionRecoverySnapshot),
     };
     const getCompletedSession = vi.fn().mockImplementation(async (sessionId: string) =>
       sessionId === availableSession.id ? completedAvailable : null,
@@ -271,8 +324,11 @@ describe('TopicPage (T057)', () => {
     });
 
     expect(await screen.findByText('En progreso')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'Principiante · 2 sesiones' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'Intermedio · 1 sesión' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'Avanzado · 1 sesión' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Continuar práctica' })).toHaveAttribute('href', '/practice/arrays-01');
-    expect(await screen.findByText('Completada')).toBeInTheDocument();
+    expect(await screen.findByText('Completado')).toBeInTheDocument();
     expect(screen.getByText('75% de aciertos')).toBeInTheDocument();
     expect(screen.getByRole('progressbar', { name: 'Sesiones completadas' })).toHaveAttribute(
       'aria-valuetext',
@@ -282,7 +338,7 @@ describe('TopicPage (T057)', () => {
     expect(screen.getByRole('link', { name: 'Ver resultado' })).toHaveAttribute('href', '/results/arrays-available');
     expect(screen.getByText('Disponible')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Empezar práctica' })).toHaveAttribute('href', '/practice/arrays-fresh');
-    expect(screen.getByText('Bloqueada')).toBeInTheDocument();
+    expect(screen.getByText('Bloqueado')).toBeInTheDocument();
     expect(screen.getByText('Esta sesión aún no está publicada.')).toBeInTheDocument();
   });
 
@@ -312,7 +368,7 @@ describe('TopicPage (T057)', () => {
 
     await screen.findByRole('heading', { level: 1, name: 'Arrays' });
     await screen.findByText('# Iteración');
-    expect(screen.getByRole('link', { name: 'Entrenar' })).toHaveAttribute('href', '/#technologies');
+    expect(screen.getByRole('link', { name: 'Entrenar' })).toHaveAttribute('href', '/tech');
     expect(screen.getByRole('link', { name: 'JavaScript' })).toHaveAttribute('href', '/tech/javascript');
     expect(screen.getByLabelText('Progreso del tema')).toHaveTextContent('1 de 2 conceptos practicados');
     expect(screen.getByRole('progressbar', { name: 'Progreso en Arrays' })).toHaveAttribute(

@@ -4,7 +4,7 @@ import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
 import type { Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
-import type { Attempt } from '@/types/progress';
+import type { HistoryAttempt } from '@/types/history';
 import { ReviewNavigation } from './components/ReviewNavigation';
 import { ReviewStep } from './components/ReviewStep';
 import { ReviewStepIndicator } from './components/ReviewStepIndicator';
@@ -15,7 +15,7 @@ type SessionResult =
   | { sessionId: string; status: 'error'; message: string }
   | { sessionId: string; status: 'success'; session: ExerciseSession };
 type AttemptsResult =
-  | { sessionId: string; status: 'success'; attempts: Attempt[] }
+  | { sessionId: string; status: 'success'; attempts: HistoryAttempt[] }
   | { sessionId: string; status: 'error'; message: string };
 type MetadataResult =
   | { sessionId: string; status: 'loading' }
@@ -61,7 +61,7 @@ function ReviewPage() {
 
   const currentSession = sessionId === undefined ? { sessionId: '', status: 'missing' as const } : sessionResult;
   const attemptsByStepId = useMemo(() => {
-    const result = new Map<string, Attempt[]>();
+    const result = new Map<string, HistoryAttempt[]>();
     if (attemptsResult?.status !== 'success' || attemptsResult.sessionId !== sessionId) return result;
     for (const attempt of attemptsResult.attempts) result.set(attempt.stepId, [...(result.get(attempt.stepId) ?? []), attempt]);
     return result;

@@ -14,6 +14,7 @@ const answer = (n: number, isCorrect = true): UserAnswer => ({
 });
 
 const initial = () => createInitialSessionState('js-arrays-map-vs-foreach-01', 1_000);
+const hint = (index: number) => ({ index, text: `hint-${index}` });
 
 /** Estado con `n` pasos ya respondidos y el índice en el paso `n`. */
 const answered = (n: number): SessionState => {
@@ -89,7 +90,7 @@ describe('sessionReducer (T028)', () => {
         answers: [],
         startTime: 1_000,
         elapsedMs: 0,
-        hintsRevealed: [],
+        revealedHints: [],
         isValidating: false,
         isComplete: false,
         error: null,
@@ -102,9 +103,9 @@ describe('sessionReducer (T028)', () => {
         'currentStep',
         'elapsedMs',
         'error',
-        'hintsRevealed',
         'isComplete',
         'isValidating',
+        'revealedHints',
         'sessionId',
         'startTime',
       ]);
@@ -138,12 +139,22 @@ describe('sessionReducer (T028)', () => {
       expect(state.currentStep).toBe(3);
     });
 
-    it('transición inválida: no responde mientras isValidating es true', () => {
-      const validando = sessionReducer(initial(), { type: 'SET_VALIDATING', payload: true });
-      const state = sessionReducer(validando, { type: 'SUBMIT_ANSWER', payload: answer(0) });
+    it('acepta el veredicto autoritativo mientras isValidating es true', () => {
+      const validando = sessionReducer(initial(), {
+        type: 'SET_VALIDATING',
+        payload: true,
+      });
 
-      expect(state).toBe(validando);
-      expect(state.answers).toEqual([]);
+      const respuesta = answer(0);
+
+      const state = sessionReducer(validando, {
+        type: 'SUBMIT_ANSWER',
+        payload: respuesta,
+      });
+
+      expect(state).not.toBe(validando);
+      expect(state.answers).toEqual([respuesta]);
+      expect(state.isValidating).toBe(true);
     });
 
     it('transición inválida: no duplica la respuesta del paso actual', () => {
@@ -182,25 +193,25 @@ describe('sessionReducer (T028)', () => {
   describe('las pistas son de un paso, no de la sesión (T033)', () => {
     it('NEXT_STEP vacía las pistas reveladas', () => {
       let state = sessionReducer(initial(), { type: 'SUBMIT_ANSWER', payload: answer(0) });
-      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: 0 });
-      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: 1 });
-      expect(state.hintsRevealed).toEqual([0, 1]);
+      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: hint(0) });
+      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: hint(1) });
+      expect(state.revealedHints).toEqual([hint(0), hint(1)]);
 
       state = sessionReducer(state, { type: 'NEXT_STEP' });
 
       expect(state.currentStep).toBe(1);
-      expect(state.hintsRevealed).toEqual([]);
+      expect(state.revealedHints).toEqual([]);
     });
 
     it('un NEXT_STEP rechazado no toca las pistas', () => {
       // Sin responder, §18 no deja avanzar: tampoco debe perderse el estado.
-      let state = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: 0 });
+      let state = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: hint(0) });
       const antes = state;
 
       state = sessionReducer(state, { type: 'NEXT_STEP' });
 
       expect(state).toBe(antes);
-      expect(state.hintsRevealed).toEqual([0]);
+      expect(state.revealedHints).toEqual([hint(0)]);
     });
 
     it('cada paso cuenta sus propias pistas', () => {
@@ -209,9 +220,9 @@ describe('sessionReducer (T028)', () => {
 
       for (let paso = 0; paso < 3; paso += 1) {
         for (let hint = 0; hint <= paso; hint += 1) {
-          state = sessionReducer(state, { type: 'REVEAL_HINT', payload: hint });
+          state = sessionReducer(state, { type: 'REVEAL_HINT', payload: { index: hint, text: `hint-${hint}` } });
         }
-        contadas.push(state.hintsRevealed.length);
+        contadas.push(state.revealedHints.length);
         state = sessionReducer(state, { type: 'SUBMIT_ANSWER', payload: answer(paso) });
         state = sessionReducer(state, { type: 'NEXT_STEP' });
       }
@@ -222,21 +233,21 @@ describe('sessionReducer (T028)', () => {
 
   describe('REVEAL_HINT', () => {
     it('registra el índice de la pista', () => {
-      const state = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: 0 });
+      const state = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: hint(0) });
 
-      expect(state.hintsRevealed).toEqual([0]);
+      expect(state.revealedHints).toEqual([hint(0)]);
     });
 
     it('acumula pistas distintas en orden', () => {
-      let state = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: 0 });
-      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: 2 });
+      let state = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: hint(0) });
+      state = sessionReducer(state, { type: 'REVEAL_HINT', payload: hint(1) });
 
-      expect(state.hintsRevealed).toEqual([0, 2]);
+      expect(state.revealedHints).toEqual([hint(0), hint(1)]);
     });
 
     it('no repite una pista ya revelada', () => {
-      const una = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: 1 });
-      const otra = sessionReducer(una, { type: 'REVEAL_HINT', payload: 1 });
+      const una = sessionReducer(initial(), { type: 'REVEAL_HINT', payload: hint(0) });
+      const otra = sessionReducer(una, { type: 'REVEAL_HINT', payload: hint(0) });
 
       expect(otra).toBe(una);
     });
@@ -297,7 +308,7 @@ describe('sessionReducer (T028)', () => {
 
   describe('RESET', () => {
     it('vuelve al inicio conservando sesión y hora de comienzo', () => {
-      const avanzado = sessionReducer(answered(2), { type: 'REVEAL_HINT', payload: 0 });
+      const avanzado = sessionReducer(answered(2), { type: 'REVEAL_HINT', payload: hint(0) });
       const state = sessionReducer(avanzado, { type: 'RESET' });
 
       expect(state).toEqual(initial());
@@ -316,7 +327,7 @@ describe('sessionReducer (T028)', () => {
       const antes = JSON.stringify(state);
 
       sessionReducer(state, { type: 'SUBMIT_ANSWER', payload: answer(0) });
-      sessionReducer(state, { type: 'REVEAL_HINT', payload: 0 });
+      sessionReducer(state, { type: 'REVEAL_HINT', payload: hint(0) });
       sessionReducer(state, { type: 'SET_ERROR', payload: 'x' });
       sessionReducer(state, { type: 'RESET' });
 

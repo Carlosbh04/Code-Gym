@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 const curricula = [
   ['JavaScript', 'Arrays'],
@@ -13,11 +13,17 @@ test.describe('descubrimiento del currículo ampliado', () => {
   test.describe.configure({ mode: 'parallel' });
 
   for (const [technology, topic] of curricula) {
-    test(`${technology} descubre teoría estructurada y práctica desde inicio`, async ({ page }) => {
+    test(`${technology} descubre teoría estructurada y práctica desde Entrenar`, async ({ page }) => {
     await page.goto('/');
+    await expect(page).toHaveURL('/');
+    await page
+      .getByRole('complementary', { name: 'Barra lateral' })
+      .getByRole('link', { name: 'Entrenar' })
+      .click();
+    await expect(page).toHaveURL('/tech');
 
     await page
-      .getByRole('region', { name: /Tecnologías/i })
+      .getByRole('main')
       .getByRole('link', { name: new RegExp(`^${technology}(?:\\s|$)`, 'i') })
       .click();
     await expect(page.getByRole('heading', { level: 1, name: technology })).toBeVisible();

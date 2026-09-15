@@ -1,4 +1,5 @@
 import type { UserAnswer } from '@/types/progress';
+import type { RevealedHint } from '@/types/exercise';
 
 export interface SessionState {
   sessionId: string;
@@ -6,7 +7,7 @@ export interface SessionState {
   answers: UserAnswer[];
   startTime: number;
   elapsedMs: number;
-  hintsRevealed: number[];
+  revealedHints: RevealedHint[];
   isValidating: boolean;
   isComplete: boolean;
   error: string | null;
@@ -25,7 +26,7 @@ export interface FindErrorSelection {
 export type SessionAction =
   | { type: 'SUBMIT_ANSWER'; payload: UserAnswer }
   | { type: 'NEXT_STEP' }
-  | { type: 'REVEAL_HINT'; payload: number }
+  | { type: 'REVEAL_HINT'; payload: RevealedHint }
   | { type: 'SET_VALIDATING'; payload: boolean }
   | { type: 'SET_COMPLETE' }
   | { type: 'SET_ERROR'; payload: string }

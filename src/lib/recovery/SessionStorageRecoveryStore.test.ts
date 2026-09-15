@@ -23,7 +23,9 @@ const SNAPSHOT: SessionRecoverySnapshot = {
     },
   ],
   elapsedMs: 3_000,
-  hintsRevealed: [0],
+  revealedHints: [
+    { index: 0, text: 'Pista autorizada' },
+  ],
   startTime: 1_000,
 };
 
@@ -106,8 +108,27 @@ describe('SessionStorageRecoveryStore (T052)', () => {
     { ...SNAPSHOT, currentStep: -1 },
     { ...SNAPSHOT, answers: [] },
     { ...SNAPSHOT, elapsedMs: -1 },
-    { ...SNAPSHOT, hintsRevealed: [0, 0] },
+    {
+      ...SNAPSHOT,
+      revealedHints: [
+        { index: 0, text: 'Primera' },
+        { index: 0, text: 'Duplicada' },
+      ],
+    },
+    {
+      ...SNAPSHOT,
+      revealedHints: [
+        { index: 1, text: 'Fuera de orden' },
+      ],
+    },
+    {
+      ...SNAPSHOT,
+      revealedHints: [
+        { index: 0, text: '' },
+      ],
+    },
     { ...SNAPSHOT, startTime: 'ayer' },
+    { ...SNAPSHOT, lastActivityAt: 'ayer' },
     {
       ...SNAPSHOT,
       answers: [{ ...SNAPSHOT.answers[0], isCorrect: 'sí' }],
@@ -226,5 +247,14 @@ describe('SessionStorageRecoveryStore (T052)', () => {
     store.save(SNAPSHOT);
 
     expect(new SessionStorageRecoveryStore().load()).toEqual(SNAPSHOT);
+  });
+
+  it('preserva lastActivityAt cuando existe y acepta snapshots legacy sin él', () => {
+    const current = { ...SNAPSHOT, lastActivityAt: 9_000 };
+    store.save(current);
+    expect(store.load()).toEqual(current);
+
+    sessionStorage.setItem(SESSION_RECOVERY_KEY, JSON.stringify(SNAPSHOT));
+    expect(store.load()).toEqual(SNAPSHOT);
   });
 });

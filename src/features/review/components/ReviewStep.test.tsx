@@ -1,61 +1,265 @@
-import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
-import type { ExerciseStep } from '@/types/exercise';
-import type { Attempt } from '@/types/progress';
-import { ReviewStep } from './ReviewStep';
+import {
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 
-const baseStep = (overrides: Partial<ExerciseStep> = {}): ExerciseStep => ({ id: 'step-1', type: 'code-reading', prompt: '¿Qué devuelve este código?', code: 'const value = 1;', language: 'javascript', options: [{ id: 'a', text: 'undefined', correct: true }, { id: 'b', text: '1', correct: false }], errorLines: null, errorType: null, testCases: null, expectedPatterns: null, explanation: 'La explicación canónica.', hints: [], stepOrder: 1, ...overrides });
-const attempt = (overrides: Partial<Attempt> = {}): Attempt => ({ id: 'attempt-1', sessionId: 'session-1', stepId: 'step-1', stepType: 'code-reading', answer: 'a', isCorrect: true, timeSpentMs: 1_000, hintsUsed: 1, createdAt: '2026-09-03T10:00:00.000Z', ...overrides });
+import {
+  describe,
+  expect,
+  it,
+} from 'vitest';
+
+import type {
+  ExerciseStep,
+} from '@/types/exercise';
+
+import type {
+  HistoryAttempt,
+} from '@/types/history';
+
+import {
+  ReviewStep,
+} from './ReviewStep';
+
+function baseStep(
+  overrides:
+    Partial<ExerciseStep> = {},
+): ExerciseStep {
+  return {
+    id: 'step-1',
+    type: 'code-reading',
+    prompt:
+      '¿Qué devuelve este código?',
+    code:
+      'const value = 1;',
+    language: 'javascript',
+    options: [
+      {
+        id: 'a',
+        text: 'undefined',
+      },
+      {
+        id: 'b',
+        text: '1',
+      },
+    ],
+    requirements: [],
+    hintCount: 0,
+    stepOrder: 1,
+    ...overrides,
+  };
+}
+
+function attempt(
+  overrides:
+    Partial<HistoryAttempt> = {},
+): HistoryAttempt {
+  return {
+    id: 'attempt-1',
+    sessionId: 'session-1',
+    stepId: 'step-1',
+    isCorrect: true,
+    timeSpentMs: 1000,
+    hintsUsed: 1,
+    createdAt:
+      '2026-09-12T12:00:00.000Z',
+    ...overrides,
+  };
+}
 
 describe('ReviewStep', () => {
-  it('muestra pregunta, estado, respuesta persistida y explicación canónica', () => {
-    render(<ReviewStep step={baseStep()} attempt={attempt()} position={1} />);
-    expect(screen.getByRole('heading', { level: 2, name: '¿Qué devuelve este código?' })).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Respuesta correcta' })).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Tu respuesta' })).toHaveTextContent('undefined');
-    expect(screen.getByRole('region', { name: 'Respuesta correcta' })).toHaveTextContent('undefined');
-    expect(screen.getByText('Pistas utilizadas: 1')).toBeInTheDocument();
-    expect(screen.getByText('La explicación canónica.')).toBeInTheDocument();
+  it('muestra el resultado correcto sin inventar respuesta histórica', () => {
+    render(
+      <ReviewStep
+        step={baseStep()}
+        attempt={attempt()}
+        position={1}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        'Respuesta correcta',
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole(
+        'region',
+        {
+          name:
+            'Resultado registrado',
+        },
+      ),
+    ).toHaveTextContent(
+      'El historial conserva el resultado del intento, pero no la respuesta enviada.',
+    );
+
+    expect(
+      screen.queryByText(
+        'Tu respuesta',
+      ),
+    ).not.toBeInTheDocument();
   });
 
-  it('diferencia en las opciones la respuesta incorrecta de la correcta', () => {
-    render(<ReviewStep step={baseStep()} attempt={attempt({ answer: 'b', isCorrect: false })} position={1} />);
-    expect(screen.getByText('Respuesta incorrecta')).toBeInTheDocument();
-    const options = screen.getByRole('region', { name: 'Opciones' });
-    expect(within(options).getByText('undefined')).toBeInTheDocument();
-    expect(within(options).getByText('1')).toBeInTheDocument();
-    expect(within(options).getAllByText(/Tu respuesta|Respuesta correcta/)).not.toHaveLength(0);
+  it('muestra resultado incorrecto', () => {
+    render(
+      <ReviewStep
+        step={baseStep()}
+        attempt={attempt({
+          isCorrect: false,
+        })}
+        position={1}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        'Respuesta incorrecta',
+      ),
+    ).toBeInTheDocument();
   });
 
-  it('representa find-error con la selección persistida y la corrección canónica', () => {
-    const step = baseStep({ id: 'find-error', type: 'find-error', options: null, errorLines: [2], errorType: 'conceptual', code: 'const a = 1;\na.forEach();' });
-    render(<ReviewStep step={step} attempt={attempt({ stepId: step.id, stepType: step.type, answer: { line: 3, errorType: 'sintaxis' }, isCorrect: false })} position={2} />);
-    expect(screen.getByText('Línea 3')).toBeInTheDocument();
-    expect(screen.getByText('sintaxis')).toBeInTheDocument();
-    expect(screen.getByText('Línea 2')).toBeInTheDocument();
-    expect(screen.getByText('conceptual')).toBeInTheDocument();
-    expect(screen.getByText('Línea relevante del ejercicio.')).toBeInTheDocument();
+  it('muestra pistas registradas', () => {
+    render(
+      <ReviewStep
+        step={baseStep()}
+        attempt={attempt({
+          hintsUsed: 2,
+        })}
+        position={1}
+      />,
+    );
+
+    expect(
+      screen.getByRole(
+        'region',
+        {
+          name:
+            'Resultado registrado',
+        },
+      ),
+    ).toHaveTextContent(
+      'Pistas utilizadas: 2',
+    );
   });
 
-  it('muestra el código enviado de fix-code sin revelar una solución inexistente', () => {
-    const step = baseStep({ id: 'fix-code', type: 'fix-code', code: 'const broken = ;', options: null });
-    render(<ReviewStep step={step} attempt={attempt({ stepId: step.id, stepType: step.type, answer: 'const fixed = 1;' })} position={3} />);
-    expect(screen.getByRole('heading', { level: 3, name: 'Código inicial' })).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Código enviado' })).toHaveTextContent('const fixed = 1;');
-    expect(screen.queryByRole('heading', { name: 'Respuesta correcta' })).not.toBeInTheDocument();
+  it('tolera hintsUsed null', () => {
+    render(
+      <ReviewStep
+        step={baseStep()}
+        attempt={attempt({
+          hintsUsed: null,
+        })}
+        position={1}
+      />,
+    );
+
+    expect(
+      screen.queryByText(
+        /Pistas utilizadas:/,
+      ),
+    ).not.toBeInTheDocument();
   });
 
-  it('degrada un step sin attempt sin atribuir una respuesta al usuario', () => {
-    render(<ReviewStep step={baseStep()} attempt={undefined} position={4} />);
-    expect(screen.getByText('Sin respuesta registrada.')).toBeInTheDocument();
-    expect(screen.queryByRole('region', { name: 'Tu respuesta' })).not.toBeInTheDocument();
+  it('no atribuye una respuesta cuando no existe attempt', () => {
+    render(
+      <ReviewStep
+        step={baseStep()}
+        attempt={undefined}
+        position={1}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        'Sin respuesta registrada.',
+      ),
+    ).toBeInTheDocument();
   });
 
-  it('mantiene artículo, jerarquía de headings y código canónico', () => {
-    render(<ReviewStep step={baseStep()} attempt={attempt()} position={1} />);
-    const article = screen.getByRole('article', { name: 'Ejercicio respondido' });
-    expect(within(article).getByRole('heading', { level: 2 })).toBeInTheDocument();
-    expect(within(article).getAllByRole('heading', { level: 3 })).toHaveLength(4);
-    expect(article.querySelector('code')).toHaveTextContent('const value = 1;');
+  it('mantiene el código canónico sin exponer explicación privada', () => {
+    render(
+      <ReviewStep
+        step={baseStep()}
+        attempt={attempt()}
+        position={1}
+      />,
+    );
+
+    const article =
+      screen.getByRole(
+        'article',
+        {
+          name:
+            'Ejercicio respondido',
+        },
+      );
+
+    expect(
+      within(article).getByRole(
+        'heading',
+        { level: 2 },
+      ),
+    ).toHaveTextContent(
+      '¿Qué devuelve este código?',
+    );
+
+    expect(
+      within(article)
+        .getAllByRole(
+          'heading',
+          { level: 3 },
+        ),
+    ).toHaveLength(2);
+
+    expect(
+      article.querySelector(
+        'code',
+      ),
+    ).toHaveTextContent(
+      'const value = 1;',
+    );
+
+    expect(
+      screen.queryByText(
+        'La explicación canónica.',
+      ),
+    ).toBeNull();
+  });
+
+  it('fix-code muestra código inicial pero no código enviado inventado', () => {
+    render(
+      <ReviewStep
+        step={baseStep({
+          id: 'fix-code',
+          type: 'fix-code',
+          code:
+            'const broken = ;',
+          options: null,
+        })}
+        attempt={attempt({
+          stepId: 'fix-code',
+        })}
+        position={3}
+      />,
+    );
+
+    expect(
+      screen.getByRole(
+        'region',
+        {
+          name:
+            'Código inicial',
+        },
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByText(
+        'Código enviado',
+      ),
+    ).not.toBeInTheDocument();
   });
 });

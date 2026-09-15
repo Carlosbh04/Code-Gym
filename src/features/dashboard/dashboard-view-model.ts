@@ -1,5 +1,5 @@
 import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
-import type { ConceptProgress } from '@/types/progress';
+import type { ProgressSummary } from '@/types/progress';
 
 export type EvidenceLevel = 'none' | 'initial' | 'sufficient';
 export type DashboardStatus = 'ok' | 'attention' | 'improvement';
@@ -68,7 +68,7 @@ export function getDashboardStatus(
 }
 
 export function createDashboardViewModel(
-  progressItems: Iterable<ConceptProgress>,
+  progressItems: Iterable<ProgressSummary>,
 ): DashboardViewModel {
   const progress = Array.from(progressItems);
   const concepts = progress.map(toDashboardConcept);
@@ -162,7 +162,7 @@ function hasCode(step: ExerciseStep): boolean {
   return typeof step.code === 'string' && step.code.trim().length > 0;
 }
 
-function toDashboardConcept(progress: ConceptProgress): DashboardConcept {
+function toDashboardConcept(progress: ProgressSummary): DashboardConcept {
   const accuracy = calculateAccuracy(
     progress.correctAttempts,
     progress.totalAttempts,
@@ -197,7 +197,7 @@ function compareOtherConcepts(a: DashboardConcept, b: DashboardConcept): number 
   return comparePriority(a, b);
 }
 
-function createOverview(progress: ConceptProgress[]): DashboardOverview {
+function createOverview(progress: ProgressSummary[]): DashboardOverview {
   const totalAnswers = progress.reduce(
     (total, item) => total + item.totalAttempts,
     0,

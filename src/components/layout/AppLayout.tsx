@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
 import { Outlet, useLocation } from 'react-router-dom';
 
@@ -19,9 +19,26 @@ export function AppLayout() {
   const mainRef = useRef<HTMLElement>(null);
   const location = useLocation();
 
-  useEffect(() => {
-    mainRef.current?.focus();
-  }, [location.pathname]);
+  useLayoutEffect(() => {
+    const main = mainRef.current;
+    const scrollingElement = document.scrollingElement ?? document.documentElement;
+    scrollingElement.scrollTop = 0;
+    scrollingElement.scrollLeft = 0;
+    let frameId: number | undefined;
+
+    if (location.hash !== '') {
+      const targetId = decodeURIComponent(location.hash.slice(1));
+      frameId = window.requestAnimationFrame(() => {
+        document.getElementById(targetId)?.scrollIntoView({ block: 'start' });
+      });
+    }
+
+    main?.focus({ preventScroll: true });
+
+    return () => {
+      if (frameId !== undefined) window.cancelAnimationFrame(frameId);
+    };
+  }, [location.hash, location.pathname]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,6 +90,7 @@ export function AppLayout() {
               tabIndex={-1}
               className="
                 flex-1
+                outline-none
 
                 px-4
                 pb-28

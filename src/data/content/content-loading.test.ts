@@ -113,11 +113,11 @@ describe('contenido publicado (T070)', () => {
             );
             for (const step of session.steps) {
               expect(step.prompt.trim(), `${session.id}/${step.id}`).not.toBe('');
-              expect(step.explanation.trim(), `${session.id}/${step.id}`).not.toBe('');
-              expect(step.hints.length, `${session.id}/${step.id}`).toBeGreaterThan(0);
-              if (step.type === 'code-reading' || step.type === 'predict-output') {
-                expect(step.options?.filter((option) => option.correct)).toHaveLength(1);
-              }
+              expect(step.hintCount, `${session.id}/${step.id}`).toBeGreaterThan(0);
+              const serialized = JSON.stringify(step);
+              expect(serialized).not.toContain('"hints"');
+              expect(serialized).not.toContain('"explanation"');
+              expect(serialized).not.toContain('"correct"');
             }
           }
         }

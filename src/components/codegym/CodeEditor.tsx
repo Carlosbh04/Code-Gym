@@ -1,5 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
+import {
+  autocompletion,
+  closeBrackets,
+  closeBracketsKeymap,
+} from '@codemirror/autocomplete';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { javascriptLanguage } from '@codemirror/lang-javascript';
 import { bracketMatching, syntaxHighlighting } from '@codemirror/language';
@@ -17,13 +21,14 @@ import {
 
 import { ErrorBoundary } from '@/lib/errors/ErrorBoundary';
 import { cn } from '@/lib/utils';
+import { javascriptCompletionSource } from './javascript-completions';
 
 /**
  * Editor de código controlado. No conoce dominio, ejecución ni persistencia.
  *
- * La configuración evita el `basicSetup` del wrapper anterior: el MVP necesita
- * edición JavaScript, historial, tabulación y resaltado, pero no búsqueda, lint
- * ni autocompletado. Esas extensiones no llegan al chunk lazy del editor.
+ * La configuración evita el `basicSetup` del wrapper anterior: incluye solo la
+ * edición JavaScript, historial, tabulación, resaltado y autocompletado que usa
+ * el workspace, sin cargar búsqueda ni lint en el chunk lazy del editor.
  */
 export interface CodeEditorProps {
   value: string;
@@ -43,6 +48,10 @@ const baseExtensions = [
   syntaxHighlighting(oneDarkHighlightStyle, { fallback: true }),
   bracketMatching(),
   closeBrackets(),
+  autocompletion({
+    activateOnTyping: true,
+    override: [javascriptCompletionSource],
+  }),
   keymap.of([
     ...closeBracketsKeymap,
     ...defaultKeymap,
@@ -140,7 +149,7 @@ export function CodeEditor({ value, onChange, disabled = false, className }: Cod
       rows={Math.max(6, value.split('\n').length + 1)}
       aria-labelledby={labelId}
       className={cn(
-        'block min-h-64 w-full resize-y whitespace-pre rounded-md border border-code-border bg-code p-4 font-mono text-sm text-foreground',
+        'block min-h-64 w-full resize-y whitespace-pre rounded-md border border-code-border bg-code p-4 font-mono text-sm text-code-foreground',
         'overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:min-h-[26rem]',
         disabled && 'cursor-not-allowed opacity-60',
       )}

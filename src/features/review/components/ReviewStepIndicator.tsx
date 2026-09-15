@@ -1,11 +1,11 @@
 import { CircleCheck, CircleX } from 'lucide-react';
 import type { ExerciseStep } from '@/types/exercise';
-import type { Attempt } from '@/types/progress';
+import type { HistoryAttempt } from '@/types/history';
 import { cn } from '@/lib/utils';
 
 export interface ReviewStepIndicatorProps {
   steps: ExerciseStep[];
-  attemptsByStepId: Map<string, Attempt[]>;
+  attemptsByStepId: Map<string, HistoryAttempt[]>;
   currentIndex: number;
   onSelect: (index: number) => void;
 }

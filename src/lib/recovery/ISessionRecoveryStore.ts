@@ -1,13 +1,24 @@
 import type { UserAnswer } from '@/types/progress';
+import type { RevealedHint } from '@/types/exercise';
 
 /** Estado durable mínimo de una sesión activa (§21, D006, D012). */
 export interface SessionRecoverySnapshot {
   sessionId: string;
+  /**
+   * Identidad del TrainingRun persistido en backend.
+   *
+   * Es opcional únicamente para poder reconocer snapshots
+   * legacy creados antes de T229.6B.3. Los snapshots nuevos
+   * sincronizados con backend deben persistirlo.
+   */
+  trainingRunId?: string;
   currentStep: number;
   answers: UserAnswer[];
   elapsedMs: number;
-  hintsRevealed: number[];
+  revealedHints: RevealedHint[];
   startTime: number;
+  /** Última persistencia causada por actividad real; opcional para snapshots legacy. */
+  lastActivityAt?: number;
 }
 
 export type SessionRecoveryErrorCode =

@@ -16,8 +16,8 @@ const COMPLETED_SESSION: CompletedSession = {
 const SESSION: ExerciseSession = {
   id: 'session-1', title: 'map frente a forEach', conceptId: 'js-array-iteration', technologyId: 'javascript', difficulty: 'beginner', version: '1', status: 'published', createdAt: '2026-09-01T10:00:00.000Z', updatedAt: null,
   steps: [
-    { id: 'step-1', type: 'code-reading', prompt: '¿Qué devuelve este código?', code: null, language: null, options: null, errorLines: null, errorType: null, testCases: null, expectedPatterns: null, explanation: '', hints: [], stepOrder: 1 },
-    { id: 'step-2', type: 'predict-output', prompt: '¿Cuál es el resultado?', code: null, language: null, options: null, errorLines: null, errorType: null, testCases: null, expectedPatterns: null, explanation: '', hints: [], stepOrder: 2 },
+    { id: 'step-1', type: 'code-reading', prompt: '¿Qué devuelve este código?', code: null, language: null, options: null, requirements: [], hintCount: 0, stepOrder: 1 },
+    { id: 'step-2', type: 'predict-output', prompt: '¿Cuál es el resultado?', code: null, language: null, options: null, requirements: [], hintCount: 0, stepOrder: 2 },
   ],
 };
 const CONCEPT: Concept = { id: 'js-array-iteration', technologyId: 'javascript', topicId: 'arrays', name: 'Iteración de arrays', contentMarkdown: '' };

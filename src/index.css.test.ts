@@ -87,3 +87,29 @@ describe('tokens de movimiento (T071)', () => {
     );
   });
 });
+
+describe('tokens globales de tema', () => {
+  it('define una paleta light completa sobre las mismas variables semánticas', () => {
+    expect(css).toContain(':root.light {');
+    expect(css).toContain('--bg-primary: 225 40% 98%;');
+    expect(css).toContain('--text-primary: 235 28% 14%;');
+    expect(css).toContain('--accent-text: 243 75% 52%;');
+    expect(css).toContain('--code-foreground: 220 20% 92%;');
+  });
+
+  it('expone foreground propio para superficies de código', () => {
+    expect(tailwindConfig).toContain("foreground: 'hsl(var(--code-foreground))'");
+  });
+
+  it('limita la transición suave a cambios posteriores al primer pintado', () => {
+    expect(css).toContain('html.theme-transition');
+    expect(css).toContain('--theme-transition-duration: 140ms;');
+    expect(css).toContain("[class*='bg-']");
+    expect(css).toContain("[class*='text-']");
+    expect(css).toContain("[class*='border-']");
+    expect(css).toContain('transition-property: background-color, border-color, color;');
+    expect(css).toContain('transition-duration: var(--theme-transition-duration);');
+    expect(css).not.toContain('html.theme-transition *');
+    expect(css).not.toContain('background-color, border-color, color, box-shadow, fill, stroke');
+  });
+});

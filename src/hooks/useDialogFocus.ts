@@ -32,7 +32,8 @@ export function useDialogFocus(
       Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
         (element) => !element.hasAttribute('hidden'),
       );
-    const first = focusable()[0];
+    const preferred = dialog.querySelector<HTMLElement>('[data-dialog-autofocus]');
+    const first = preferred ?? focusable()[0];
     first?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {

@@ -30,7 +30,7 @@ export function LearningContent({ content, fallbackMarkdown, conceptName }: Lear
   }
 
   return (
-    <section aria-label={`Teoría de ${conceptName}`} className="mt-5 space-y-5">
+    <section aria-label={`Teoría de ${conceptName}`} className="mt-4 space-y-4">
       {content.sections.map((section, index) => (
         <LearningSectionView key={`${section.type}-${index}`} section={section} index={index} />
       ))}
@@ -43,7 +43,7 @@ function LearningSectionView({ section, index }: { section: LearningSection; ind
 
   if (section.type === 'objectives') {
     return (
-      <section aria-labelledby={sectionId} className="rounded-xl border border-border bg-background p-4 sm:p-5">
+      <section aria-labelledby={sectionId} className="rounded-xl border border-border/80 bg-background/50 p-4">
         <div className="flex items-center gap-2 text-primary">
           <ListChecks className="size-4" aria-hidden="true" />
           <h4 id={sectionId} className="text-sm font-semibold text-foreground">
@@ -71,14 +71,14 @@ function LearningSectionView({ section, index }: { section: LearningSection; ind
 
   if (section.type === 'comparison') {
     return (
-      <section aria-labelledby={sectionId} className="rounded-xl border border-border bg-background p-4 sm:p-5">
+      <section aria-labelledby={sectionId} className="rounded-xl border border-border/80 bg-background/50 p-4">
         <div className="flex items-center gap-2">
           <Scale className="size-4 text-primary" aria-hidden="true" />
           <h4 id={sectionId} className="text-sm font-semibold text-foreground">{section.title}</h4>
         </div>
         <dl className="mt-3 grid gap-3 sm:grid-cols-2">
           {[section.left, section.right].map((item) => (
-            <div key={item.title} className="rounded-lg border border-border bg-card p-3.5">
+            <div key={item.title} className="rounded-lg border border-border/80 bg-card/70 p-3.5">
               <dt className="font-medium text-foreground">{item.title}</dt>
               <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.body}</dd>
             </div>
@@ -90,7 +90,7 @@ function LearningSectionView({ section, index }: { section: LearningSection; ind
 
   if (section.type === 'quick-check') {
     return (
-      <section aria-labelledby={sectionId} className="rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-5">
+      <section aria-labelledby={sectionId} className="rounded-xl border border-primary/20 bg-primary/5 p-4">
         <h4 id={sectionId} className="text-sm font-semibold text-foreground">Mini comprobación</h4>
         <p className="mt-2 text-sm text-muted-foreground">{section.question}</p>
         <details className="mt-3 text-sm">
@@ -106,5 +106,5 @@ function LearningSectionView({ section, index }: { section: LearningSection; ind
     icon: CircleCheck,
   };
   const Icon = presentation.icon;
-  return <section aria-labelledby={sectionId} className={`rounded-xl border p-4 sm:p-5 ${presentation.className}`}><div className="flex gap-3"><Icon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" /><div><h4 id={sectionId} className="text-sm font-semibold text-foreground">{section.title}</h4><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{section.body}</p></div></div></section>;
+  return <section aria-labelledby={sectionId} className={`rounded-xl border p-4 ${presentation.className}`}><div className="flex gap-3"><Icon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" /><div className="min-w-0"><h4 id={sectionId} className="break-normal whitespace-normal text-sm font-semibold text-foreground">{section.title}</h4><p className="mt-2 break-normal whitespace-normal text-sm leading-relaxed text-muted-foreground">{section.body}</p></div></div></section>;
 }

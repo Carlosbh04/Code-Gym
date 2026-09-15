@@ -1,12 +1,10 @@
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
-import { BrainCircuit, CheckCircle2, Clock3, FolderKanban } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { BrainCircuit, Clock3, FolderKanban, History, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { useContent } from '@/hooks/useContent';
-import { useDialogFocus } from '@/hooks/useDialogFocus';
 import { useHistory } from '@/hooks/useHistory';
 import { useProgress } from '@/hooks/useProgress';
-import { useResetProgress } from '@/hooks/useResetProgress';
 import type { ExerciseSession } from '@/types/exercise';
 import { calculateAccuracy, createDashboardViewModel, selectRecommendedSession } from './dashboard-view-model';
 import { DashboardHeader } from './components/DashboardHeader';
@@ -31,15 +29,9 @@ function DashboardPage() {
   const { progress, isLoading: progressLoading, error: progressError } = useProgress();
   const { recentCompletedSessions, completedSessionsLoading, completedSessionsError } = useHistory();
   const { technologies, getConceptsByTopic, getSession, getSessionsByConcept, getTechnology, getTopics, isLoading: contentLoading } = useContent();
-  const { resetProgress } = useResetProgress();
   const [catalog, setCatalog] = useState<CatalogState>({ status: 'loading' });
   const [sessionDetails, setSessionDetails] = useState<SessionDetailsState>({ status: 'loading' });
   const [recommendationState, setRecommendationState] = useState<RecommendationState>({ conceptId: null, status: 'idle', session: null });
-  const [resetOpen, setResetOpen] = useState(false);
-  const [resetting, setResetting] = useState(false);
-  const [resetError, setResetError] = useState<string | null>(null);
-  const resetDialogRef = useRef<HTMLDivElement>(null);
-  useDialogFocus(resetOpen, resetDialogRef);
 
   const model = useMemo(() => createDashboardViewModel(progress.values()), [progress]);
   const orderedSessions = useMemo(() => [...recentCompletedSessions].sort((left, right) => right.completedAt.localeCompare(left.completedAt)), [recentCompletedSessions]);
@@ -87,7 +79,11 @@ function DashboardPage() {
       const progressItems = item.concepts.map((concept) => progress.get(concept.id)).filter((item): item is NonNullable<typeof item> => item !== undefined);
       const totalAttempts = progressItems.reduce((total, item) => total + item.totalAttempts, 0);
       const correctAttempts = progressItems.reduce((total, item) => total + item.correctAttempts, 0);
-      return { technology: item.technology, totalConcepts: item.concepts.length, practicedConcepts: progressItems.filter((item) => item.totalAttempts > 0).length, totalAttempts, correctAttempts, accuracy: calculateAccuracy(correctAttempts, totalAttempts) };
+      const lastPracticedAt = progressItems
+        .filter((progressItem) => progressItem.totalAttempts > 0)
+        .map((progressItem) => progressItem.lastPracticed)
+        .sort((left, right) => right.localeCompare(left))[0];
+      return { technology: item.technology, totalConcepts: item.concepts.length, practicedConcepts: progressItems.filter((item) => item.totalAttempts > 0).length, totalAttempts, correctAttempts, accuracy: calculateAccuracy(correctAttempts, totalAttempts), lastPracticedAt };
     });
   }, [catalog, progress]);
   const totalCatalogConcepts = technologyProgress.reduce((total, item) => total + item.totalConcepts, 0);
@@ -133,32 +129,85 @@ function DashboardPage() {
   }, [catalogConcepts, getTechnology, nextConcept, recommendationState]);
 
   const metrics = useMemo<DashboardMetricCardProps[]>(() => {
-    const values: DashboardMetricCardProps[] = [];
-    if (!completedSessionsLoading && completedSessionsError === null && orderedSessions.length > 0) values.push({ icon: CheckCircle2, label: 'Sesiones recientes', value: String(orderedSessions.length), description: 'Resultados guardados recientemente' });
-    if (model.overview.conceptsPracticed > 0) values.push({ icon: BrainCircuit, label: 'Conceptos practicados', value: String(model.overview.conceptsPracticed) });
+    const historyAvailable = !completedSessionsLoading && completedSessionsError === null;
     const technologiesPracticed = technologyProgress.filter((item) => item.practicedConcepts > 0).length;
-    if (technologiesPracticed > 0) values.push({ icon: FolderKanban, label: 'Tecnologías trabajadas', value: String(technologiesPracticed) });
-    if (model.overview.globalAccuracy !== undefined) values.push({ icon: CheckCircle2, label: 'Precisión global', value: `${model.overview.globalAccuracy}%`, description: `${model.overview.totalCorrect} de ${model.overview.totalAnswers} respuestas correctas` });
-    if (!completedSessionsLoading && completedSessionsError === null && orderedSessions.length > 0) values.push({ icon: Clock3, label: 'Tiempo reciente', value: formatDuration(orderedSessions.reduce((total, item) => total + item.timeSpentMs, 0)), description: 'Suma de las sesiones recientes guardadas' });
-    return values;
-  }, [completedSessionsError, completedSessionsLoading, model.overview, orderedSessions, technologyProgress]);
+    const technologyTotal = technologyProgress.length;
+    const catalogDescription = catalog.status === 'success'
+      ? `De ${totalCatalogConcepts} conceptos`
+      : 'Catálogo no disponible';
+    const technologyDescription = catalog.status === 'success'
+      ? `De ${technologyTotal} tecnologías`
+      : 'Catálogo no disponible';
+    return [
+      {
+        icon: History,
+        label: 'Sesiones recientes',
+        value: historyAvailable ? String(orderedSessions.length) : '—',
+        description: historyAvailable ? 'Resultados guardados recientemente' : 'Historial no disponible',
+        tone: 'success',
+      },
+      {
+        icon: BrainCircuit,
+        label: 'Conceptos practicados',
+        value: String(model.overview.conceptsPracticed),
+        description: catalogDescription,
+        tone: 'primary',
+      },
+      {
+        icon: FolderKanban,
+        label: 'Tecnologías trabajadas',
+        value: catalog.status === 'success' ? String(technologiesPracticed) : '—',
+        description: technologyDescription,
+        tone: 'warning',
+      },
+      {
+        icon: Target,
+        label: 'Precisión global',
+        value: model.overview.globalAccuracy === undefined ? '—' : `${model.overview.globalAccuracy}%`,
+        description: model.overview.globalAccuracy === undefined
+          ? 'Sin respuestas registradas'
+          : `${model.overview.totalCorrect} de ${model.overview.totalAnswers} respuestas correctas`,
+        tone: 'success',
+      },
+      {
+        icon: Clock3,
+        label: 'Tiempo reciente',
+        value: historyAvailable
+          ? formatDuration(orderedSessions.reduce((total, item) => total + item.timeSpentMs, 0))
+          : '—',
+        description: historyAvailable ? 'Suma de las sesiones recientes' : 'Historial no disponible',
+        tone: 'primary',
+      },
+    ];
+  }, [catalog.status, completedSessionsError, completedSessionsLoading, model.overview, orderedSessions, technologyProgress, totalCatalogConcepts]);
 
   const hasActivity = progress.size > 0 || orderedSessions.length > 0;
-  const confirmReset = async () => {
-    if (resetting) return;
-    setResetting(true); setResetError(null);
-    try { await resetProgress(); setResetOpen(false); }
-    catch (error) { setResetError(error instanceof Error ? error.message : String(error)); }
-    finally { setResetting(false); }
-  };
 
   if (progressLoading) return <DashboardLoading />;
-  if (progressError !== null) return <section className="mx-auto w-full max-w-7xl space-y-5 py-2 sm:py-4"><DashboardError message={progressError} /><RecentActivity activities={activities} isLoading={completedSessionsLoading || sessionDetails.status === 'loading'} error={completedSessionsError} /><ResetProgress resetOpen={resetOpen} resetting={resetting} resetError={resetError} dialogRef={resetDialogRef} onOpen={() => setResetOpen(true)} onClose={() => setResetOpen(false)} onConfirm={confirmReset} /></section>;
+  if (progressError !== null) return <section className="mx-auto w-full max-w-7xl space-y-5 py-2 sm:py-4"><DashboardError message={progressError} /><RecentActivity activities={activities} isLoading={completedSessionsLoading || sessionDetails.status === 'loading'} error={completedSessionsError} /></section>;
 
   return (
     <section aria-labelledby="dashboard-title" className="mx-auto w-full max-w-7xl py-2 sm:py-4">
       <DashboardHeader latestActivity={activities[0]} />
-      {!hasActivity && !completedSessionsLoading ? <EmptyDashboard /> : <div className="mt-5 space-y-5"><div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(18rem,0.75fr)] lg:items-start"><div className="min-w-0 space-y-5"><DashboardProgressOverview practicedConcepts={totalPracticedCatalogConcepts} totalConcepts={totalCatalogConcepts} isLoading={catalog.status === 'loading'} error={catalog.status === 'error' ? catalog.message : null} />{metrics.length > 0 ? <section aria-label="Métricas de progreso" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{metrics.map((metric) => <DashboardMetricCard key={metric.label} {...metric} />)}</section> : null}<TechnologyProgressList items={technologyProgress} isLoading={catalog.status === 'loading'} error={catalog.status === 'error' ? catalog.message : null} /></div><aside className="min-w-0"><NextPracticeCard recommendation={recommendation} isLoading={recommendationState.status === 'loading'} /></aside></div><RecentActivity activities={activities} isLoading={completedSessionsLoading || sessionDetails.status === 'loading'} error={completedSessionsError} /><ResetProgress resetOpen={resetOpen} resetting={resetting} resetError={resetError} dialogRef={resetDialogRef} onOpen={() => setResetOpen(true)} onClose={() => setResetOpen(false)} onConfirm={confirmReset} /></div>}
+      {!hasActivity && !completedSessionsLoading ? <EmptyDashboard /> : (
+        <div className="mt-5 space-y-5">
+          <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(20rem,0.9fr)] xl:items-stretch">
+            <DashboardProgressOverview practicedConcepts={totalPracticedCatalogConcepts} totalConcepts={totalCatalogConcepts} isLoading={catalog.status === 'loading'} error={catalog.status === 'error' ? catalog.message : null} />
+            <NextPracticeCard recommendation={recommendation} isLoading={recommendationState.status === 'loading'} />
+          </div>
+
+          <section aria-label="Métricas de progreso" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {metrics.map((metric) => <DashboardMetricCard key={metric.label} {...metric} />)}
+          </section>
+
+          <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(22.5rem,0.8fr)] xl:items-start">
+            <TechnologyProgressList items={technologyProgress} isLoading={catalog.status === 'loading'} error={catalog.status === 'error' ? catalog.message : null} />
+            <aside className="min-w-0 space-y-5">
+              <RecentActivity activities={activities} isLoading={completedSessionsLoading || sessionDetails.status === 'loading'} error={completedSessionsError} />
+            </aside>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -168,15 +217,11 @@ function DashboardLoading() {
 }
 
 function DashboardError({ message }: { message: string }) {
-  return <section aria-labelledby="dashboard-error-title" className="mx-auto max-w-2xl py-8 sm:py-12"><h1 id="dashboard-error-title" className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">No pudimos leer tu progreso</h1><p role="alert" className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">{message}</p><Link to="/#technologies" className={`${ACTION} mt-6`}>Explorar tecnologías</Link></section>;
+  return <section aria-labelledby="dashboard-error-title" className="mx-auto max-w-2xl py-8 sm:py-12"><h1 id="dashboard-error-title" className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">No pudimos leer tu progreso</h1><p role="alert" className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">{message}</p><Link to="/tech" className={`${ACTION} mt-6`}>Explorar tecnologías</Link></section>;
 }
 
 function EmptyDashboard() {
-  return <EmptyState title="Aún no tienes actividad" description="Empieza una sesión para que tu progreso aparezca aquí." action={<Link to="/#technologies" className={ACTION}>Empezar a entrenar</Link>} className="mt-5 max-w-none rounded-2xl border border-border bg-card shadow-sm" />;
-}
-
-function ResetProgress({ resetOpen, resetting, resetError, dialogRef, onOpen, onClose, onConfirm }: { resetOpen: boolean; resetting: boolean; resetError: string | null; dialogRef: RefObject<HTMLDivElement>; onOpen: () => void; onClose: () => void; onConfirm: () => Promise<void> }) {
-  return <section aria-labelledby="reset-progress-title" className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6"><h2 id="reset-progress-title" className="text-sm font-semibold text-foreground">Restablecer progreso</h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">Elimina los datos de práctica guardados en este dispositivo.</p><button type="button" className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl border border-destructive/50 px-4 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" onClick={onOpen}>Restablecer progreso</button>{resetOpen ? <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="reset-dialog-title" aria-describedby="reset-dialog-description" className="mt-4 max-w-lg rounded-xl border border-destructive/40 bg-background p-5 shadow-lg"><h3 id="reset-dialog-title" className="font-semibold text-foreground">¿Restablecer progreso?</h3><p id="reset-dialog-description" className="mt-2 text-sm leading-relaxed text-muted-foreground">Se eliminarán tu progreso, intentos y sesiones completadas guardadas en este dispositivo. Esta acción no se puede deshacer.</p>{resetError ? <p role="alert" className="mt-3 text-sm text-destructive">No se pudo restablecer el progreso: {resetError}</p> : null}<div className="mt-5 flex flex-wrap gap-3"><button type="button" disabled={resetting} onClick={onClose} className="min-h-11 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-60">Cancelar</button><button type="button" disabled={resetting} onClick={() => { void onConfirm(); }} className="min-h-11 rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground disabled:opacity-60">{resetting ? 'Restableciendo…' : 'Restablecer progreso'}</button></div></div> : null}</section>;
+  return <EmptyState title="Aún no tienes actividad" description="Empieza una sesión para que tu progreso aparezca aquí." action={<Link to="/tech" className={ACTION}>Empezar a entrenar</Link>} className="mt-5 max-w-none rounded-2xl border border-border bg-card shadow-sm" />;
 }
 
 export default DashboardPage;

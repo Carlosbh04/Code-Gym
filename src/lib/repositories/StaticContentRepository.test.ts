@@ -66,7 +66,7 @@ describe('StaticContentRepository (T019)', () => {
 
       expect(session?.conceptId).toBe(FUNCTIONS_CONCEPT);
       expect(session?.difficulty).toBe('advanced');
-      expect(session?.steps.at(-1)?.testCases).not.toBeNull();
+      expect(session?.steps.at(-1)?.requirements.length).toBeGreaterThan(0);
     });
 
     it('devuelve una sesión de Closures con sus datos reales', async () => {
@@ -130,7 +130,7 @@ describe('StaticContentRepository (T019)', () => {
         expect(session, sessionId).not.toBeNull();
         expect(session?.steps.length).toBeGreaterThan(0);
         expect(session?.steps.every((step) => step.type === 'code-reading')).toBe(true);
-        expect(session?.steps.every((step) => step.testCases === null)).toBe(true);
+        expect(session?.steps.every((step) => step.requirements.length === 0)).toBe(true);
       }
     });
 
@@ -269,7 +269,7 @@ describe('StaticContentRepository (T019)', () => {
       expect(Object.isFrozen(session.steps)).toBe(true);
       expect(Object.isFrozen(session.steps[0])).toBe(true);
       expect(Object.isFrozen(session.steps[0].options)).toBe(true);
-      expect(Object.isFrozen(session.steps[0].hints)).toBe(true);
+      expect(Object.isFrozen(session.steps[0].requirements)).toBe(true);
     });
 
     it('rechaza una mutación del contenido devuelto', async () => {
@@ -571,17 +571,21 @@ describe('StaticContentRepository (T019)', () => {
       expect(() => topics.push(topics[0])).toThrow(TypeError);
     });
 
-    it('congela las estructuras anidadas mas profundas de una sesion', async () => {
+    it('congela las estructuras públicas y no incluye datos privados', async () => {
       const session = (await repo.getSessionById(
         'js-arrays-map-vs-foreach-01',
       )) as ExerciseSession;
       const fixStep = session.steps.find((s) => s.type === 'fix-code');
 
-      expect(Object.isFrozen(fixStep?.testCases)).toBe(true);
-      expect(Object.isFrozen(fixStep?.testCases?.[0])).toBe(true);
+      expect(Object.isFrozen(fixStep?.requirements)).toBe(true);
       expect(() => {
-        (fixStep?.testCases?.[0] as { call: string }).call = 'roto';
+        (fixStep?.requirements as string[]).push('roto');
       }).toThrow(TypeError);
+      const serialized = JSON.stringify(session);
+      expect(serialized).not.toContain('"hints"');
+      expect(serialized).not.toContain('"explanation"');
+      expect(serialized).not.toContain('"testCases"');
+      expect(serialized).not.toContain('"correct"');
     });
 
     it('un updatedAt nulo no rompe la congelacion', async () => {

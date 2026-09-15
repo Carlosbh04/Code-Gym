@@ -42,7 +42,7 @@ export function CodeBlock({
         className,
       )}
     >
-      <pre className={cn('overflow-x-auto font-mono text-sm text-foreground', renderByLine ? 'py-4' : 'p-4')}>
+      <pre className={cn('overflow-x-auto font-mono text-sm text-code-foreground', renderByLine ? 'py-4' : 'p-4')}>
         {renderByLine ? (
           <code
             className={cn(
@@ -59,7 +59,7 @@ export function CodeBlock({
                   className={cn(
                     'block min-h-5 border-l-[3px] px-4',
                     isMarked
-                      ? 'border-foreground bg-muted/40'
+                      ? 'border-code-accent bg-code-surface'
                       : 'border-transparent',
                   )}
                 >
@@ -67,8 +67,8 @@ export function CodeBlock({
                     <span
                       aria-hidden="true"
                       className={cn(
-                        'mr-4 inline-block w-6 select-none text-right text-muted-foreground',
-                        isMarked && 'font-semibold text-foreground',
+                        'mr-4 inline-block w-6 select-none text-right text-code-muted',
+                        isMarked && 'font-semibold text-code-foreground',
                       )}
                     >
                       {lineNumber}

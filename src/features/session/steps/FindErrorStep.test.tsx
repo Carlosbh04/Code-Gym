@@ -201,8 +201,8 @@ describe('FindErrorStep (T032)', () => {
       const step = await findErrorStepOf(MAP_VS_FOREACH);
       const onChange = vi.fn();
       const completa: FindErrorSelection = {
-        line: step.errorLines![0],
-        errorType: step.errorType!,
+        line: 2,
+        errorType: step.options![0].id,
       };
       render(
         <FindErrorStep
@@ -214,14 +214,14 @@ describe('FindErrorStep (T032)', () => {
 
       fireEvent.click(
         within(typeGroup()).getByRole('radio', {
-          name: step.options!.find((o) => o.correct)!.text,
+          name: step.options![0].text,
         }),
       );
 
       expect(onChange).toHaveBeenCalledWith(completa);
     });
 
-    it('el componente no lee errorLines: varias líneas erróneas no cambian el render', async () => {
+    it('el componente no depende de datos privados de corrección', async () => {
       // Los nombres de grupo salen de useId y cambian entre renders: se
       // normalizan para comparar solo lo que depende del contenido.
       const normaliza = (html: string) => html.replace(/name="[^"]*"/g, 'name="grupo"');
@@ -231,7 +231,7 @@ describe('FindErrorStep (T032)', () => {
       const htmlUna = normaliza(una.container.innerHTML);
       una.unmount();
 
-      const varias: ExerciseStep = { ...base, errorLines: [2, 3, 5] };
+      const varias: ExerciseStep = { ...base, requirements: ['dato público ajeno'] };
       const muchas = render(<FindErrorStep step={varias} value={NADA} onChange={() => {}} />);
 
       expect(normaliza(muchas.container.innerHTML)).toBe(htmlUna);
@@ -376,7 +376,7 @@ describe('FindErrorStep (T032)', () => {
       );
       expect(atributos.filter((a) => a.includes('correct'))).toEqual([]);
       expect(atributos.filter((a) => a.startsWith('data-'))).toEqual([]);
-      expect(container.textContent).not.toContain(step.explanation);
+      expect(container.textContent).not.toContain('La explicación canónica');
     });
 
     it('todas las líneas se pintan igual mientras no haya selección', async () => {
@@ -491,10 +491,7 @@ describe('FindErrorStep (T032)', () => {
         );
         expect(within(typeGroup()).getAllByRole('radio')).toHaveLength(step.options!.length);
 
-        // La línea que declara el contenido existe entre las seleccionables.
-        for (const line of step.errorLines!) {
-          expect(lineRadio(line), `${id}/línea ${line}`).toBeInTheDocument();
-        }
+        expect(lineRadio(1), `${id}/línea 1`).toBeInTheDocument();
 
         unmount();
       }

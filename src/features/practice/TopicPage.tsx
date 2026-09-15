@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BookOpen } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { useContent } from '@/hooks/useContent';
@@ -224,40 +225,43 @@ function TopicPage() {
         practicedConcepts={practicedConcepts}
       />
 
-      <div className="mt-7 grid gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.8fr)] lg:items-start">
+      <div className="mt-5 grid gap-5 sm:mt-6 xl:grid-cols-[minmax(0,1fr)_minmax(26rem,0.9fr)] xl:items-start xl:gap-6">
         <section
           aria-busy={currentConcepts === null}
           aria-labelledby="concepts-heading"
-          className="min-w-0"
+          className="min-w-0 rounded-2xl border border-border bg-card/80 p-4 shadow-sm sm:p-5"
         >
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Aprendizaje</p>
-              <h2 id="concepts-heading" className="mt-1 text-2xl font-bold tracking-tight text-foreground">
+          <div className="flex items-center gap-3 border-b border-border pb-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary" aria-hidden="true">
+              <BookOpen className="size-5" />
+            </span>
+            <div className="min-w-0">
+              <h2 id="concepts-heading" className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
                 Teoría y conceptos
               </h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">Comprende las ideas clave antes de practicar.</p>
             </div>
           </div>
 
           {currentConcepts === null ? (
-            <div role="status" aria-live="polite" className="mt-5 rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">
+            <div role="status" aria-live="polite" className="mt-4 rounded-xl border border-border bg-background/50 p-4 text-sm text-muted-foreground">
               Cargando conceptos…
             </div>
           ) : currentConcepts.status === 'error' ? (
-            <p role="alert" className="mt-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+            <p role="alert" className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
               No pudimos cargar los conceptos de este tema. {currentConcepts.message}
             </p>
           ) : concepts.length === 0 ? (
             <EmptyState
               title="Todavía no hay conceptos disponibles"
               description="Este tema está disponible, pero aún no tiene conceptos preparados para practicar."
-              className="mt-5 rounded-2xl border border-border bg-card"
+              className="mt-4 rounded-xl border border-border bg-background/50"
             />
           ) : (
-            <ul className="mt-5 space-y-5">
+            <ul className="mt-1 divide-y divide-border">
               {concepts.map((concept) => (
-                <li key={concept.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
-                  <h3 className="break-words text-xl font-semibold tracking-tight text-foreground">
+                <li key={concept.id} className="min-w-0 py-5 first:pt-4 last:pb-0">
+                  <h3 className="min-w-0 break-normal whitespace-normal text-xl font-semibold leading-tight tracking-tight text-foreground">
                     {concept.name}
                   </h3>
                   <LearningContent
@@ -272,8 +276,8 @@ function TopicPage() {
         </section>
 
         {currentConcepts?.status === 'success' && concepts.length > 0 ? (
-          <aside className="min-w-0 lg:sticky lg:top-20">
-            <TopicSessionList concepts={concepts} results={sessionsByConcept} progress={progress} />
+          <aside className="min-w-0 xl:sticky xl:top-20">
+            <TopicSessionList concepts={concepts} results={sessionsByConcept} />
           </aside>
         ) : null}
       </div>

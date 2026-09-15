@@ -6,8 +6,8 @@ describe('NAV_ITEMS', () => {
     expect(NAV_ITEMS.map(({ label, to }) => ({ label, to }))).toEqual([
       { label: 'Inicio', to: '/' },
       { label: 'Progreso', to: '/dashboard' },
-      { label: 'Entrenar', to: '/tech/javascript' },
+      { label: 'Entrenar', to: '/tech' },
+      { label: 'Repasar', to: '/review' },
     ]);
-    expect(NAV_ITEMS.some(({ to }) => to === '/review')).toBe(false);
   });
 });

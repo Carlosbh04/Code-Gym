@@ -43,12 +43,8 @@ const stepOf = (
   code,
   language: code === null ? null : 'javascript',
   options: null,
-  errorLines: type === 'find-error' ? [1] : null,
-  errorType: type === 'find-error' ? 'logico' : null,
-  testCases: null,
-  expectedPatterns: null,
-  explanation: `Explicación ${id}`,
-  hints: [],
+  requirements: [],
+  hintCount: 0,
   stepOrder: 1,
 });
 

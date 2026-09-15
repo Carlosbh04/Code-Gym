@@ -68,7 +68,7 @@ describe('CodeReadingStep (T026)', () => {
       );
 
       expect(container.innerHTML).not.toContain('correct');
-      expect(container.textContent).not.toContain(step.explanation);
+      expect(container.textContent).not.toContain('`forEach` siempre devuelve');
     });
   });
 

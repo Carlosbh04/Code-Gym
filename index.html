@@ -3,7 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>CodeGym</title>
+    <script>
+      (() => {
+        const key = 'codegym:theme';
+        const allowed = ['system', 'light', 'dark'];
+        let preference = 'system';
+        try {
+          const stored = localStorage.getItem(key);
+          if (allowed.includes(stored)) preference = stored;
+          else if (stored !== null) localStorage.removeItem(key);
+        } catch {
+          preference = 'system';
+        }
+        const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+        const resolved = preference === 'system'
+          ? (systemDark ? 'dark' : 'light')
+          : preference;
+        const root = document.documentElement;
+        root.classList.add(resolved);
+        root.dataset.theme = preference;
+        root.dataset.resolvedTheme = resolved;
+        root.style.colorScheme = resolved;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

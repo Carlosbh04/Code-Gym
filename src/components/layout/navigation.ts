@@ -1,4 +1,4 @@
-import { Dumbbell, Home, LayoutDashboard } from 'lucide-react';
+import { BookOpenCheck, Dumbbell, Home, LayoutDashboard } from 'lucide-react';
 
 export interface NavItem {
   label: string;
@@ -19,7 +19,12 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     label: 'Entrenar',
-    to: '/tech/javascript',
+    to: '/tech',
     icon: Dumbbell,
+  },
+  {
+    label: 'Repasar',
+    to: '/review',
+    icon: BookOpenCheck,
   },
 ];
