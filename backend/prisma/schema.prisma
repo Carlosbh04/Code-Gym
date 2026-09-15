@@ -1,0 +1,353 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TrainingRunStatus {
+  ACTIVE
+  COMPLETED
+}
+
+model User {
+  id           String   @id @default(cuid(2)) @db.VarChar(30)
+  email        String   @unique(map: "users_email_key") @db.VarChar(254)
+  passwordHash String?  @map("password_hash") @db.VarChar(255)
+  displayName  String?  @map("display_name") @db.VarChar(100)
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  attempts               Attempt[]
+  completedSessions      CompletedSession[]
+  conceptProgress        ConceptProgress[]
+  authSessions           AuthSession[]
+  authIdentities         AuthIdentity[]
+  passwordResetChallenge PasswordResetChallenge?
+  trainingRuns           TrainingRun[]
+
+  @@map("users")
+}
+
+enum AuthProvider {
+  GOOGLE
+}
+
+model AuthIdentity {
+  id             String       @id @default(cuid(2)) @db.VarChar(30)
+  userId         String       @map("user_id") @db.VarChar(30)
+  provider       AuthProvider
+  providerUserId String       @map("provider_user_id") @db.VarChar(191)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "auth_identities_user_id_fkey")
+
+  @@unique([provider, providerUserId], map: "auth_identities_provider_provider_user_id_key")
+  @@unique([userId, provider], map: "auth_identities_user_id_provider_key")
+  @@index([userId], map: "auth_identities_user_id_idx")
+  @@map("auth_identities")
+}
+
+model PasswordResetChallenge {
+  id                  String    @id @default(cuid(2)) @db.VarChar(30)
+  userId              String    @unique(map: "password_reset_challenges_user_id_key") @map("user_id") @db.VarChar(30)
+  challengeNonce      Bytes     @map("challenge_nonce") @db.Binary(16)
+  codeDigest          Bytes     @map("code_digest") @db.Binary(32)
+  codeExpiresAt       DateTime  @map("code_expires_at") @db.DateTime(3)
+  attemptCount        Int       @default(0) @map("attempt_count") @db.UnsignedTinyInt
+  verifiedAt          DateTime? @map("verified_at") @db.DateTime(3)
+  resetTokenDigest    Bytes?    @unique(map: "password_reset_challenges_reset_token_digest_key") @map("reset_token_digest") @db.Binary(32)
+  resetTokenExpiresAt DateTime? @map("reset_token_expires_at") @db.DateTime(3)
+  usedAt              DateTime? @map("used_at") @db.DateTime(3)
+  createdAt           DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "password_reset_challenges_user_id_fkey")
+
+  @@index([codeExpiresAt], map: "password_reset_challenges_code_expires_at_idx")
+  @@index([resetTokenExpiresAt], map: "password_reset_challenges_reset_token_expires_at_idx")
+  @@map("password_reset_challenges")
+}
+
+model AuthSession {
+  id                 String    @id @default(cuid(2)) @db.VarChar(30)
+  userId             String    @map("user_id") @db.VarChar(30)
+  refreshTokenDigest Bytes     @unique(map: "auth_sessions_refresh_token_digest_key") @map("refresh_token_digest") @db.Binary(32)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  expiresAt          DateTime  @map("expires_at") @db.DateTime(3)
+  rotatedAt          DateTime? @map("rotated_at") @db.DateTime(3)
+  revokedAt          DateTime? @map("revoked_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "auth_sessions_user_id_fkey")
+
+  @@index([userId, revokedAt], map: "auth_sessions_user_id_revoked_at_idx")
+  @@index([expiresAt], map: "auth_sessions_expires_at_idx")
+  @@map("auth_sessions")
+}
+
+model TrainingRun {
+  id                String            @id @default(cuid(2)) @db.VarChar(30)
+  userId            String            @map("user_id") @db.VarChar(30)
+  sessionId         String            @map("session_id") @db.VarChar(191)
+  technologyId      String            @map("technology_id") @db.VarChar(191)
+  topicId           String            @map("topic_id") @db.VarChar(191)
+  conceptId         String            @map("concept_id") @db.VarChar(191)
+  status            TrainingRunStatus @default(ACTIVE)
+  totalExercises    Int               @map("total_exercises") @db.UnsignedInt
+  answeredExercises Int               @default(0) @map("answered_exercises") @db.UnsignedInt
+  correctExercises  Int               @default(0) @map("correct_exercises") @db.UnsignedInt
+  durationMs        Int               @default(0) @map("duration_ms") @db.UnsignedInt
+  hintsUsed         Int               @default(0) @map("hints_used") @db.UnsignedInt
+  startedAt         DateTime          @default(now()) @map("started_at") @db.DateTime(3)
+  completedAt       DateTime?         @map("completed_at") @db.DateTime(3)
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "training_runs_user_id_fkey")
+  attempts         Attempt[]
+  hintReveals      TrainingHintReveal[]
+  completedSession CompletedSession?
+
+  @@index([userId, startedAt], map: "training_runs_user_id_started_at_idx")
+  @@index([userId, status], map: "training_runs_user_id_status_idx")
+  @@index([sessionId], map: "training_runs_session_id_idx")
+  @@map("training_runs")
+}
+
+model TrainingHintReveal {
+  id            String   @id @default(cuid(2)) @db.VarChar(30)
+  trainingRunId String   @map("training_run_id") @db.VarChar(30)
+  exerciseId    String   @map("exercise_id") @db.VarChar(191)
+  hintIndex     Int      @map("hint_index") @db.UnsignedInt
+  revealedAt    DateTime @default(now()) @map("revealed_at") @db.DateTime(3)
+
+  trainingRun TrainingRun @relation(fields: [trainingRunId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "training_hint_reveals_training_run_id_fkey")
+
+  @@unique([trainingRunId, exerciseId, hintIndex], map: "training_hint_reveals_run_exercise_index_key")
+  @@index([trainingRunId, exerciseId], map: "training_hint_reveals_run_exercise_idx")
+  @@map("training_hint_reveals")
+}
+
+model Attempt {
+  id            String   @id @default(cuid(2)) @db.VarChar(30)
+  userId        String   @map("user_id") @db.VarChar(30)
+  trainingRunId String?  @map("training_run_id") @db.VarChar(30)
+  sessionId     String   @map("session_id") @db.VarChar(191)
+  exerciseId    String   @map("exercise_id") @db.VarChar(191)
+  conceptId     String?  @map("concept_id") @db.VarChar(191)
+  technologyId  String   @map("technology_id") @db.VarChar(191)
+  isCorrect     Boolean  @map("is_correct")
+  attemptedAt   DateTime @default(now()) @map("attempted_at") @db.DateTime(3)
+  durationMs    Int?     @map("duration_ms") @db.UnsignedInt
+  hintsUsed     Int?     @map("hints_used") @db.UnsignedInt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "attempts_user_id_fkey")
+  trainingRun TrainingRun? @relation(fields: [trainingRunId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "attempts_training_run_id_fkey")
+
+  @@unique([trainingRunId, exerciseId], map: "attempts_training_run_id_exercise_id_key")
+  @@index([userId, attemptedAt], map: "attempts_user_id_attempted_at_idx")
+  @@index([sessionId], map: "attempts_session_id_idx")
+  @@index([conceptId], map: "attempts_concept_id_idx")
+  @@index([trainingRunId], map: "attempts_training_run_id_idx")
+  @@map("attempts")
+}
+
+model CompletedSession {
+  id               String   @id @default(cuid(2)) @db.VarChar(30)
+  userId           String   @map("user_id") @db.VarChar(30)
+  trainingRunId    String?  @unique(map: "completed_sessions_training_run_id_key") @map("training_run_id") @db.VarChar(30)
+  sessionId        String   @map("session_id") @db.VarChar(191)
+  technologyId     String   @map("technology_id") @db.VarChar(191)
+  topicId          String?  @map("topic_id") @db.VarChar(191)
+  conceptId        String?  @map("concept_id") @db.VarChar(191)
+  totalExercises   Int      @map("total_exercises") @db.UnsignedInt
+  correctExercises Int      @map("correct_exercises") @db.UnsignedInt
+  durationMs       Int      @map("duration_ms") @db.UnsignedInt
+  hintsUsed        Int      @default(0) @map("hints_used") @db.UnsignedInt
+  completedAt      DateTime @default(now()) @map("completed_at") @db.DateTime(3)
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "completed_sessions_user_id_fkey")
+  trainingRun TrainingRun? @relation(fields: [trainingRunId], references: [id], onDelete: SetNull, onUpdate: Cascade, map: "completed_sessions_training_run_id_fkey")
+
+  @@index([userId, completedAt], map: "completed_sessions_user_id_completed_at_idx")
+  @@index([sessionId], map: "completed_sessions_session_id_idx")
+  @@index([conceptId], map: "completed_sessions_concept_id_idx")
+  @@map("completed_sessions")
+}
+
+model ConceptProgress {
+  id                String   @id @default(cuid(2)) @db.VarChar(30)
+  userId            String   @map("user_id") @db.VarChar(30)
+  conceptId         String   @map("concept_id") @db.VarChar(191)
+  technologyId      String   @map("technology_id") @db.VarChar(191)
+  totalAttempts     Int      @default(0) @map("total_attempts") @db.UnsignedInt
+  correctAttempts   Int      @default(0) @map("correct_attempts") @db.UnsignedInt
+  completedSessions Int      @default(0) @map("completed_sessions") @db.UnsignedInt
+  lastPracticedAt   DateTime @map("last_practiced_at") @db.DateTime(3)
+  createdAt         DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "concept_progress_user_id_fkey")
+
+  @@unique([userId, conceptId], map: "concept_progress_user_id_concept_id_key")
+  @@index([userId, lastPracticedAt], map: "concept_progress_user_id_last_practiced_at_idx")
+  @@index([technologyId], map: "concept_progress_technology_id_idx")
+  @@map("concept_progress")
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  UPDATED
+  DEPRECATED
+  LEGACY
+}
+
+enum ContentDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum LearningSectionType {
+  INTRO
+  EXPLANATION
+  KEY_POINT
+  WARNING
+  OBJECTIVES
+  CODE
+  COMPARISON
+  QUICK_CHECK
+}
+
+enum ExerciseStepType {
+  CODE_READING
+  PREDICT_OUTPUT
+  FIND_ERROR
+  FIX_CODE
+}
+
+model Technology {
+  id          String   @id @db.VarChar(191)
+  name        String   @db.VarChar(100)
+  icon        String   @db.VarChar(100)
+  description String   @db.Text
+  position    Int      @default(0) @db.UnsignedInt
+  isPublished Boolean  @default(false) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  topics Topic[]
+
+  @@index([position], map: "technologies_position_idx")
+  @@map("technologies")
+}
+
+model Topic {
+  id           String   @id @db.VarChar(191)
+  technologyId String   @map("technology_id") @db.VarChar(191)
+  name         String   @db.VarChar(150)
+  description  String   @db.Text
+  position     Int      @default(0) @db.UnsignedInt
+  isPublished  Boolean  @default(false) @map("is_published")
+  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  concepts Concept[]
+
+  @@index([technologyId, position], map: "topics_technology_position_idx")
+  @@map("topics")
+}
+
+model Concept {
+  id              String   @id @db.VarChar(191)
+  topicId         String   @map("topic_id") @db.VarChar(191)
+  technologyId    String   @map("technology_id") @db.VarChar(191)
+  name            String   @db.VarChar(150)
+  contentMarkdown String?  @map("content_markdown") @db.LongText
+  position        Int      @default(0) @db.UnsignedInt
+  isPublished     Boolean  @default(false) @map("is_published")
+  createdAt       DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  learningSections LearningSection[]
+  sessions         ExerciseSession[]
+
+  @@index([topicId, position], map: "concepts_topic_position_idx")
+  @@index([technologyId], map: "concepts_technology_id_idx")
+  @@map("concepts")
+}
+
+model LearningSection {
+  id        String              @id @default(cuid(2)) @db.VarChar(30)
+  conceptId String              @map("concept_id") @db.VarChar(191)
+  type      LearningSectionType
+  title     String?             @db.VarChar(200)
+  content   Json
+  position  Int                 @default(0) @db.UnsignedInt
+  createdAt DateTime            @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime            @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([conceptId, position], map: "learning_sections_concept_position_idx")
+  @@map("learning_sections")
+}
+
+model ExerciseSession {
+  id           String            @id @db.VarChar(191)
+  conceptId    String            @map("concept_id") @db.VarChar(191)
+  technologyId String            @map("technology_id") @db.VarChar(191)
+  title        String            @db.VarChar(200)
+  difficulty   ContentDifficulty
+  version      String            @db.VarChar(30)
+  status       ContentStatus
+  position     Int               @default(0) @db.UnsignedInt
+  createdAt    DateTime          @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  steps ExerciseStep[]
+
+  @@index([conceptId, position], map: "exercise_sessions_concept_position_idx")
+  @@index([technologyId], map: "exercise_sessions_technology_id_idx")
+  @@map("exercise_sessions")
+}
+
+model ExerciseStep {
+  id               String           @db.VarChar(191)
+  sessionId        String           @map("session_id") @db.VarChar(191)
+  type             ExerciseStepType
+  prompt           String           @db.Text
+  code             String?          @db.LongText
+  language         String?          @db.VarChar(50)
+  options          Json?
+  errorLines       Json?            @map("error_lines")
+  errorType        String?          @map("error_type") @db.VarChar(100)
+  testCases        Json?            @map("test_cases")
+  expectedPatterns Json?            @map("expected_patterns")
+  explanation      String           @db.Text
+  hints            Json
+  position         Int              @default(0) @db.UnsignedInt
+  createdAt        DateTime         @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt        DateTime         @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  session ExerciseSession @relation(fields: [sessionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([sessionId, id])
+  @@index([sessionId, position], map: "exercise_steps_session_position_idx")
+  @@map("exercise_steps")
+}
