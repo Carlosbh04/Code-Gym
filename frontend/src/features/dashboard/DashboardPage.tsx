@@ -185,13 +185,17 @@ function DashboardPage() {
 
   if (progressError !== null) return <section className="mx-auto w-full max-w-7xl space-y-5 py-2 sm:py-4"><DashboardError message={progressError} /><RecentActivity activities={activities} isLoading={completedSessionsLoading || sessionDetails.status === 'loading'} error={completedSessionsError} /></section>;
 
+  const initialDashboardLoading =
+    progressLoading
+    || contentLoading;
+
   return (
     <section aria-labelledby="dashboard-title" className="mx-auto w-full max-w-7xl py-2 sm:py-4">
       <DashboardHeader
         latestActivity={activities[0]}
-        isLoading={progressLoading}
+        isLoading={initialDashboardLoading}
       />
-      {progressLoading ? (
+      {initialDashboardLoading ? (
         <DashboardLoadingBody
           metrics={metrics}
         />
