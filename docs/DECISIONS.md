@@ -24,6 +24,9 @@ T015.1–T015.12.
 | D012 | isCorrect en UserAnswer | Accepted |
 | D013 | Escala del dominio y factores inyectados | Accepted |
 | D018 | Finalización coordinada de sesión y dominio diferido | Accepted |
+| D019 | Recovery temporal detrás de una capacidad inyectable | Accepted |
+| D020 | Contrato E2E tras la persistencia de progreso en backend | Superseded by D021 |
+| D021 | Home canónico en raíz y Progreso reservado en dashboard | Accepted |
 
 ---
 
@@ -1125,3 +1128,81 @@ Accepted
 
 **Tareas:** T052 · **Master Plan:** §21, §27 · **Relacionada con:** D004, D006,
 D012, D018
+
+---
+
+# D020 — Contrato E2E tras la persistencia de progreso en backend
+
+## Context
+
+La raíz autenticada ya no renderiza una Home independiente: redirige de forma
+canónica a `/dashboard`. Además, el progreso, los intentos, las sesiones
+completadas y el historial son autoritativos en el backend. Sembrar las antiguas
+claves de `localStorage` en Playwright ya no representa el producto real.
+
+`ResetProgressCard` permanece fuera del árbol de renderizado y no existe un
+endpoint backend que defina un borrado transaccional de todo el progreso. Su E2E
+probaba una capacidad sin contrato vigente.
+
+## Decision
+
+- Los E2E autenticados consideran `/dashboard` el destino canónico de `/`.
+- Los escenarios con progreso crean usuarios aislados y registran ejecuciones y
+  respuestas mediante las APIs reales del backend.
+- El recovery temporal puede seguir preparándose en `sessionStorage`, que es su
+  almacenamiento canónico.
+- Se retira el E2E `restablece solo la práctica, conserva preferencias y devuelve
+  Home a primera visita`.
+- No se añadirá otra prueba de reset hasta que exista una capacidad backend
+  explícita con semántica de borrado, autorización y atomicidad definidas.
+
+## Consequences
+
+- La suite valida el contrato actual y deja de depender de persistencia local
+  obsoleta.
+- Los datos E2E son observables por las mismas rutas HTTP que usa producción.
+- El reset de progreso queda como funcionalidad diferida, no como cobertura
+  omitida de una capacidad existente.
+
+## Status
+
+Superseded by D021
+
+**Relacionada con:** D018, D019
+
+---
+
+# D021 — Home canónico en raíz y Progreso reservado en dashboard
+
+## Context
+
+El contrato de producto vuelve a distinguir la experiencia de inicio del panel
+de progreso. La raíz autenticada necesita ofrecer onboarding o continuidad con
+datos reales, mientras que `/dashboard` conserva el detalle de Progreso. Esta
+decisión reemplaza únicamente la parte de D020 que convertía `/` en una
+redirección silenciosa; el backend sigue siendo autoritativo para progreso e
+historial.
+
+## Decision
+
+- `/` es la ruta canónica y protegida de `HomePage`.
+- `/dashboard` queda reservado exclusivamente para `DashboardPage` (Progreso).
+- Sidebar mantiene Inicio → `/` y Progreso → `/dashboard`.
+- La Home distingue primera visita de experiencia con actividad usando recovery,
+  progreso e historial reales; no deriva métricas desde almacenamiento local.
+- Se elimina la redirección silenciosa de `/` a `/dashboard`.
+
+## Consequences
+
+- Usuarios sin autenticar que soliciten `/` pasan por `RequireAuth` y llegan a
+  `/login` con el retorno de ruta existente.
+- Los E2E de navegación autenticada deben observar Home en `/` y Progreso solo en
+  `/dashboard`.
+- No cambian los contratos de persistencia, autenticación ni las rutas de
+  práctica, resultados o repaso.
+
+## Status
+
+Accepted
+
+**Relacionada con:** D020
