@@ -8,6 +8,9 @@ import {
 import {
   SessionIdleProvider,
 } from '@/features/session-idle/SessionIdleContext';
+import {
+  LogoutTransitionProvider,
+} from '@/features/logout-transition/LogoutTransitionContext';
 
 import {
   TrainingProvider,
@@ -58,7 +61,8 @@ export function AppProviders({
 }) {
   return (
     <AuthProvider>
-      <SessionIdleProvider>
+      <LogoutTransitionProvider>
+        <SessionIdleProvider>
         <DashboardProvider>
         <TrainingProvider>
           <ThemeProvider>
@@ -82,7 +86,8 @@ export function AppProviders({
           </ThemeProvider>
         </TrainingProvider>
         </DashboardProvider>
-      </SessionIdleProvider>
+        </SessionIdleProvider>
+      </LogoutTransitionProvider>
     </AuthProvider>
   );
 }

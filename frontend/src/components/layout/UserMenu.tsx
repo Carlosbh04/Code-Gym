@@ -37,9 +37,15 @@ const SECONDARY_MENU_ITEMS: readonly SecondaryMenuItem[] = [
   },
 ];
 
+import {
+  useLogoutTransition,
+} from '@/features/logout-transition/LogoutTransitionContext';
+
 export function UserMenu() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { runLogoutTransition } =
+    useLogoutTransition();
   const [open, setOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -108,12 +114,19 @@ export function UserMenu() {
     logoutPendingRef.current = true;
     setIsLoggingOut(true);
 
-    try {
-      await logout();
-    } finally {
-      setOpen(false);
-      navigate('/login', { replace: true });
-    }
+    setOpen(false);
+
+    await runLogoutTransition(
+      logout,
+      () => {
+        navigate(
+          '/login',
+          {
+            replace: true,
+          },
+        );
+      },
+    );
   }
 
   function openProfile() {

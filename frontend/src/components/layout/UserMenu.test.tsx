@@ -6,6 +6,15 @@ import { UserMenu } from './UserMenu';
 const mocks = vi.hoisted(() => ({
   logout: vi.fn<() => Promise<void>>(),
   navigate: vi.fn(),
+  runLogoutTransition: vi.fn(
+    async (
+      logoutAction: () => Promise<void>,
+      onFinished?: () => void,
+    ) => {
+      await logoutAction();
+      onFinished?.();
+    },
+  ),
 }));
 
 vi.mock('@/features/auth/AuthContext', () => ({
@@ -22,6 +31,17 @@ vi.mock('@/features/auth/AuthContext', () => ({
   }),
 }));
 
+vi.mock(
+  '@/features/logout-transition/LogoutTransitionContext',
+  () => ({
+    useLogoutTransition: () => ({
+      active: false,
+      runLogoutTransition:
+        mocks.runLogoutTransition,
+    }),
+  }),
+);
+
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
   return {
@@ -35,6 +55,7 @@ describe('UserMenu', () => {
     mocks.logout.mockReset();
     mocks.logout.mockResolvedValue(undefined);
     mocks.navigate.mockReset();
+    mocks.runLogoutTransition.mockClear();
   });
 
   it('muestra identidad real y abre el menú desde todo el bloque de usuario', () => {
@@ -121,14 +142,29 @@ describe('UserMenu', () => {
     fireEvent.click(logoutItem);
 
     expect(mocks.logout).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('menuitem', { name: 'Cerrando sesión…' })).toBeDisabled();
-    expect(mocks.navigate).not.toHaveBeenCalled();
+    expect(
+      mocks.runLogoutTransition,
+    ).toHaveBeenCalledTimes(1);
+
+    expect(
+      screen.queryByRole('menu'),
+    ).not.toBeInTheDocument();
+
+    expect(
+      mocks.navigate,
+    ).not.toHaveBeenCalled();
 
     resolveLogout?.();
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith('/login', { replace: true });
+      expect(
+        mocks.navigate,
+      ).toHaveBeenCalledWith(
+        '/login',
+        {
+          replace: true,
+        },
+      );
     });
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 });

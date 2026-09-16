@@ -40,7 +40,7 @@ export function LoginForm({
 }: LoginFormProps) {
   return (
     <form
-      className="space-y-4"
+      className="auth-login-cascade auth-mode-wave space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
 

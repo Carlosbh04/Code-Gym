@@ -2,6 +2,9 @@ import { act, render, screen } from '@testing-library/react';
 import { RouterProvider } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import {
+  LogoutTransitionProvider,
+} from '@/features/logout-transition/LogoutTransitionContext';
 
 const authState = vi.hoisted(() => ({ authenticated: true }));
 
@@ -80,7 +83,9 @@ async function navigate(path: string) {
 function renderRouter() {
   return render(
     <ThemeProvider>
-      <RouterProvider router={router} />
+      <LogoutTransitionProvider>
+        <RouterProvider router={router} />
+      </LogoutTransitionProvider>
     </ThemeProvider>,
   );
 }

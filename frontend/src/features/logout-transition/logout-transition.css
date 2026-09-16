@@ -1,0 +1,408 @@
+/* =========================================================
+   CODEGYM · LOGOUT
+   Diseño 15 · Pulse Grid
+   ========================================================= */
+
+.codegym-logout-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+
+  background:
+    hsl(var(--background));
+
+  color:
+    hsl(var(--foreground));
+}
+
+.codegym-logout-transition__veil {
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 50% 44%,
+      rgb(99 102 241 / 0.11),
+      transparent 38%
+    );
+
+  pointer-events: none;
+}
+
+.codegym-logout-transition__grid {
+  position: absolute;
+  inset: -12%;
+
+  background-image:
+    linear-gradient(
+      rgb(34 211 238 / 0.10) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgb(139 92 246 / 0.10) 1px,
+      transparent 1px
+    );
+
+  background-size:
+    28px 28px;
+
+  mask-image:
+    radial-gradient(
+      circle at center,
+      black,
+      transparent 72%
+    );
+
+  pointer-events: none;
+}
+
+.codegym-logout-transition--exiting
+  .codegym-logout-transition__grid {
+  animation:
+    codegym-logout-grid-pulse
+    900ms
+    cubic-bezier(0.16, 1, 0.3, 1)
+    both;
+}
+
+.codegym-logout-transition--exiting
+  .codegym-logout-transition__veil {
+  animation:
+    codegym-logout-veil-pulse
+    900ms
+    ease-out
+    both;
+}
+
+.codegym-logout-transition__exit-copy {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+
+  font-size: 0.875rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+
+  color:
+    hsl(var(--muted-foreground));
+
+  animation:
+    codegym-logout-exit-copy
+    900ms
+    ease
+    both;
+}
+
+.codegym-logout-transition__exit-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+
+  border-radius: 9999px;
+
+  background:
+    rgb(34 211 238);
+
+  box-shadow:
+    0 0 1.5rem
+    rgb(34 211 238 / 0.72);
+
+  animation:
+    codegym-logout-dot
+    620ms
+    ease-in-out
+    infinite
+    alternate;
+}
+
+/* ---------------------------------------------------------
+   MENSAJE FINAL
+   --------------------------------------------------------- */
+
+.codegym-logout-transition__message {
+  position: relative;
+  z-index: 3;
+
+  width:
+    min(
+      calc(100% - 2rem),
+      31rem
+    );
+
+  padding:
+    2rem;
+
+  border:
+    1px solid
+    rgb(255 255 255 / 0.09);
+
+  border-radius:
+    1.5rem;
+
+  background:
+    rgb(15 17 27 / 0.88);
+
+  box-shadow:
+    0 2rem 6rem
+    rgb(0 0 0 / 0.48);
+
+  backdrop-filter:
+    blur(1.5rem);
+
+  animation:
+    codegym-logout-message-in
+    560ms
+    cubic-bezier(0.16, 1, 0.3, 1)
+    both;
+}
+
+.codegym-logout-transition__message-icon {
+  display: grid;
+  place-items: center;
+
+  width: 3.5rem;
+  height: 3.5rem;
+
+  margin-bottom:
+    1.35rem;
+
+  border:
+    1px solid
+    rgb(255 255 255 / 0.09);
+
+  border-radius:
+    1.1rem;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgb(139 92 246 / 0.19),
+      rgb(34 211 238 / 0.13)
+    );
+
+  box-shadow:
+    0 0 2rem
+    rgb(99 102 241 / 0.08);
+
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+
+  font-weight:
+    800;
+
+  color:
+    rgb(165 180 252);
+}
+
+.codegym-logout-transition__eyebrow {
+  margin: 0 0 0.5rem;
+
+  font-size:
+    0.72rem;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.16em;
+
+  color:
+    rgb(34 211 238 / 0.85);
+}
+
+.codegym-logout-transition__title {
+  margin: 0;
+
+  font-size:
+    clamp(
+      1.65rem,
+      7vw,
+      2.15rem
+    );
+
+  line-height:
+    1.08;
+
+  letter-spacing:
+    -0.035em;
+}
+
+.codegym-logout-transition__description {
+  margin:
+    0.85rem 0 0;
+
+  max-width:
+    27rem;
+
+  font-size:
+    0.95rem;
+
+  line-height:
+    1.65;
+
+  color:
+    hsl(var(--muted-foreground));
+}
+
+.codegym-logout-transition__progress {
+  height:
+    0.2rem;
+
+  margin-top:
+    1.65rem;
+
+  overflow:
+    hidden;
+
+  border-radius:
+    9999px;
+
+  background:
+    rgb(255 255 255 / 0.06);
+}
+
+.codegym-logout-transition__progress span {
+  display:
+    block;
+
+  width:
+    100%;
+
+  height:
+    100%;
+
+  transform-origin:
+    left;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(139 92 246),
+      rgb(34 211 238)
+    );
+
+  animation:
+    codegym-logout-progress
+    5.5s
+    linear
+    both;
+}
+
+/* ---------------------------------------------------------
+   KEYFRAMES
+   --------------------------------------------------------- */
+
+@keyframes codegym-logout-grid-pulse {
+  0% {
+    opacity: 0.22;
+    transform: scale(0.94);
+  }
+
+  35% {
+    opacity: 0.92;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+    filter: blur(8px);
+  }
+}
+
+@keyframes codegym-logout-veil-pulse {
+  0% {
+    opacity: 0;
+  }
+
+  45% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes codegym-logout-exit-copy {
+  0% {
+    opacity: 0;
+    transform:
+      translateY(0.65rem);
+  }
+
+  25%,
+  68% {
+    opacity: 1;
+    transform:
+      translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translateY(-0.35rem);
+  }
+}
+
+@keyframes codegym-logout-dot {
+  to {
+    opacity: 0.45;
+    transform: scale(0.72);
+  }
+}
+
+@keyframes codegym-logout-message-in {
+  0% {
+    opacity: 0;
+    transform:
+      translateY(1.2rem)
+      scale(0.94);
+
+    filter:
+      blur(8px);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+
+    filter:
+      blur(0);
+  }
+}
+
+@keyframes codegym-logout-progress {
+  to {
+    transform:
+      scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .codegym-logout-transition__grid,
+  .codegym-logout-transition__veil,
+  .codegym-logout-transition__exit-copy,
+  .codegym-logout-transition__exit-dot,
+  .codegym-logout-transition__message,
+  .codegym-logout-transition__progress span {
+    animation-duration:
+      1ms !important;
+
+    animation-iteration-count:
+      1 !important;
+  }
+}

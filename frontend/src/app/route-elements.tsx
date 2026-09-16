@@ -66,7 +66,7 @@ export function LazyHomePage() {
 
 export function LazyAuthPage({ initialMode = 'login' }: { initialMode?: AuthMode }) {
   return (
-    <Suspense fallback={<RouteLoading />}>
+    <Suspense fallback={null}>
       <AuthPage initialMode={initialMode} />
     </Suspense>
   );

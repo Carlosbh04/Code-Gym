@@ -1231,3 +1231,885 @@
   margin-inline: auto;
   border-radius: 9999px;
 }
+
+/* =========================================================
+   CODEGYM · AUTH ENTRY
+   Diseño 06 · Layer Cascade
+   ========================================================= */
+/* =========================================================
+   CODEGYM · AUTH ENTRY
+   Diseño 06 · Full Layer Cascade
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   ESCENARIO / FONDO
+   --------------------------------------------------------- */
+
+.auth-page::before {
+  animation:
+    auth-background-grid-in
+    1100ms
+    var(--motion-ease-emphasized)
+    both;
+}
+
+.auth-page::after {
+  animation:
+    auth-background-points-in
+    1200ms
+    ease-out
+    120ms
+    both;
+}
+
+.auth-page__orb {
+  animation:
+    auth-orb-in
+    1200ms
+    var(--motion-ease-emphasized)
+    180ms
+    both;
+}
+
+/* ---------------------------------------------------------
+   COLUMNA IZQUIERDA
+   --------------------------------------------------------- */
+
+.auth-logo-entry {
+  animation:
+    auth-cascade-left
+    650ms
+    var(--motion-ease-emphasized)
+    80ms
+    both;
+}
+
+.auth-brand-entry {
+  animation: none;
+}
+
+.auth-brand-entry > p {
+  animation:
+    auth-cascade-left
+    620ms
+    var(--motion-ease-emphasized)
+    180ms
+    both;
+}
+
+.auth-hero-title-line--one {
+  animation:
+    auth-title-cascade-one
+    720ms
+    var(--motion-ease-emphasized)
+    260ms
+    both;
+}
+
+.auth-hero-title-line--two {
+  animation:
+    auth-title-cascade-two
+    760ms
+    var(--motion-ease-emphasized)
+    360ms
+    both;
+}
+
+.auth-code-entry {
+  animation:
+    auth-code-window-in
+    780ms
+    var(--motion-ease-emphasized)
+    500ms
+    both;
+}
+
+.auth-code-entry > p {
+  animation:
+    auth-cascade-left
+    600ms
+    var(--motion-ease-emphasized)
+    680ms
+    both;
+}
+
+/* ---------------------------------------------------------
+   PANEL DERECHO
+   --------------------------------------------------------- */
+
+.auth-panel-entry {
+  animation:
+    auth-panel-cascade-in
+    760ms
+    var(--motion-ease-emphasized)
+    190ms
+    both;
+}
+
+.auth-panel-entry .auth-panel-header {
+  animation:
+    auth-layer-item
+    600ms
+    var(--motion-ease-emphasized)
+    360ms
+    both;
+}
+
+.auth-panel-entry .auth-tabs {
+  animation:
+    auth-layer-item
+    600ms
+    var(--motion-ease-emphasized)
+    430ms
+    both;
+}
+
+/* ---------------------------------------------------------
+   LOGIN FORM
+   --------------------------------------------------------- */
+
+.auth-login-cascade > * {
+  opacity: 0;
+
+  transform:
+    translateY(14px)
+    scale(0.985);
+
+  animation:
+    auth-login-layer-item
+    560ms
+    var(--motion-ease-emphasized)
+    both;
+}
+
+.auth-login-cascade > :nth-child(1) {
+  animation-delay: 500ms;
+}
+
+.auth-login-cascade > :nth-child(2) {
+  animation-delay: 565ms;
+}
+
+.auth-login-cascade > :nth-child(3) {
+  animation-delay: 630ms;
+}
+
+.auth-login-cascade > :nth-child(4) {
+  animation-delay: 695ms;
+}
+
+.auth-login-cascade > :nth-child(5) {
+  animation-delay: 760ms;
+}
+
+.auth-login-cascade > :nth-child(6) {
+  animation-delay: 825ms;
+}
+
+.auth-login-cascade > :nth-child(7) {
+  animation-delay: 890ms;
+}
+
+/* ---------------------------------------------------------
+   KEYFRAMES · ESCENARIO
+   --------------------------------------------------------- */
+
+@keyframes auth-background-grid-in {
+  0% {
+    opacity: 0;
+    transform:
+      scale(1.06);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      scale(1);
+  }
+}
+
+@keyframes auth-background-points-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0.42;
+  }
+}
+
+@keyframes auth-orb-in {
+  0% {
+    opacity: 0;
+    transform:
+      translate(-3rem, 3rem)
+      rotate(-18deg)
+      scale(0.88);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translate(0, 0)
+      rotate(-12deg)
+      scale(1);
+  }
+}
+
+/* ---------------------------------------------------------
+   KEYFRAMES · IZQUIERDA
+   --------------------------------------------------------- */
+
+@keyframes auth-cascade-left {
+  0% {
+    opacity: 0;
+    transform:
+      translateX(-22px)
+      translateY(8px);
+
+    filter:
+      blur(5px);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translateX(0)
+      translateY(0);
+
+    filter:
+      blur(0);
+  }
+}
+
+@keyframes auth-title-cascade-one {
+  0% {
+    opacity: 0;
+    transform:
+      translateX(-30px)
+      translateY(14px);
+
+    filter:
+      blur(7px);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translateX(0)
+      translateY(0);
+
+    filter:
+      blur(0);
+  }
+}
+
+@keyframes auth-title-cascade-two {
+  0% {
+    opacity: 0;
+    transform:
+      translateX(-22px)
+      translateY(16px);
+
+    filter:
+      blur(7px);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translateX(0)
+      translateY(0);
+
+    filter:
+      blur(0);
+  }
+}
+
+@keyframes auth-code-window-in {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(24px)
+      scale(0.965);
+
+    filter:
+      blur(8px);
+  }
+
+  65% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+
+    filter:
+      blur(0);
+  }
+}
+
+/* ---------------------------------------------------------
+   KEYFRAMES · PANEL
+   --------------------------------------------------------- */
+
+@keyframes auth-panel-cascade-in {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateX(30px)
+      translateY(12px)
+      scale(0.965);
+
+    filter:
+      blur(9px);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateX(0)
+      translateY(0)
+      scale(1);
+
+    filter:
+      blur(0);
+  }
+}
+
+@keyframes auth-layer-item {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(13px);
+
+    filter:
+      blur(4px);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+    filter:
+      blur(0);
+  }
+}
+
+@keyframes auth-login-layer-item {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(14px)
+      scale(0.985);
+
+    filter:
+      blur(4px);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+
+    filter:
+      blur(0);
+  }
+}
+
+/* ---------------------------------------------------------
+   REDUCED MOTION
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-page::before,
+  .auth-page::after,
+  .auth-page__orb,
+  .auth-logo-entry,
+  .auth-brand-entry > p,
+  .auth-hero-title-line--one,
+  .auth-hero-title-line--two,
+  .auth-code-entry,
+  .auth-code-entry > p,
+  .auth-panel-entry,
+  .auth-panel-entry .auth-panel-header,
+  .auth-panel-entry .auth-tabs,
+  .auth-login-cascade > * {
+    opacity: 1;
+
+    transform: none;
+
+    filter: none;
+
+    animation: none;
+  }
+}
+
+/* =========================================================
+   CODEGYM · LOGIN ↔ REGISTER
+   Cascade Wave 3D
+   ========================================================= */
+
+/*
+ * Sustituye el antiguo desplazamiento horizontal.
+ * El panel entra primero y los elementos del formulario
+ * forman una ola tridimensional progresiva.
+ */
+
+.auth-form-swap[data-direction='forward'],
+.auth-form-swap[data-direction='backward'] {
+  animation:
+    auth-wave-panel
+    520ms
+    var(--motion-ease-emphasized)
+    both;
+
+  perspective: 900px;
+}
+
+/* ---------------------------------------------------------
+   CASCADE INTERNO
+   --------------------------------------------------------- */
+
+.auth-mode-wave > * {
+  opacity: 0;
+
+  transform:
+    translateY(24px)
+    rotateX(20deg)
+    scale(0.985);
+
+  transform-origin:
+    center bottom;
+
+  animation:
+    auth-wave-item
+    540ms
+    var(--motion-ease-emphasized)
+    both;
+
+  will-change:
+    transform,
+    opacity,
+    filter;
+}
+
+.auth-mode-wave > :nth-child(1) {
+  animation-delay: 70ms;
+}
+
+.auth-mode-wave > :nth-child(2) {
+  animation-delay: 125ms;
+}
+
+.auth-mode-wave > :nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.auth-mode-wave > :nth-child(4) {
+  animation-delay: 235ms;
+}
+
+.auth-mode-wave > :nth-child(5) {
+  animation-delay: 290ms;
+}
+
+.auth-mode-wave > :nth-child(6) {
+  animation-delay: 345ms;
+}
+
+.auth-mode-wave > :nth-child(7) {
+  animation-delay: 400ms;
+}
+
+.auth-mode-wave > :nth-child(8) {
+  animation-delay: 455ms;
+}
+
+.auth-mode-wave > :nth-child(9) {
+  animation-delay: 510ms;
+}
+
+.auth-mode-wave > :nth-child(10) {
+  animation-delay: 565ms;
+}
+
+/* ---------------------------------------------------------
+   INPUTS
+   --------------------------------------------------------- */
+
+.auth-mode-wave .auth-input-shell,
+.auth-mode-wave .auth-register-section {
+  transform-style:
+    preserve-3d;
+}
+
+.auth-mode-wave .auth-input-shell {
+  animation:
+    auth-wave-input-shell
+    620ms
+    var(--motion-ease-emphasized)
+    both;
+}
+
+.auth-mode-wave > :nth-child(1)
+.auth-input-shell {
+  animation-delay: 120ms;
+}
+
+.auth-mode-wave > :nth-child(2)
+.auth-input-shell {
+  animation-delay: 175ms;
+}
+
+.auth-mode-wave > :nth-child(3)
+.auth-input-shell {
+  animation-delay: 230ms;
+}
+
+.auth-mode-wave > :nth-child(4)
+.auth-input-shell {
+  animation-delay: 285ms;
+}
+
+/*
+ * El propio input recibe un pequeño efecto de profundidad
+ * independiente del contenedor.
+ */
+
+.auth-mode-wave .auth-input {
+  animation:
+    auth-wave-input-focus
+    560ms
+    var(--motion-ease-emphasized)
+    both;
+}
+
+/* ---------------------------------------------------------
+   BOTÓN PRINCIPAL
+   --------------------------------------------------------- */
+
+.auth-mode-wave .auth-primary-button {
+  animation:
+    auth-wave-primary
+    620ms
+    var(--motion-ease-emphasized)
+    340ms
+    both;
+}
+
+/* ---------------------------------------------------------
+   GOOGLE
+   --------------------------------------------------------- */
+
+.auth-mode-wave .auth-google-wrap,
+.auth-mode-wave .auth-google-button,
+.auth-mode-wave .auth-google-slot {
+  animation:
+    auth-wave-secondary
+    540ms
+    var(--motion-ease-emphasized)
+    450ms
+    both;
+}
+
+/* ---------------------------------------------------------
+   DIRECCIÓN
+   --------------------------------------------------------- */
+
+.auth-form-swap[data-direction='forward']
+.auth-mode-wave {
+  --auth-wave-rotate:
+    20deg;
+}
+
+.auth-form-swap[data-direction='backward']
+.auth-mode-wave {
+  --auth-wave-rotate:
+    -20deg;
+}
+
+/* ---------------------------------------------------------
+   KEYFRAMES
+   --------------------------------------------------------- */
+
+@keyframes auth-wave-panel {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(10px)
+      scale(0.985);
+
+    filter:
+      blur(5px);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+
+    filter:
+      blur(0);
+  }
+}
+
+@keyframes auth-wave-item {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(24px)
+      rotateX(
+        var(
+          --auth-wave-rotate,
+          20deg
+        )
+      )
+      scale(0.985);
+
+    filter:
+      blur(4px);
+  }
+
+  70% {
+    opacity: 1;
+
+    transform:
+      translateY(-2px)
+      rotateX(0)
+      scale(1.005);
+
+    filter:
+      blur(0);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      rotateX(0)
+      scale(1);
+
+    filter:
+      blur(0);
+  }
+}
+
+@keyframes auth-wave-input-shell {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(18px)
+      translateZ(-45px)
+      rotateX(
+        var(
+          --auth-wave-rotate,
+          18deg
+        )
+      );
+
+    filter:
+      blur(5px);
+  }
+
+  72% {
+    opacity: 1;
+
+    transform:
+      translateY(-2px)
+      translateZ(3px)
+      rotateX(0);
+
+    filter:
+      blur(0);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      translateZ(0)
+      rotateX(0);
+
+    filter:
+      blur(0);
+  }
+}
+
+@keyframes auth-wave-input-focus {
+  0% {
+    border-color:
+      hsl(
+        var(--code-border)
+        / 0.25
+      );
+
+    box-shadow:
+      0 0 0
+      hsl(
+        var(--code-accent)
+        / 0
+      );
+  }
+
+  65% {
+    border-color:
+      hsl(
+        var(--code-accent)
+        / 0.72
+      );
+
+    box-shadow:
+      0 0 20px
+      hsl(
+        var(--code-accent)
+        / 0.13
+      );
+  }
+
+  100% {
+    border-color:
+      hsl(
+        var(--code-border)
+      );
+
+    box-shadow:
+      0 0 0
+      hsl(
+        var(--code-accent)
+        / 0
+      );
+  }
+}
+
+@keyframes auth-wave-primary {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(18px)
+      rotateX(18deg)
+      scale(0.94);
+
+    filter:
+      brightness(1.45)
+      blur(3px);
+  }
+
+  68% {
+    opacity: 1;
+
+    transform:
+      translateY(-3px)
+      rotateX(0)
+      scale(1.02);
+
+    filter:
+      brightness(1.08)
+      blur(0);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+
+    filter:
+      brightness(1);
+  }
+}
+
+@keyframes auth-wave-secondary {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(14px)
+      rotateX(12deg);
+
+    filter:
+      blur(3px);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      rotateX(0);
+
+    filter:
+      blur(0);
+  }
+}
+
+/* ---------------------------------------------------------
+   REDUCED MOTION
+   --------------------------------------------------------- */
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .auth-form-swap[
+    data-direction='forward'
+  ],
+
+  .auth-form-swap[
+    data-direction='backward'
+  ],
+
+  .auth-mode-wave > *,
+
+  .auth-mode-wave
+  .auth-input-shell,
+
+  .auth-mode-wave
+  .auth-input,
+
+  .auth-mode-wave
+  .auth-primary-button,
+
+  .auth-mode-wave
+  .auth-google-wrap,
+
+  .auth-mode-wave
+  .auth-google-button,
+
+  .auth-mode-wave
+  .auth-google-slot {
+    opacity: 1;
+
+    transform: none;
+
+    filter: none;
+
+    animation: none;
+  }
+}

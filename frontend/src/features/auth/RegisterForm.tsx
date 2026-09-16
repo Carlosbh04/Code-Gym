@@ -221,7 +221,7 @@ export function RegisterForm({
 
   return (
     <form
-      className="space-y-4"
+      className="auth-mode-wave space-y-4"
       aria-label="Crear cuenta"
       noValidate
       onSubmit={(event) => {
