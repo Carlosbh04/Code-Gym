@@ -183,13 +183,21 @@ function DashboardPage() {
 
   const hasActivity = progress.size > 0 || orderedSessions.length > 0;
 
-  if (progressLoading) return <DashboardLoading />;
   if (progressError !== null) return <section className="mx-auto w-full max-w-7xl space-y-5 py-2 sm:py-4"><DashboardError message={progressError} /><RecentActivity activities={activities} isLoading={completedSessionsLoading || sessionDetails.status === 'loading'} error={completedSessionsError} /></section>;
 
   return (
     <section aria-labelledby="dashboard-title" className="mx-auto w-full max-w-7xl py-2 sm:py-4">
-      <DashboardHeader latestActivity={activities[0]} />
-      {!hasActivity && !completedSessionsLoading ? <EmptyDashboard /> : (
+      <DashboardHeader
+        latestActivity={activities[0]}
+        isLoading={progressLoading}
+      />
+      {progressLoading ? (
+        <DashboardLoadingBody
+          metrics={metrics}
+        />
+      ) : !hasActivity && !completedSessionsLoading ? (
+        <EmptyDashboard />
+      ) : (
         <div className="mt-5 space-y-5">
           <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(20rem,0.9fr)] xl:items-stretch">
             <DashboardProgressOverview practicedConcepts={totalPracticedCatalogConcepts} totalConcepts={totalCatalogConcepts} isLoading={catalog.status === 'loading'} error={catalog.status === 'error' ? catalog.message : null} />
@@ -212,9 +220,71 @@ function DashboardPage() {
   );
 }
 
-function DashboardLoading() {
-  return <section aria-busy="true" aria-live="polite" aria-labelledby="dashboard-loading-title" className="mx-auto max-w-7xl space-y-5 py-8 sm:py-12"><div className="h-5 w-24 rounded bg-muted" /><h1 id="dashboard-loading-title" className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Cargando progreso…</h1><div className="h-40 rounded-2xl border border-border bg-card" /></section>;
+function DashboardLoadingBody({
+  metrics,
+}: {
+  metrics: DashboardMetricCardProps[];
+}) {
+  return (
+    <div
+      role="region"
+      aria-busy="true"
+      aria-live="polite"
+      aria-label="Cargando progreso"
+      className="mt-5 space-y-5"
+    >
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(20rem,0.9fr)] xl:items-stretch">
+        <DashboardProgressOverview
+          practicedConcepts={0}
+          totalConcepts={0}
+          isLoading
+          error={null}
+        />
+
+        <NextPracticeCard
+          recommendation={null}
+          isLoading
+        />
+      </div>
+
+      <section
+        aria-label="Métricas de progreso"
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+      >
+        {metrics.map((metric) => (
+          <DashboardMetricCard
+            key={metric.label}
+            {...metric}
+            isLoading
+          />
+        ))}
+      </section>
+
+      <div
+        className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(22.5rem,0.8fr)] xl:items-start"
+        style={{
+          contentVisibility: 'auto',
+          containIntrinsicSize: '700px',
+        }}
+      >
+        <TechnologyProgressList
+          items={[]}
+          isLoading
+          error={null}
+        />
+
+        <aside className="min-w-0 space-y-5">
+          <RecentActivity
+            activities={[]}
+            isLoading
+            error={null}
+          />
+        </aside>
+      </div>
+    </div>
+  );
 }
+
 
 function DashboardError({ message }: { message: string }) {
   return <section aria-labelledby="dashboard-error-title" className="mx-auto max-w-2xl py-8 sm:py-12"><h1 id="dashboard-error-title" className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">No pudimos leer tu progreso</h1><p role="alert" className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">{message}</p><Link to="/tech" className={`${ACTION} mt-6`}>Explorar tecnologías</Link></section>;

@@ -1,11 +1,14 @@
 import type { LucideIcon } from 'lucide-react';
 
+import { Skeleton } from '@/components/codegym/Skeleton';
+
 export interface DashboardMetricCardProps {
   icon: LucideIcon;
   label: string;
   value: string;
   description?: string;
   tone?: 'primary' | 'success' | 'warning';
+  isLoading?: boolean;
 }
 
 const TONE_CLASS = {
@@ -20,7 +23,25 @@ export function DashboardMetricCard({
   value,
   description,
   tone = 'primary',
+  isLoading = false,
 }: DashboardMetricCardProps) {
+  if (isLoading) {
+    return (
+      <article
+        aria-hidden="true"
+        className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-sm"
+      >
+        <div className="flex items-center gap-3">
+          <Skeleton className="size-9 shrink-0 rounded-lg" />
+          <Skeleton className="h-4 w-28" />
+        </div>
+
+        <Skeleton className="mt-4 h-7 w-20" />
+        <Skeleton className="mt-2 h-3 w-full" />
+      </article>
+    );
+  }
+
   return (
     <article className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary/20">
       <div className="flex items-center gap-3">

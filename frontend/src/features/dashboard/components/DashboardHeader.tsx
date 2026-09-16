@@ -1,9 +1,53 @@
 import { ArrowUpRight, ChartNoAxesCombined, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+import { Skeleton } from '@/components/codegym/Skeleton';
 import { formatDate } from './dashboard-formatters';
 import type { DashboardActivity } from './dashboard-types';
 
-export function DashboardHeader({ latestActivity }: { latestActivity?: DashboardActivity }) {
+export function DashboardHeader({
+  latestActivity,
+  isLoading = false,
+}: {
+  latestActivity?: DashboardActivity;
+  isLoading?: boolean;
+}) {
+  if (isLoading) {
+    return (
+      <header
+        className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-7"
+      >
+        <h1 className="sr-only">
+          Cargando progreso…
+        </h1>
+
+        <div
+          aria-hidden="true"
+          className="relative grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(20rem,0.8fr)]"
+        >
+          <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+            <Skeleton className="size-12 shrink-0 rounded-xl sm:size-14" />
+
+            <div className="min-w-0 flex-1">
+              <Skeleton className="h-9 w-44 sm:w-56" />
+              <Skeleton className="mt-3 h-4 w-full max-w-xl" />
+            </div>
+          </div>
+
+          <div className="grid min-h-28 min-w-0 grid-cols-[5rem_minmax(0,1fr)] items-center gap-3 rounded-xl border border-border bg-background/35 p-3">
+            <Skeleton className="h-20 w-20 rounded-lg" />
+
+            <div className="min-w-0">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="mt-3 h-4 w-4/5" />
+              <Skeleton className="mt-2 h-3 w-24" />
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-7">
       <div className="pointer-events-none absolute -left-20 top-1/2 size-56 -translate-y-1/2 rounded-full bg-primary/5 blur-3xl" aria-hidden="true" />

@@ -1,5 +1,6 @@
 import { ArrowRight, CalendarDays, Layers3, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Skeleton } from '@/components/codegym/Skeleton';
 import { TechnologyIcon } from '@/components/codegym/TechnologyIcon';
 import { cn } from '@/lib/utils';
 import { formatDate, formatRelativeDate } from './dashboard-formatters';
@@ -78,7 +79,49 @@ export function TechnologyProgressList({
           Ver todas las tecnologías<ArrowRight className="size-4" aria-hidden="true" />
         </Link>
       </div>
-      {isLoading ? <p role="status" className="mt-5 text-sm text-muted-foreground">Cargando tecnologías…</p>
+      {isLoading ? (
+        <div
+          aria-hidden="true"
+          className="mt-5 grid items-stretch gap-4 sm:grid-cols-2 min-[1400px]:grid-cols-3"
+        >
+          {Array.from(
+            { length: 3 },
+            (_, index) => (
+              <div
+                key={index}
+                className="flex min-h-[17rem] min-w-0 flex-col rounded-xl border border-border bg-background/55 p-4 sm:p-5"
+              >
+                <div className="flex items-start gap-3">
+                  <Skeleton className="size-11 shrink-0 rounded-xl" />
+
+                  <div className="min-w-0 flex-1">
+                    <Skeleton className="h-5 w-28" />
+                    <Skeleton className="mt-2 h-3 w-24" />
+                  </div>
+
+                  <Skeleton className="h-6 w-12" />
+                </div>
+
+                <Skeleton className="mt-5 h-2.5 w-full rounded-full" />
+
+                <div className="mt-5 grid grid-cols-2 gap-4 border-y border-border/80 py-4">
+                  <div>
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="mt-2 h-4 w-12" />
+                  </div>
+
+                  <div>
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="mt-2 h-4 w-16" />
+                  </div>
+                </div>
+
+                <Skeleton className="mt-auto h-11 w-full rounded-lg" />
+              </div>
+            ),
+          )}
+        </div>
+      )
         : error !== null ? <p role="alert" className="mt-5 text-sm text-destructive">No pudimos cargar el progreso por tecnología: {error}</p>
           : items.length === 0 ? <p className="mt-5 text-sm text-muted-foreground">No hay tecnologías con conceptos disponibles.</p>
             : <ul className="mt-5 grid items-stretch gap-4 sm:grid-cols-2 min-[1400px]:grid-cols-3">{items.map((item) => <TechnologyProgressCard key={item.technology.id} item={item} />)}</ul>}

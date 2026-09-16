@@ -52,7 +52,14 @@ describe('DashboardPage', () => {
   it('mantiene un loading accesible mientras se carga el progreso', () => {
     renderDashboard({ progressLoading: true });
     expect(screen.getByRole('heading', { level: 1, name: 'Cargando progreso…' })).toBeInTheDocument();
-    expect(screen.getByRole('region')).toHaveAttribute('aria-busy', 'true');
+    expect(
+      screen.getByRole('region', {
+        name: 'Cargando progreso',
+      }),
+    ).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('ofrece un empty state limpio para usuarios sin actividad', async () => {

@@ -1,5 +1,7 @@
 import { ArrowUpRight, CheckCircle2, Clock3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+import { Skeleton } from '@/components/codegym/Skeleton';
 import { formatDate, formatDuration } from './dashboard-formatters';
 import type { DashboardActivity } from './dashboard-types';
 
@@ -16,7 +18,41 @@ export function RecentActivity({ activities, isLoading, error }: RecentActivityP
         <h2 id="recent-activity-title" className="text-xl font-bold text-foreground">Actividad reciente</h2>
         <p className="mt-1 text-sm text-muted-foreground">Tus últimas sesiones de práctica.</p>
       </div>
-      {isLoading ? <p role="status" aria-live="polite" className="mt-5 text-sm text-muted-foreground">Cargando actividad…</p>
+      {isLoading ? (
+        <div
+          aria-hidden="true"
+          className="mt-4 divide-y divide-border border-y border-border"
+        >
+          {Array.from(
+            { length: 3 },
+            (_, index) => (
+              <div
+                key={index}
+                className="grid gap-3 py-3.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+              >
+                <div className="min-w-0">
+                  <Skeleton className="h-5 w-4/5" />
+                  <Skeleton className="mt-2 h-4 w-3/5" />
+
+                  <div className="mt-3 flex gap-4">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 sm:justify-end">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-10" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+
+                  <Skeleton className="size-11 rounded-lg" />
+                </div>
+              </div>
+            ),
+          )}
+        </div>
+      )
         : error ? <p role="alert" className="mt-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">No se pudo cargar la actividad reciente: {error}</p>
           : activities.length === 0 ? <p className="mt-5 text-sm text-muted-foreground">Aún no has completado sesiones.</p>
             : <ul className="mt-4 divide-y divide-border border-y border-border">{activities.map((activity) => <ActivityRow key={activity.completedSession.id} activity={activity} />)}</ul>}

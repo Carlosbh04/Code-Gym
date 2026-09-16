@@ -1,5 +1,7 @@
 import { TrendingUp } from 'lucide-react';
 
+import { Skeleton } from '@/components/codegym/Skeleton';
+
 export function DashboardProgressOverview({
   practicedConcepts,
   totalConcepts,
@@ -22,7 +24,16 @@ export function DashboardProgressOverview({
         </div>
         {!isLoading && error === null && totalConcepts > 0 ? <p className="text-3xl font-bold tabular-nums tracking-tight text-foreground sm:text-4xl">{percentage}%</p> : null}
       </div>
-      {isLoading ? <p role="status" className="mt-5 text-sm text-muted-foreground">Cargando el catálogo de aprendizaje…</p>
+      {isLoading ? (
+        <div
+          aria-hidden="true"
+          className="mt-6"
+        >
+          <Skeleton className="h-6 w-44" />
+          <Skeleton className="mt-4 h-2.5 w-full rounded-full" />
+          <Skeleton className="mt-3 h-4 w-3/4" />
+        </div>
+      )
         : error !== null ? <p role="alert" className="mt-5 text-sm text-destructive">No pudimos calcular el progreso por contenido: {error}</p>
           : totalConcepts === 0 ? <p className="mt-5 text-sm text-muted-foreground">Todavía no hay conceptos disponibles para comparar.</p>
             : <><p className="mt-6 text-lg font-semibold text-foreground">{practicedConcepts} de {totalConcepts} conceptos practicados</p><div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Conceptos practicados" aria-valuemin={0} aria-valuemax={totalConcepts} aria-valuenow={practicedConcepts} aria-valuetext={`${practicedConcepts} de ${totalConcepts} conceptos practicados`}><div className="h-full rounded-full bg-primary transition-[width] duration-standard ease-standard" style={{ width: `${percentage}%` }} /></div><p className="mt-3 text-sm leading-relaxed text-muted-foreground">Sigue practicando para avanzar por más conceptos y tecnologías.</p></>}
