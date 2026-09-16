@@ -6,6 +6,23 @@ import { ContentContext } from '@/contexts/content-context';
 import { ProgressContext } from '@/contexts/progress-context';
 import type { ContentContextValue, Concept, Technology, Topic } from '@/types/content';
 import type { ConceptProgress, ProgressContextValue } from '@/types/progress';
+
+vi.mock('@/components/codegym/PageLoadTransition', () => ({
+  PageLoadTransition: ({
+    loading,
+    skeleton,
+    children,
+  }: {
+    loading: boolean;
+    skeleton: ReactNode;
+    children: ReactNode;
+  }) => (
+    <>
+      {loading ? skeleton : children}
+    </>
+  ),
+}));
+
 import TrainingPage from './TrainingPage';
 
 const TECHNOLOGIES: Technology[] = [

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Code2, Layers3, Rocket } from 'lucide-react';
 import { EmptyState } from '@/components/codegym/EmptyState';
+import { PageLoadTransition } from '@/components/codegym/PageLoadTransition';
 import { useContent } from '@/hooks/useContent';
 import { useProgress } from '@/hooks/useProgress';
 import { TechnologySection } from './components/TechnologySection';
@@ -53,25 +54,85 @@ function TrainingPage() {
   const error = progressError ?? (catalogState.status === 'error' ? catalogState.message : null);
 
   return (
-    <section aria-labelledby="training-title" className="mx-auto w-full max-w-7xl py-2 sm:py-4">
+    <section
+      aria-labelledby="training-title"
+      className="mx-auto w-full max-w-7xl py-2 sm:py-4"
+    >
       <TrainingHeader />
+
       <div className="mt-5">
-        {isLoading ? (
-          <TrainingLoading />
-        ) : error !== null ? (
-          <section role="alert" aria-labelledby="training-error-title" className="rounded-2xl border border-destructive/35 bg-destructive/10 p-5">
-            <h2 id="training-error-title" className="text-xl font-bold text-foreground">No pudimos cargar el catálogo</h2>
-            <p className="mt-2 text-sm text-destructive">{error}</p>
-          </section>
-        ) : items.length === 0 ? (
-          <EmptyState title="No hay tecnologías disponibles" description="Todavía no hay tecnologías preparadas para entrenar." className="max-w-none rounded-2xl border border-border bg-card" />
-        ) : (
-          <div className="space-y-4">
-            <TechnologySection id="web-technologies-title" icon={Code2} title="Tecnologías de desarrollo web" description="Construye la base de tu futuro como desarrollador." items={groups.web} />
-            <TechnologySection id="advanced-technologies-title" icon={Rocket} title="Tecnologías avanzadas" description="Lleva tus habilidades al siguiente nivel." items={groups.advanced} />
-            <TechnologySection id="other-technologies-title" icon={Layers3} title="Más tecnologías" description="Explora el resto del catálogo disponible." items={groups.other} />
-          </div>
-        )}
+        <PageLoadTransition
+          loading={isLoading}
+          presentationKey="training"
+          ariaLabel="Contenido de Entrenar"
+          skeleton={<TrainingLoading />}
+        >
+          {error !== null ? (
+            <section
+              role="alert"
+              aria-labelledby="training-error-title"
+              className="rounded-2xl border border-destructive/35 bg-destructive/10 p-5"
+            >
+              <h2
+                id="training-error-title"
+                className="text-xl font-bold text-foreground"
+              >
+                No pudimos cargar el catálogo
+              </h2>
+
+              <p className="mt-2 text-sm text-destructive">
+                {error}
+              </p>
+            </section>
+          ) : items.length === 0 ? (
+            <EmptyState
+              title="No hay tecnologías disponibles"
+              description="Todavía no hay tecnologías preparadas para entrenar."
+              className="max-w-none rounded-2xl border border-border bg-card"
+            />
+          ) : (
+            <div className="space-y-4">
+              <div
+                data-entry-item
+                data-entry-index="0"
+              >
+                <TechnologySection
+                  id="web-technologies-title"
+                icon={Code2}
+                title="Tecnologías de desarrollo web"
+                description="Construye la base de tu futuro como desarrollador."
+                  items={groups.web}
+                />
+              </div>
+
+              <div
+                data-entry-item
+                data-entry-index="1"
+              >
+                <TechnologySection
+                  id="advanced-technologies-title"
+                icon={Rocket}
+                title="Tecnologías avanzadas"
+                description="Lleva tus habilidades al siguiente nivel."
+                  items={groups.advanced}
+                />
+              </div>
+
+              <div
+                data-entry-item
+                data-entry-index="2"
+              >
+                <TechnologySection
+                  id="other-technologies-title"
+                icon={Layers3}
+                title="Más tecnologías"
+                description="Explora el resto del catálogo disponible."
+                  items={groups.other}
+                />
+              </div>
+            </div>
+          )}
+        </PageLoadTransition>
       </div>
     </section>
   );
