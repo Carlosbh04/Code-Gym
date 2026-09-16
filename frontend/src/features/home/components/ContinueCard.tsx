@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { Skeleton } from '@/components/codegym/Skeleton';
+
 import { TechnologyIcon } from '@/components/codegym/TechnologyIcon';
 import type { Technology } from '@/types/content';
 
@@ -120,12 +122,45 @@ export function ContinueCard({
           </div>
 
           {isLoading ? (
-            <p
+            <div
               role="status"
-              className="mt-5 text-sm text-muted-foreground"
+              aria-live="polite"
+              className="mt-4"
             >
-              Preparando tu próxima práctica…
-            </p>
+              <span className="sr-only">
+                Preparando tu próxima práctica…
+              </span>
+
+              <div
+                aria-hidden="true"
+                className="flex min-w-0 items-start gap-3.5"
+              >
+                <Skeleton className="size-[58px] shrink-0 rounded-xl" />
+
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <Skeleton className="h-5 w-2/3 max-w-64" />
+                  <Skeleton className="mt-2 h-3 w-1/2 max-w-44" />
+
+                  <div className="mt-3 flex gap-2">
+                    <Skeleton className="h-8 w-24 rounded-lg" />
+                    <Skeleton className="h-8 w-28 rounded-lg" />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                aria-hidden="true"
+                className="mt-4 flex items-center gap-3"
+              >
+                <Skeleton className="h-2 flex-1 rounded-full" />
+                <Skeleton className="h-3 w-8" />
+              </div>
+
+              <Skeleton
+                aria-hidden="true"
+                className="mt-4 h-10 w-40 rounded-lg"
+              />
+            </div>
           ) : error !== null ? (
             <div className="mt-5">
               <h2
@@ -313,12 +348,33 @@ export function ContinueCard({
         </p>
 
         {isLoading ? (
-          <p
+          <div
             role="status"
-            className="mt-5 text-sm text-muted-foreground"
+            aria-live="polite"
+            className="mt-5"
           >
-            Preparando tu próxima práctica…
-          </p>
+            <span className="sr-only">
+              Preparando tu próxima práctica…
+            </span>
+
+            <div
+              aria-hidden="true"
+              className="flex min-w-0 items-start gap-4"
+            >
+              <Skeleton className="size-12 shrink-0 rounded-xl" />
+
+              <div className="min-w-0 flex-1">
+                <Skeleton className="h-6 w-2/3 max-w-72" />
+                <Skeleton className="mt-2 h-4 w-1/2 max-w-52" />
+                <Skeleton className="mt-4 h-2 w-full rounded-full" />
+              </div>
+            </div>
+
+            <Skeleton
+              aria-hidden="true"
+              className="mt-5 h-11 w-40 rounded-xl"
+            />
+          </div>
         ) : error !== null ? (
           <div className="mt-5">
             <h2

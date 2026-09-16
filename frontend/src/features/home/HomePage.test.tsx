@@ -652,10 +652,14 @@ describe('HomePage', () => {
 
     expect(
       screen.getByRole(
-        'status',
+        'region',
+        {
+          name: 'Cargando tu inicio…',
+        },
       ),
-    ).toHaveTextContent(
-      'Cargando tu inicio…',
+    ).toHaveAttribute(
+      'aria-busy',
+      'true',
     );
 
     expect(
@@ -678,14 +682,22 @@ describe('HomePage', () => {
   it.each([
     ['progreso', { progressLoading: true }],
     ['historial', { historyLoading: true }],
-  ] as const)('no muestra onboarding mientras carga %s', (_source, options) => {
+  ] as const)('no muestra onboarding mientras carga %s', async (_source, options) => {
     renderHome(options);
 
-    expect(
-      screen.getByRole('status'),
-    ).toHaveTextContent(
-      'Cargando tu inicio…',
-    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole(
+          'region',
+          {
+            name: 'Cargando tu inicio…',
+          },
+        ),
+      ).toHaveAttribute(
+        'aria-busy',
+        'true',
+      );
+    });
 
     expect(
       screen.queryByRole(

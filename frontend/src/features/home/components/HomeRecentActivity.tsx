@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { Skeleton } from '@/components/codegym/Skeleton';
+
 import { TechnologyIcon } from '@/components/codegym/TechnologyIcon';
 import {
   formatDate,
@@ -70,12 +72,42 @@ export function HomeRecentActivity({
         </div>
 
         {isLoading ? (
-          <p
+          <div
             role="status"
-            className="mt-5 text-sm text-muted-foreground"
+            aria-live="polite"
+            className="mt-4 space-y-2.5"
           >
-            Cargando actividad…
-          </p>
+            <span className="sr-only">
+              Cargando actividad…
+            </span>
+
+            {Array.from(
+              { length: 3 },
+              (_, index) => (
+                <div
+                  key={index}
+                  aria-hidden="true"
+                  className="rounded-xl border border-border bg-background/30 p-3 sm:p-3.5"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <Skeleton className="size-11 shrink-0 rounded-xl" />
+
+                    <div className="min-w-0 flex-1">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="mt-2 h-3 w-1/2" />
+
+                      <div className="mt-3 flex gap-2">
+                        <Skeleton className="h-6 w-24 rounded-md" />
+                        <Skeleton className="h-3 w-20 self-center" />
+                      </div>
+                    </div>
+
+                    <Skeleton className="h-9 w-20 shrink-0 rounded-lg" />
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
         ) : error !== null ? (
           <p
             role="alert"
@@ -196,12 +228,38 @@ export function HomeRecentActivity({
       </div>
 
       {isLoading ? (
-        <p
+        <div
           role="status"
-          className="mt-4 text-sm text-muted-foreground"
+          aria-live="polite"
+          className="mt-3 divide-y divide-border"
         >
-          Cargando actividad…
-        </p>
+          <span className="sr-only">
+            Cargando actividad…
+          </span>
+
+          {Array.from(
+            { length: 3 },
+            (_, index) => (
+              <div
+                key={index}
+                aria-hidden="true"
+                className="flex min-w-0 items-start gap-3 py-3"
+              >
+                <Skeleton className="size-4 shrink-0 rounded-full" />
+
+                <div className="min-w-0 flex-1">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="mt-2 h-3 w-1/2" />
+
+                  <div className="mt-2 flex gap-3">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                </div>
+              </div>
+            ),
+          )}
+        </div>
       ) : error !== null ? (
         <p
           role="alert"

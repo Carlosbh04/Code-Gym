@@ -27,6 +27,7 @@ import { HomeRecentActivity } from './components/HomeRecentActivity';
 import { MotivationCard } from './components/MotivationCard';
 import { TechnologyGrid } from './components/TechnologyGrid';
 import { TechnologyLoading } from './components/TechnologyLoading';
+import { HomeInitialLoading } from './components/HomeInitialLoading';
 
 import {
   createHomeDiscoverySeed,
@@ -336,23 +337,7 @@ function HomePage() {
       && dashboardError === null
     )
   ) {
-    return (
-      <div
-        className="mx-auto flex min-h-[45vh] w-full max-w-7xl items-center justify-center py-8"
-        role="status"
-        aria-live="polite"
-      >
-        <div className="text-center">
-          <div
-            className="mx-auto size-10 animate-spin rounded-full border-2 border-muted border-t-primary"
-            aria-hidden="true"
-          />
-          <p className="mt-4 text-sm text-muted-foreground">
-            Cargando tu inicio…
-          </p>
-        </div>
-      </div>
-    );
+    return <HomeInitialLoading />;
   }
 
   if (
@@ -396,23 +381,7 @@ function HomePage() {
     && catalogLoading
     && !hasPersistedActivity
   ) {
-    return (
-      <div
-        className="mx-auto flex min-h-[45vh] w-full max-w-7xl items-center justify-center py-8"
-        role="status"
-        aria-live="polite"
-      >
-        <div className="text-center">
-          <div
-            className="mx-auto size-10 animate-spin rounded-full border-2 border-muted border-t-primary"
-            aria-hidden="true"
-          />
-          <p className="mt-4 text-sm text-muted-foreground">
-            Cargando tu inicio…
-          </p>
-        </div>
-      </div>
-    );
+    return <HomeInitialLoading />;
   }
 
   if (

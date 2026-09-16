@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { Skeleton } from '@/components/codegym/Skeleton';
+
 export function HomeProgressSummary({
   practicedConcepts,
   totalConcepts,
@@ -73,12 +75,41 @@ export function HomeProgressSummary({
         </div>
 
         {isLoading ? (
-          <p
+          <div
             role="status"
-            className="mt-8 text-center text-sm text-muted-foreground"
+            aria-live="polite"
+            className="mt-4"
           >
-            Calculando tu progreso…
-          </p>
+            <span className="sr-only">
+              Calculando tu progreso…
+            </span>
+
+            <div
+              aria-hidden="true"
+              className="grid min-w-0 gap-4 sm:grid-cols-[145px_minmax(0,1fr)] sm:items-center"
+            >
+              <Skeleton className="mx-auto size-[132px] rounded-full" />
+
+              <div className="grid gap-3 border-t border-border pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+                {Array.from(
+                  { length: 3 },
+                  (_, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3"
+                    >
+                      <Skeleton className="size-9 shrink-0 rounded-lg" />
+
+                      <div className="flex-1">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="mt-2 h-3 w-28" />
+                      </div>
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="mt-4 grid min-w-0 gap-4 sm:grid-cols-[145px_minmax(0,1fr)] sm:items-center">
             <div className="mx-auto grid size-[132px] place-items-center">
@@ -219,12 +250,25 @@ export function HomeProgressSummary({
       </div>
 
       {isLoading ? (
-        <p
+        <div
           role="status"
-          className="mt-5 text-sm text-muted-foreground"
+          aria-live="polite"
+          className="mt-5"
         >
-          Calculando tu progreso…
-        </p>
+          <span className="sr-only">
+            Calculando tu progreso…
+          </span>
+
+          <div aria-hidden="true">
+            <div className="flex items-end justify-between gap-4">
+              <Skeleton className="h-4 w-36" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+
+            <Skeleton className="mt-3 h-2 w-full rounded-full" />
+            <Skeleton className="mt-3 h-3 w-40" />
+          </div>
+        </div>
       ) : hasActivity ? (
         <>
           <div className="mt-5 flex items-end justify-between gap-4">
