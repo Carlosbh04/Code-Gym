@@ -3,6 +3,7 @@ import { HomeRecentActivity } from './HomeRecentActivity';
 import { ContinueCard } from './ContinueCard';
 import { TechnologyLoading } from './TechnologyLoading';
 
+import { Skeleton } from '@/components/codegym/Skeleton';
 export function HomeInitialLoading() {
   return (
     <section
@@ -24,12 +25,12 @@ export function HomeInitialLoading() {
       >
         <div className="mb-3">
           <div className="min-w-0 py-2">
-            <div className="h-8 w-72 max-w-full animate-pulse rounded-md bg-muted/70 motion-reduce:animate-none sm:h-10" />
-            <div className="mt-3 h-4 w-64 max-w-full animate-pulse rounded-md bg-muted/70 motion-reduce:animate-none" />
+            <Skeleton className="h-8 w-72 max-w-full sm:h-10" />
+            <Skeleton className="mt-3 h-4 w-64 max-w-full" />
           </div>
 
           <div className="mt-2">
-            <div className="h-4 w-24 animate-pulse rounded-md bg-muted/70 motion-reduce:animate-none" />
+            <Skeleton className="h-4 w-24" />
           </div>
         </div>
 

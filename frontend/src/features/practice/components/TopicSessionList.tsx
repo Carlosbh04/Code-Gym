@@ -89,6 +89,9 @@ export function TopicSessionList({ concepts, results }: TopicSessionListProps) {
   const showConceptName = concepts.length > 1;
   const loadingConcepts = concepts.filter((concept) => results[concept.id] === undefined);
   const failedConcepts = concepts.filter((concept) => results[concept.id]?.status === 'error');
+  const sessionStatesLoading = sessions.some(
+    (session) => (sessionStates.get(session.id) ?? CHECKING_SESSION_STATE).status === 'checking',
+  );
 
   return (
     <section
@@ -156,7 +159,13 @@ export function TopicSessionList({ concepts, results }: TopicSessionListProps) {
         })}
       </div>
 
-      {sessions.length > 0 ? <PracticeProgress sessions={sessions} states={sessionStates} /> : null}
+      {sessions.length > 0 ? (
+        sessionStatesLoading ? (
+          <PracticeProgressLoading />
+        ) : (
+          <PracticeProgress sessions={sessions} states={sessionStates} />
+        )
+      ) : null}
     </section>
   );
 }
@@ -196,6 +205,35 @@ function TopicSessionsLoading() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function PracticeProgressLoading() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-5 rounded-xl border border-border bg-background/30 p-4"
+    >
+      <span className="sr-only">
+        Cargando progreso de las sesiones…
+      </span>
+
+      <div aria-hidden="true">
+        <div className="flex items-center justify-between gap-4">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-5 w-12" />
+        </div>
+
+        <Skeleton className="mt-3 h-2 w-full rounded-full" />
+
+        <div className="mt-3 flex flex-wrap gap-4">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-3 w-28" />
+          <Skeleton className="h-3 w-20" />
+        </div>
       </div>
     </div>
   );
@@ -257,8 +295,8 @@ function TopicSessionCard({
   state: ResolvedSessionState;
 }) {
   const stepLabel = session.steps.length === 1 ? 'ejercicio' : 'ejercicios';
-  const hasAction = state.status !== 'checking'
-    && !(state.status === 'ready' && state.sessionStatus === 'locked');
+  const hasAction = state.status === 'checking'
+    || !(state.status === 'ready' && state.sessionStatus === 'locked');
   const inProgress = state.status === 'ready' && state.sessionStatus === 'in-progress';
   const recoveredProgress = inProgress && state.currentStep !== null && session.steps.length > 0
     ? `${Math.min(state.currentStep + 1, session.steps.length)}/${session.steps.length} ${stepLabel}`
@@ -325,7 +363,12 @@ function cardClassName(state: ResolvedSessionState): string {
 
 function SessionStatusBadge({ state }: { state: ResolvedSessionState }) {
   if (state.status === 'checking') {
-    return <StatusBadge icon={Clock3} className="bg-muted text-muted-foreground">Comprobando estado</StatusBadge>;
+    return (
+      <span role="status" aria-live="polite" className="inline-flex">
+        <span className="sr-only">Comprobando estado de la sesión…</span>
+        <Skeleton className="h-7 w-32 rounded-full" />
+      </span>
+    );
   }
   if (state.status === 'error') {
     return <StatusBadge icon={CircleAlert} className="border border-border bg-muted text-muted-foreground">Estado no disponible</StatusBadge>;
@@ -383,7 +426,18 @@ function SessionStatusIcon({ state }: { state: ResolvedSessionState }) {
 }
 
 function SessionAction({ session, state }: { session: ExerciseSession; state: ResolvedSessionState }) {
-  if (state.status === 'checking' || (state.status === 'ready' && state.sessionStatus === 'locked')) {
+  if (state.status === 'checking') {
+    return (
+      <div
+        aria-hidden="true"
+        className="grid w-full shrink-0 grid-cols-1 gap-2 sm:w-auto"
+      >
+        <Skeleton className="h-11 min-w-28 rounded-lg" />
+      </div>
+    );
+  }
+
+  if (state.status === 'ready' && state.sessionStatus === 'locked') {
     return null;
   }
 

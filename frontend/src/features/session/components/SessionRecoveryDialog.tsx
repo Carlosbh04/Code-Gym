@@ -9,6 +9,7 @@ import type { Concept, Technology, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
 import { formatRelativeActivity } from '../session-recovery-formatters';
 
+import { Skeleton } from '@/components/codegym/Skeleton';
 const REFRESH_INTERVAL_MS = 60_000;
 
 interface RecoveryDetails {
@@ -125,7 +126,7 @@ export function SessionRecoveryDialog({
 
         <div className="border-t border-border px-5 py-5 sm:px-6">
           {detailsState.status === 'loading' ? (
-            <p role="status" className="text-sm text-muted-foreground">Cargando detalles de la sesión…</p>
+            <RecoveryDetailsLoading />
           ) : detailsState.status === 'error' || details === null ? (
             <p role="alert" className="text-sm text-muted-foreground">
               No pudimos cargar el resumen, pero todavía puedes continuar o empezar de nuevo.
@@ -206,6 +207,46 @@ export function SessionRecoveryDialog({
           </button>
         </footer>
       </section>
+    </div>
+  );
+}
+
+function RecoveryDetailsLoading() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <span className="sr-only">
+        Cargando detalles de la sesión…
+      </span>
+
+      <div
+        aria-hidden="true"
+        className="grid min-w-0 gap-5 sm:grid-cols-[minmax(0,1fr)_13rem] sm:items-center sm:gap-6"
+      >
+        <div className="flex min-w-0 items-start gap-3">
+          <Skeleton className="size-12 shrink-0 rounded-xl" />
+
+          <div className="min-w-0 flex-1">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="mt-2 h-4 w-full max-w-56" />
+            <Skeleton className="mt-2 h-3 w-40" />
+            <Skeleton className="mt-2 h-3 w-20" />
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <div className="flex items-center justify-between gap-3">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-4 w-10" />
+          </div>
+
+          <Skeleton className="mt-2 h-2 w-full rounded-full" />
+          <Skeleton className="mt-2 h-3 w-24" />
+        </div>
+      </div>
     </div>
   );
 }

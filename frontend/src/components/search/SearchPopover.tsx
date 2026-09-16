@@ -5,7 +5,6 @@ import {
   Dumbbell,
   FileCode2,
   Layers3,
-  LoaderCircle,
   Search,
   Sparkles,
 } from 'lucide-react';
@@ -35,6 +34,7 @@ import {
   type SearchResultType,
 } from './search-model';
 
+import { Skeleton } from '@/components/codegym/Skeleton';
 const INPUT_LABEL = 'Buscar temas, ejercicios o tecnologías';
 const INPUT_PLACEHOLDER = 'Buscar temas, ejercicios o tecnologías...';
 
@@ -413,9 +413,31 @@ function QueryContent({
 
 function SearchLoading() {
   return (
-    <p className="flex items-center gap-2 px-3 py-5 text-sm text-muted-foreground">
-      <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
-      Preparando el catálogo…
-    </p>
+    <div
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      className="space-y-2 p-2"
+    >
+      <span className="sr-only">
+        Cargando resultados de búsqueda…
+      </span>
+
+      <div aria-hidden="true" className="space-y-2">
+        {Array.from({ length: 4 }, (_, index) => (
+          <div
+            key={index}
+            className="flex min-h-12 items-center gap-3 rounded-lg px-3 py-2"
+          >
+            <Skeleton className="size-8 shrink-0 rounded-lg" />
+
+            <div className="min-w-0 flex-1">
+              <Skeleton className="h-4 w-3/5" />
+              <Skeleton className="mt-2 h-3 w-2/5" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

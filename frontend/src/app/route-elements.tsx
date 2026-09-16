@@ -1,5 +1,6 @@
 import { lazy, Suspense, type ComponentType } from 'react';
 import type { AuthMode } from '@/features/auth/auth-types';
+import { Skeleton } from '@/components/codegym/Skeleton';
 
 const AuthPage = lazy(() => import('@/features/auth/AuthPage'));
 const ForgotPasswordPage = lazy(() => import('@/features/auth/ForgotPasswordPage'));
@@ -19,9 +20,35 @@ const OnboardingPage = lazy(() => import('@/features/onboarding/OnboardingPage')
 
 function RouteLoading() {
   return (
-    <div role="status" aria-live="polite" className="py-8 text-sm text-muted-foreground">
-      Cargando página…
-    </div>
+    <section
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      className="mx-auto w-full max-w-7xl py-2 sm:py-4"
+    >
+      <span className="sr-only">Cargando página…</span>
+
+      <div aria-hidden="true" className="space-y-6">
+        <div>
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="mt-3 h-10 w-64 max-w-full sm:h-12" />
+          <Skeleton className="mt-3 h-4 w-full max-w-2xl" />
+          <Skeleton className="mt-2 h-4 w-4/5 max-w-xl" />
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(18rem,0.75fr)]">
+          <div className="space-y-5">
+            <Skeleton className="h-52 w-full rounded-2xl" />
+            <Skeleton className="h-72 w-full rounded-2xl" />
+          </div>
+
+          <div className="space-y-5">
+            <Skeleton className="h-48 w-full rounded-2xl" />
+            <Skeleton className="h-40 w-full rounded-2xl" />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

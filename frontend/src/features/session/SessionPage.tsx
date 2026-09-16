@@ -15,6 +15,7 @@ import { SessionCompleteCelebration } from './components/feedback/SessionComplet
 import { useSuccessCelebration } from './components/feedback/useSuccessCelebration';
 import { SessionRecoveryDialog } from './components/SessionRecoveryDialog';
 
+import { Skeleton } from '@/components/codegym/Skeleton';
 /**
  * Página de una sesión de ejercicios (§18, D004).
  *
@@ -148,11 +149,7 @@ function SessionPage() {
   }
 
   if (isLoading || session === null) {
-    return (
-      <p role="status" className="text-sm text-muted-foreground">
-        Cargando la sesión…
-      </p>
-    );
+    return <SessionLoading />;
   }
 
   if (state.isComplete) {
@@ -309,6 +306,80 @@ function SessionPage() {
           )}
         </div>
       </ExerciseCard>
+    </section>
+  );
+}
+
+function SessionLoading() {
+  return (
+    <section
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-labelledby="session-loading-title"
+      className="relative flex min-w-0 flex-col gap-5 sm:gap-6"
+    >
+      <h1 id="session-loading-title" className="sr-only">
+        Cargando la sesión…
+      </h1>
+
+      <div aria-hidden="true" className="contents">
+        <header className="min-w-0 rounded-2xl border border-border bg-card/70 p-4 shadow-sm sm:p-6">
+          <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <Skeleton className="h-4 w-56 max-w-full" />
+              <Skeleton className="mt-2 h-7 w-80 max-w-full" />
+            </div>
+
+            <Skeleton className="h-7 w-24 rounded-full" />
+          </div>
+
+          <div className="mt-5 flex items-center gap-2">
+            {Array.from({ length: 5 }, (_, index) => (
+              <Skeleton
+                key={index}
+                className="h-1.5 flex-1 rounded-full"
+              />
+            ))}
+          </div>
+
+          <div className="mt-3 flex justify-between">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </header>
+
+        <div className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-4/5 max-w-2xl" />
+            <Skeleton className="h-4 w-full max-w-3xl" />
+            <Skeleton className="h-4 w-3/4 max-w-2xl" />
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {Array.from({ length: 4 }, (_, index) => (
+              <div
+                key={index}
+                className="flex min-h-12 items-center gap-3 rounded-xl border border-border bg-background/30 p-3"
+              >
+                <Skeleton className="size-5 shrink-0 rounded-full" />
+                <Skeleton className="h-4 flex-1" />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 rounded-xl border border-border bg-background/30 p-4">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="mt-3 h-4 w-full" />
+            <Skeleton className="mt-2 h-4 w-5/6" />
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3 rounded-2xl border border-border bg-background/30 p-4">
+            <Skeleton className="h-11 w-28 rounded-md" />
+            <Skeleton className="h-11 w-32 rounded-md" />
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
