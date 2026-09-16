@@ -31,12 +31,20 @@ export function RecentActivity({ activities, isLoading, error }: RecentActivityP
                 className="grid gap-3 py-3.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
               >
                 <div className="min-w-0">
-                  <Skeleton className="h-5 w-4/5" />
-                  <Skeleton className="mt-2 h-4 w-3/5" />
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Skeleton className="size-4 shrink-0 rounded-full" />
+                    <Skeleton className="h-5 w-4/5" />
+                  </div>
 
-                  <div className="mt-3 flex gap-4">
+                  <Skeleton className="mt-1 h-4 w-3/5" />
+
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
                     <Skeleton className="h-3 w-20" />
-                    <Skeleton className="h-3 w-16" />
+
+                    <div className="flex items-center gap-1">
+                      <Skeleton className="size-3.5 shrink-0 rounded-full" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
                   </div>
                 </div>
 

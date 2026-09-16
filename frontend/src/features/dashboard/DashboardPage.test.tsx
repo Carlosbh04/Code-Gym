@@ -5,6 +5,22 @@ import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
 import { HistoryContext } from '@/contexts/history-context';
 import { ProgressContext } from '@/contexts/progress-context';
+
+vi.mock('@/components/codegym/PageLoadTransition', () => ({
+  PageLoadTransition: ({
+    loading,
+    skeleton,
+    children,
+  }: {
+    loading: boolean;
+    skeleton: ReactNode;
+    children: ReactNode;
+  }) => (
+    loading
+      ? <>{skeleton}</>
+      : <>{children}</>
+  ),
+}));
 import type { ContentContextValue, Concept, Technology, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
 import type { HistoryContextValue } from '@/types/history';
@@ -51,7 +67,7 @@ function renderDashboard({ progress = [], progressLoading = false, progressError
 describe('DashboardPage', () => {
   it('mantiene un loading accesible mientras se carga el progreso', () => {
     renderDashboard({ progressLoading: true });
-    expect(screen.getByRole('heading', { level: 1, name: 'Cargando progreso…' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Progreso' })).toBeInTheDocument();
     expect(
       screen.getByRole('region', {
         name: 'Cargando progreso',

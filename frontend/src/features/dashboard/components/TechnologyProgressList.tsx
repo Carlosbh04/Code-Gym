@@ -104,15 +104,23 @@ export function TechnologyProgressList({
 
                 <Skeleton className="mt-5 h-2.5 w-full rounded-full" />
 
-                <div className="mt-5 grid grid-cols-2 gap-4 border-y border-border/80 py-4">
-                  <div>
-                    <Skeleton className="h-3 w-16" />
-                    <Skeleton className="mt-2 h-4 w-12" />
+                <div className="mt-5 grid grid-cols-2 border-y border-border/80 py-4">
+                  <div className="flex min-w-0 items-start gap-2.5 pr-3">
+                    <Skeleton className="mt-0.5 size-4 shrink-0 rounded-md" />
+
+                    <div className="min-w-0">
+                      <Skeleton className="h-3 w-16" />
+                      <Skeleton className="mt-2 h-4 w-12" />
+                    </div>
                   </div>
 
-                  <div>
-                    <Skeleton className="h-3 w-24" />
-                    <Skeleton className="mt-2 h-4 w-16" />
+                  <div className="flex min-w-0 items-start gap-2.5 border-l border-border/80 pl-3">
+                    <Skeleton className="mt-0.5 size-4 shrink-0 rounded-md" />
+
+                    <div className="min-w-0">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="mt-2 h-4 w-16" />
+                    </div>
                   </div>
                 </div>
 

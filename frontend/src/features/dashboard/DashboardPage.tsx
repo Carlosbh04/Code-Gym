@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { BrainCircuit, Clock3, FolderKanban, History, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
+import { PageLoadTransition } from '@/components/codegym/PageLoadTransition';
 import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
 import { useProgress } from '@/hooks/useProgress';
@@ -190,37 +191,130 @@ function DashboardPage() {
     || contentLoading;
 
   return (
-    <section aria-labelledby="dashboard-title" className="mx-auto w-full max-w-7xl py-2 sm:py-4">
+    <section
+      aria-labelledby="dashboard-title"
+      className="mx-auto w-full max-w-7xl py-2 sm:py-4"
+    >
       <DashboardHeader
         latestActivity={activities[0]}
-        isLoading={initialDashboardLoading}
+        isLoading={
+          completedSessionsLoading
+          || sessionDetails.status === 'loading'
+        }
       />
-      {initialDashboardLoading ? (
-        <DashboardLoadingBody
-          metrics={metrics}
-        />
-      ) : !hasActivity && !completedSessionsLoading ? (
-        <EmptyDashboard />
-      ) : (
-        <div className="mt-5 space-y-5">
-          <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(20rem,0.9fr)] xl:items-stretch">
-            <DashboardProgressOverview practicedConcepts={totalPracticedCatalogConcepts} totalConcepts={totalCatalogConcepts} isLoading={catalog.status === 'loading'} error={catalog.status === 'error' ? catalog.message : null} />
-            <NextPracticeCard recommendation={recommendation} isLoading={recommendationState.status === 'loading'} />
-          </div>
 
-          <section aria-label="Métricas de progreso" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {metrics.map((metric) => <DashboardMetricCard key={metric.label} {...metric} />)}
-          </section>
+      <PageLoadTransition
+        loading={initialDashboardLoading}
+        presentationKey="dashboard"
+        alwaysShowInitialSkeleton
+        ariaLabel="Contenido de Progreso"
+        skeleton={(
+          <DashboardLoadingBody
+            metrics={metrics}
+          />
+        )}
+      >
+        {!hasActivity && !completedSessionsLoading ? (
+          <EmptyDashboard />
+        ) : (
+          <div className="mt-5 space-y-5">
+            <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(20rem,0.9fr)] xl:items-stretch">
+              <div
+                data-entry-item
+                data-entry-index="0"
+                className="min-w-0"
+              >
+                <DashboardProgressOverview
+                  practicedConcepts={
+                    totalPracticedCatalogConcepts
+                  }
+                  totalConcepts={
+                    totalCatalogConcepts
+                  }
+                  isLoading={
+                    catalog.status === 'loading'
+                  }
+                  error={
+                    catalog.status === 'error'
+                      ? catalog.message
+                      : null
+                  }
+                />
+              </div>
 
-          <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(22.5rem,0.8fr)] xl:items-start">
-            <TechnologyProgressList items={technologyProgress} isLoading={catalog.status === 'loading'} error={catalog.status === 'error' ? catalog.message : null} />
-            <aside className="min-w-0 space-y-5">
-              <RecentActivity activities={activities} isLoading={completedSessionsLoading || sessionDetails.status === 'loading'} error={completedSessionsError} />
-            </aside>
+              <div
+                data-entry-item
+                data-entry-index="1"
+                className="min-w-0"
+              >
+                <NextPracticeCard
+                  recommendation={recommendation}
+                  isLoading={
+                    recommendationState.status
+                    === 'loading'
+                  }
+                />
+              </div>
+            </div>
+
+            <section
+              aria-label="Métricas de progreso"
+              className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+            >
+              {metrics.map((metric, metricIndex) => (
+                <div
+                  key={metric.label}
+                  data-entry-item
+                  data-entry-index={String(metricIndex + 2)}
+                  className="min-w-0"
+                >
+                  <DashboardMetricCard
+                    {...metric}
+                  />
+                </div>
+              ))}
+            </section>
+
+            <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(22.5rem,0.8fr)] xl:items-start">
+              <div
+                data-entry-item
+                data-entry-index="7"
+                className="min-w-0"
+              >
+                <TechnologyProgressList
+                  items={technologyProgress}
+                  isLoading={
+                    catalog.status === 'loading'
+                  }
+                  error={
+                    catalog.status === 'error'
+                      ? catalog.message
+                      : null
+                  }
+                />
+              </div>
+
+              <aside
+                data-entry-item
+                data-entry-index="8"
+                className="min-w-0 space-y-5"
+              >
+                <RecentActivity
+                  activities={activities}
+                  isLoading={
+                    completedSessionsLoading
+                    || sessionDetails.status
+                      === 'loading'
+                  }
+                  error={completedSessionsError}
+                />
+              </aside>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </PageLoadTransition>
     </section>
+
   );
 }
 
