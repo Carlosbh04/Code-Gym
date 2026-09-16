@@ -214,6 +214,9 @@ export function AuthPanel({
           '/',
           {
             replace: true,
+            state: {
+              postLoginIntro: true,
+            },
           },
         );
       } catch (error) {
@@ -284,6 +287,9 @@ export function AuthPanel({
           '/',
           {
             replace: true,
+            state: {
+              postLoginIntro: true,
+            },
           },
         );
       } catch (error) {

@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ThemeContext } from '@/contexts/theme-context';
+import { LogoutTransitionProvider } from '@/features/logout-transition/LogoutTransitionContext';
 import { AppLayout } from './AppLayout';
 
 vi.mock('@/features/auth/AuthContext', () => ({
@@ -21,18 +22,20 @@ vi.mock('@/features/auth/AuthContext', () => ({
 function renderLayout(initialEntry = '/') {
   return render(
     <ThemeContext.Provider value={{ preference: 'system', resolvedTheme: 'dark', setPreference: () => undefined }}>
-      <MemoryRouter initialEntries={[initialEntry]}>
-        <Routes>
-          <Route element={<AppLayout />}>
-          <Route path="/" element={<section><h1>Contenido</h1></section>} />
-          <Route path="/dashboard" element={<section><h1>Progreso</h1></section>} />
-          <Route path="/tech" element={<section><h1>Entrenar</h1></section>} />
-          <Route path="/tech/:technologyId" element={<section><h1>Tecnología</h1></section>} />
-          <Route path="/review" element={<section><h1>Repasar</h1></section>} />
-          <Route path="/review/:sessionId" element={<section><h1>Revisión</h1></section>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
+      <LogoutTransitionProvider>
+        <MemoryRouter initialEntries={[initialEntry]}>
+          <Routes>
+            <Route element={<AppLayout />}>
+            <Route path="/" element={<section><h1>Contenido</h1></section>} />
+            <Route path="/dashboard" element={<section><h1>Progreso</h1></section>} />
+            <Route path="/tech" element={<section><h1>Entrenar</h1></section>} />
+            <Route path="/tech/:technologyId" element={<section><h1>Tecnología</h1></section>} />
+            <Route path="/review" element={<section><h1>Repasar</h1></section>} />
+            <Route path="/review/:sessionId" element={<section><h1>Revisión</h1></section>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </LogoutTransitionProvider>
     </ThemeContext.Provider>,
   );
 }
@@ -51,7 +54,12 @@ describe('AppLayout responsive móvil (T078)', () => {
     const sidebar = container.querySelector('aside');
 
     expect(main).toHaveClass('px-4', 'pb-28', 'sm:px-6', 'sm:pb-8');
-    expect(mobileNav).toHaveClass('fixed', 'bottom-3', 'sm:hidden');
+    expect(mobileNav).toHaveClass(
+      'fixed',
+      'inset-x-0',
+      'bottom-0',
+      'sm:hidden',
+    );
     expect(topBar).toHaveClass('flex', 'h-14', 'sm:h-16');
     expect(within(topBar).queryByRole('navigation')).not.toBeInTheDocument();
     const search = within(topBar).getByRole('search', { name: 'Búsqueda de contenido' });
@@ -210,4 +218,19 @@ describe('AppLayout responsive móvil (T078)', () => {
       expect(link).toHaveAttribute('aria-current', 'page');
     }
   });
+
+  it('no muestra la intro durante una navegación normal', () => {
+    renderLayout('/');
+
+    expect(
+      screen.queryByRole(
+        'status',
+        {
+          name:
+            'Bienvenido a CodeGym',
+        },
+      ),
+    ).not.toBeInTheDocument();
+  });
+
 });

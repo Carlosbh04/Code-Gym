@@ -175,6 +175,9 @@ describe('AuthPanel', () => {
       '/',
       {
         replace: true,
+        state: {
+          postLoginIntro: true,
+        },
       },
     );
   });
@@ -255,6 +258,9 @@ describe('AuthPanel', () => {
       '/',
       {
         replace: true,
+        state: {
+          postLoginIntro: true,
+        },
       },
     );
   });
@@ -338,6 +344,9 @@ describe('AuthPanel', () => {
       '/',
       {
         replace: true,
+        state: {
+          postLoginIntro: true,
+        },
       },
     );
   });

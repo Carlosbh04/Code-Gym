@@ -1,8 +1,17 @@
-import { useLayoutEffect, useRef } from 'react';
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
-import { Outlet, useLocation } from 'react-router-dom';
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 
 import { MobileNav } from '@/components/layout/MobileNav';
+import { PostLoginIntro } from '@/components/layout/PostLoginIntro';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/layout/TopBar';
 
@@ -18,6 +27,42 @@ import { TopBar } from '@/components/layout/TopBar';
 export function AppLayout() {
   const mainRef = useRef<HTMLElement>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const locationState =
+    location.state as {
+      postLoginIntro?: boolean;
+    } | null;
+
+  const [
+    showPostLoginIntro,
+    setShowPostLoginIntro,
+  ] = useState(
+    locationState?.postLoginIntro === true,
+  );
+
+  useLayoutEffect(() => {
+    if (
+      locationState?.postLoginIntro
+        === true
+    ) {
+      navigate(
+        location.pathname
+          + location.search
+          + location.hash,
+        {
+          replace: true,
+          state: null,
+        },
+      );
+    }
+  }, [
+    location.hash,
+    location.pathname,
+    location.search,
+    locationState?.postLoginIntro,
+    navigate,
+  ]);
 
   useLayoutEffect(() => {
     const main = mainRef.current;
@@ -116,6 +161,14 @@ export function AppLayout() {
       </div>
 
       <MobileNav />
+
+      {showPostLoginIntro ? (
+        <PostLoginIntro
+          onComplete={() => {
+            setShowPostLoginIntro(false);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
