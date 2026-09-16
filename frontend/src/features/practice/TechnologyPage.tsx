@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import { EmptyState } from '@/components/codegym/EmptyState';
+import { Skeleton } from '@/components/codegym/Skeleton';
 import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
 import { useProgress } from '@/hooks/useProgress';
@@ -78,7 +79,9 @@ function TechnologyPage() {
     technologyId,
   ]);
 
-  if (isLoading) return <TechnologyLoading />;
+  if (isLoading) {
+    return <TechnologyLoading activeTab={activeTab} />;
+  }
   if (technology === undefined || technologyId === undefined) {
     return <TechnologyUnavailable />;
   }
@@ -107,13 +110,7 @@ function TechnologyPage() {
       <TechnologyTabs technologyId={technologyId} activeTab={activeTab} />
 
       {currentModel === null ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="mt-3 rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground sm:mt-4"
-        >
-          Cargando contenido y progreso…
-        </div>
+        <TechnologyTabLoading activeTab={activeTab} />
       ) : currentModel.status === 'error' ? (
         <p
           role="alert"
@@ -177,30 +174,315 @@ function resolveTechnologyTab(value: string | null): TechnologyTab {
 function TechnologyProgressLoading() {
   return (
     <div
-      role="status"
-      aria-live="polite"
-      className="mt-6 rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground"
+      aria-hidden="true"
+      className="mt-6 overflow-hidden rounded-2xl border border-border bg-card shadow-sm sm:mt-7"
     >
-      Calculando tu progreso real…
+      <div className="grid md:grid-cols-2 xl:grid-cols-[1.1fr_0.72fr_1.25fr]">
+        <div className="p-5 sm:p-6">
+          <div className="flex items-center gap-2">
+            <Skeleton className="size-4 rounded-md" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+
+          <div className="mt-4 flex items-end justify-between gap-4">
+            <Skeleton className="h-10 w-20" />
+
+            <div className="flex-1 space-y-2">
+              <Skeleton className="ml-auto h-3 w-36 max-w-full" />
+              <Skeleton className="ml-auto h-3 w-28 max-w-full" />
+            </div>
+          </div>
+
+          <Skeleton className="mt-4 h-2 w-full rounded-full" />
+        </div>
+
+        <div className="border-t border-border p-5 sm:p-6 md:border-l md:border-t-0">
+          <div className="flex items-center gap-2">
+            <Skeleton className="size-4 rounded-md" />
+            <Skeleton className="h-3 w-36" />
+          </div>
+
+          <div className="mt-5 flex items-end gap-2">
+            <Skeleton className="h-8 w-12" />
+            <Skeleton className="h-5 w-12" />
+          </div>
+
+          <Skeleton className="mt-3 h-3 w-full max-w-52" />
+        </div>
+
+        <div className="border-t border-border p-5 sm:p-6 md:col-span-2 xl:col-span-1 xl:border-l xl:border-t-0">
+          <div className="flex items-center gap-2">
+            <Skeleton className="size-4 rounded-md" />
+            <Skeleton className="h-3 w-28" />
+          </div>
+
+          <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <Skeleton className="h-4 w-4/5 max-w-64" />
+              <Skeleton className="mt-2 h-3 w-24" />
+            </div>
+
+            <Skeleton className="h-11 w-28 shrink-0 rounded-lg" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-function TechnologyLoading() {
+function TechnologyTabsLoading() {
+  return (
+    <div
+      aria-hidden="true"
+      className="mt-5 border-b border-border sm:mt-6"
+    >
+      <div className="flex gap-1">
+        {Array.from({ length: 3 }, (_, index) => (
+          <div
+            key={index}
+            className="flex min-h-12 items-center gap-2 px-3"
+          >
+            <Skeleton className="size-4 rounded-md" />
+            <Skeleton
+              className={
+                index === 1
+                  ? 'h-4 w-20'
+                  : 'h-4 w-16'
+              }
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TechnologyTabLoading({
+  activeTab,
+}: {
+  activeTab: TechnologyTab;
+}) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-3 sm:mt-4"
+    >
+      <span className="sr-only">
+        Cargando contenido y progreso…
+      </span>
+
+      {activeTab === 'exercises' ? (
+        <TechnologyExercisesLoading />
+      ) : activeTab === 'results' ? (
+        <TechnologyResultsLoading />
+      ) : (
+        <TechnologyTopicsLoading />
+      )}
+    </div>
+  );
+}
+
+function TechnologyTopicsLoading() {
+  return (
+    <div
+      aria-hidden="true"
+      className="space-y-2.5"
+    >
+      {Array.from({ length: 4 }, (_, index) => (
+        <div
+          key={index}
+          className="grid min-h-11 grid-cols-[3rem_minmax(0,1fr)] gap-x-3 gap-y-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-[3rem_minmax(0,1fr)_auto] sm:gap-x-4 xl:grid-cols-[3rem_minmax(15rem,1fr)_9rem_minmax(8rem,10rem)_8rem_1.5rem] xl:items-center xl:gap-x-5"
+        >
+          <Skeleton className="size-12 rounded-xl" />
+
+          <div className="min-w-0">
+            <Skeleton className="h-5 w-36 max-w-full" />
+            <Skeleton className="mt-2 h-3 w-full max-w-80" />
+          </div>
+
+          <div className="col-start-2 space-y-2 sm:row-start-2 xl:col-auto xl:row-auto">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+
+          <div className="col-span-2 sm:col-start-2 xl:col-auto">
+            <div className="flex justify-between gap-3">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-3 w-10" />
+            </div>
+            <Skeleton className="mt-2 h-1.5 w-full rounded-full" />
+          </div>
+
+          <Skeleton className="col-start-2 h-8 w-24 rounded-full sm:col-start-3 xl:col-auto" />
+          <Skeleton className="hidden size-5 rounded-md xl:block" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TechnologyExercisesLoading() {
+  return (
+    <div aria-hidden="true">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 flex-1">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="mt-2 h-6 w-56 max-w-full" />
+            <Skeleton className="mt-2 h-3 w-72 max-w-full" />
+          </div>
+
+          <div className="flex gap-2 overflow-hidden">
+            {Array.from({ length: 4 }, (_, index) => (
+              <Skeleton
+                key={index}
+                className="h-11 w-24 shrink-0 rounded-full"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-4">
+        {Array.from({ length: 2 }, (_, groupIndex) => (
+          <div
+            key={groupIndex}
+            className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
+          >
+            <Skeleton className="h-5 w-36" />
+
+            <div className="mt-3 space-y-3">
+              {Array.from({ length: 2 }, (_, rowIndex) => (
+                <div
+                  key={rowIndex}
+                  className="rounded-xl border border-border bg-background p-4 sm:p-5"
+                >
+                  <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                    <div className="grid min-w-0 grid-cols-[2.75rem_minmax(0,1fr)] gap-3">
+                      <Skeleton className="size-11 rounded-full" />
+
+                      <div className="min-w-0">
+                        <Skeleton className="h-3 w-28" />
+                        <Skeleton className="mt-2 h-5 w-3/4 max-w-72" />
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Skeleton className="h-7 w-24 rounded-full" />
+                          <Skeleton className="h-7 w-20 rounded-full" />
+                          <Skeleton className="h-3 w-20 self-center" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <Skeleton className="h-11 w-32 rounded-lg" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TechnologyResultsLoading() {
+  return (
+    <div aria-hidden="true">
+      <Skeleton className="h-3 w-28" />
+      <Skeleton className="mt-2 h-6 w-52 max-w-full" />
+      <Skeleton className="mt-2 h-3 w-72 max-w-full" />
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }, (_, index) => (
+          <div
+            key={index}
+            className="rounded-xl border border-border bg-card p-4 shadow-sm"
+          >
+            <div className="flex items-center gap-2">
+              <Skeleton className="size-4 rounded-md" />
+              <Skeleton className="h-3 w-28" />
+            </div>
+            <Skeleton className="mt-3 h-7 w-16" />
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {Array.from({ length: 3 }, (_, index) => (
+          <div
+            key={index}
+            className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5"
+          >
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div className="min-w-0">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="mt-2 h-5 w-2/3 max-w-72" />
+                <Skeleton className="mt-2 h-3 w-36" />
+
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-24" />
+                </div>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2 lg:w-auto">
+                <Skeleton className="h-11 w-32 rounded-lg" />
+                <Skeleton className="h-11 w-28 rounded-lg" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TechnologyLoading({
+  activeTab,
+}: {
+  activeTab: TechnologyTab;
+}) {
   return (
     <section
       aria-busy="true"
       aria-labelledby="technology-loading-title"
       aria-live="polite"
-      className="mx-auto max-w-7xl py-8 sm:py-12"
+      className="mx-auto w-full max-w-7xl py-2 sm:py-4"
     >
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Entrenar</p>
       <h1
         id="technology-loading-title"
-        className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+        className="sr-only"
       >
         Cargando tecnología…
       </h1>
+
+      <div aria-hidden="true">
+        <div className="flex items-start justify-between gap-4 sm:gap-6">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="size-4 rounded-md" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+
+            <Skeleton className="mt-3 h-10 w-64 max-w-full sm:h-12" />
+
+            <div className="mt-3 space-y-2">
+              <Skeleton className="h-4 w-full max-w-3xl" />
+              <Skeleton className="h-4 w-4/5 max-w-2xl" />
+            </div>
+          </div>
+
+          <Skeleton className="mt-11 size-14 shrink-0 rounded-xl sm:size-20" />
+        </div>
+      </div>
+
+      <TechnologyProgressLoading />
+      <TechnologyTabsLoading />
+      <TechnologyTabLoading activeTab={activeTab} />
     </section>
   );
 }

@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Skeleton } from '@/components/codegym/Skeleton';
 
 import type { Concept } from '@/types/content';
 import type { Difficulty, ExerciseSession } from '@/types/exercise';
@@ -116,7 +117,7 @@ export function TopicSessionList({ concepts, results }: TopicSessionListProps) {
       </div>
 
       {loadingConcepts.length > 0 ? (
-        <p role="status" className="mt-5 text-sm text-muted-foreground">Cargando sesiones…</p>
+        <TopicSessionsLoading />
       ) : null}
 
       {failedConcepts.map((concept) => {
@@ -157,6 +158,46 @@ export function TopicSessionList({ concepts, results }: TopicSessionListProps) {
 
       {sessions.length > 0 ? <PracticeProgress sessions={sessions} states={sessionStates} /> : null}
     </section>
+  );
+}
+
+function TopicSessionsLoading() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-5 space-y-3"
+    >
+      <span className="sr-only">
+        Cargando sesiones…
+      </span>
+
+      <div aria-hidden="true" className="space-y-3">
+        {Array.from({ length: 2 }, (_, index) => (
+          <div
+            key={index}
+            className="rounded-xl border border-border bg-card/80 p-3.5 shadow-sm sm:p-4"
+          >
+            <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+              <div className="grid min-w-0 grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-3">
+                <Skeleton className="size-11 rounded-full" />
+
+                <div className="min-w-0">
+                  <Skeleton className="h-4 w-3/4 max-w-56" />
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Skeleton className="h-7 w-24 rounded-full" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                </div>
+              </div>
+
+              <Skeleton className="h-11 w-28 rounded-lg" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
