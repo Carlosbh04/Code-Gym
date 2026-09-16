@@ -13,6 +13,7 @@ import {
 import { Link } from 'react-router-dom';
 
 import { EmptyState } from '@/components/codegym/EmptyState';
+import { PageLoadTransition } from '@/components/codegym/PageLoadTransition';
 import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
 import { useContent } from '@/hooks/useContent';
 import { useDashboard } from '@/hooks/useDashboard';
@@ -328,7 +329,7 @@ function HomePage() {
           * 100,
         );
 
-  if (
+  const initialHomeLoading =
     dashboardLoading
     || progressLoading
     || completedSessionsLoading
@@ -336,13 +337,18 @@ function HomePage() {
       dashboard === null
       && dashboardError === null
     )
-  ) {
-    return <HomeInitialLoading />;
-  }
+    || (
+      recovery !== null
+      && catalogLoading
+      && !hasPersistedActivity
+    );
 
   if (
-    dashboardError !== null
-    || dashboard === null
+    !initialHomeLoading
+    && (
+      dashboardError !== null
+      || dashboard === null
+    )
   ) {
     return (
       <section
@@ -377,15 +383,8 @@ function HomePage() {
    * y cambiar después a la Home avanzada.
    */
   if (
-    recovery !== null
-    && catalogLoading
-    && !hasPersistedActivity
-  ) {
-    return <HomeInitialLoading />;
-  }
-
-  if (
-    recovery !== null
+    !initialHomeLoading
+    && recovery !== null
     && catalogState.status === 'error'
     && !hasPersistedActivity
   ) {
@@ -495,13 +494,25 @@ function HomePage() {
     </section>
   );
 
-  if (showAdvancedHome) {
-    return (
+  const homeContent =
+    initialHomeLoading
+      ? null
+      : showAdvancedHome
+        ? (
       <div className="mx-auto w-full max-w-[1450px] pb-4 pt-0 sm:pb-6">
-        {technologySection()}
+        <div
+          data-entry-item
+          data-entry-index="0"
+        >
+          {technologySection()}
+        </div>
 
         <div className="mt-4 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.34fr)_minmax(390px,0.92fr)]">
-          <div className="min-w-0">
+          <div
+            data-entry-item
+            data-entry-index="1"
+            className="min-w-0"
+          >
             <ContinueCard
               item={continueItem}
               fallbackTechnology={
@@ -521,7 +532,11 @@ function HomePage() {
             />
           </div>
 
-          <div className="min-w-0">
+          <div
+            data-entry-item
+            data-entry-index="2"
+            className="min-w-0"
+          >
             <HomeProgressSummary
               practicedConcepts={practicedConcepts}
               totalConcepts={totalConcepts}
@@ -538,7 +553,11 @@ function HomePage() {
             />
           </div>
 
-          <div className="min-w-0">
+          <div
+            data-entry-item
+            data-entry-index="3"
+            className="min-w-0"
+          >
             <HomeRecentActivity
               activities={activities}
               isLoading={
@@ -550,23 +569,21 @@ function HomePage() {
             />
           </div>
 
-          <div className="min-w-0">
+          <div
+            data-entry-item
+            data-entry-index="4"
+            className="min-w-0"
+          >
             <MotivationCard variant="advanced" />
           </div>
         </div>
       </div>
-    );
-  }
-
-  /*
-   * HOME DE USUARIO NUEVO
-   *
-   * Dashboard ya fue resuelto y confirma que no existe
-   * actividad persistida. Tampoco existe recovery válido.
-   */
-  return (
+        )
+        : (
     <div className="mx-auto w-full max-w-7xl pb-8 pt-2 sm:pt-4">
       <section
+        data-entry-item
+        data-entry-index="0"
         aria-labelledby="home-title"
         className="relative overflow-hidden rounded-2xl border border-primary/30 bg-[#07101f] px-6 py-7 shadow-[0_18px_55px_rgba(0,0,0,0.32)] sm:px-8 lg:px-12 lg:py-8"
       >
@@ -688,6 +705,8 @@ function HomePage() {
       </section>
 
       <section
+        data-entry-item
+        data-entry-index="1"
         className="mt-8 min-w-0"
         aria-labelledby="onboarding-technologies-title"
       >
@@ -744,6 +763,17 @@ function HomePage() {
         )}
       </section>
     </div>
+        );
+
+  return (
+    <PageLoadTransition
+      loading={initialHomeLoading}
+      presentationKey="home"
+      ariaLabel="Inicio"
+      skeleton={<HomeInitialLoading />}
+    >
+      {homeContent}
+    </PageLoadTransition>
   );
 }
 

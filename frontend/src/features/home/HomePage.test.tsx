@@ -22,6 +22,22 @@ import { HistoryContext } from '@/contexts/history-context';
 import { ProgressContext } from '@/contexts/progress-context';
 import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
 
+vi.mock('@/components/codegym/PageLoadTransition', () => ({
+  PageLoadTransition: ({
+    loading,
+    skeleton,
+    children,
+  }: {
+    loading: boolean;
+    skeleton: ReactNode;
+    children: ReactNode;
+  }) => (
+    loading
+      ? <>{skeleton}</>
+      : <>{children}</>
+  ),
+}));
+
 import type {
   DashboardSnapshot,
 } from '@/features/dashboard/dashboard-api';
