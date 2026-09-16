@@ -1,0 +1,417 @@
+/* =========================================================
+   CODEGYM SIDEBAR · DESKTOP
+
+   Diseño elegido:
+   01 · Aurora Glide
+
+   Solo desktop >= 1280px.
+   Tablet y móvil se diseñarán por separado.
+   ========================================================= */
+
+@media (min-width: 1280px) {
+  .codegym-sidebar-link {
+    isolation: isolate;
+    overflow: hidden;
+
+    transition:
+      color 220ms ease,
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* -------------------------------------------------------
+     CAPA AURORA
+
+     Se desplaza desde la izquierda y aparece suavemente
+     detrás del contenido del enlace.
+     ------------------------------------------------------- */
+
+  .codegym-sidebar-link__aurora {
+    position: absolute;
+    inset: 0.25rem;
+
+    z-index: -1;
+
+    border-radius: 0.625rem;
+
+    background:
+      linear-gradient(
+        110deg,
+        rgb(139 92 246 / 0.16),
+        rgb(56 189 248 / 0.10),
+        rgb(99 102 241 / 0.15)
+      );
+
+    opacity: 0;
+
+    transform:
+      translateX(-1.125rem)
+      scale(0.96);
+
+    transition:
+      opacity 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    pointer-events: none;
+  }
+
+  /* -------------------------------------------------------
+     RAIL LUMINOSO
+
+     El activo ya posee su indicador canónico.
+     Este rail se usa solo al pasar por enlaces no activos.
+     ------------------------------------------------------- */
+
+  .codegym-sidebar-link__rail {
+    position: absolute;
+
+    left: 0;
+    top: 50%;
+
+    width: 0.1875rem;
+    height: 1.5rem;
+
+    border-radius: 9999px;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgb(139 92 246),
+        rgb(56 189 248)
+      );
+
+    box-shadow:
+      0 0 14px rgb(99 102 241 / 0.55);
+
+    opacity: 0;
+
+    transform:
+      translateY(-50%)
+      scaleY(0);
+
+    transform-origin: center;
+
+    transition:
+      opacity 240ms ease,
+      transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    pointer-events: none;
+  }
+
+  /* -------------------------------------------------------
+     PASADA
+     ------------------------------------------------------- */
+
+  .codegym-sidebar-link:hover,
+  .codegym-sidebar-link:focus-visible {
+    transform: translateX(0.25rem);
+  }
+
+  .codegym-sidebar-link:hover
+    .codegym-sidebar-link__aurora,
+  .codegym-sidebar-link:focus-visible
+    .codegym-sidebar-link__aurora {
+    opacity: 1;
+
+    transform:
+      translateX(0)
+      scale(1);
+  }
+
+  .codegym-sidebar-link:not([aria-current='page']):hover
+    .codegym-sidebar-link__rail,
+  .codegym-sidebar-link:not([aria-current='page']):focus-visible
+    .codegym-sidebar-link__rail {
+    opacity: 1;
+
+    transform:
+      translateY(-50%)
+      scaleY(1);
+  }
+
+  /* Icono con una respuesta muy pequeña para dar profundidad. */
+
+  .codegym-sidebar-link:hover
+    .codegym-sidebar-link__icon,
+  .codegym-sidebar-link:focus-visible
+    .codegym-sidebar-link__icon {
+    transform:
+      translateX(0.125rem)
+      scale(1.045);
+  }
+
+  .codegym-sidebar-link__icon {
+    transition:
+      color 220ms ease,
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* Accesibilidad */
+
+@media (prefers-reduced-motion: reduce) {
+  .codegym-sidebar-link,
+  .codegym-sidebar-link__aurora,
+  .codegym-sidebar-link__rail,
+  .codegym-sidebar-link__icon {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+
+  .codegym-sidebar-link:hover,
+  .codegym-sidebar-link:focus-visible,
+  .codegym-sidebar-link:hover
+    .codegym-sidebar-link__icon,
+  .codegym-sidebar-link:focus-visible
+    .codegym-sidebar-link__icon {
+    transform: none;
+  }
+}
+
+
+/* =========================================================
+   CODEGYM SIDEBAR · TABLET
+
+   Diseño elegido:
+   03 · Orbit Rail
+
+   Rango:
+   640px - 1279px
+
+   Desktop conserva Aurora Glide.
+   Mobile usa su navegación inferior independiente.
+   ========================================================= */
+
+@media (min-width: 640px) and (max-width: 1279px) {
+  .codegym-sidebar-link {
+    isolation: isolate;
+    overflow: visible;
+
+    transition:
+      color 220ms ease,
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /*
+   * En tablet sustituimos el indicador activo original
+   * por el sistema Orbit Rail.
+   */
+
+  .codegym-sidebar-link[aria-current='page']::before {
+    display: none;
+  }
+
+  /* -------------------------------------------------------
+     FONDO FRÍO DEL ACTIVO
+     ------------------------------------------------------- */
+
+  .codegym-sidebar-link__aurora {
+    position: absolute;
+    inset: 0.25rem;
+
+    z-index: -1;
+
+    border-radius: 0.75rem;
+
+    background:
+      radial-gradient(
+        circle at 20% 50%,
+        rgb(34 211 238 / 0.18),
+        rgb(99 102 241 / 0.18) 58%,
+        rgb(255 255 255 / 0.025)
+      );
+
+    box-shadow:
+      0 15px 34px rgb(34 211 238 / 0.10);
+
+    opacity: 0;
+
+    transform:
+      translateX(-0.625rem)
+      scale(0.94);
+
+    transition:
+      opacity 360ms ease,
+      transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    pointer-events: none;
+  }
+
+  .codegym-sidebar-link[aria-current='page']
+    .codegym-sidebar-link__aurora {
+    opacity: 1;
+
+    transform:
+      translateX(0)
+      scale(1);
+  }
+
+  /* -------------------------------------------------------
+     RAIL VERTICAL
+     ------------------------------------------------------- */
+
+  .codegym-sidebar-link__rail {
+    position: absolute;
+
+    left: -0.125rem;
+    top: 50%;
+
+    width: 0.1875rem;
+    height: 1.625rem;
+
+    z-index: 2;
+
+    border-radius: 9999px;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgb(139 92 246),
+        rgb(56 189 248)
+      );
+
+    box-shadow:
+      0 0 14px rgb(56 189 248 / 0.50);
+
+    opacity: 0;
+
+    transform:
+      translateY(-50%)
+      scaleY(0);
+
+    transform-origin: center;
+
+    transition:
+      opacity 240ms ease,
+      transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    pointer-events: none;
+  }
+
+  .codegym-sidebar-link[aria-current='page']
+    .codegym-sidebar-link__rail {
+    opacity: 1;
+
+    transform:
+      translateY(-50%)
+      scaleY(1);
+  }
+
+  /* -------------------------------------------------------
+     ORBIT DOT
+
+     Recorre el acceso cuando una ruta pasa a estar activa.
+     ------------------------------------------------------- */
+
+  .codegym-sidebar-link__orbit {
+    position: absolute;
+
+    left: 0.55rem;
+    top: 50%;
+
+    width: 0.375rem;
+    height: 0.375rem;
+
+    z-index: 4;
+
+    border-radius: 9999px;
+
+    background: rgb(34 211 238);
+
+    box-shadow:
+      0 0 6px rgb(34 211 238),
+      0 0 16px rgb(34 211 238 / 0.75);
+
+    opacity: 0;
+
+    transform:
+      translateY(-50%)
+      scale(0.5);
+
+    pointer-events: none;
+  }
+
+  .codegym-sidebar-link[aria-current='page']
+    .codegym-sidebar-link__orbit {
+    animation:
+      codegym-tablet-orbit-dot
+      780ms
+      ease-out
+      both;
+  }
+
+  /* -------------------------------------------------------
+     ICONO
+     ------------------------------------------------------- */
+
+  .codegym-sidebar-link__icon {
+    position: relative;
+    z-index: 3;
+
+    transition:
+      color 220ms ease,
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .codegym-sidebar-link[aria-current='page']
+    .codegym-sidebar-link__icon {
+    transform: scale(1.08);
+  }
+
+  /*
+   * Hover tablet:
+   * no reproduce la animación Orbit completa.
+   * Solo responde suavemente al puntero.
+   */
+
+  .codegym-sidebar-link:not([aria-current='page']):hover {
+    transform: scale(1.035);
+  }
+
+  .codegym-sidebar-link:not([aria-current='page']):hover
+    .codegym-sidebar-link__aurora {
+    opacity: 0.55;
+
+    transform:
+      translateX(0)
+      scale(1);
+  }
+}
+
+@keyframes codegym-tablet-orbit-dot {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(-50%)
+      translateX(0)
+      scale(0.5);
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  68% {
+    opacity: 1;
+
+    transform:
+      translateY(-50%)
+      translateX(2.8rem)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translateY(-50%)
+      translateX(3.35rem)
+      scale(0.7);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .codegym-sidebar-link__orbit {
+    animation: none !important;
+  }
+}

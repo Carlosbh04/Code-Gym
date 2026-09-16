@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom';
 
 import { NAV_ITEMS } from '@/components/layout/navigation';
+
+import './sidebar.css';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
@@ -99,6 +101,7 @@ export function Sidebar() {
                   className={({ isActive }) =>
                     cn(
                       `
+                        codegym-sidebar-link
                         group
                         flex
                         min-h-11
@@ -145,8 +148,26 @@ export function Sidebar() {
                     )
                   }
                 >
+                  <span
+                    aria-hidden="true"
+                    className="codegym-sidebar-link__aurora"
+                  />
+
+                  <span
+                    aria-hidden="true"
+                    className="codegym-sidebar-link__rail"
+                  />
+
+                  <span
+                    aria-hidden="true"
+                    className="codegym-sidebar-link__orbit"
+                  />
+
                   <Icon
                     className="
+                      codegym-sidebar-link__icon
+                      relative
+                      z-10
                       size-[1.375rem]
                       shrink-0
                       transition-colors
@@ -156,7 +177,9 @@ export function Sidebar() {
                     aria-hidden="true"
                   />
 
-                  <span className="hidden xl:inline">{item.label}</span>
+                  <span className="relative z-10 hidden xl:inline">
+                    {item.label}
+                  </span>
 
                   <span className="sr-only xl:hidden">{item.label}</span>
                 </NavLink>

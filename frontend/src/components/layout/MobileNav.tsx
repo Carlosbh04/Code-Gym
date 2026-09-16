@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom';
 
 import { NAV_ITEMS } from '@/components/layout/navigation';
+
+import './mobile-nav.css';
 import { cn } from '@/lib/utils';
 
 export function MobileNav() {
@@ -9,31 +11,33 @@ export function MobileNav() {
       aria-label="Navegación principal"
       className="
         fixed
-        inset-x-3
-        bottom-3
+        inset-x-0
+        bottom-0
         z-50
         sm:hidden
       "
     >
       <div
         className="
-          rounded-2xl
-          border
+          codegym-mobile-nav-shell
+          border-t
           border-border
           bg-background/95
           px-2
-          shadow-lg
-          backdrop-blur
+          pt-2
+          shadow-[0_-14px_40px_rgba(0,0,0,0.30)]
+          backdrop-blur-xl
         "
       >
         <ul
           style={{ gridTemplateColumns: `repeat(${NAV_ITEMS.length}, minmax(0, 1fr))` }}
           className="
+            codegym-mobile-nav-list
+            relative
             grid
-            min-h-16
+            min-h-[4.5rem]
             items-center
-            gap-1
-            pb-[env(safe-area-inset-bottom)]
+            gap-0
           "
         >
           {NAV_ITEMS.map((item) => {
@@ -47,6 +51,7 @@ export function MobileNav() {
                   className={({ isActive }) =>
                     cn(
                       `
+                        codegym-mobile-nav-link
                         group
                         flex
                         min-h-14
@@ -71,30 +76,46 @@ export function MobileNav() {
                         focus-visible:ring-offset-background
                       `,
                       isActive
-                        ? 'bg-primary/10 text-primary'
+                        ? 'text-foreground'
                         : `
                           text-muted-foreground
-                          hover:bg-accent
                           hover:text-foreground
                         `,
                     )
                   }
                 >
+                  <span
+                    aria-hidden="true"
+                    className="codegym-mobile-nav-link__lift"
+                  />
+
+                  <span
+                    aria-hidden="true"
+                    className="codegym-mobile-nav-link__glow"
+                  />
+
+                  <span
+                    aria-hidden="true"
+                    className="codegym-mobile-nav-link__ring"
+                  />
+
                   <Icon
                     aria-hidden="true"
                     className="
+                      codegym-mobile-nav-link__icon
                       h-5
                       w-5
                       shrink-0
-                      transition-transform
-                      duration-fast
-                      ease-standard
-
-                      group-active:scale-95
                     "
                   />
 
-                  <span className="max-w-full truncate">
+                  <span
+                    className="
+                      codegym-mobile-nav-link__label
+                      max-w-full
+                      truncate
+                    "
+                  >
                     {item.label}
                   </span>
                 </NavLink>

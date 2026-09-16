@@ -1,0 +1,296 @@
+/* =========================================================
+   CODEGYM MOBILE NAV
+   03 · Orbit Glow · Native Dock
+
+   - Pegado al borde inferior.
+   - Safe area real.
+   - Item activo centrado.
+   - Indicador compartido que viaja entre pestañas.
+   ========================================================= */
+
+.codegym-mobile-nav-shell {
+  border-radius: 1.25rem 1.25rem 0 0;
+
+  /*
+   * Sin margen artificial inferior.
+   * Solo respetamos una safe-area real cuando el dispositivo
+   * efectivamente la proporciona.
+   */
+  padding-bottom:
+    env(safe-area-inset-bottom, 0px);
+
+  background-color:
+    hsl(var(--background));
+}
+
+.codegym-mobile-nav-list {
+  --codegym-mobile-active-index: 0;
+}
+
+/* ---------------------------------------------------------
+   SHARED ACTIVE PILL
+
+   Esta es la pieza que se desplaza entre los cuatro tabs.
+   --------------------------------------------------------- */
+
+.codegym-mobile-nav-list::before {
+  content: '';
+
+  position: absolute;
+
+  top: 0.35rem;
+  left:
+    calc(
+      var(--codegym-mobile-active-index)
+      * 25%
+    );
+
+  width: 25%;
+  height: 3.55rem;
+
+  border-radius: 1rem;
+
+  background:
+    radial-gradient(
+      circle at 50% 10%,
+      rgb(34 211 238 / 0.18),
+      rgb(99 102 241 / 0.22) 56%,
+      rgb(255 255 255 / 0.025)
+    );
+
+  box-shadow:
+    0 10px 26px rgb(34 211 238 / 0.10),
+    0 0 22px rgb(99 102 241 / 0.08);
+
+  transform:
+    translateY(-0.1rem)
+    scaleX(0.86);
+
+  transition:
+    left 480ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 480ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  pointer-events: none;
+}
+
+/* Detectamos cuál de los cuatro enlaces está activo. */
+
+.codegym-mobile-nav-list:has(
+  > li:nth-child(1)
+  .codegym-mobile-nav-link[aria-current='page']
+) {
+  --codegym-mobile-active-index: 0;
+}
+
+.codegym-mobile-nav-list:has(
+  > li:nth-child(2)
+  .codegym-mobile-nav-link[aria-current='page']
+) {
+  --codegym-mobile-active-index: 1;
+}
+
+.codegym-mobile-nav-list:has(
+  > li:nth-child(3)
+  .codegym-mobile-nav-link[aria-current='page']
+) {
+  --codegym-mobile-active-index: 2;
+}
+
+.codegym-mobile-nav-list:has(
+  > li:nth-child(4)
+  .codegym-mobile-nav-link[aria-current='page']
+) {
+  --codegym-mobile-active-index: 3;
+}
+
+/* ---------------------------------------------------------
+   LINKS
+   --------------------------------------------------------- */
+
+.codegym-mobile-nav-link {
+  position: relative;
+
+  z-index: 2;
+
+  isolation: isolate;
+
+  overflow: visible;
+
+  transition:
+    color 220ms ease,
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/*
+ * El fondo principal ahora lo proporciona el pill compartido.
+ * Conservamos este nodo porque ya forma parte del componente.
+ */
+
+.codegym-mobile-nav-link__lift {
+  display: none;
+}
+
+/* ---------------------------------------------------------
+   GLOW DEL ITEM ACTIVO
+   --------------------------------------------------------- */
+
+.codegym-mobile-nav-link__glow {
+  position: absolute;
+
+  left: 50%;
+  bottom: 0.25rem;
+
+  width: 2.8rem;
+  height: 0.45rem;
+
+  z-index: -1;
+
+  border-radius: 9999px;
+
+  background: rgb(34 211 238 / 0);
+
+  filter: blur(0.65rem);
+
+  opacity: 0;
+
+  transform: translateX(-50%);
+
+  transition:
+    opacity 360ms ease,
+    background-color 360ms ease;
+
+  pointer-events: none;
+}
+
+.codegym-mobile-nav-link__ring {
+  position: absolute;
+
+  inset: 0.15rem 0.35rem;
+
+  z-index: -1;
+
+  border: 1px solid transparent;
+  border-radius: 1rem;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------
+   ACTIVE
+
+   Mucho menos desplazamiento vertical que antes.
+   Icono + label permanecen centrados.
+   --------------------------------------------------------- */
+
+.codegym-mobile-nav-link[aria-current='page'] {
+  color: hsl(var(--foreground));
+
+  /*
+   * Sigue resaltándose, pero no sube tanto.
+   * Mantiene icono + texto visualmente centrados.
+   */
+  transform: translateY(-0.1rem);
+}
+
+.codegym-mobile-nav-link[aria-current='page']
+  .codegym-mobile-nav-link__glow {
+  opacity: 1;
+
+  background:
+    rgb(34 211 238 / 0.34);
+}
+
+.codegym-mobile-nav-link[aria-current='page']
+  .codegym-mobile-nav-link__ring {
+  animation:
+    codegym-mobile-orbit-ring
+    620ms
+    ease-out
+    both;
+}
+
+.codegym-mobile-nav-link__icon {
+  position: relative;
+
+  z-index: 3;
+
+  transition:
+    color 220ms ease,
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.codegym-mobile-nav-link[aria-current='page']
+  .codegym-mobile-nav-link__icon {
+  transform: scale(1.08);
+}
+
+.codegym-mobile-nav-link__label {
+  position: relative;
+
+  z-index: 3;
+
+  transition:
+    color 220ms ease,
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------------------------------------------------------
+   PRESSED
+   --------------------------------------------------------- */
+
+.codegym-mobile-nav-link:active {
+  transform:
+    translateY(-0.1rem)
+    scale(0.96);
+}
+
+/* ---------------------------------------------------------
+   ORBIT
+   --------------------------------------------------------- */
+
+@keyframes codegym-mobile-orbit-ring {
+  0% {
+    opacity: 0;
+
+    border-color:
+      rgb(56 189 248 / 0);
+
+    transform: scale(0.88);
+  }
+
+  35% {
+    opacity: 1;
+
+    border-color:
+      rgb(56 189 248 / 0.42);
+
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    border-color:
+      rgb(139 92 246 / 0);
+
+    transform: scale(1.1);
+  }
+}
+
+/* ---------------------------------------------------------
+   REDUCED MOTION
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .codegym-mobile-nav-list::before,
+  .codegym-mobile-nav-link,
+  .codegym-mobile-nav-link__glow,
+  .codegym-mobile-nav-link__ring,
+  .codegym-mobile-nav-link__icon,
+  .codegym-mobile-nav-link__label {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
