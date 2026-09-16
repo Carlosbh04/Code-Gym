@@ -308,3 +308,425 @@ html.theme-transition :where(input, textarea)::placeholder {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ==========================================================================
+   POST-LOGIN INTRO — 05 Depth Layers
+
+   Basado en el prototipo original:
+   typing -> overlay fade -> sidebar -> topbar -> contenido por capas.
+   ========================================================================== */
+
+.codegym-post-login-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+  pointer-events: none;
+
+  background:
+    hsl(var(--background));
+
+  animation:
+    codegym-depth-overlay-exit
+    300ms
+    ease
+    2600ms
+    forwards;
+}
+
+.codegym-depth-welcome {
+  position: relative;
+
+  padding-inline: 1.5rem;
+
+  text-align: center;
+}
+
+.codegym-depth-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+
+  max-width: 100%;
+
+  color: hsl(var(--foreground));
+
+  font-size:
+    clamp(
+      1.55rem,
+      3.2vw,
+      2.65rem
+    );
+
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+
+  white-space: nowrap;
+}
+
+.codegym-depth-typing {
+  display: inline-block;
+
+  width: 0;
+  overflow: hidden;
+
+  white-space: nowrap;
+
+  animation:
+    codegym-depth-typing
+    1100ms
+    steps(22, end)
+    0ms
+    forwards;
+}
+
+.codegym-depth-typing strong {
+  color: hsl(var(--foreground));
+
+  font-weight: 700;
+
+  text-shadow:
+    0 0 25px
+    hsl(var(--ring) / 0.18);
+}
+
+.codegym-depth-cursor {
+  display: inline-block;
+
+  margin-left: 4px;
+
+  color: hsl(var(--primary));
+
+  font-family: var(--font-mono);
+
+  animation:
+    codegym-depth-cursor-blink
+    450ms
+    step-end
+    infinite;
+}
+
+.codegym-depth-subtitle {
+  margin-top: 12px;
+
+  color:
+    hsl(
+      var(--muted-foreground)
+      / 0.78
+    );
+
+  font-size: 0.75rem;
+
+  opacity: 0;
+
+  animation:
+    codegym-depth-subtitle-enter
+    200ms
+    ease
+    1050ms
+    forwards;
+}
+
+
+/* --------------------------------------------------------------------------
+   Estado inicial de las capas reales de CodeGym
+   -------------------------------------------------------------------------- */
+
+html.codegym-depth-layers-active
+body
+> #root
+aside[aria-label='Barra lateral'] {
+  opacity: 0;
+
+  transform:
+    translate3d(
+      -18px,
+      0,
+      0
+    );
+
+  animation:
+    codegym-depth-sidebar
+    500ms
+    cubic-bezier(0.2, 0.8, 0.2, 1)
+    2900ms
+    forwards;
+}
+
+html.codegym-depth-layers-active
+body
+> #root
+header[aria-label='Barra de usuario'] {
+  opacity: 0;
+
+  transform:
+    translate3d(
+      0,
+      -12px,
+      0
+    );
+
+  animation:
+    codegym-depth-topbar
+    500ms
+    ease
+    3050ms
+    forwards;
+}
+
+html.codegym-depth-layers-active
+#main-content
+> * {
+  opacity: 0;
+
+  transform:
+    translate3d(
+      0,
+      16px,
+      0
+    )
+    scale(0.99);
+}
+
+
+/* primera capa */
+html.codegym-depth-layers-active
+#main-content
+> :nth-child(1) {
+  animation:
+    codegym-depth-card
+    500ms
+    ease
+    3200ms
+    forwards;
+}
+
+
+/* segunda capa */
+html.codegym-depth-layers-active
+#main-content
+> :nth-child(2) {
+  animation:
+    codegym-depth-card
+    500ms
+    ease
+    3350ms
+    forwards;
+}
+
+
+/* tercera capa */
+html.codegym-depth-layers-active
+#main-content
+> :nth-child(3) {
+  animation:
+    codegym-depth-card
+    500ms
+    ease
+    3500ms
+    forwards;
+}
+
+
+/* resto del contenido */
+html.codegym-depth-layers-active
+#main-content
+> :nth-child(n + 4) {
+  animation:
+    codegym-depth-card
+    500ms
+    ease
+    3650ms
+    forwards;
+}
+
+
+/* navegación móvil entra como la capa lateral */
+html.codegym-depth-layers-active
+nav.sm\:hidden {
+  opacity: 0;
+
+  transform:
+    translate3d(
+      0,
+      12px,
+      0
+    );
+
+  animation:
+    codegym-depth-mobile-nav
+    500ms
+    ease
+    3050ms
+    forwards;
+}
+
+
+/* --------------------------------------------------------------------------
+   Keyframes
+   -------------------------------------------------------------------------- */
+
+@keyframes codegym-depth-typing {
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes codegym-depth-cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes codegym-depth-subtitle-enter {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes codegym-depth-overlay-exit {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes codegym-depth-sidebar {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(
+        -18px,
+        0,
+        0
+      );
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes codegym-depth-topbar {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(
+        0,
+        -12px,
+        0
+      );
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes codegym-depth-card {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(
+        0,
+        16px,
+        0
+      )
+      scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes codegym-depth-mobile-nav {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(
+        0,
+        12px,
+        0
+      );
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 639px) {
+  .codegym-depth-title {
+    font-size: 1.45rem;
+  }
+
+  .codegym-depth-subtitle {
+    max-width: 17rem;
+
+    margin-inline: auto;
+
+    line-height: 1.45;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .codegym-post-login-intro {
+    animation:
+      codegym-depth-overlay-exit
+      1ms
+      linear
+      forwards;
+  }
+
+  .codegym-depth-welcome {
+    display: none;
+  }
+
+  html.codegym-depth-layers-active
+  body
+  > #root
+  aside[aria-label='Barra lateral'],
+
+  html.codegym-depth-layers-active
+  body
+  > #root
+  header[aria-label='Barra de usuario'],
+
+  html.codegym-depth-layers-active
+  #main-content
+  > *,
+
+  html.codegym-depth-layers-active
+  nav.sm\:hidden {
+    opacity: 1;
+
+    animation: none;
+
+    transform: none;
+  }
+}
