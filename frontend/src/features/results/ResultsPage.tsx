@@ -100,7 +100,7 @@ function ResultsPage() {
 
   return <section aria-labelledby="results-title" className="mx-auto w-full max-w-7xl py-2 sm:py-4">
     <nav aria-label="Breadcrumb" className="mb-5 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-      <Link to="/#technologies" className="rounded-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Entrenar</Link><span aria-hidden="true">›</span>
+      <Link to="/tech" className="rounded-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Entrenar</Link><span aria-hidden="true">›</span>
       <Link to={`/tech/${completedSession.technologyId}`} className="rounded-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{technology?.name ?? completedSession.technologyId}</Link>
       {topic !== null && <><span aria-hidden="true">›</span><Link to={`/tech/${topic.technologyId}/${topic.id}`} className="rounded-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{topic.name}</Link></>}
       <span aria-hidden="true">›</span><span aria-current="page" className="text-foreground">Resultado</span>

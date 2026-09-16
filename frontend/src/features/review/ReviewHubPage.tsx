@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
+import { PageLoadTransition } from '@/components/codegym/PageLoadTransition';
 import { Skeleton } from '@/components/codegym/Skeleton';
 import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
 import { formatDuration } from '@/features/dashboard/components/dashboard-formatters';
@@ -115,41 +116,91 @@ function ReviewHubPage() {
   const loading = contentLoading || progressLoading || completedSessionsLoading || catalogState.status === 'loading';
   const fatalError = progressError ?? (catalogState.status === 'error' ? catalogState.message : null);
 
-  if (loading) return <ReviewHubLoading />;
-  if (fatalError !== null) return <ReviewHubError message={fatalError} />;
-  if (model === null || catalogState.status !== 'success') return null;
-
   return (
-    <section aria-labelledby="review-hub-title" className="mx-auto w-full max-w-7xl py-2 sm:py-4">
+    <section
+      aria-labelledby="review-hub-title"
+      className="mx-auto w-full max-w-7xl py-2 sm:py-4"
+    >
       <header className="border-b border-border pb-5">
-        <h1 id="review-hub-title" className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Repasar</h1>
+        <h1
+          id="review-hub-title"
+          className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+        >
+          Repasar
+        </h1>
+
         <p className="mt-2 text-base text-muted-foreground sm:text-lg">
           Analiza tu rendimiento y refuerza tus puntos débiles.
         </p>
       </header>
 
-      <ReviewWarnings
+      <PageLoadTransition
+        loading={loading}
+        presentationKey="review"
+        ariaLabel="Contenido de Repasar"
+        skeleton={<ReviewHubLoading />}
+      >
+      {fatalError !== null ? (
+        <ReviewHubError message={fatalError} />
+      ) : model === null
+        || catalogState.status !== 'success' ? null : (
+      <>
+        <ReviewWarnings
         historyError={completedSessionsError}
         recoveryError={recovery.status === 'error' ? recovery.message : null}
         completionErrors={catalogState.catalog.completionErrors}
       />
 
       <div className="mt-5 grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <AccuracyDiagnostic overview={model.overview} />
-        <WeakConceptsDiagnostic concepts={model.reviewConcepts} />
+        <div
+          data-entry-item
+          data-entry-index="0"
+          className="min-w-0"
+        >
+          <AccuracyDiagnostic overview={model.overview} />
+        </div>
+
+        <div
+          data-entry-item
+          data-entry-index="1"
+          className="min-w-0"
+        >
+          <WeakConceptsDiagnostic concepts={model.reviewConcepts} />
+        </div>
       </div>
 
-      {!model.hasActivity ? (
-        <ReviewEmptyState />
-      ) : (
-        <div className="mt-5 space-y-5">
-          <ConceptReviewSection
-            concepts={model.reviewConcepts}
-            sessions={model.recommendedSessions}
-          />
-          <ReviewActivitySection activities={model.recentActivity} />
-        </div>
+        {!model.hasActivity ? (
+          <div
+            data-entry-item
+            data-entry-index="2"
+          >
+            <ReviewEmptyState />
+          </div>
+        ) : (
+          <div className="mt-5 space-y-5">
+            <div
+              data-entry-item
+              data-entry-index="2"
+            >
+              <ConceptReviewSection
+                concepts={model.reviewConcepts}
+                sessions={model.recommendedSessions}
+              />
+            </div>
+
+            <div
+              data-entry-item
+              data-entry-index="3"
+            >
+              <ReviewActivitySection
+                activities={model.recentActivity}
+              />
+            </div>
+          </div>
+        )}
+      </>
       )}
+      </PageLoadTransition>
     </section>
   );
 }
@@ -485,65 +536,130 @@ function ReviewEmptyState() {
 
 function ReviewHubLoading() {
   return (
-    <section
+    <div
       aria-busy="true"
       aria-live="polite"
-      aria-labelledby="review-hub-loading-title"
-      className="mx-auto w-full max-w-7xl py-2 sm:py-4"
+      aria-label="Cargando contenido de Repasar"
     >
-      <header className="border-b border-border pb-5">
-        <h1
-          id="review-hub-loading-title"
-          className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
-        >
-          Repasar
-        </h1>
-
-        <p className="mt-2 text-muted-foreground">
-          Preparando tu diagnóstico…
-        </p>
-      </header>
-
       <div
         aria-hidden="true"
         className="mt-5 grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
       >
-        <Skeleton className="h-64 rounded-xl border border-border" />
-        <Skeleton className="h-64 rounded-xl border border-border" />
+        <section className={cn(PANEL, 'p-5 sm:p-6')}>
+          <LoadingSectionHeader />
+
+          <div className="mt-6 flex flex-col items-center gap-5 sm:flex-row sm:justify-center">
+            <Skeleton className="size-36 shrink-0 rounded-full" />
+
+            <div className="w-full max-w-xs">
+              <Skeleton className="h-5 w-44 max-w-full" />
+              <Skeleton className="mt-3 h-4 w-full" />
+              <Skeleton className="mt-2 h-4 w-4/5" />
+            </div>
+          </div>
+        </section>
+
+        <section className={cn(PANEL, 'p-5 sm:p-6')}>
+          <LoadingSectionHeader />
+
+          <ol className="mt-5 space-y-4">
+            {Array.from({ length: 5 }, (_, index) => (
+              <li key={index}>
+                <div className="flex items-end justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <Skeleton className="h-4 w-44 max-w-full" />
+                    <Skeleton className="mt-1 h-3 w-32 max-w-full" />
+                  </div>
+
+                  <Skeleton className="h-5 w-10 shrink-0" />
+                </div>
+
+                <Skeleton className="mt-2 h-1.5 w-full rounded-full" />
+              </li>
+            ))}
+          </ol>
+        </section>
       </div>
 
-      <section
+      <div
         aria-hidden="true"
-        className="mt-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6"
+        className="mt-5 space-y-5"
       >
-        <Skeleton className="h-6 w-52 max-w-full" />
+        <section className={cn(PANEL, 'p-5 sm:p-6')}>
+          <LoadingSectionHeader />
 
-        <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {Array.from({ length: 5 }, (_, index) => (
-            <Skeleton
-              key={index}
-              className="h-48 rounded-lg"
-            />
-          ))}
-        </div>
-      </section>
+          <ul className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {Array.from({ length: 5 }, (_, index) => (
+              <li
+                key={index}
+                className="min-w-0"
+              >
+                <article className="flex h-full min-w-0 flex-col rounded-lg border border-border bg-background/35 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <Skeleton className="size-9 shrink-0 rounded-lg" />
+                    <Skeleton className="h-6 w-12" />
+                  </div>
 
-      <section
-        aria-hidden="true"
-        className="mt-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6"
-      >
-        <Skeleton className="h-6 w-40 max-w-full" />
+                  <Skeleton className="mt-4 h-4 w-4/5" />
 
-        <div className="mt-5 space-y-3">
-          {Array.from({ length: 3 }, (_, index) => (
-            <Skeleton
-              key={index}
-              className="h-16 rounded-lg"
-            />
-          ))}
-        </div>
-      </section>
-    </section>
+                  <div className="mt-2 space-y-2">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-3/4" />
+                  </div>
+
+                  <Skeleton className="mt-4 h-1.5 w-full rounded-full" />
+
+                  <div className="mt-auto pt-4">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="mt-3 min-h-11 w-full rounded-lg" />
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className={cn(PANEL, 'p-5 sm:p-6')}>
+          <LoadingSectionHeader />
+
+          <ul className="mt-5 divide-y divide-border">
+            {Array.from({ length: 3 }, (_, index) => (
+              <li
+                key={index}
+                className="grid min-w-0 gap-4 py-4 first:pt-0 last:pb-0 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center"
+              >
+                <Skeleton className="size-10 shrink-0 rounded-lg" />
+
+                <div className="min-w-0">
+                  <Skeleton className="h-5 w-52 max-w-full" />
+                  <Skeleton className="mt-2 h-4 w-44 max-w-full" />
+                  <Skeleton className="mt-2 h-3 w-20" />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+                  <Skeleton className="h-6 w-12" />
+                  <Skeleton className="h-11 w-24 rounded-lg" />
+                  <Skeleton className="h-11 w-28 rounded-lg" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function LoadingSectionHeader() {
+  return (
+    <div className="flex items-start gap-3">
+      <Skeleton className="size-10 shrink-0 rounded-lg" />
+
+      <div className="min-w-0 flex-1">
+        <Skeleton className="h-6 w-44 max-w-full" />
+        <Skeleton className="mt-1 h-4 w-72 max-w-full" />
+      </div>
+    </div>
   );
 }
 

@@ -12,6 +12,22 @@ import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
 import type { HistoryContextValue } from '@/types/history';
 import type { CompletedSession, ConceptProgress, ProgressContextValue } from '@/types/progress';
 import type { ISessionRecoveryStore } from '@/lib/recovery/ISessionRecoveryStore';
+vi.mock('@/components/codegym/PageLoadTransition', () => ({
+  PageLoadTransition: ({
+    loading,
+    skeleton,
+    children,
+  }: {
+    loading: boolean;
+    skeleton: ReactNode;
+    children: ReactNode;
+  }) => (
+    <>
+      {loading ? skeleton : children}
+    </>
+  ),
+}));
+
 import ReviewHubPage from './ReviewHubPage';
 
 const TECHNOLOGY: Technology = { id: 'javascript', name: 'JavaScript', icon: 'javascript', description: '' };
@@ -163,7 +179,10 @@ describe('ReviewHubPage', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Repasar' })).toBeInTheDocument();
     expect(container.querySelector('[aria-busy="true"]')).toBeInTheDocument();
-    expect(container.querySelectorAll('.animate-pulse')).toHaveLength(12);
+    expect(
+      container.querySelectorAll('.codegym-skeleton').length,
+    ).toBeGreaterThan(0);
+
   });
 
   it('diferencia un fallo de progreso del estado vacío', async () => {

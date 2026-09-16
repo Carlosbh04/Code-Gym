@@ -90,7 +90,7 @@ describe('ResultsPage', () => {
     expect(screen.getByRole('link', { name: 'Repasar tema' })).toHaveAttribute('href', '/tech/javascript/arrays');
     expect(screen.getByRole('link', { name: 'Revisar respuestas' })).toHaveAttribute('href', '/review/session-1');
     expect(screen.getByRole('link', { name: 'Revisar respuesta 1: ¿Qué devuelve este código?' })).toHaveAttribute('href', '/review/session-1');
-    expect(screen.getByRole('link', { name: 'Entrenar' })).toHaveAttribute('href', '/#technologies');
+    expect(screen.getByRole('link', { name: 'Entrenar' })).toHaveAttribute('href', '/tech');
     expect(rendered.container.querySelector('[data-confetti-event="results:completion-1"]')).toBeInTheDocument();
     expect(screen.queryByText(/XP|racha|nivel|insignia/i)).not.toBeInTheDocument();
   });
