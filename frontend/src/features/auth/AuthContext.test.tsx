@@ -8,6 +8,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { UserMenu } from '@/components/layout/UserMenu';
+import { LogoutTransitionProvider } from '@/features/logout-transition/LogoutTransitionContext';
 import {
   AuthProvider,
   useAuth,
@@ -121,10 +122,12 @@ describe('AuthContext profile update', () => {
   it('reemplaza el usuario global con la respuesta real y actualiza UserMenu', async () => {
     render(
       <MemoryRouter>
-        <AuthProvider>
-          <UpdateProbe />
-          <UserMenu />
-        </AuthProvider>
+        <LogoutTransitionProvider>
+          <AuthProvider>
+            <UpdateProbe />
+            <UserMenu />
+          </AuthProvider>
+        </LogoutTransitionProvider>
       </MemoryRouter>,
     );
 
@@ -155,10 +158,12 @@ describe('AuthContext profile update', () => {
 
     render(
       <MemoryRouter>
-        <AuthProvider>
-          <UpdateProbe />
-          <UserMenu />
-        </AuthProvider>
+        <LogoutTransitionProvider>
+          <AuthProvider>
+            <UpdateProbe />
+            <UserMenu />
+          </AuthProvider>
+        </LogoutTransitionProvider>
       </MemoryRouter>,
     );
 
