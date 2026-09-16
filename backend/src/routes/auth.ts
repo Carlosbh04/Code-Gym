@@ -83,6 +83,10 @@ import {
 import type {
   SessionManagementService,
 } from '../auth/session-management-service.js';
+import {
+  InactiveSessionError,
+  type SessionActivityService,
+} from '../auth/session-activity-service.js';
 import type {
   RegistrationService,
 } from '../auth/user-service.js';
@@ -151,6 +155,12 @@ export interface AuthRouterDependencies {
       | 'revokeSession'
       | 'revokeOtherSessions'
     >;
+  readonly sessionActivityService?:
+    | Pick<
+        SessionActivityService,
+        'recordActivity'
+      >
+    | undefined;
 
   readonly requireAuth:
     RequestHandler;
@@ -171,6 +181,7 @@ export function createAuthRouter({
   passwordResetService,
   passwordChangeService,
   sessionManagementService,
+  sessionActivityService,
   requireAuth,
   config,
 }: AuthRouterDependencies): Router {
@@ -608,6 +619,55 @@ export function createAuthRouter({
       }
     },
   );
+
+  if (sessionActivityService !== undefined) {
+    router.post(
+      '/auth/activity',
+      requireAuth,
+      requireTrustedOrigin,
+      async (
+        request,
+        response,
+        next,
+      ) => {
+        const auth =
+          request.auth;
+
+        if (auth === undefined) {
+          respondUnauthorized(
+            response,
+          );
+
+          return;
+        }
+
+        try {
+          await sessionActivityService
+            .recordActivity(
+              auth.userId,
+              auth.sessionId,
+            );
+
+          response
+            .status(204)
+            .end();
+        } catch (error) {
+          if (
+            error instanceof
+            InactiveSessionError
+          ) {
+            respondUnauthorized(
+              response,
+            );
+
+            return;
+          }
+
+          next(error);
+        }
+      },
+    );
+  }
 
   router.get(
     '/auth/me',

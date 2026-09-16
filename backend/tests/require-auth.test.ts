@@ -27,6 +27,9 @@ const claims: AccessTokenClaims = Object.freeze({
 const activeSession: AuthSessionAuthenticationRecord = Object.freeze({
   userId: claims.sub,
   expiresAt: new Date(now.getTime() + 60_000),
+  lastActivityAt: new Date(
+    now.getTime() - 5 * 60_000,
+  ),
   revokedAt: null,
 });
 
@@ -51,6 +54,8 @@ function createProtectedTestApp(
     createRequireAuth({
       accessTokenService: { verify },
       authSessionRepository: { findSessionById },
+      idleSessionTimeoutSeconds:
+        900,
       clock,
     }),
     (request, response) => {
@@ -199,6 +204,95 @@ describe('require-auth middleware', () => {
     expectUniformUnauthorized(response);
     expect(testApp.observedAuth()).toBeUndefined();
   });
+
+  it('allows a session one millisecond before the idle deadline', async () => {
+    const verify = mockVerifyValid();
+
+    const findSessionById = vi
+      .fn<FindSessionById>()
+      .mockResolvedValue({
+        ...activeSession,
+        lastActivityAt:
+          new Date(
+            now.getTime()
+              - 900_000
+              + 1,
+          ),
+      });
+
+    const testApp =
+      createProtectedTestApp(
+        verify,
+        findSessionById,
+      );
+
+    const response =
+      await request(testApp.app)
+        .get('/protected')
+        .set(
+          'Authorization',
+          `Bearer ${accessToken}`,
+        );
+
+    expect(
+      response.status,
+    ).toBe(204);
+
+    expect(
+      testApp.observedAuth(),
+    ).toEqual({
+      userId:
+        claims.sub,
+      sessionId:
+        claims.sid,
+    });
+  });
+
+  it.each([
+    new Date(
+      now.getTime() - 900_000,
+    ),
+    new Date(
+      now.getTime() - 900_001,
+    ),
+  ])(
+    'returns the same 401 when idle deadline is reached or exceeded: %s',
+    async (
+      lastActivityAt,
+    ) => {
+      const verify =
+        mockVerifyValid();
+
+      const findSessionById = vi
+        .fn<FindSessionById>()
+        .mockResolvedValue({
+          ...activeSession,
+          lastActivityAt,
+        });
+
+      const testApp =
+        createProtectedTestApp(
+          verify,
+          findSessionById,
+        );
+
+      const response =
+        await request(testApp.app)
+          .get('/protected')
+          .set(
+            'Authorization',
+            `Bearer ${accessToken}`,
+          );
+
+      expectUniformUnauthorized(
+        response,
+      );
+
+      expect(
+        testApp.observedAuth(),
+      ).toBeUndefined();
+    },
+  );
 
   it('returns the same 401 when token subject and session owner differ', async () => {
     const verify = mockVerifyValid();

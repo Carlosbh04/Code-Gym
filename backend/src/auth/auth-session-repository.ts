@@ -17,6 +17,13 @@ export interface RotateAuthSessionRecord {
   readonly expiresAt: Date;
 }
 
+export interface TouchAuthSessionActivityInput {
+  readonly sessionId: string;
+  readonly userId: string;
+  readonly occurredAt: Date;
+  readonly idleCutoff: Date;
+}
+
 export interface RevokeAuthSessionByRefreshTokenDigestInput {
   readonly digest: Uint8Array;
   readonly revokedAt: Date;
@@ -41,6 +48,7 @@ export interface AuthSessionRecord {
   readonly createdAt: Date;
   readonly expiresAt: Date;
   readonly remembered: boolean;
+  readonly lastActivityAt: Date;
   readonly rotatedAt: Date | null;
   readonly revokedAt: Date | null;
 }
@@ -48,6 +56,7 @@ export interface AuthSessionRecord {
 export interface AuthSessionAuthenticationRecord {
   readonly userId: string;
   readonly expiresAt: Date;
+  readonly lastActivityAt: Date;
   readonly revokedAt: Date | null;
 }
 
@@ -79,6 +88,9 @@ export interface AuthSessionRepository {
   rotateSession(
     session: RotateAuthSessionRecord,
   ): Promise<AuthSessionRecord | null>;
+  touchSessionActivity(
+    input: TouchAuthSessionActivityInput,
+  ): Promise<boolean>;
 
   revokeSessionByRefreshTokenDigest(
     input: RevokeAuthSessionByRefreshTokenDigestInput,
@@ -100,6 +112,7 @@ const authSessionSelect = {
   createdAt: true,
   expiresAt: true,
   remembered: true,
+  lastActivityAt: true,
   rotatedAt: true,
   revokedAt: true,
 } as const;
@@ -107,6 +120,7 @@ const authSessionSelect = {
 const authSessionAuthenticationSelect = {
   userId: true,
   expiresAt: true,
+  lastActivityAt: true,
   revokedAt: true,
 } as const;
 
@@ -255,6 +269,36 @@ implements AuthSessionRepository {
       select:
         authSessionSelect,
     });
+  }
+
+  public async touchSessionActivity(
+    input: TouchAuthSessionActivityInput,
+  ): Promise<boolean> {
+    const result =
+      await this.prisma.authSession.updateMany({
+        where: {
+          id:
+            input.sessionId,
+          userId:
+            input.userId,
+          revokedAt:
+            null,
+          expiresAt: {
+            gt:
+              input.occurredAt,
+          },
+          lastActivityAt: {
+            gt:
+              input.idleCutoff,
+          },
+        },
+        data: {
+          lastActivityAt:
+            input.occurredAt,
+        },
+      });
+
+    return result.count === 1;
   }
 
   public async revokeSessionByRefreshTokenDigest(

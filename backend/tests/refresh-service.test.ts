@@ -20,6 +20,7 @@ const authConfig = {
   accessTokenSecret: Buffer.alloc(32, 9).toString('base64url'),
   accessTokenTtlSeconds: 600,
   refreshTokenTtlSeconds: 2_592_000,
+  idleSessionTimeoutSeconds: 900,
 };
 
 const currentRefreshToken = issueRefreshToken();
@@ -33,6 +34,9 @@ const activeSession: AuthSessionRecord = {
     now.getTime() + 60_000,
   ),
   remembered: false,
+  lastActivityAt: new Date(
+    now.getTime() - 5 * 60_000,
+  ),
   rotatedAt: null,
   revokedAt: null,
 };
@@ -259,6 +263,105 @@ describe('refresh service', () => {
       repository.rotateSession,
     ).not.toHaveBeenCalled();
   });
+
+  it('allows refresh one millisecond before the idle deadline', async () => {
+    const repository = createRepository({
+      findSessionByRefreshTokenDigest: vi
+        .fn<AuthSessionRepository['findSessionByRefreshTokenDigest']>()
+        .mockResolvedValue({
+          ...activeSession,
+          lastActivityAt:
+            new Date(
+              now.getTime()
+                - 900_000
+                + 1,
+            ),
+        }),
+    });
+
+    const accessTokenService =
+      new AccessTokenService(
+        authConfig,
+        () => now,
+      );
+
+    const service =
+      new RefreshService(
+        repository,
+        accessTokenService,
+        authConfig,
+        () => now,
+      );
+
+    await expect(
+      service.refresh(
+        currentRefreshToken.token,
+      ),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        remembered:
+          false,
+      }),
+    );
+  });
+
+  it.each([
+    new Date(
+      now.getTime() - 900_000,
+    ),
+    new Date(
+      now.getTime() - 900_001,
+    ),
+  ])(
+    'rejects refresh when idle deadline is reached or exceeded: %s',
+    async (
+      lastActivityAt,
+    ) => {
+      const rotateSession = vi
+        .fn<AuthSessionRepository['rotateSession']>()
+        .mockResolvedValue({
+          ...activeSession,
+        });
+
+      const repository =
+        createRepository({
+          findSessionByRefreshTokenDigest:
+            vi
+              .fn<AuthSessionRepository['findSessionByRefreshTokenDigest']>()
+              .mockResolvedValue({
+                ...activeSession,
+                lastActivityAt,
+              }),
+          rotateSession,
+        });
+
+      const accessTokenService =
+        new AccessTokenService(
+          authConfig,
+          () => now,
+        );
+
+      const service =
+        new RefreshService(
+          repository,
+          accessTokenService,
+          authConfig,
+          () => now,
+        );
+
+      await expect(
+        service.refresh(
+          currentRefreshToken.token,
+        ),
+      ).rejects.toBeInstanceOf(
+        InvalidRefreshSessionError,
+      );
+
+      expect(
+        rotateSession,
+      ).not.toHaveBeenCalled();
+    },
+  );
 
   it('rejects a revoked session', async () => {
     const repository = createRepository({

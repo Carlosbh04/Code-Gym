@@ -9,18 +9,21 @@ import {
   type AccessTokenService,
 } from '../auth/access-token-service.js';
 import type { AuthSessionRepository } from '../auth/auth-session-repository.js';
+import { isSessionIdleExpired } from '../auth/session-idle-policy.js';
 
 export type RequireAuthClock = () => Date;
 
 export interface RequireAuthDependencies {
   readonly accessTokenService: Pick<AccessTokenService, 'verify'>;
   readonly authSessionRepository: Pick<AuthSessionRepository, 'findSessionById'>;
+  readonly idleSessionTimeoutSeconds: number;
   readonly clock?: RequireAuthClock;
 }
 
 export function createRequireAuth({
   accessTokenService,
   authSessionRepository,
+  idleSessionTimeoutSeconds,
   clock = () => new Date(),
 }: RequireAuthDependencies): RequestHandler {
   return async (
@@ -71,6 +74,11 @@ export function createRequireAuth({
       || session.userId !== claims.sub
       || session.revokedAt !== null
       || session.expiresAt.getTime() <= now.getTime()
+      || isSessionIdleExpired(
+        session,
+        now,
+        idleSessionTimeoutSeconds,
+      )
     ) {
       respondUnauthorized(response);
       return;

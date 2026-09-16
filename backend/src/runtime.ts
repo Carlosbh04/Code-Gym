@@ -50,6 +50,7 @@ import {
 import { PasswordResetService } from './auth/password-reset-service.js';
 import { RefreshService } from './auth/refresh-service.js';
 import { SessionManagementService } from './auth/session-management-service.js';
+import { SessionActivityService } from './auth/session-activity-service.js';
 import { UserService } from './auth/user-service.js';
 import {
   PrismaUserRepository,
@@ -723,12 +724,22 @@ export async function startRuntime(
         database
           .authSessionRepository,
       );
+    const sessionActivityService =
+      new SessionActivityService(
+        database
+          .authSessionRepository,
+        config.auth,
+      );
+
     const requireAuth =
       createRequireAuth({
         accessTokenService,
         authSessionRepository:
           database
             .authSessionRepository,
+        idleSessionTimeoutSeconds:
+          config.auth
+            .idleSessionTimeoutSeconds,
       });
     const contentService =
       database.contentRepository ===
@@ -816,6 +827,7 @@ export async function startRuntime(
           passwordResetService,
           passwordChangeService,
           sessionManagementService,
+          sessionActivityService,
           trainingService,
           dashboardService,
           attemptService,

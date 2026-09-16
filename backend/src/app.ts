@@ -43,6 +43,9 @@ import type {
   SessionManagementService,
 } from './auth/session-management-service.js';
 import type {
+  SessionActivityService,
+} from './auth/session-activity-service.js';
+import type {
   RegistrationService,
 } from './auth/user-service.js';
 import type {
@@ -137,6 +140,12 @@ export interface AppDependencies {
       | 'revokeSession'
       | 'revokeOtherSessions'
     >;
+  sessionActivityService?:
+    | Pick<
+        SessionActivityService,
+        'recordActivity'
+      >
+    | undefined;
   dashboardService?:
     | Pick<
         DashboardService,
@@ -191,6 +200,7 @@ export function createApp({
   passwordResetService,
   passwordChangeService,
   sessionManagementService,
+  sessionActivityService,
   contentService,
   dashboardService,
   attemptService,
@@ -329,6 +339,7 @@ app.use(
       passwordResetService,
       passwordChangeService,
       sessionManagementService,
+      sessionActivityService,
       requireAuth,
       config,
     }),

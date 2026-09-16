@@ -1,6 +1,7 @@
 import type { AuthConfig } from '../config/env.js';
 
 import type { AccessTokenService } from './access-token-service.js';
+import { isSessionIdleExpired } from './session-idle-policy.js';
 import type { AuthSessionRepository } from './auth-session-repository.js';
 import {
   digestRefreshToken,
@@ -26,7 +27,11 @@ export class RefreshService {
   public constructor(
     private readonly authSessionRepository: AuthSessionRepository,
     private readonly accessTokenService: AccessTokenService,
-    private readonly authConfig: Pick<AuthConfig, 'refreshTokenTtlSeconds'>,
+    private readonly authConfig: Pick<
+      AuthConfig,
+      | 'refreshTokenTtlSeconds'
+      | 'idleSessionTimeoutSeconds'
+    >,
     private readonly clock: RefreshClock = () => new Date(),
   ) {}
 
@@ -55,6 +60,11 @@ export class RefreshService {
     if (
       session.revokedAt !== null
       || session.expiresAt.getTime() <= now.getTime()
+      || isSessionIdleExpired(
+        session,
+        now,
+        this.authConfig.idleSessionTimeoutSeconds,
+      )
     ) {
       throw new InvalidRefreshSessionError();
     }

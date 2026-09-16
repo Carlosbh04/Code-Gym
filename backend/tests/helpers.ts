@@ -22,6 +22,7 @@ export function testConfig(overrides: Partial<AppConfig> = {}): AppConfig {
       accessTokenSecret: Buffer.alloc(32, 1).toString('base64url'),
       accessTokenTtlSeconds: 600,
       refreshTokenTtlSeconds: 2_592_000,
+      idleSessionTimeoutSeconds: 900,
     }),
     passwordReset: Object.freeze({
       hmacSecret: Buffer.alloc(32, 2).toString('base64url'),

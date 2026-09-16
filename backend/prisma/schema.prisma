@@ -86,6 +86,7 @@ model AuthSession {
   createdAt          DateTime  @default(now()) @map("created_at") @db.DateTime(3)
   expiresAt          DateTime  @map("expires_at") @db.DateTime(3)
   remembered         Boolean   @default(true) @map("remembered")
+  lastActivityAt     DateTime  @default(now()) @map("last_activity_at") @db.DateTime(3)
   rotatedAt          DateTime? @map("rotated_at") @db.DateTime(3)
   revokedAt          DateTime? @map("revoked_at") @db.DateTime(3)
 

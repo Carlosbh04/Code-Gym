@@ -166,6 +166,28 @@ export function logout(): Promise<void> {
   );
 }
 
+export function recordSessionActivity(
+
+  accessToken: string,
+
+): Promise<void> {
+
+  return apiRequest<void>(
+
+    '/auth/activity',
+
+    {
+
+      method: 'POST',
+
+      accessToken,
+
+    },
+
+  );
+
+}
+
 export function requestPasswordReset(
   input: PasswordResetRequestInput,
   signal?: AbortSignal,

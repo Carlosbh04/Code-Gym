@@ -27,6 +27,7 @@ export interface AuthConfig {
   readonly accessTokenSecret: string;
   readonly accessTokenTtlSeconds: number;
   readonly refreshTokenTtlSeconds: number;
+  readonly idleSessionTimeoutSeconds: number;
   readonly google?: GoogleAuthConfig;
 }
 
@@ -78,6 +79,7 @@ const rawEnvSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().trim().min(1).max(512).optional(),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().min(60).max(900).default(600),
   REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().int().min(86_400).max(7_776_000).default(2_592_000),
+  SESSION_IDLE_TIMEOUT_SECONDS: z.coerce.number().int().min(60).max(86_400).default(900),
 }).superRefine((environment, context) => {
   if (environment.REFRESH_TOKEN_TTL_SECONDS <= environment.ACCESS_TOKEN_TTL_SECONDS) {
     context.addIssue({
@@ -210,6 +212,7 @@ export function parseEnv(rawEnv: RawEnvironment): AppConfig {
     accessTokenSecret: result.data.ACCESS_TOKEN_SECRET,
     accessTokenTtlSeconds: result.data.ACCESS_TOKEN_TTL_SECONDS,
     refreshTokenTtlSeconds: result.data.REFRESH_TOKEN_TTL_SECONDS,
+    idleSessionTimeoutSeconds: result.data.SESSION_IDLE_TIMEOUT_SECONDS,
     ...(result.data.GOOGLE_CLIENT_ID === undefined
       ? {}
       : {

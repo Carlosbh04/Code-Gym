@@ -5,6 +5,9 @@ import type {
 import {
   AuthProvider,
 } from '@/features/auth/AuthContext';
+import {
+  SessionIdleProvider,
+} from '@/features/session-idle/SessionIdleContext';
 
 import {
   TrainingProvider,
@@ -55,7 +58,8 @@ export function AppProviders({
 }) {
   return (
     <AuthProvider>
-      <DashboardProvider>
+      <SessionIdleProvider>
+        <DashboardProvider>
         <TrainingProvider>
           <ThemeProvider>
             <ProgressProvider>
@@ -77,7 +81,8 @@ export function AppProviders({
             </ProgressProvider>
           </ThemeProvider>
         </TrainingProvider>
-      </DashboardProvider>
+        </DashboardProvider>
+      </SessionIdleProvider>
     </AuthProvider>
   );
 }

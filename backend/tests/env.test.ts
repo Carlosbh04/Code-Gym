@@ -32,6 +32,7 @@ describe('environment configuration', () => {
         accessTokenSecret: validAuthEnv.ACCESS_TOKEN_SECRET,
         accessTokenTtlSeconds: 600,
         refreshTokenTtlSeconds: 2_592_000,
+        idleSessionTimeoutSeconds: 900,
       },
       passwordReset: {
         hmacSecret: validAuthEnv.PASSWORD_RESET_SECRET,
@@ -155,6 +156,33 @@ describe('environment configuration', () => {
     ['REFRESH_TOKEN_TTL_SECONDS', 'invalid'],
   ] as const)('rejects invalid auth TTL %s=%s', (field, value) => {
     expect(() => parseTestEnv({ [field]: value })).toThrow(field);
+  });
+
+  it.each([
+    ['59'],
+    ['86401'],
+    ['60.5'],
+    ['invalid'],
+  ])('rejects invalid SESSION_IDLE_TIMEOUT_SECONDS=%s', (value) => {
+    expect(() => parseTestEnv({
+      SESSION_IDLE_TIMEOUT_SECONDS:
+        value,
+    })).toThrow(
+      'SESSION_IDLE_TIMEOUT_SECONDS',
+    );
+  });
+
+  it.each([
+    ['60', 60],
+    ['900', 900],
+    ['86400', 86_400],
+  ])('accepts SESSION_IDLE_TIMEOUT_SECONDS=%s', (value, expected) => {
+    expect(
+      parseTestEnv({
+        SESSION_IDLE_TIMEOUT_SECONDS:
+          value,
+      }).auth.idleSessionTimeoutSeconds,
+    ).toBe(expected);
   });
 
   it('rejects a refresh TTL that is not greater than the access TTL', () => {
