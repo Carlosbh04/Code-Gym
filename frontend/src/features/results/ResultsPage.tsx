@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Skeleton } from '@/components/codegym/Skeleton';
 import { ProgressContext } from '@/contexts/progress-context';
 import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
@@ -77,10 +78,23 @@ function ResultsPage() {
   if (currentResult.status === 'error') return <LoadError message={currentResult.message} />;
 
   const { completedSession } = currentResult;
-  const currentMetadata = metadata?.sessionId === sessionId && metadata.status === 'success' ? metadata : null;
+  const metadataStatus = metadata?.sessionId === sessionId ? metadata : null;
+  const currentMetadata = metadataStatus?.status === 'success' ? metadataStatus : null;
+  const metadataLoading = metadataStatus === null || metadataStatus.status === 'loading';
+  const metadataUnavailable = metadataStatus?.status === 'unavailable';
+
   const technology = getTechnology(completedSession.technologyId);
   const topic = currentMetadata?.topic ?? null;
-  const secondaryAction = topic === null ? { to: '/dashboard', label: 'Ver mi progreso' } : { to: `/tech/${topic.technologyId}/${topic.id}`, label: 'Repasar tema' };
+
+  const sessionTitle = currentMetadata?.session.title
+    ?? (metadataUnavailable ? 'Sesión completada' : null);
+
+  const secondaryAction = metadataLoading
+    ? null
+    : topic === null
+      ? { to: '/dashboard', label: 'Ver mi progreso' }
+      : { to: `/tech/${topic.technologyId}/${topic.id}`, label: 'Repasar tema' };
+
   const currentAttempts = attempts?.sessionId === sessionId ? attempts : null;
   const conceptProgress = progressContext?.progress.get(completedSession.conceptId);
 
@@ -93,20 +107,210 @@ function ResultsPage() {
     </nav>
     <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.75fr)] lg:items-start">
       <div className="min-w-0 space-y-5">
-        <ResultsHero completedSession={completedSession} sessionTitle={currentMetadata?.session.title ?? 'Sesión completada'} secondaryAction={secondaryAction} />
-        {currentMetadata !== null && <AnswerReviewList session={currentMetadata.session} attempts={currentAttempts?.status === 'success' ? currentAttempts.attempts : null} error={currentAttempts?.status === 'error' ? currentAttempts.message : null} />}
-        {metadata?.sessionId === sessionId && metadata.status === 'unavailable' && <p role="status" className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">No se pudo cargar el detalle de la sesión, pero las métricas se han conservado.</p>}
+        <ResultsHero
+          completedSession={completedSession}
+          sessionTitle={sessionTitle}
+          secondaryAction={secondaryAction}
+        />
+
+        {metadataLoading ? (
+          <ResultDetailsLoading />
+        ) : currentMetadata !== null ? (
+          <AnswerReviewList
+            session={currentMetadata.session}
+            attempts={
+              currentAttempts?.status === 'success'
+                ? currentAttempts.attempts
+                : null
+            }
+            error={
+              currentAttempts?.status === 'error'
+                ? currentAttempts.message
+                : null
+            }
+          />
+        ) : null}
+
+        {metadataUnavailable && (
+          <p
+            role="status"
+            className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground"
+          >
+            No se pudo cargar el detalle de la sesión, pero las métricas se han conservado.
+          </p>
+        )}
       </div>
       <aside aria-label="Resumen y progreso" className="min-w-0 space-y-5">
-        <ResultSummary completedSession={completedSession} difficulty={currentMetadata?.session.difficulty} topicName={topic?.name} />
-        <ResultsProgress progress={conceptProgress} />
+        <ResultSummary
+          completedSession={completedSession}
+          difficulty={currentMetadata?.session.difficulty}
+          topicName={topic?.name}
+          metadataLoading={metadataLoading}
+        />
+
+        {progressContext?.isLoading ? (
+          <ResultsProgressLoading />
+        ) : (
+          <ResultsProgress progress={conceptProgress} />
+        )}
         <blockquote className="rounded-2xl border border-primary/25 bg-primary/5 p-5 text-base leading-relaxed text-foreground"><span aria-hidden="true" className="mr-2 text-2xl text-primary">“</span>La práctica constante convierte la confusión en confianza.</blockquote>
       </aside>
     </div>
   </section>;
 }
 
-function Loading() { return <section aria-busy="true" aria-labelledby="results-loading-title" aria-live="polite" className="mx-auto max-w-7xl py-8 sm:py-12"><p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">codegym practice</p><h1 id="results-loading-title" className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Cargando resultado…</h1></section>; }
+function ResultDetailsLoading() {
+  return (
+    <section
+      role="status"
+      aria-live="polite"
+      className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6"
+    >
+      <span className="sr-only">Cargando detalle de la sesión…</span>
+
+      <div aria-hidden="true">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="mt-2 h-6 w-48" />
+          </div>
+
+          <Skeleton className="h-11 w-36 rounded-md" />
+        </div>
+
+        <div className="mt-5 space-y-2">
+          {Array.from({ length: 4 }, (_, index) => (
+            <div
+              key={index}
+              className="flex min-h-11 items-center gap-3 rounded-xl border border-border bg-background/30 p-3"
+            >
+              <Skeleton className="size-8 shrink-0 rounded-lg" />
+              <Skeleton className="h-4 flex-1" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="size-4 shrink-0 rounded-md" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ResultsProgressLoading() {
+  return (
+    <section
+      role="status"
+      aria-live="polite"
+      className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6"
+    >
+      <span className="sr-only">Cargando progreso…</span>
+
+      <div aria-hidden="true">
+        <div className="flex items-center justify-between gap-3">
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-4 w-10" />
+        </div>
+
+        <Skeleton className="mt-4 h-2 w-full rounded-full" />
+        <Skeleton className="mt-3 h-4 w-full" />
+        <Skeleton className="mt-2 h-4 w-4/5" />
+        <Skeleton className="mt-4 h-11 w-32 rounded-md" />
+      </div>
+    </section>
+  );
+}
+
+function Loading() {
+  return (
+    <section
+      aria-busy="true"
+      aria-labelledby="results-loading-title"
+      aria-live="polite"
+      className="mx-auto w-full max-w-7xl py-2 sm:py-4"
+    >
+      <h1 id="results-loading-title" className="sr-only">
+        Cargando resultado…
+      </h1>
+
+      <div aria-hidden="true">
+        <div className="mb-5 flex flex-wrap items-center gap-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-3" />
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-3" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+
+        <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.75fr)] lg:items-start">
+          <div className="min-w-0 space-y-5">
+            <section className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-10">
+              <div className="mx-auto flex max-w-2xl flex-col items-center">
+                <Skeleton className="size-16 rounded-full" />
+                <Skeleton className="mt-5 h-4 w-32" />
+                <Skeleton className="mt-3 h-9 w-72 max-w-full sm:h-10" />
+                <Skeleton className="mt-4 h-4 w-full max-w-xl" />
+                <Skeleton className="mt-2 h-4 w-4/5 max-w-lg" />
+                <Skeleton className="mt-3 h-4 w-48" />
+
+                <div className="mt-7 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
+                  <Skeleton className="h-11 w-full rounded-md sm:w-40" />
+                  <Skeleton className="h-11 w-full rounded-md sm:w-36" />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="mt-2 h-6 w-48" />
+                </div>
+
+                <Skeleton className="h-11 w-36 rounded-md" />
+              </div>
+
+              <div className="mt-5 space-y-2">
+                {Array.from({ length: 4 }, (_, index) => (
+                  <div
+                    key={index}
+                    className="flex min-h-11 items-center gap-3 rounded-xl border border-border p-3"
+                  >
+                    <Skeleton className="size-8 shrink-0 rounded-lg" />
+                    <Skeleton className="h-4 flex-1" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <aside className="min-w-0 space-y-5">
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+              <Skeleton className="h-6 w-28" />
+              <Skeleton className="mx-auto mt-5 size-36 rounded-full" />
+
+              <div className="mt-6 divide-y divide-border">
+                {Array.from({ length: 4 }, (_, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between gap-4 py-3"
+                  >
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <ResultsProgressLoading />
+
+            <Skeleton className="h-28 w-full rounded-2xl" />
+          </aside>
+        </div>
+      </div>
+    </section>
+  );
+}
 function Unavailable() { return <section aria-labelledby="results-missing-title" className="max-w-2xl py-8 sm:py-12"><h1 id="results-missing-title" className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Resultado no disponible</h1><p className="mt-4 text-base leading-relaxed text-muted-foreground">No hemos encontrado un resultado guardado para esta sesión.</p><Link to="/dashboard" className={`${ACTION} mt-7`}>Ir al progreso</Link></section>; }
 function LoadError({ message }: { message: string }) { return <section aria-labelledby="results-error-title" className="max-w-2xl py-8 sm:py-12"><h1 id="results-error-title" className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">No pudimos cargar el resultado</h1><p role="alert" className="mt-4 border-l-4 border-destructive pl-4 text-sm text-destructive">{message}</p><Link to="/dashboard" className={`${ACTION} mt-7`}>Ir al progreso</Link></section>; }
 

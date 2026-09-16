@@ -1,5 +1,6 @@
 import { Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Skeleton } from '@/components/codegym/Skeleton';
 import { ConfettiLayer } from '@/features/session/components/feedback/ConfettiLayer';
 import type { CompletedSession } from '@/types/progress';
 
@@ -17,8 +18,8 @@ function copyFor(accuracy: number) {
 
 export interface ResultsHeroProps {
   completedSession: CompletedSession;
-  sessionTitle: string;
-  secondaryAction: { to: string; label: string };
+  sessionTitle: string | null;
+  secondaryAction: { to: string; label: string } | null;
 }
 
 export function ResultsHero({ completedSession, sessionTitle, secondaryAction }: ResultsHeroProps) {
@@ -34,10 +35,18 @@ export function ResultsHero({ completedSession, sessionTitle, secondaryAction }:
         <p className="mt-5 text-sm font-semibold text-success">Sesión completada</p>
         <h1 id="results-title" className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{copy.title}</h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">{copy.message}</p>
-        <p className="mt-2 text-sm font-medium text-foreground">{sessionTitle}</p>
+        {sessionTitle === null ? (
+          <Skeleton aria-hidden="true" className="mt-2 h-4 w-48" />
+        ) : (
+          <p className="mt-2 text-sm font-medium text-foreground">{sessionTitle}</p>
+        )}
         <div className="mt-7 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
           <Link to={`/practice/${completedSession.sessionId}`} className={PRIMARY}>Seguir practicando</Link>
-          <Link to={secondaryAction.to} className={SECONDARY}>{secondaryAction.label}</Link>
+          {secondaryAction === null ? (
+            <Skeleton aria-hidden="true" className="h-11 w-full rounded-md sm:w-36" />
+          ) : (
+            <Link to={secondaryAction.to} className={SECONDARY}>{secondaryAction.label}</Link>
+          )}
         </div>
       </div>
     </section>

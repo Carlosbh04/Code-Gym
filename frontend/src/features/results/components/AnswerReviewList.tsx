@@ -1,5 +1,6 @@
 import { ChevronRight, CircleCheck, CircleX } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Skeleton } from '@/components/codegym/Skeleton';
 import type { ExerciseSession } from '@/types/exercise';
 import type { HistoryAttempt } from '@/types/history';
 
@@ -18,7 +19,24 @@ export function AnswerReviewList({ session, attempts, error }: AnswerReviewListP
         <div><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Sesión</p><h2 id="answer-review-title" className="mt-1 text-xl font-bold text-foreground">Revisión de respuestas</h2></div>
         <Link to={`/review/${session.id}`} className="inline-flex min-h-11 items-center rounded-md px-3 text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Revisar respuestas</Link>
       </div>
-      {attempts === null ? <p role="status" className="mt-5 text-sm text-muted-foreground">Cargando respuestas…</p>
+      {attempts === null ? (
+        <div role="status" aria-live="polite" className="mt-5">
+          <span className="sr-only">Cargando respuestas…</span>
+
+          <ol aria-hidden="true" className="flex flex-col gap-2">
+            {session.steps.map((step) => (
+              <li key={step.id}>
+                <div className="flex min-h-11 items-center gap-3 rounded-xl border border-border bg-background/30 p-3">
+                  <Skeleton className="size-8 shrink-0 rounded-lg" />
+                  <Skeleton className="h-4 flex-1" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="size-4 shrink-0 rounded-md" />
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )
         : error !== null ? <p role="alert" className="mt-5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">No se pudieron cargar las respuestas. {error}</p>
           : <ol className="mt-5 flex flex-col gap-2">
             {session.steps.map((step, index) => {

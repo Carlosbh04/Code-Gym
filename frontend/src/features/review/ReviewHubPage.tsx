@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
+import { Skeleton } from '@/components/codegym/Skeleton';
 import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
 import { formatDuration } from '@/features/dashboard/components/dashboard-formatters';
 import { useSessionRecoveryState } from '@/features/practice/use-session-states';
@@ -484,25 +485,64 @@ function ReviewEmptyState() {
 
 function ReviewHubLoading() {
   return (
-    <section aria-busy="true" aria-live="polite" aria-labelledby="review-hub-loading-title" className="mx-auto w-full max-w-7xl py-2 sm:py-4">
+    <section
+      aria-busy="true"
+      aria-live="polite"
+      aria-labelledby="review-hub-loading-title"
+      className="mx-auto w-full max-w-7xl py-2 sm:py-4"
+    >
       <header className="border-b border-border pb-5">
-        <h1 id="review-hub-loading-title" className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Repasar</h1>
-        <p className="mt-2 text-muted-foreground">Preparando tu diagnóstico…</p>
+        <h1
+          id="review-hub-loading-title"
+          className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+        >
+          Repasar
+        </h1>
+
+        <p className="mt-2 text-muted-foreground">
+          Preparando tu diagnóstico…
+        </p>
       </header>
-      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />
-        <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />
+
+      <div
+        aria-hidden="true"
+        className="mt-5 grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+      >
+        <Skeleton className="h-64 rounded-xl border border-border" />
+        <Skeleton className="h-64 rounded-xl border border-border" />
       </div>
-      <div className="mt-5 rounded-xl border border-border bg-card p-5 sm:p-6">
-        <div className="h-6 w-52 animate-pulse rounded bg-muted" />
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {Array.from({ length: 5 }, (_, index) => <div key={index} className="h-48 animate-pulse rounded-lg bg-muted/60" />)}
+
+      <section
+        aria-hidden="true"
+        className="mt-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6"
+      >
+        <Skeleton className="h-6 w-52 max-w-full" />
+
+        <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {Array.from({ length: 5 }, (_, index) => (
+            <Skeleton
+              key={index}
+              className="h-48 rounded-lg"
+            />
+          ))}
         </div>
-      </div>
-      <div className="mt-5 space-y-3 rounded-xl border border-border bg-card p-5 sm:p-6">
-        <div className="h-6 w-40 animate-pulse rounded bg-muted" />
-        {Array.from({ length: 3 }, (_, index) => <div key={index} className="h-16 animate-pulse rounded-lg bg-muted/60" />)}
-      </div>
+      </section>
+
+      <section
+        aria-hidden="true"
+        className="mt-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6"
+      >
+        <Skeleton className="h-6 w-40 max-w-full" />
+
+        <div className="mt-5 space-y-3">
+          {Array.from({ length: 3 }, (_, index) => (
+            <Skeleton
+              key={index}
+              className="h-16 rounded-lg"
+            />
+          ))}
+        </div>
+      </section>
     </section>
   );
 }
