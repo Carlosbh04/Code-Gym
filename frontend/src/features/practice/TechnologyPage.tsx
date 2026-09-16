@@ -500,7 +500,7 @@ function TechnologyUnavailable() {
         No hemos encontrado la tecnología solicitada.
       </p>
       <Link
-        to="/#technologies"
+        to="/tech"
         className="mt-7 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         Volver a tecnologías

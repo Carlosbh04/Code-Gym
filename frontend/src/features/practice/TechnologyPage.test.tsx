@@ -235,7 +235,7 @@ describe('TechnologyPage (T056)', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Volver a tecnologías' })).toHaveAttribute(
       'href',
-      '/#technologies',
+      '/tech',
     );
     expect(getTopics).not.toHaveBeenCalled();
   });
