@@ -402,6 +402,56 @@ describe(
 
 
     it(
+      'delivers human activity to the backend after the heartbeat throttle window',
+      async () => {
+        renderProvider();
+
+        await advance(
+          50 * 1_000,
+        );
+
+        fireEvent.pointerDown(
+          document.body,
+        );
+
+        expect(
+          authMocks
+            .recordSessionActivity,
+        ).not.toHaveBeenCalled();
+
+        await advance(
+          9 * 1_000,
+        );
+
+        expect(
+          authMocks
+            .recordSessionActivity,
+        ).not.toHaveBeenCalled();
+
+        await advance(
+          1 * 1_000,
+        );
+
+        await flushAsyncWork();
+
+        expect(
+          authMocks
+            .recordSessionActivity,
+        ).toHaveBeenCalledTimes(
+          1,
+        );
+
+        expect(
+          authMocks
+            .recordSessionActivity,
+        ).toHaveBeenCalledWith(
+          'access-token-1',
+        );
+      },
+    );
+
+
+    it(
       'refreshes once and retries activity when the backend returns 401',
       async () => {
         authMocks

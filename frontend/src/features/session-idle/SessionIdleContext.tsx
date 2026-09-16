@@ -129,11 +129,19 @@ export function SessionIdleProvider({
       | null
     >(null);
 
+  const trailingHeartbeatTimerRef =
+    useRef<number | null>(
+      null,
+    );
+
   const logoutPromiseRef =
     useRef<
       Promise<void>
       | null
     >(null);
+
+  const sessionEndingRef =
+    useRef(false);
 
 
   useEffect(
@@ -171,6 +179,15 @@ export function SessionIdleProvider({
         ) {
           return logoutPromiseRef.current;
         }
+
+        if (
+          sessionEndingRef.current
+        ) {
+          return Promise.resolve();
+        }
+
+        sessionEndingRef.current =
+          true;
 
         warningOpenRef.current =
           false;
@@ -351,6 +368,64 @@ export function SessionIdleProvider({
     );
 
 
+  const scheduleTrailingHeartbeat =
+    useCallback(
+      () => {
+        if (
+          trailingHeartbeatTimerRef.current
+          !== null
+        ) {
+          return;
+        }
+
+        const elapsed =
+          Date.now()
+          - lastHeartbeatRef.current;
+
+        const delay =
+          Math.max(
+            0,
+            HEARTBEAT_THROTTLE_MS
+            - elapsed,
+          );
+
+        trailingHeartbeatTimerRef.current =
+          window.setTimeout(
+            () => {
+              trailingHeartbeatTimerRef.current =
+                null;
+
+              if (
+                warningOpenRef.current
+                || statusRef.current !==
+                  'authenticated'
+              ) {
+                return;
+              }
+
+              void synchronizeActivity(
+                true,
+              ).then(
+                (result) => {
+                  if (
+                    result ===
+                    'session-ended'
+                  ) {
+                    void endSession();
+                  }
+                },
+              );
+            },
+            delay,
+          );
+      },
+      [
+        endSession,
+        synchronizeActivity,
+      ],
+    );
+
+
   const resetLocalIdleClock =
     useCallback(
       () => {
@@ -457,6 +532,18 @@ export function SessionIdleProvider({
         heartbeatPromiseRef.current =
           null;
 
+        if (
+          trailingHeartbeatTimerRef.current
+          !== null
+        ) {
+          window.clearTimeout(
+            trailingHeartbeatTimerRef.current,
+          );
+
+          trailingHeartbeatTimerRef.current =
+            null;
+        }
+
         setWarningOpen(
           false,
         );
@@ -467,6 +554,9 @@ export function SessionIdleProvider({
 
         return;
       }
+
+      sessionEndingRef.current =
+        false;
 
       const now =
         Date.now();
@@ -502,11 +592,23 @@ export function SessionIdleProvider({
             return;
           }
 
-          lastHumanActivityRef.current =
+          const now =
             Date.now();
 
-          void synchronizeActivity()
-            .then(
+          lastHumanActivityRef.current =
+            now;
+
+          const heartbeatAge =
+            now
+            - lastHeartbeatRef.current;
+
+          if (
+            heartbeatAge
+            >= HEARTBEAT_THROTTLE_MS
+          ) {
+            void synchronizeActivity(
+              true,
+            ).then(
               (result) => {
                 if (
                   result ===
@@ -516,6 +618,11 @@ export function SessionIdleProvider({
                 }
               },
             );
+
+            return;
+          }
+
+          scheduleTrailingHeartbeat();
         };
 
 
@@ -613,6 +720,18 @@ export function SessionIdleProvider({
           timer,
         );
 
+        if (
+          trailingHeartbeatTimerRef.current
+          !== null
+        ) {
+          window.clearTimeout(
+            trailingHeartbeatTimerRef.current,
+          );
+
+          trailingHeartbeatTimerRef.current =
+            null;
+        }
+
         document.removeEventListener(
           'pointerdown',
           handleHumanActivity,
@@ -637,6 +756,7 @@ export function SessionIdleProvider({
     },
     [
       endSession,
+      scheduleTrailingHeartbeat,
       status,
       synchronizeActivity,
     ],
