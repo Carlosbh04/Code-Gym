@@ -5,6 +5,8 @@ import type {
 
 import { cn } from '@/lib/utils';
 
+import './skeleton.css';
+
 type SkeletonProps<T extends ElementType> = {
   as?: T;
 } & ComponentPropsWithoutRef<T>;
@@ -22,7 +24,7 @@ export function Skeleton<
     <Component
       aria-hidden="true"
       className={cn(
-        'animate-pulse rounded-md bg-muted/70 motion-reduce:animate-none',
+        'codegym-skeleton rounded-md',
         className,
       )}
       {...props}

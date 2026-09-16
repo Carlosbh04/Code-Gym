@@ -1,0 +1,192 @@
+/* =========================================================
+   CODEGYM PAGE LOAD TRANSITION
+   Skeleton -> Snap Grid.
+
+   Entrada global elegida:
+   04 · Snap Grid
+
+   - Sin desplazamientos grandes.
+   - Escala mínima.
+   - Entrada rápida y controlada.
+   - Stagger preparado para bloques internos.
+   ========================================================= */
+
+.page-load-transition {
+  min-width: 0;
+}
+
+.page-load-transition__skeleton,
+.page-load-transition__content {
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------
+   SALIDA DEL SKELETON
+
+   El skeleton no cambia de tamaño.
+   Solo pierde opacidad y definición antes de desaparecer.
+   --------------------------------------------------------- */
+
+.page-load-transition[data-phase='exiting']
+  .page-load-transition__skeleton {
+  animation:
+    codegym-skeleton-out
+    360ms
+    cubic-bezier(0.4, 0, 0.2, 1)
+    forwards;
+}
+
+/* ---------------------------------------------------------
+   ENTRADA GENERAL DEL CONTENIDO
+
+   El contenedor aparece primero de forma neutra.
+   Los bloques marcados con data-entry-item ejecutarán
+   después el Snap Grid individual.
+   --------------------------------------------------------- */
+
+.page-load-transition[data-phase='entering']
+  .page-load-transition__content {
+  animation:
+    codegym-content-ready
+    520ms
+    cubic-bezier(0.16, 1, 0.3, 1)
+    both;
+}
+
+/* ---------------------------------------------------------
+   SNAP GRID
+
+   Cada bloque puede usar:
+
+   data-entry-item
+   data-entry-index="0"
+   data-entry-index="1"
+   ...
+
+   Así podemos controlar el stagger sin acoplarlo
+   a la estructura HTML de cada página.
+   --------------------------------------------------------- */
+
+.page-load-transition[data-phase='entering']
+  .page-load-transition__content
+  [data-entry-item] {
+  opacity: 0;
+  transform:
+    translateY(18px)
+    scale(0.985);
+
+  animation:
+    codegym-snap-grid-in
+    520ms
+    cubic-bezier(0.2, 0.9, 0.25, 1.08)
+    forwards;
+
+  animation-delay:
+    calc(
+      70ms
+      + (var(--codegym-entry-index, 0) * 75ms)
+    );
+}
+
+/* Índices reutilizables */
+
+[data-entry-index='0'] {
+  --codegym-entry-index: 0;
+}
+
+[data-entry-index='1'] {
+  --codegym-entry-index: 1;
+}
+
+[data-entry-index='2'] {
+  --codegym-entry-index: 2;
+}
+
+[data-entry-index='3'] {
+  --codegym-entry-index: 3;
+}
+
+[data-entry-index='4'] {
+  --codegym-entry-index: 4;
+}
+
+[data-entry-index='5'] {
+  --codegym-entry-index: 5;
+}
+
+[data-entry-index='6'] {
+  --codegym-entry-index: 6;
+}
+
+[data-entry-index='7'] {
+  --codegym-entry-index: 7;
+}
+
+[data-entry-index='8'] {
+  --codegym-entry-index: 8;
+}
+
+[data-entry-index='9'] {
+  --codegym-entry-index: 9;
+}
+
+/* ---------------------------------------------------------
+   KEYFRAMES
+   --------------------------------------------------------- */
+
+@keyframes codegym-skeleton-out {
+  from {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  to {
+    opacity: 0;
+    filter: blur(1.5px);
+  }
+}
+
+@keyframes codegym-content-ready {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes codegym-snap-grid-in {
+  from {
+    opacity: 0;
+    transform:
+      translateY(18px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* ---------------------------------------------------------
+   ACCESIBILIDAD
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .page-load-transition[data-phase='exiting']
+    .page-load-transition__skeleton,
+  .page-load-transition[data-phase='entering']
+    .page-load-transition__content,
+  .page-load-transition[data-phase='entering']
+    .page-load-transition__content
+    [data-entry-item] {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+    transform: none;
+    filter: none;
+  }
+}
