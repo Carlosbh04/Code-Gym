@@ -7,6 +7,8 @@ export function testConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     port: 3000,
     frontendOrigins: Object.freeze(['https://app.example.com']),
     logLevel: 'silent',
+    rateLimitKeySecret:
+      Buffer.alloc(32, 3).toString('base64url'),
     isDevelopment: false,
     isTest: true,
     isProduction: false,

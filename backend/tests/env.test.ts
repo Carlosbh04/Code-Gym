@@ -12,6 +12,8 @@ const validDatabaseEnv = Object.freeze({
 });
 
 const validAuthEnv = Object.freeze({
+  RATE_LIMIT_KEY_SECRET:
+    Buffer.alloc(32, 3).toString('base64url'),
   ACCESS_TOKEN_SECRET: Buffer.alloc(32, 1).toString('base64url'),
   PASSWORD_RESET_SECRET: Buffer.alloc(32, 2).toString('base64url'),
   RESEND_API_KEY: 're_test_configuration_only',
@@ -27,6 +29,8 @@ describe('environment configuration', () => {
     expect(parseTestEnv()).toEqual({
       nodeEnv: 'development', host: '127.0.0.1', port: 3000, frontendOrigins: [], logLevel: 'debug',
       isDevelopment: true, isTest: false, isProduction: false,
+      rateLimitKeySecret:
+        validAuthEnv.RATE_LIMIT_KEY_SECRET,
       database: { host: '127.0.0.1', port: 3306, name: 'codegym_test', user: 'codegym', password: 'test-password', tls: false },
       auth: {
         accessTokenSecret: validAuthEnv.ACCESS_TOKEN_SECRET,
@@ -57,6 +61,36 @@ describe('environment configuration', () => {
     expect(config.logLevel).toBe(logLevel);
     expect([config.isDevelopment, config.isTest, config.isProduction]).toEqual(flags);
   });
+
+  it('accepts a Redis URL for shared rate limiting', () => {
+    expect(
+      parseTestEnv({
+        REDIS_URL:
+          'redis://127.0.0.1:6379',
+      }).redisUrl,
+    ).toBe(
+      'redis://127.0.0.1:6379',
+    );
+  });
+
+  it.each([
+    'http://127.0.0.1:6379',
+    'ftp://127.0.0.1:6379',
+    'not-a-url',
+  ])(
+    'rejects invalid Redis URL %s',
+    (redisUrl) => {
+      expect(
+        () =>
+          parseTestEnv({
+            REDIS_URL:
+              redisUrl,
+          }),
+      ).toThrow(
+        'REDIS_URL',
+      );
+    },
+  );
 
   it('enables Google authentication only when GOOGLE_CLIENT_ID is configured', () => {
     const withoutGoogle = parseTestEnv();
@@ -203,6 +237,8 @@ describe('environment configuration', () => {
       ...validDatabaseEnv,
       ACCESS_TOKEN_SECRET: validAuthEnv.ACCESS_TOKEN_SECRET,
       PASSWORD_RESET_SECRET: validAuthEnv.PASSWORD_RESET_SECRET,
+      RATE_LIMIT_KEY_SECRET:
+        validAuthEnv.RATE_LIMIT_KEY_SECRET,
       NODE_ENV: 'test',
     });
 
@@ -216,6 +252,8 @@ describe('environment configuration', () => {
         ...validDatabaseEnv,
         ACCESS_TOKEN_SECRET: validAuthEnv.ACCESS_TOKEN_SECRET,
         PASSWORD_RESET_SECRET: validAuthEnv.PASSWORD_RESET_SECRET,
+        RATE_LIMIT_KEY_SECRET:
+          validAuthEnv.RATE_LIMIT_KEY_SECRET,
         NODE_ENV: nodeEnv,
         FRONTEND_ORIGINS: nodeEnv === 'production' ? 'https://app.example.com' : undefined,
       };

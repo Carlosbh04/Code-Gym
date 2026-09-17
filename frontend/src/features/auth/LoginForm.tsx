@@ -29,6 +29,9 @@ interface LoginFormProps {
   onForgotPassword(): void;
 
   onChangeMode(): void;
+  isLocked?: boolean;
+  lockedMessage?: string;
+  onEmailChange?(): void;
 }
 
 export function LoginForm({
@@ -37,6 +40,9 @@ export function LoginForm({
   onGoogleError,
   onForgotPassword,
   onChangeMode,
+  isLocked = false,
+  lockedMessage = '',
+  onEmailChange,
 }: LoginFormProps) {
   return (
     <form
@@ -100,6 +106,9 @@ export function LoginForm({
             required
             className="auth-input"
             placeholder="tu@email.com"
+            onChange={() => {
+              onEmailChange?.();
+            }}
           />
         </div>
       </div>
@@ -134,9 +143,26 @@ export function LoginForm({
         </button>
       </div>
 
+      {isLocked && lockedMessage ? (
+        <p
+          id="login-lock-message"
+          className="auth-login-lock-notice"
+          role="alert"
+          aria-live="assertive"
+        >
+          {lockedMessage}
+        </p>
+      ) : null}
+
       <button
         type="submit"
         className="auth-primary-button"
+        disabled={isLocked}
+        aria-describedby={
+          isLocked
+            ? 'login-lock-message'
+            : undefined
+        }
       >
         Iniciar sesión{' '}
         <span aria-hidden="true">

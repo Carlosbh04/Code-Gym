@@ -35,14 +35,29 @@ function completeAccountStep() {
 }
 
 describe('RegisterForm', () => {
-  it('starts with only personal data expanded', () => {
+  it('starts with only the personal data step visible', () => {
     renderForm();
 
     expect(screen.getByText('Paso 1 de 3')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^Datos personales/ })).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('button', { name: /^Cuenta/ })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /^Confirmación/ })).toBeDisabled();
-    expect(screen.queryByLabelText('Email')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Cuéntanos un poco sobre ti.'),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText('Nombre'),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText('Apellido'),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByLabelText('Email'),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByText('Revisa tus datos y crea tu cuenta.'),
+    ).not.toBeInTheDocument();
   });
 
   it('does not advance without required personal data', () => {
@@ -71,13 +86,42 @@ describe('RegisterForm', () => {
     completePersonalStep();
     completeAccountStep();
 
-    fireEvent.click(screen.getByRole('button', { name: /^Datos personales/ }));
-    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: '' } });
+    expect(
+      screen.getByText('Revisa tus datos y crea tu cuenta.'),
+    ).toBeInTheDocument();
 
-    expect(screen.getByRole('button', { name: /^Cuenta/ })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /^Confirmación/ })).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
-    expect(screen.getByText('Introduce tu nombre.')).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Atrás' }),
+    );
+
+    expect(
+      screen.getByLabelText('Email'),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Atrás' }),
+    );
+
+    fireEvent.change(
+      screen.getByLabelText('Nombre'),
+      { target: { value: '' } },
+    );
+
+    expect(
+      screen.queryByLabelText('Email'),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByText('Revisa tus datos y crea tu cuenta.'),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Siguiente' }),
+    );
+
+    expect(
+      screen.getByText('Introduce tu nombre.'),
+    ).toBeInTheDocument();
   });
 
   it('validates account fields before showing confirmation', () => {

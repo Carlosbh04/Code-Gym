@@ -2113,3 +2113,298 @@
     animation: none;
   }
 }
+
+
+/* REGISTER COMPACT STEP CARD — DESIGN 01
+   ---------------------------------------------------------
+   Un único panel activo por paso.
+   Mantiene la lógica del registro intacta y reduce
+   drásticamente la altura frente al acordeón anterior.
+   --------------------------------------------------------- */
+
+.auth-register-compact {
+  --register-card-radius: 1rem;
+}
+
+.auth-register-compact .auth-register-stage {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.auth-register-compact .auth-register-compact-card {
+  overflow: hidden;
+  border:
+    1px solid
+    hsl(var(--code-accent) / 0.38);
+  border-radius:
+    var(--register-card-radius);
+  background:
+    linear-gradient(
+      180deg,
+      hsl(var(--code-surface) / 0.96),
+      hsl(var(--code-bg) / 0.72)
+    );
+  box-shadow:
+    0 20px 48px
+    hsl(var(--bg-primary) / 0.22),
+    inset 0 1px 0
+    hsl(var(--code-foreground) / 0.035);
+  animation:
+    auth-register-card-enter
+    320ms
+    var(--motion-ease-emphasized)
+    both;
+}
+
+.auth-register-compact
+.auth-register-section-header {
+  display: flex;
+  width: 100%;
+  min-height: 4.25rem;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  border-bottom:
+    1px solid
+    hsl(var(--code-border) / 0.62);
+  color:
+    hsl(var(--code-foreground));
+  background:
+    linear-gradient(
+      90deg,
+      hsl(var(--code-accent) / 0.055),
+      transparent 55%
+    );
+  outline: none;
+}
+
+.auth-register-compact
+.auth-register-section-header:focus-visible {
+  outline:
+    2px solid
+    hsl(var(--code-accent));
+  outline-offset: -3px;
+}
+
+.auth-register-compact
+.auth-register-section-badge {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border:
+    1px solid
+    hsl(var(--code-accent) / 0.35);
+  border-radius: 0.65rem;
+  color:
+    hsl(var(--code-accent));
+  background:
+    hsl(var(--code-accent) / 0.13);
+  font-size: 0.78rem;
+  font-weight: 800;
+  box-shadow:
+    0 0 0 4px
+    hsl(var(--code-accent) / 0.045);
+}
+
+.auth-register-compact
+.auth-register-section-copy {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 0.16rem;
+}
+
+.auth-register-compact
+.auth-register-section-copy
+> span:first-child {
+  color:
+    hsl(var(--code-foreground));
+  font-size: 0.9rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.auth-register-compact
+.auth-register-section-copy
+> span:last-child {
+  overflow: visible;
+  color:
+    hsl(var(--code-muted));
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.35;
+  text-overflow: unset;
+  white-space: normal;
+}
+
+.auth-register-compact
+.auth-register-step-count {
+  flex: 0 0 auto;
+  padding: 0.28rem 0.48rem;
+  border:
+    1px solid
+    hsl(var(--code-border) / 0.7);
+  border-radius: 9999px;
+  color:
+    hsl(var(--code-muted));
+  background:
+    hsl(var(--code-bg) / 0.48);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.auth-register-compact
+.auth-register-section-body {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1rem 1.05rem;
+  border-top: 0;
+  animation:
+    auth-register-step-content-enter
+    360ms
+    var(--motion-ease-emphasized)
+    both;
+}
+
+.auth-register-compact
+.auth-register-section-body
+.auth-field-label {
+  margin-bottom: 0.38rem;
+}
+
+.auth-register-compact
+.auth-register-section-body
+.auth-input-shell {
+  min-height: 3.15rem;
+}
+
+.auth-register-compact
+.auth-register-section-body
+.auth-primary-button,
+.auth-register-compact
+.auth-register-section-body
+.auth-secondary-button {
+  min-height: 3.1rem;
+}
+
+.auth-register-compact
+.auth-register-summary {
+  gap: 0.55rem;
+  padding: 0.8rem;
+  border-color:
+    hsl(var(--code-border) / 0.72);
+  background:
+    hsl(var(--code-bg) / 0.4);
+}
+
+.auth-register-compact
+.auth-register-summary
+> div {
+  grid-template-columns:
+    minmax(5.5rem, 0.34fr)
+    minmax(0, 1fr);
+  gap: 0.65rem;
+}
+
+@keyframes auth-register-card-enter {
+  from {
+    opacity: 0;
+    transform:
+      translateX(12px)
+      scale(0.992);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateX(0)
+      scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes auth-register-step-content-enter {
+  from {
+    opacity: 0;
+    transform:
+      translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0);
+  }
+}
+
+@media (min-width: 640px) {
+  .auth-register-compact
+  .auth-register-section-header {
+    padding-inline: 1.1rem;
+  }
+
+  .auth-register-compact
+  .auth-register-section-body {
+    padding:
+      1.05rem
+      1.1rem
+      1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-register-compact
+  .auth-register-compact-card,
+
+  .auth-register-compact
+  .auth-register-section-body {
+    animation: none;
+  }
+}
+
+
+/* REGISTER INLINE SUBMIT NOTICE */
+
+.auth-register-compact > .auth-register-stage {
+  margin-top: 0.65rem !important;
+}
+
+.auth-register-submit-notice {
+  margin: 0;
+  padding: 0.68rem 0.78rem;
+  border: 1px solid rgb(248 113 113 / 0.26);
+  border-radius: 0.7rem;
+  color: rgb(252 165 165);
+  background: rgb(239 68 68 / 0.07);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+
+/* LOGIN LOCK NOTICE */
+
+.auth-login-lock-notice {
+  margin: -0.15rem 0 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgb(248 113 113 / 0.24);
+  border-radius: 0.7rem;
+  color: rgb(252 165 165);
+  background: rgb(239 68 68 / 0.065);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.auth-login-cascade .auth-primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  filter: saturate(0.65);
+}

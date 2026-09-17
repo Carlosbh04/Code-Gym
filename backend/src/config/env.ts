@@ -55,6 +55,8 @@ export interface AppConfig {
   readonly port: number;
   readonly frontendOrigins: readonly string[];
   readonly logLevel: LogLevel;
+  readonly redisUrl?: string;
+  readonly rateLimitKeySecret: string;
   readonly isDevelopment: boolean;
   readonly isTest: boolean;
   readonly isProduction: boolean;
@@ -72,6 +74,33 @@ const rawEnvSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65_535).default(3000),
   FRONTEND_ORIGINS: z.string().optional(),
   LOG_LEVEL: z.enum(logLevels).optional(),
+  REDIS_URL: z
+    .string()
+    .trim()
+    .url()
+    .refine(
+      (value) => {
+        try {
+          const protocol =
+            new URL(value).protocol;
+
+          return (
+            protocol === 'redis:'
+            || protocol === 'rediss:'
+          );
+        } catch {
+          return false;
+        }
+      },
+      'Must use redis:// or rediss://',
+    )
+    .optional(),
+  RATE_LIMIT_KEY_SECRET: z
+    .string()
+    .refine(
+      isCanonicalBase64UrlSecret,
+      'Must encode exactly 32 bytes',
+    ),
   ACCESS_TOKEN_SECRET: z.string().refine(isCanonicalBase64UrlSecret, 'Must encode exactly 32 bytes'),
   PASSWORD_RESET_SECRET: z.string().refine(isCanonicalBase64UrlSecret, 'Must encode exactly 32 bytes'),
   RESEND_API_KEY: z.string().trim().min(1).max(512).optional(),
@@ -239,6 +268,13 @@ export function parseEnv(rawEnv: RawEnvironment): AppConfig {
     port: result.data.PORT,
     frontendOrigins,
     logLevel: result.data.LOG_LEVEL ?? defaultLogLevel(result.data.NODE_ENV),
+    ...(result.data.REDIS_URL === undefined
+      ? {}
+      : {
+          redisUrl: result.data.REDIS_URL,
+        }),
+    rateLimitKeySecret:
+      result.data.RATE_LIMIT_KEY_SECRET,
     isDevelopment: result.data.NODE_ENV === 'development',
     isTest: result.data.NODE_ENV === 'test',
     isProduction: result.data.NODE_ENV === 'production',

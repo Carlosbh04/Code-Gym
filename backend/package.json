@@ -37,6 +37,8 @@
     "pino": "^9.9.4",
     "pino-http": "^10.5.0",
     "quickjs-emscripten": "0.32.0",
+    "rate-limit-redis": "^6.0.1",
+    "redis": "^6.2.1",
     "resend": "^6.28.0",
     "zod": "^4.1.8"
   },

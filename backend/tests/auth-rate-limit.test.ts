@@ -12,7 +12,11 @@ import {
 
 import {
   createAuthRateLimiters,
+  createLoginFailureRateLimitKey,
 } from '../src/middleware/auth-rate-limit.js';
+
+const TEST_RATE_LIMIT_KEY_SECRET =
+  Buffer.alloc(32, 3).toString('base64url');
 
 function createLimiterApp(
   route:
@@ -64,7 +68,10 @@ describe(
         const limiters = createAuthRateLimiters({
           windowMs: 60_000,
           [optionName]: 1,
-        });
+
+      loginFailureKeySecret:
+        TEST_RATE_LIMIT_KEY_SECRET,
+    });
         const app = createLimiterApp(route, limiters[limiterName]);
 
         expect((await request(app).post(`/auth/${route}`)).status).toBe(204);
@@ -91,7 +98,10 @@ describe(
 
             logoutLimit:
               10,
-          });
+
+      loginFailureKeySecret:
+        TEST_RATE_LIMIT_KEY_SECRET,
+    });
 
         const app =
           createLimiterApp(
@@ -162,7 +172,10 @@ describe(
 
             logoutLimit:
               10,
-          });
+
+      loginFailureKeySecret:
+        TEST_RATE_LIMIT_KEY_SECRET,
+    });
 
         const app =
           createLimiterApp(
@@ -224,7 +237,10 @@ describe(
 
             logoutLimit:
               10,
-          });
+
+      loginFailureKeySecret:
+        TEST_RATE_LIMIT_KEY_SECRET,
+    });
 
         const app =
           express();
@@ -321,7 +337,10 @@ describe(
 
             logoutLimit:
               1,
-          });
+
+      loginFailureKeySecret:
+        TEST_RATE_LIMIT_KEY_SECRET,
+    });
 
         const app =
           express();
@@ -396,6 +415,344 @@ describe(
         expect(
           logoutSecond.status,
         ).toBe(429);
+      },
+    );
+  },
+);
+
+
+describe('login failure throttling', () => {
+  function createFailureLimitedLoginApp() {
+    const app =
+      express();
+
+    app.set(
+      'trust proxy',
+      false,
+    );
+
+    app.use(
+      express.json(),
+    );
+
+    const limiters =
+      createAuthRateLimiters({
+        windowMs:
+          60_000,
+        loginLimit:
+          100,
+        loginFailureLimit:
+          3,
+
+      loginFailureKeySecret:
+        TEST_RATE_LIMIT_KEY_SECRET,
+    });
+
+    app.post(
+      '/auth/login',
+      limiters.loginFailures,
+      (
+        request,
+        response,
+      ) => {
+        if (
+          request.body.password
+          === 'correct-password'
+        ) {
+          response
+            .status(204)
+            .end();
+
+          return;
+        }
+
+        response
+          .status(401)
+          .json({
+            error: {
+              code:
+                'INVALID_CREDENTIALS',
+            },
+          });
+      },
+    );
+
+    return app;
+  }
+
+  it(
+    'blocks the fourth failed login for the same IP and email',
+    async () => {
+      const app =
+        createFailureLimitedLoginApp();
+
+      for (
+        let attempt = 1;
+        attempt <= 3;
+        attempt += 1
+      ) {
+        const response =
+          await request(app)
+            .post('/auth/login')
+            .send({
+              email:
+                'person@example.test',
+              password:
+                'wrong-password',
+            });
+
+        expect(
+          response.status,
+        ).toBe(401);
+      }
+
+      const blocked =
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'person@example.test',
+            password:
+              'wrong-password',
+          });
+
+      expect(
+        blocked.status,
+      ).toBe(429);
+
+      expect(
+        blocked.body,
+      ).toEqual({
+        error: {
+          code:
+            'RATE_LIMITED',
+          message:
+            'Too many requests',
+        },
+      });
+    },
+  );
+
+  it(
+    'keeps failure counters independent by email',
+    async () => {
+      const app =
+        createFailureLimitedLoginApp();
+
+      for (
+        let attempt = 1;
+        attempt <= 3;
+        attempt += 1
+      ) {
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'first@example.test',
+            password:
+              'wrong-password',
+          });
+      }
+
+      const otherEmail =
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'second@example.test',
+            password:
+              'wrong-password',
+          });
+
+      expect(
+        otherEmail.status,
+      ).toBe(401);
+    },
+  );
+
+  it(
+    'does not count successful logins as failures',
+    async () => {
+      const app =
+        createFailureLimitedLoginApp();
+
+      for (
+        let attempt = 0;
+        attempt < 4;
+        attempt += 1
+      ) {
+        const successful =
+          await request(app)
+            .post('/auth/login')
+            .send({
+              email:
+                'person@example.test',
+              password:
+                'correct-password',
+            });
+
+        expect(
+          successful.status,
+        ).toBe(204);
+      }
+
+      const firstFailure =
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'person@example.test',
+            password:
+              'wrong-password',
+          });
+
+      expect(
+        firstFailure.status,
+      ).toBe(401);
+    },
+  );
+});
+
+describe(
+  'login failure key privacy',
+  () => {
+    it(
+      'does not expose IP or email in login failure keys',
+      () => {
+        const ip =
+          '203.0.113.42';
+
+        const ipKey =
+          ip;
+
+        const email =
+          'Person@example.test';
+
+        const keySecret =
+          Buffer
+            .alloc(
+              32,
+              7,
+            )
+            .toString(
+              'base64url',
+            );
+
+        const key =
+          createLoginFailureRateLimitKey({
+            ipKey,
+            email,
+            keySecret,
+          });
+
+        expect(
+          key,
+        ).toMatch(
+          /^[a-f0-9]{64}$/,
+        );
+
+        expect(
+          key,
+        ).not.toContain(
+          ip,
+        );
+
+        expect(
+          key,
+        ).not.toContain(
+          email,
+        );
+
+        expect(
+          key,
+        ).not.toContain(
+          email.toLowerCase(),
+        );
+      },
+    );
+
+    it(
+      'is deterministic after email normalization',
+      () => {
+        const input = {
+          ipKey:
+            '203.0.113.42',
+          keySecret:
+            Buffer
+              .alloc(
+                32,
+                7,
+              )
+              .toString(
+                'base64url',
+              ),
+        };
+
+        const first =
+          createLoginFailureRateLimitKey({
+            ...input,
+            email:
+              'Person@example.test',
+          });
+
+        const second =
+          createLoginFailureRateLimitKey({
+            ...input,
+            email:
+              '  PERSON@EXAMPLE.TEST  ',
+          });
+
+        expect(
+          second,
+        ).toBe(
+          first,
+        );
+      },
+    );
+
+    it(
+      'changes the key when the HMAC secret changes',
+      () => {
+        const base = {
+          ipKey:
+            '203.0.113.42',
+          email:
+            'person@example.test',
+        };
+
+        const first =
+          createLoginFailureRateLimitKey({
+            ...base,
+            keySecret:
+              Buffer
+                .alloc(
+                  32,
+                  7,
+                )
+                .toString(
+                  'base64url',
+                ),
+          });
+
+        const second =
+          createLoginFailureRateLimitKey({
+            ...base,
+            keySecret:
+              Buffer
+                .alloc(
+                  32,
+                  8,
+                )
+                .toString(
+                  'base64url',
+                ),
+          });
+
+        expect(
+          second,
+        ).not.toBe(
+          first,
+        );
       },
     );
   },

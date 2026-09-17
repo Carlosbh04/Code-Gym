@@ -74,8 +74,20 @@ export function AuthPanel({
     useState('');
 
   const [
+    registerNotice,
+    setRegisterNotice,
+  ] =
+    useState('');
+
+  const [
     isSubmitting,
     setIsSubmitting,
+  ] =
+    useState(false);
+
+  const [
+    loginLocked,
+    setLoginLocked,
   ] =
     useState(false);
 
@@ -120,6 +132,8 @@ export function AuthPanel({
     );
 
     setNotice('');
+    setLoginLocked(false);
+    setRegisterNotice('');
 
     if (
       focusTab
@@ -229,7 +243,7 @@ export function AuthPanel({
               === 'GOOGLE_EMAIL_ALREADY_REGISTERED'
           ) {
             setNotice(
-              'Ya existe una cuenta con ese email. Inicia sesión con email y contraseña.',
+              'Ya existe una cuenta asociada a este correo. Inicia sesión o recupera tu contraseña.',
             );
             return;
           }
@@ -297,6 +311,18 @@ export function AuthPanel({
           error instanceof ApiError
         ) {
           if (
+            error.status === 429
+          ) {
+            setLoginLocked(
+              true,
+            );
+            setNotice(
+              'Demasiados intentos fallidos. Inténtalo de nuevo en 15 minutos.',
+            );
+            return;
+          }
+
+          if (
             error.status === 401
           ) {
             setNotice(
@@ -331,7 +357,7 @@ export function AuthPanel({
         true,
       );
 
-      setNotice('');
+      setRegisterNotice('');
 
       try {
         await register(
@@ -351,21 +377,21 @@ export function AuthPanel({
           if (
             error.status === 409
           ) {
-            setNotice(
-              'Ya existe una cuenta con ese email.',
+            setRegisterNotice(
+              'Ya existe una cuenta asociada a este correo. Inicia sesión o recupera tu contraseña.',
             );
 
             return;
           }
 
-          setNotice(
+          setRegisterNotice(
             error.message,
           );
 
           return;
         }
 
-        setNotice(
+        setRegisterNotice(
           'No se pudo conectar con el servidor.',
         );
       } finally {
@@ -525,6 +551,24 @@ export function AuthPanel({
                   'register',
                 )
               }
+              isLocked={
+                loginLocked
+              }
+              lockedMessage={
+                loginLocked
+                  ? notice
+                  : ''
+              }
+              onEmailChange={() => {
+                if (
+                  loginLocked
+                ) {
+                  setLoginLocked(
+                    false,
+                  );
+                  setNotice('');
+                }
+              }}
             />
           ) : (
             <RegisterForm
@@ -548,6 +592,12 @@ export function AuthPanel({
               isSubmitting={
                 isSubmitting
               }
+              submitNotice={
+                registerNotice
+              }
+              onClearSubmitNotice={() =>
+                setRegisterNotice('')
+              }
             />
           )}
         </div>
@@ -560,7 +610,9 @@ export function AuthPanel({
           {
             isSubmitting
               ? 'Procesando…'
-              : notice
+              : loginLocked
+                ? ''
+                : notice
           }
         </p>
       </div>

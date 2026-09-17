@@ -1,6 +1,11 @@
 import { createServer } from 'node:http';
 import type { Express } from 'express';
 import type { Logger } from 'pino';
+import { createClient } from 'redis';
+import {
+  RedisStore,
+  type RedisReply,
+} from 'rate-limit-redis';
 import {
   createApp,
   type AppDependencies,
@@ -631,11 +636,60 @@ export async function startRuntime(
 ): Promise<RuntimeController> {
   let server:
     RuntimeServer;
+
+  let redisClient:
+    | {
+        readonly isOpen: boolean;
+        quit(): Promise<unknown>;
+      }
+    | undefined;
   try {
     const accessTokenService =
       new AccessTokenService(
         config.auth,
       );
+
+    const redisUrl =
+      config.redisUrl;
+
+    const loginFailureStore =
+      redisUrl === undefined
+        ? undefined
+        : await (async () => {
+            const client =
+              createClient({
+                url:
+                  redisUrl,
+              });
+
+            client.on(
+              'error',
+              () => {
+                logger.error(
+                  {
+                    event:
+                      'redisClientError',
+                  },
+                  'Redis client error',
+                );
+              },
+            );
+
+            redisClient =
+              client;
+
+            await client.connect();
+
+            return new RedisStore({
+              sendCommand:
+                (...args: string[]) =>
+                  client.sendCommand(
+                    args,
+                  ) as Promise<RedisReply>,
+              prefix:
+                'codegym:rate-limit:login-fail:',
+            });
+          })();
     const loginService =
       new LoginService(
         database
@@ -818,6 +872,13 @@ export async function startRuntime(
                 .userRepository,
             ),
           loginService,
+          ...(loginFailureStore === undefined
+            ? {}
+            : {
+                loginFailureStore,
+              }),
+          loginFailureKeySecret:
+            config.rateLimitKeySecret,
 
           googleLoginService,
           refreshService,
@@ -844,6 +905,23 @@ export async function startRuntime(
       config,
     );
   } catch {
+    if (
+      redisClient !== undefined
+      && redisClient.isOpen
+    ) {
+      try {
+        await redisClient.quit();
+      } catch {
+        logger.error(
+          {
+            event:
+              'redisStartupCleanupFailure',
+          },
+          'Redis startup cleanup failed',
+        );
+      }
+    }
+
     await cleanupDatabaseAfterStartupFailure(
       database,
       logger,
@@ -859,6 +937,44 @@ export async function startRuntime(
   let databaseDisconnectPromise:
     | Promise<boolean>
     | undefined;
+  let redisDisconnectPromise:
+    | Promise<boolean>
+    | undefined;
+
+  const disconnectRedis =
+    (): Promise<boolean> => {
+      redisDisconnectPromise ??=
+        Promise.resolve()
+          .then(
+            async () => {
+              if (
+                redisClient === undefined
+                || !redisClient.isOpen
+              ) {
+                return;
+              }
+
+              await redisClient.quit();
+            },
+          )
+          .then(
+            () => false,
+            () => {
+              logger.error(
+                {
+                  event:
+                    'redisDisconnectFailure',
+                },
+                'Redis shutdown failed',
+              );
+
+              return true;
+            },
+          );
+
+      return redisDisconnectPromise;
+    };
+
   const disconnectDatabase =
     (): Promise<boolean> => {
       databaseDisconnectPromise ??=
@@ -982,6 +1098,7 @@ export async function startRuntime(
             server
               .closeAllConnections?.();
             void disconnectDatabase();
+            void disconnectRedis();
             finish(
               true,
             );
@@ -1041,11 +1158,19 @@ export async function startRuntime(
       async (
         httpFailed,
       ) => {
-        const databaseFailed =
-          await disconnectDatabase();
+        const [
+          databaseFailed,
+          redisFailed,
+        ] =
+          await Promise.all([
+            disconnectDatabase(),
+            disconnectRedis(),
+          ]);
+
         finish(
           httpFailed
-          || databaseFailed,
+          || databaseFailed
+          || redisFailed,
         );
       },
     );

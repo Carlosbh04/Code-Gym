@@ -5,6 +5,9 @@ import express, {
 } from 'express';
 import helmet from 'helmet';
 import type {
+  Store,
+} from 'express-rate-limit';
+import type {
   IncomingMessage,
   ServerResponse,
 } from 'node:http';
@@ -104,6 +107,10 @@ export interface AppDependencies {
     RegistrationService;
   loginService:
     LoginService;
+  loginFailureStore?:
+    Store | undefined;
+  loginFailureKeySecret:
+    string;
 
   googleLoginService?:
 
@@ -191,6 +198,8 @@ export function createApp({
   databaseHealthCheck,
   registrationService,
   loginService,
+  loginFailureStore,
+  loginFailureKeySecret,
   googleLoginService,
 
   refreshService,
@@ -330,6 +339,8 @@ app.use(
     createAuthRouter({
       registrationService,
       loginService,
+      loginFailureStore,
+      loginFailureKeySecret,
       googleLoginService,
 
       refreshService,

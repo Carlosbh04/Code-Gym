@@ -3,6 +3,9 @@ import {
   type Request,
   type RequestHandler,
 } from 'express';
+import type {
+  Store,
+} from 'express-rate-limit';
 
 import {
   AuthenticatedUserNotFoundError,
@@ -167,6 +170,10 @@ export interface AuthRouterDependencies {
 
   readonly config:
     AppConfig;
+  readonly loginFailureStore?:
+    Store | undefined;
+  readonly loginFailureKeySecret:
+    string;
 }
 
 export function createAuthRouter({
@@ -184,12 +191,17 @@ export function createAuthRouter({
   sessionActivityService,
   requireAuth,
   config,
+  loginFailureStore,
+  loginFailureKeySecret,
 }: AuthRouterDependencies): Router {
   const router =
     Router();
 
   const authRateLimiters =
-    createAuthRateLimiters();
+    createAuthRateLimiters({
+      loginFailureStore,
+      loginFailureKeySecret,
+    });
 
   const requireTrustedOrigin =
     createRequireTrustedOrigin(
@@ -355,6 +367,7 @@ export function createAuthRouter({
       body:
         loginRequestSchema,
     }),
+    authRateLimiters.loginFailures,
 
     async (
       request: Request<

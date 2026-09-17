@@ -188,14 +188,15 @@ function loginService(
 }
 
 function testApp(
-
   service: LoginService,
-
 ) {
+  const config =
+    testConfig();
 
   return createApp({
-
-    config: testConfig(),
+    config,
+    loginFailureKeySecret:
+      config.rateLimitKeySecret,
 
     logger: silentLogger,
 
@@ -1065,4 +1066,77 @@ describe('POST /auth/login', () => {
 
   });
 
+});
+
+
+describe('POST /auth/login login-failure throttling', () => {
+  it(
+    'blocks the fourth invalid credential attempt for the same IP and email',
+    async () => {
+      const login =
+        vi
+          .fn<LoginService['login']>()
+          .mockRejectedValue(
+            new InvalidCredentialsError(),
+          );
+
+      const app =
+        testApp(
+          loginService(
+            login,
+          ),
+        );
+
+      for (
+        let attempt = 1;
+        attempt <= 3;
+        attempt += 1
+      ) {
+        const response =
+          await request(app)
+            .post('/auth/login')
+            .send({
+              email:
+                'person@example.test',
+              password:
+                'wrong-password-value',
+            });
+
+        expect(
+          response.status,
+        ).toBe(401);
+      }
+
+      const blocked =
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'person@example.test',
+            password:
+              'wrong-password-value',
+          });
+
+      expect(
+        blocked.status,
+      ).toBe(429);
+
+      expect(
+        blocked.body,
+      ).toEqual({
+        error: {
+          code:
+            'RATE_LIMITED',
+          message:
+            'Too many requests',
+        },
+      });
+
+      expect(
+        login,
+      ).toHaveBeenCalledTimes(
+        3,
+      );
+    },
+  );
 });

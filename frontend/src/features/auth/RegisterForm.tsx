@@ -8,8 +8,6 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
-  Check,
-  ChevronDown,
   Mail,
   UserRound,
 } from 'lucide-react';
@@ -45,6 +43,8 @@ interface RegisterFormProps {
   ): void;
   onChangeMode(): void;
   isSubmitting?: boolean;
+  submitNotice?: string;
+  onClearSubmitNotice?: () => void;
 }
 
 interface StepSectionProps {
@@ -52,9 +52,7 @@ interface StepSectionProps {
   title: string;
   description: string;
   currentStep: RegisterStep;
-  highestStep: RegisterStep;
-  headerRef: (element: HTMLButtonElement | null) => void;
-  onSelect: (step: RegisterStep) => void;
+  headerRef: (element: HTMLDivElement | null) => void;
   children: ReactNode;
 }
 
@@ -63,43 +61,48 @@ function StepSection({
   title,
   description,
   currentStep,
-  highestStep,
   headerRef,
-  onSelect,
   children,
 }: StepSectionProps) {
-  const expanded = currentStep === step;
-  const complete = step < currentStep || (step < highestStep && !expanded);
-  const pending = step > highestStep;
-  const state = expanded ? 'current' : complete ? 'complete' : 'pending';
+  if (currentStep !== step) {
+    return null;
+  }
+
   const panelId = `register-step-${step}-panel`;
+  const headingId = `register-step-${step}-title`;
 
   return (
-    <section className="auth-register-section" data-state={state}>
-      <button
+    <section
+      className="auth-register-section auth-register-compact-card"
+      data-state="current"
+      data-step={step}
+      aria-labelledby={headingId}
+    >
+      <div
         ref={headerRef}
-        type="button"
         className="auth-register-section-header"
-        aria-expanded={expanded}
-        aria-controls={panelId}
-        disabled={pending}
-        onClick={() => onSelect(step)}
+        tabIndex={-1}
       >
         <span className="auth-register-section-badge" aria-hidden="true">
-          {complete ? <Check className="size-4" /> : step}
+          {step}
         </span>
+
         <span className="auth-register-section-copy">
-          <span>{title}</span>
+          <span id={headingId}>{title}</span>
           <span>{description}</span>
         </span>
-        <ChevronDown className="ml-auto size-4" aria-hidden="true" />
-      </button>
 
-      {expanded ? (
-        <div id={panelId} className="auth-register-section-body">
-          {children}
-        </div>
-      ) : null}
+        <span className="auth-register-step-count" aria-hidden="true">
+          {step}/3
+        </span>
+      </div>
+
+      <div
+        id={panelId}
+        className="auth-register-section-body"
+      >
+        {children}
+      </div>
     </section>
   );
 }
@@ -122,12 +125,14 @@ export function RegisterForm({
   onGoogleError,
   onChangeMode,
   isSubmitting = false,
+  submitNotice = '',
+  onClearSubmitNotice,
 }: RegisterFormProps) {
   const [currentStep, setCurrentStep] = useState<RegisterStep>(1);
   const [highestStep, setHighestStep] = useState<RegisterStep>(1);
   const [values, setValues] = useState<RegisterFormValues>(EMPTY_REGISTER_VALUES);
   const [errors, setErrors] = useState<RegisterErrors>({});
-  const stepHeaderRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const stepHeaderRefs = useRef<Array<HTMLDivElement | null>>([]);
   const submissionStartedRef = useRef(false);
 
   useEffect(() => {
@@ -213,15 +218,9 @@ export function RegisterForm({
     });
   };
 
-  const selectStep = (step: RegisterStep) => {
-    if (step <= highestStep) {
-      moveToStep(step);
-    }
-  };
-
   return (
     <form
-      className="auth-mode-wave space-y-4"
+      className="auth-mode-wave auth-register-compact space-y-4"
       aria-label="Crear cuenta"
       noValidate
       onSubmit={(event) => {
@@ -237,15 +236,13 @@ export function RegisterForm({
       <RegisterStepper currentStep={currentStep} />
       <p className="sr-only" aria-live="polite">Paso {currentStep} de 3</p>
 
-      <div className="space-y-2.5">
+      <div className="auth-register-stage">
         <StepSection
           step={1}
           title="Datos personales"
           description="Cuéntanos un poco sobre ti."
           currentStep={currentStep}
-          highestStep={highestStep}
           headerRef={(element) => { stepHeaderRefs.current[0] = element; }}
-          onSelect={selectStep}
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -326,9 +323,7 @@ export function RegisterForm({
           title="Cuenta"
           description="Email, contraseña y seguridad."
           currentStep={currentStep}
-          highestStep={highestStep}
           headerRef={(element) => { stepHeaderRefs.current[1] = element; }}
-          onSelect={selectStep}
         >
           <div>
             <label htmlFor="register-email" className="auth-field-label">Email</label>
@@ -432,9 +427,7 @@ export function RegisterForm({
           title="Confirmación"
           description="Revisa tus datos y crea tu cuenta."
           currentStep={currentStep}
-          highestStep={highestStep}
           headerRef={(element) => { stepHeaderRefs.current[2] = element; }}
-          onSelect={selectStep}
         >
           <dl className="auth-register-summary" aria-label="Resumen de la cuenta">
             <div>
@@ -468,12 +461,25 @@ export function RegisterForm({
             <FieldError id="register-terms-error">{errors.acceptedTerms}</FieldError>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          {submitNotice ? (
+              <p
+                className="auth-register-submit-notice"
+                role="alert"
+                aria-live="assertive"
+              >
+                {submitNotice}
+              </p>
+            ) : null}
+
+            <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
               className="auth-secondary-button"
               disabled={isSubmitting}
-              onClick={() => moveToStep(2)}
+              onClick={() => {
+                onClearSubmitNotice?.();
+                moveToStep(2);
+              }}
             >
               <ArrowLeft className="size-4" aria-hidden="true" />
               Atrás

@@ -374,7 +374,7 @@ describe('AuthPanel', () => {
 
     expect(
       await screen.findByText(
-        'Ya existe una cuenta con ese email. Inicia sesión con email y contraseña.',
+        'Ya existe una cuenta asociada a este correo. Inicia sesión o recupera tu contraseña.',
       ),
     ).toBeInTheDocument();
 
@@ -411,4 +411,91 @@ describe('AuthPanel', () => {
     expect(navigateMock).toHaveBeenCalledWith('/forgot-password');
     expect(screen.queryByText(/recuperación de contraseña todavía no está disponible/i)).not.toBeInTheDocument();
   });
+
+  it('bloquea visualmente el login tras recibir rate limit', async () => {
+    loginMock.mockRejectedValue(
+      new ApiError(
+        429,
+        'RATE_LIMITED',
+        'Too many requests',
+      ),
+    );
+
+    render(<AuthPanel />);
+
+    fireEvent.change(
+      screen.getByLabelText('Email'),
+      {
+        target: {
+          value:
+            'carlos@example.com',
+        },
+      },
+    );
+
+    fireEvent.change(
+      screen.getByLabelText('Contraseña'),
+      {
+        target: {
+          value:
+            'incorrecta-123',
+        },
+      },
+    );
+
+    fireEvent.click(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            /Iniciar sesión/,
+        },
+      ),
+    );
+
+    expect(
+      await screen.findByRole(
+        'alert',
+      ),
+    ).toHaveTextContent(
+      'Demasiados intentos fallidos. Inténtalo de nuevo en 15 minutos.',
+    );
+
+    expect(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            /Iniciar sesión/,
+        },
+      ),
+    ).toBeDisabled();
+
+    fireEvent.change(
+      screen.getByLabelText('Email'),
+      {
+        target: {
+          value:
+            'otro@example.com',
+        },
+      },
+    );
+
+    expect(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            /Iniciar sesión/,
+        },
+      ),
+    ).toBeEnabled();
+
+    expect(
+      screen.queryByText(
+        'Demasiados intentos fallidos. Inténtalo de nuevo en 15 minutos.',
+      ),
+    ).not.toBeInTheDocument();
+  });
+
 });
