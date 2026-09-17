@@ -498,4 +498,270 @@ describe('AuthPanel', () => {
     ).not.toBeInTheDocument();
   });
 
+
+  it('abre el aviso de cuenta bloqueada cuando backend responde ACCOUNT_LOCKED', async () => {
+    loginMock.mockRejectedValue(
+      new ApiError(
+        423,
+        'ACCOUNT_LOCKED',
+        'Account access is locked',
+      ),
+    );
+
+    render(<AuthPanel />);
+
+    fireEvent.change(
+      screen.getByLabelText('Email'),
+      {
+        target: {
+          value:
+            'carlos@example.com',
+        },
+      },
+    );
+
+    fireEvent.change(
+      screen.getByLabelText('Contraseña'),
+      {
+        target: {
+          value:
+            'Segura123!CodeGym',
+        },
+      },
+    );
+
+    fireEvent.click(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            /Iniciar sesión/,
+        },
+      ),
+    );
+
+    const dialog =
+      await screen.findByRole(
+        'dialog',
+      );
+
+    expect(
+      dialog,
+    ).toHaveAttribute(
+      'aria-modal',
+      'true',
+    );
+
+    expect(
+      screen.getByRole(
+        'heading',
+        {
+          name:
+            'Tu cuenta ha sido bloqueada',
+        },
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      navigateMock,
+    ).not.toHaveBeenCalled();
+
+    fireEvent.click(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            'Recuperar acceso',
+        },
+      ),
+    );
+
+    expect(
+      navigateMock,
+    ).toHaveBeenCalledWith(
+      '/forgot-password',
+    );
+  });
+
+
+  it('también respeta ACCOUNT_LOCKED cuando la autenticación es Google', async () => {
+    googleLoginMock.mockRejectedValue(
+      new ApiError(
+        423,
+        'ACCOUNT_LOCKED',
+        'Account access is locked',
+      ),
+    );
+
+    render(<AuthPanel />);
+
+    fireEvent.click(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            'Continuar con Google',
+        },
+      ),
+    );
+
+    expect(
+      await screen.findByRole(
+        'dialog',
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      navigateMock,
+    ).not.toHaveBeenCalledWith(
+      '/',
+      expect.anything(),
+    );
+  });
+
+
+  it('muestra ACCOUNT_COOLDOWN como pausa temporal y no como bloqueo permanente', async () => {
+    vi.useFakeTimers({
+      shouldAdvanceTime:
+        true,
+    });
+
+    try {
+      loginMock.mockRejectedValue(
+        new ApiError(
+          429,
+          'ACCOUNT_COOLDOWN',
+          'Account login is temporarily unavailable',
+        ),
+      );
+
+      render(<AuthPanel />);
+
+      fireEvent.change(
+        screen.getByLabelText('Email'),
+        {
+          target: {
+            value:
+              'carlos@example.com',
+          },
+        },
+      );
+
+      fireEvent.change(
+        screen.getByLabelText('Contraseña'),
+        {
+          target: {
+            value:
+              'incorrecta-123',
+          },
+        },
+      );
+
+      fireEvent.click(
+        screen.getByRole(
+          'button',
+          {
+            name:
+              /Iniciar sesión/,
+          },
+        ),
+      );
+
+      expect(
+        await screen.findByRole(
+          'alert',
+        ),
+      ).toHaveTextContent(
+        'Tiempo restante:',
+      );
+
+      expect(
+        screen.queryByRole(
+          'dialog',
+        ),
+      ).not.toBeInTheDocument();
+
+      expect(
+        screen.getByRole(
+          'button',
+          {
+            name:
+              /Iniciar sesión/,
+          },
+        ),
+      ).toBeDisabled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+
+  it('permite cerrar el modal con Escape sin conceder acceso', async () => {
+    loginMock.mockRejectedValue(
+      new ApiError(
+        423,
+        'ACCOUNT_LOCKED',
+        'Account access is locked',
+      ),
+    );
+
+    render(<AuthPanel />);
+
+    fireEvent.change(
+      screen.getByLabelText('Email'),
+      {
+        target: {
+          value:
+            'carlos@example.com',
+        },
+      },
+    );
+
+    fireEvent.change(
+      screen.getByLabelText('Contraseña'),
+      {
+        target: {
+          value:
+            'Segura123!CodeGym',
+        },
+      },
+    );
+
+    fireEvent.click(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            /Iniciar sesión/,
+        },
+      ),
+    );
+
+    await screen.findByRole(
+      'dialog',
+    );
+
+    fireEvent.keyDown(
+      document,
+      {
+        key:
+          'Escape',
+      },
+    );
+
+    await waitFor(
+      () => {
+        expect(
+          screen.queryByRole(
+            'dialog',
+          ),
+        ).not.toBeInTheDocument();
+      },
+    );
+
+    expect(
+      navigateMock,
+    ).not.toHaveBeenCalled();
+  });
+
 });

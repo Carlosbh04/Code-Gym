@@ -867,3 +867,216 @@ describe(
     });
   },
 );
+
+describe(
+  'login account security escalation',
+  () => {
+    function createSecurityAwareUserRepository(
+      user: Omit<
+        typeof storedUser,
+        'passwordHash'
+      > & {
+        passwordHash: string | null;
+      } = storedUser,
+    ): UserRepository {
+      return {
+        createUser:
+          vi.fn<
+            UserRepository['createUser']
+          >(),
+
+        findUserByEmail:
+          vi.fn<
+            UserRepository['findUserByEmail']
+          >()
+            .mockResolvedValue(
+              user,
+            ),
+
+        findUserById:
+          vi.fn<
+            UserRepository['findUserById']
+          >()
+            .mockResolvedValue(
+              null,
+            ),
+
+        updateDisplayName:
+          vi.fn<
+            UserRepository[
+              'updateDisplayName'
+            ]
+          >()
+            .mockResolvedValue(
+              null,
+            ),
+      };
+    }
+
+    it(
+      'records a failed password attempt for a real password account',
+      async () => {
+        const securityRepository = {
+          recordFailedPasswordAttempt:
+            vi.fn()
+              .mockResolvedValue(
+                'FAILED' as const,
+              ),
+        };
+
+        const service =
+          new LoginService(
+            createSecurityAwareUserRepository(),
+            createAuthSessionRepository(
+              vi.fn(),
+            ),
+            new AccessTokenService(
+              authConfig,
+              () => now,
+            ),
+            authConfig,
+            vi.fn()
+              .mockResolvedValue(
+                false,
+              ),
+            () => now,
+            securityRepository,
+          );
+
+        await expect(
+          service.login({
+            email:
+              storedUser.email,
+            password:
+              'wrong-password',
+            remember:
+              false,
+          }),
+        ).rejects.toBeInstanceOf(
+          InvalidCredentialsError,
+        );
+
+        expect(
+          securityRepository
+            .recordFailedPasswordAttempt,
+        ).toHaveBeenCalledExactlyOnceWith({
+          userId:
+            storedUser.id,
+
+          occurredAt:
+            now,
+
+          expectedPasswordHash:
+            storedUser.passwordHash,
+        });
+      },
+    );
+
+    it(
+      'does not create persistent failure state for an unknown email',
+      async () => {
+        const securityRepository = {
+          recordFailedPasswordAttempt:
+            vi.fn(),
+        };
+
+        const userRepository =
+          createSecurityAwareUserRepository();
+
+        vi.mocked(
+          userRepository.findUserByEmail,
+        ).mockResolvedValue(
+          null,
+        );
+
+        const service =
+          new LoginService(
+            userRepository,
+            createAuthSessionRepository(
+              vi.fn(),
+            ),
+            new AccessTokenService(
+              authConfig,
+              () => now,
+            ),
+            authConfig,
+            vi.fn()
+              .mockResolvedValue(
+                false,
+              ),
+            () => now,
+            securityRepository,
+          );
+
+        await expect(
+          service.login({
+            email:
+              'missing@example.test',
+            password:
+              'wrong-password',
+            remember:
+              false,
+          }),
+        ).rejects.toBeInstanceOf(
+          InvalidCredentialsError,
+        );
+
+        expect(
+          securityRepository
+            .recordFailedPasswordAttempt,
+        ).not.toHaveBeenCalled();
+      },
+    );
+
+    it(
+      'does not create password-failure state for a Google-only account',
+      async () => {
+        const securityRepository = {
+          recordFailedPasswordAttempt:
+            vi.fn(),
+        };
+
+        const service =
+          new LoginService(
+            createSecurityAwareUserRepository({
+              ...storedUser,
+              passwordHash:
+                null,
+            }),
+            createAuthSessionRepository(
+              vi.fn(),
+            ),
+            new AccessTokenService(
+              authConfig,
+              () => now,
+            ),
+            authConfig,
+            vi.fn()
+              .mockResolvedValue(
+                true,
+              ),
+            () => now,
+            securityRepository,
+          );
+
+        await expect(
+          service.login({
+            email:
+              storedUser.email,
+            password:
+              'anything',
+            remember:
+              false,
+          }),
+        ).rejects.toBeInstanceOf(
+          InvalidCredentialsError,
+        );
+
+        expect(
+          securityRepository
+            .recordFailedPasswordAttempt,
+        ).not.toHaveBeenCalled();
+      },
+    );
+  },
+);

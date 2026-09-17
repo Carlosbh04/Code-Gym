@@ -2408,3 +2408,278 @@
   opacity: 0.48;
   filter: saturate(0.65);
 }
+
+
+/* =========================================================
+   Account security lock dialog
+   ========================================================= */
+
+.account-lock-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(3 5 10 / 78%);
+  animation: account-lock-backdrop-in 180ms ease-out both;
+}
+
+.account-lock-dialog {
+  position: relative;
+  width: min(100%, 31rem);
+  max-height: min(42rem, calc(100dvh - 2rem));
+  overflow-y: auto;
+  border: 1px solid hsl(var(--code-border));
+  border-radius: 1.125rem;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(18 21 32 / 100%),
+      rgb(12 15 24 / 100%)
+    );
+  padding: 1.75rem;
+  color: hsl(var(--code-foreground));
+  box-shadow:
+    0 24px 70px rgb(0 0 0 / 42%),
+    0 0 0 1px rgb(126 104 255 / 5%);
+  animation: account-lock-dialog-in 220ms
+    var(--motion-ease-emphasized) both;
+}
+
+.account-lock-dialog:focus {
+  outline: none;
+}
+
+.account-lock-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid hsl(var(--code-border));
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 2%);
+  color: hsl(var(--code-muted));
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.account-lock-close:hover {
+  border-color: hsl(var(--code-accent) / 55%);
+  background: hsl(var(--code-accent) / 8%);
+  color: hsl(var(--code-foreground));
+}
+
+.account-lock-close:focus-visible,
+.account-lock-primary:focus-visible,
+.account-lock-secondary:focus-visible {
+  outline: 2px solid hsl(var(--code-accent));
+  outline-offset: 3px;
+}
+
+.account-lock-close svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.account-lock-icon {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  place-items: center;
+  margin-bottom: 1.4rem;
+  border: 1px solid hsl(var(--code-accent) / 38%);
+  border-radius: 0.9rem;
+  background: hsl(var(--code-accent) / 9%);
+  color: hsl(var(--code-accent));
+  box-shadow: 0 0 26px hsl(var(--code-accent) / 8%);
+}
+
+.account-lock-icon svg {
+  width: 1.55rem;
+  height: 1.55rem;
+}
+
+.account-lock-copy {
+  padding-right: 2rem;
+}
+
+.account-lock-eyebrow {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: hsl(var(--code-accent));
+}
+
+.account-lock-copy h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 4vw, 1.8rem);
+  font-weight: 760;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  color: hsl(var(--code-foreground));
+}
+
+.account-lock-copy p {
+  margin: 0.85rem 0 0;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: hsl(var(--code-muted));
+}
+
+.account-lock-security-note {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem;
+  align-items: start;
+  margin-top: 1.45rem;
+  border: 1px solid hsl(var(--code-border));
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 2%);
+  padding: 0.9rem 1rem;
+}
+
+.account-lock-security-note > span {
+  padding-top: 0.18rem;
+  font-size: 0.55rem;
+  color: hsl(var(--code-accent));
+}
+
+.account-lock-security-note p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: hsl(var(--code-muted));
+}
+
+.account-lock-actions {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.5rem;
+}
+
+.account-lock-primary,
+.account-lock-secondary {
+  min-height: 2.9rem;
+  border-radius: 0.72rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.account-lock-primary {
+  border: 1px solid hsl(var(--code-accent));
+  background: hsl(var(--code-accent));
+  color: hsl(var(--code));
+}
+
+.account-lock-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.account-lock-secondary {
+  border: 1px solid hsl(var(--code-border));
+  background: transparent;
+  color: hsl(var(--code-foreground));
+}
+
+.account-lock-secondary:hover {
+  border-color: hsl(var(--code-accent) / 45%);
+  background: hsl(var(--code-accent) / 6%);
+}
+
+.account-lock-help {
+  margin: 1.15rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  text-align: center;
+  color: hsl(var(--code-muted));
+}
+
+.auth-login-lock-notice {
+  border: 1px solid hsl(var(--code-accent) / 25%);
+  border-radius: 0.7rem;
+  background: hsl(var(--code-accent) / 7%);
+  padding: 0.8rem 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: hsl(var(--code-muted));
+}
+
+@keyframes account-lock-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes account-lock-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (min-width: 40rem) {
+  .account-lock-dialog {
+    padding: 2rem;
+  }
+
+  .account-lock-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 39.999rem) {
+  .account-lock-backdrop {
+    align-items: end;
+    padding: 0.75rem;
+  }
+
+  .account-lock-dialog {
+    width: 100%;
+    max-height: calc(100dvh - 1.5rem);
+    border-radius: 1rem;
+    padding: 1.4rem;
+  }
+
+  .account-lock-copy {
+    padding-right: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-lock-backdrop,
+  .account-lock-dialog {
+    animation: none;
+  }
+
+  .account-lock-primary,
+  .account-lock-secondary,
+  .account-lock-close {
+    transition: none;
+  }
+}

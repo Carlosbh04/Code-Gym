@@ -1,4 +1,10 @@
 import type { AuthConfig } from '../config/env.js';
+import type {
+  AccountSecurityRepository,
+} from './account-security-repository.js';
+import {
+  StalePasswordCredentialError,
+} from './account-security-errors.js';
 
 import type { AccessTokenService } from './access-token-service.js';
 
@@ -61,6 +67,12 @@ export class LoginService {
     private readonly clock:
       AuthClock =
         () => new Date(),
+
+    private readonly accountSecurityRepository?:
+      Pick<
+        AccountSecurityRepository,
+        'recordFailedPasswordAttempt'
+      >,
   ) {}
 
   public async login(
@@ -92,6 +104,38 @@ export class LoginService {
       || user.passwordHash === null
       || !passwordMatches
     ) {
+      /*
+       * No registramos estado persistente para emails
+       * inexistentes ni para usuarios Google-only.
+       *
+       * Eso evita crear un oráculo de existencia y evita
+       * permitir un bloqueo arbitrario de cuentas que no
+       * utilizan contraseña.
+       */
+      if (
+        user !== null
+        && user.passwordHash !== null
+        && !passwordMatches
+      ) {
+        await this
+          .accountSecurityRepository
+          ?.recordFailedPasswordAttempt({
+            userId:
+              user.id,
+
+            occurredAt:
+              this.clock(),
+
+            expectedPasswordHash:
+              user.passwordHash,
+          });
+      }
+
+      /*
+       * Incluso si el intento acaba de bloquear la cuenta,
+       * una contraseña incorrecta sigue teniendo exactamente
+       * el mismo contrato externo.
+       */
       throw new InvalidCredentialsError();
     }
 
@@ -103,9 +147,29 @@ export class LoginService {
         this.clock,
       );
 
-    return sessionIssuer.issue(
-      user,
-      input.remember,
-    );
+    try {
+      return await sessionIssuer.issue(
+        user,
+        input.remember,
+        user.passwordHash,
+      );
+    } catch (error) {
+      /*
+       * A password reset may have committed after password
+       * verification but before session creation.
+       *
+       * Do not reveal this race. Externally it remains the
+       * normal invalid-credentials contract.
+       */
+      if (
+        error
+          instanceof
+            StalePasswordCredentialError
+      ) {
+        throw new InvalidCredentialsError();
+      }
+
+      throw error;
+    }
   }
 }

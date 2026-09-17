@@ -2,11 +2,26 @@ import type {
   PrismaClient,
 } from '../generated/prisma/client.js';
 
+import {
+  AccountCooldownError,
+  AccountLockedError,
+  StalePasswordCredentialError,
+} from './account-security-errors.js';
+
 export interface CreateAuthSessionRecord {
   readonly userId: string;
   readonly refreshTokenDigest: Uint8Array;
   readonly expiresAt: Date;
   readonly remembered: boolean;
+
+  /**
+   * Present only for password authentication.
+   *
+   * The repository compares this snapshot while holding
+   * the User row lock. If password reset changed the hash
+   * after verification, session creation fails closed.
+   */
+  readonly expectedPasswordHash?: string;
 }
 
 export interface RotateAuthSessionRecord {
@@ -142,25 +157,124 @@ implements AuthSessionRepository {
   public async createSession(
     session: CreateAuthSessionRecord,
   ): Promise<AuthSessionRecord> {
-    return this.prisma.authSession.create({
-      data: {
-        userId:
-          session.userId,
+    return this.prisma.$transaction(
+      async (transaction) => {
+        const rows =
+          await transaction.$queryRaw<
+            Array<{
+              passwordHash: string | null;
+              securityLockedAt: Date | null;
+              loginCooldownUntil: Date | null;
+            }>
+          >`
+            SELECT
+              password_hash AS passwordHash,
+              security_locked_at AS securityLockedAt,
+              login_cooldown_until AS loginCooldownUntil
+            FROM users
+            WHERE id = ${session.userId}
+            FOR UPDATE
+          `;
 
-        refreshTokenDigest:
-          new Uint8Array(
-            session.refreshTokenDigest,
-          ),
+        const securityState =
+          rows[0];
 
-        expiresAt:
-          session.expiresAt,
-        remembered:
-          session.remembered,
+        if (securityState === undefined) {
+          throw new StalePasswordCredentialError();
+        }
+
+        /*
+         * Password login verified a particular hash before
+         * arriving here. Password reset can change that hash
+         * concurrently.
+         *
+         * Because User is locked FOR UPDATE here, this comparison
+         * and the session INSERT are atomic relative to password
+         * reset and account-security transitions.
+         */
+        if (
+          session.expectedPasswordHash !== undefined
+          && securityState.passwordHash
+            !== session.expectedPasswordHash
+        ) {
+          throw new StalePasswordCredentialError();
+        }
+
+        if (
+          securityState.securityLockedAt
+            !== null
+          && securityState
+            ?.securityLockedAt
+            !== undefined
+        ) {
+          throw new AccountLockedError();
+        }
+
+        const now =
+          new Date();
+
+        if (
+          securityState.loginCooldownUntil
+            !== null
+          && securityState.loginCooldownUntil
+            !== undefined
+          && securityState
+            .loginCooldownUntil
+            .getTime()
+            > now.getTime()
+        ) {
+          throw new AccountCooldownError(
+            securityState
+              .loginCooldownUntil,
+          );
+        }
+
+        /*
+         * Cualquier autenticación válida limpia los fallos
+         * anteriores. Si había un cooldown ya vencido,
+         * también queda rehabilitado aquí.
+         *
+         * La fila User sigue bloqueada con FOR UPDATE,
+         * por lo que la limpieza y la creación de sesión
+         * forman una única sección crítica.
+         */
+        await transaction.user.update({
+          where: {
+            id:
+              session.userId,
+          },
+
+          data: {
+            failedLoginAttempts:
+              0,
+
+            loginCooldownUntil:
+              null,
+          },
+        });
+
+        return transaction.authSession.create({
+          data: {
+            userId:
+              session.userId,
+
+            refreshTokenDigest:
+              new Uint8Array(
+                session.refreshTokenDigest,
+              ),
+
+            expiresAt:
+              session.expiresAt,
+
+            remembered:
+              session.remembered,
+          },
+
+          select:
+            authSessionSelect,
+        });
       },
-
-      select:
-        authSessionSelect,
-    });
+    );
   }
 
   public async findSessionByRefreshTokenDigest(

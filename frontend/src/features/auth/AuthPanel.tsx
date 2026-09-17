@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -19,6 +20,9 @@ import {
 import {
   LoginForm,
 } from './LoginForm';
+import {
+  AccountLockDialog,
+} from './AccountLockDialog';
 
 import {
   RegisterForm,
@@ -91,6 +95,20 @@ export function AuthPanel({
   ] =
     useState(false);
 
+  const [
+    accountLocked,
+    setAccountLocked,
+  ] =
+    useState(false);
+
+  const [
+    cooldownEndsAt,
+    setCooldownEndsAt,
+  ] =
+    useState<number | null>(
+      null,
+    );
+
   const loginTabRef =
     useRef<HTMLButtonElement>(
       null,
@@ -110,6 +128,83 @@ export function AuthPanel({
 
   const navigate =
     useNavigate();
+
+  useEffect(
+    () => {
+      if (
+        cooldownEndsAt === null
+      ) {
+        return;
+      }
+
+      const updateLoginCooldown =
+        () => {
+          const remainingSeconds =
+            Math.max(
+              0,
+              Math.ceil(
+                (
+                  cooldownEndsAt
+                  - Date.now()
+                ) / 1_000,
+              ),
+            );
+
+          if (
+            remainingSeconds === 0
+          ) {
+            /*
+             * Presentation only.
+             * The backend still decides whether login is
+             * actually allowed on the next request.
+             */
+            setLoginLocked(
+              false,
+            );
+
+            setCooldownEndsAt(
+              null,
+            );
+
+            setNotice('');
+
+            return;
+          }
+
+          const minutes =
+            Math.floor(
+              remainingSeconds
+              / 60,
+            );
+
+          const seconds =
+            remainingSeconds
+            % 60;
+
+          setNotice(
+            `Demasiados intentos fallidos. Inténtalo de nuevo en 15 minutos. Tiempo restante: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.`,
+          );
+        };
+
+      updateLoginCooldown();
+
+      const interval =
+        window.setInterval(
+          updateLoginCooldown,
+          1_000,
+        );
+
+      return () => {
+        window.clearInterval(
+          interval,
+        );
+      };
+    },
+
+    [
+      cooldownEndsAt,
+    ],
+  );
 
   const selectMode = (
     nextMode: AuthMode,
@@ -133,6 +228,10 @@ export function AuthPanel({
 
     setNotice('');
     setLoginLocked(false);
+
+    setCooldownEndsAt(
+      null,
+    );
     setRegisterNotice('');
 
     if (
@@ -237,6 +336,56 @@ export function AuthPanel({
         if (
           error instanceof ApiError
         ) {
+
+          if (
+            error.status === 423
+            && error.code
+              === 'ACCOUNT_LOCKED'
+          ) {
+            setAccountLocked(
+              true,
+            );
+
+            setLoginLocked(
+              false,
+            );
+
+            setCooldownEndsAt(
+              null,
+            );
+
+            setNotice('');
+
+            return;
+          }
+
+          if (
+            error.status === 429
+            && (
+              error.code
+                === 'ACCOUNT_COOLDOWN'
+              || error.code
+                === 'RATE_LIMITED'
+            )
+          ) {
+            setLoginLocked(
+              true,
+            );
+
+            setCooldownEndsAt(
+              Date.now()
+              + 15
+              * 60
+              * 1_000,
+            );
+
+            setNotice(
+              'Demasiados intentos fallidos. Inténtalo de nuevo en 15 minutos. Tiempo restante: 15:00.',
+            );
+
+            return;
+          }
+
           if (
             error.status === 409
             && error.code
@@ -311,14 +460,51 @@ export function AuthPanel({
           error instanceof ApiError
         ) {
           if (
+            error.status === 423
+            && error.code
+              === 'ACCOUNT_LOCKED'
+          ) {
+            setAccountLocked(
+              true,
+            );
+
+            setLoginLocked(
+              false,
+            );
+
+            setCooldownEndsAt(
+              null,
+            );
+
+            setNotice('');
+
+            return;
+          }
+
+          if (
             error.status === 429
+            && (
+              error.code
+                === 'ACCOUNT_COOLDOWN'
+              || error.code
+                === 'RATE_LIMITED'
+            )
           ) {
             setLoginLocked(
               true,
             );
-            setNotice(
-              'Demasiados intentos fallidos. Inténtalo de nuevo en 15 minutos.',
+
+            setCooldownEndsAt(
+              Date.now()
+              + 15
+              * 60
+              * 1_000,
             );
+
+            setNotice(
+              'Demasiados intentos fallidos. Inténtalo de nuevo en 15 minutos. Tiempo restante: 15:00.',
+            );
+
             return;
           }
 
@@ -616,6 +802,23 @@ export function AuthPanel({
           }
         </p>
       </div>
+      <AccountLockDialog
+        open={accountLocked}
+        onClose={() => {
+          setAccountLocked(
+            false,
+          );
+        }}
+        onRecover={() => {
+          setAccountLocked(
+            false,
+          );
+
+          navigate(
+            '/forgot-password',
+          );
+        }}
+      />
     </section>
   );
 }

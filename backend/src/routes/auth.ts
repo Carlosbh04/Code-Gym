@@ -8,6 +8,11 @@ import type {
 } from 'express-rate-limit';
 
 import {
+  AccountCooldownError,
+  AccountLockedError,
+} from '../auth/account-security-errors.js';
+
+import {
   AuthenticatedUserNotFoundError,
   type CurrentUserService,
 } from '../auth/current-user-service.js';
@@ -403,6 +408,41 @@ export function createAuthRouter({
       } catch (error) {
         if (
           error instanceof
+            AccountLockedError
+        ) {
+          response.status(423).json({
+            error: {
+              code:
+                'ACCOUNT_LOCKED',
+              message:
+                'Account access is locked',
+            },
+          });
+
+          return;
+        }
+
+        if (
+          error instanceof
+            AccountCooldownError
+        ) {
+          response.status(429).json({
+            error: {
+              code:
+                'ACCOUNT_COOLDOWN',
+              message:
+                'Account login is temporarily unavailable',
+              cooldownUntil:
+                error.cooldownUntil
+                  .toISOString(),
+            },
+          });
+
+          return;
+        }
+
+        if (
+          error instanceof
           InvalidCredentialsError
         ) {
           response.status(401).json({
@@ -466,6 +506,41 @@ export function createAuthRouter({
               result.accessToken,
           });
         } catch (error) {
+          if (
+            error instanceof
+              AccountLockedError
+          ) {
+            response.status(423).json({
+              error: {
+                code:
+                  'ACCOUNT_LOCKED',
+                message:
+                  'Account access is locked',
+              },
+            });
+
+            return;
+          }
+
+          if (
+            error instanceof
+              AccountCooldownError
+          ) {
+            response.status(429).json({
+              error: {
+                code:
+                  'ACCOUNT_COOLDOWN',
+                message:
+                  'Account login is temporarily unavailable',
+                cooldownUntil:
+                  error.cooldownUntil
+                    .toISOString(),
+              },
+            });
+
+            return;
+          }
+
           if (
             error instanceof
               InvalidGoogleIdTokenError

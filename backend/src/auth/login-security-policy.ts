@@ -1,0 +1,4 @@
+export const LOGIN_FAILURE_THRESHOLD = 3;
+
+export const LOGIN_SECURITY_COOLDOWN_MS =
+  15 * 60 * 1_000;

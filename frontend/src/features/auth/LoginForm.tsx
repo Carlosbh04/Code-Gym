@@ -176,6 +176,7 @@ export function LoginForm({
         label="Continuar con Google"
         onCredential={onGoogle}
         onError={onGoogleError}
+        disabled={isLocked}
       />
 
       <p className="pt-1 text-center text-sm text-code-muted">

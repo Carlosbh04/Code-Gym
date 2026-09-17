@@ -13,6 +13,14 @@ enum UserRole {
   ADMIN
 }
 
+enum SecurityLockReason {
+  LOGIN_FAILURE_ESCALATION
+}
+
+enum SecurityOutboxEventType {
+  ACCOUNT_LOCKED
+}
+
 enum TrainingRunStatus {
   ACTIVE
   COMPLETED
@@ -24,8 +32,14 @@ model User {
   passwordHash String?  @map("password_hash") @db.VarChar(255)
   displayName  String?  @map("display_name") @db.VarChar(100)
   role         UserRole @default(USER)
-  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  failedLoginAttempts Int                 @default(0) @map("failed_login_attempts") @db.UnsignedTinyInt
+  loginCooldownUntil  DateTime?           @map("login_cooldown_until") @db.DateTime(3)
+  securityLockedAt    DateTime?           @map("security_locked_at") @db.DateTime(3)
+  securityLockReason  SecurityLockReason? @map("security_lock_reason")
+  securityLockVersion Int                 @default(0) @map("security_lock_version") @db.UnsignedInt
+  createdAt           DateTime            @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt           DateTime            @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
 
   attempts               Attempt[]
   completedSessions      CompletedSession[]
@@ -35,6 +49,10 @@ model User {
   passwordResetChallenge PasswordResetChallenge?
   trainingRuns           TrainingRun[]
 
+  securityOutboxEvents SecurityOutboxEvent[]
+
+  @@index([loginCooldownUntil], map: "users_login_cooldown_until_idx")
+  @@index([securityLockedAt], map: "users_security_locked_at_idx")
   @@map("users")
 }
 
@@ -79,6 +97,31 @@ model PasswordResetChallenge {
   @@map("password_reset_challenges")
 }
 
+model SecurityOutboxEvent {
+  id                   String                  @id @default(cuid(2)) @db.VarChar(30)
+  userId               String                  @map("user_id") @db.VarChar(30)
+  type                 SecurityOutboxEventType
+  lockVersion          Int                     @map("lock_version") @db.UnsignedInt
+  recipientEmail       String                  @map("recipient_email") @db.VarChar(254)
+  recipientDisplayName String?                 @map("recipient_display_name") @db.VarChar(100)
+
+  attemptCount  Int       @default(0) @map("attempt_count") @db.UnsignedSmallInt
+  nextAttemptAt DateTime? @map("next_attempt_at") @db.DateTime(3)
+  claimedAt     DateTime? @map("claimed_at") @db.DateTime(3)
+  claimToken    String?   @unique(map: "security_outbox_events_claim_token_key") @map("claim_token") @db.VarChar(64)
+  sentAt        DateTime? @map("sent_at") @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "security_outbox_events_user_id_fkey")
+
+  @@unique([userId, type, lockVersion], map: "security_outbox_events_user_type_lock_version_key")
+  @@index([sentAt, nextAttemptAt, createdAt], map: "security_outbox_events_delivery_idx")
+  @@index([userId, createdAt], map: "security_outbox_events_user_created_at_idx")
+  @@map("security_outbox_events")
+}
+
 model AuthSession {
   id                 String    @id @default(cuid(2)) @db.VarChar(30)
   userId             String    @map("user_id") @db.VarChar(30)
@@ -113,7 +156,7 @@ model TrainingRun {
   startedAt         DateTime          @default(now()) @map("started_at") @db.DateTime(3)
   completedAt       DateTime?         @map("completed_at") @db.DateTime(3)
 
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "training_runs_user_id_fkey")
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "training_runs_user_id_fkey")
   attempts         Attempt[]
   hintReveals      TrainingHintReveal[]
   completedSession CompletedSession?

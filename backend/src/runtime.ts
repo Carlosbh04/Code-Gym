@@ -37,6 +37,20 @@ import {
 import {
   GoogleLoginService,
 } from './auth/google-login-service.js';
+import {
+  PrismaAccountSecurityRepository,
+  type AccountSecurityRepository,
+} from './auth/account-security-repository.js';
+import {
+  PrismaSecurityOutboxRepository,
+  type SecurityOutboxRepository,
+} from './auth/security-outbox-repository.js';
+import {
+  SecurityOutboxWorker,
+} from './auth/security-outbox-worker.js';
+import {
+  createAccountLockMailer,
+} from './auth/account-lock-mailer-factory.js';
 import { CurrentUserService } from './auth/current-user-service.js';
 import { LoginService } from './auth/login-service.js';
 import { LogoutService } from './auth/logout-service.js';
@@ -182,6 +196,11 @@ export interface RuntimeDatabase {
   readonly userRepository:
     UserRepository;
 
+  readonly accountSecurityRepository?:
+    AccountSecurityRepository;
+  readonly securityOutboxRepository?:
+    SecurityOutboxRepository;
+
   readonly authIdentityRepository?:
 
     AuthIdentityRepository;
@@ -302,6 +321,14 @@ function defaultDatabaseFactory(
       database.healthCheck(),
     userRepository:
       new PrismaUserRepository(
+        prisma,
+      ),
+    accountSecurityRepository:
+      new PrismaAccountSecurityRepository(
+        prisma,
+      ),
+    securityOutboxRepository:
+      new PrismaSecurityOutboxRepository(
         prisma,
       ),
     authIdentityRepository:
@@ -503,6 +530,32 @@ async function cleanupDatabaseAfterStartupFailure(
     },
   );
 }
+async function disconnectDatabaseAfterWorker(
+  database:
+    RuntimeDatabase,
+
+  worker:
+    SecurityOutboxWorker
+    | undefined,
+): Promise<void> {
+  /*
+   * Preserve the existing shutdown contract:
+   * when no worker exists, database.disconnect() must be
+   * invoked immediately in this call stack.
+   *
+   * Optional chaining with `await worker?.stop()` would
+   * introduce a microtask boundary even for undefined.
+   */
+  if (
+    worker !== undefined
+  ) {
+    await worker.stop();
+  }
+
+  await database.disconnect();
+}
+
+
 async function connectDatabaseBeforeStartup(
   database:
     RuntimeDatabase,
@@ -643,6 +696,10 @@ export async function startRuntime(
         quit(): Promise<unknown>;
       }
     | undefined;
+  let securityOutboxWorker:
+    SecurityOutboxWorker
+    | undefined;
+
   try {
     const accessTokenService =
       new AccessTokenService(
@@ -698,6 +755,10 @@ export async function startRuntime(
           .authSessionRepository,
         accessTokenService,
         config.auth,
+        undefined,
+        undefined,
+        database
+          .accountSecurityRepository,
       );
     const googleLoginService =
 
@@ -856,6 +917,24 @@ export async function startRuntime(
             10,
           );
 
+
+    if (
+      config.mail.provider !== 'disabled'
+      && database.securityOutboxRepository
+        !== undefined
+    ) {
+      securityOutboxWorker =
+        new SecurityOutboxWorker(
+          database.securityOutboxRepository,
+
+          createAccountLockMailer(
+            config.mail,
+          ),
+
+          logger,
+        );
+    }
+
     const app =
       dependencies
         .appFactory({
@@ -904,6 +983,8 @@ export async function startRuntime(
       server,
       config,
     );
+
+    securityOutboxWorker?.start();
   } catch {
     if (
       redisClient !== undefined
@@ -981,8 +1062,7 @@ export async function startRuntime(
         Promise.resolve()
           .then(
             () =>
-              database
-                .disconnect(),
+              disconnectDatabaseAfterWorker(database, securityOutboxWorker),
           )
           .then(
             () => false,

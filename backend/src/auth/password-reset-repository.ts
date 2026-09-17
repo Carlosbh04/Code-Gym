@@ -237,48 +237,151 @@ implements PasswordResetRepository {
   public consumeResetAuthorization(
     input: ConsumeResetAuthorizationInput,
   ): Promise<boolean> {
-    return this.prisma.$transaction(async (transaction) => {
-      const consumed = await transaction.passwordResetChallenge.updateMany({
-        where: {
-          userId: input.userId,
-          resetTokenDigest: new Uint8Array(input.resetTokenDigest),
-          resetTokenExpiresAt: {
-            gt: input.now,
+    return this.prisma.$transaction(
+      async (transaction) => {
+        /*
+         * Every operation capable of creating/changing login
+         * state locks User first.
+         *
+         * This gives password reset the same lock ordering as
+         * session creation and failed-login escalation.
+         */
+        const lockedUsers =
+          await transaction.$queryRaw<
+            Array<{
+              id: string;
+            }>
+          >`
+            SELECT
+              id
+            FROM users
+            WHERE id = ${input.userId}
+            FOR UPDATE
+          `;
+
+        const lockedUser =
+          lockedUsers[0];
+
+        if (lockedUser === undefined) {
+          return false;
+        }
+
+        /*
+         * IMPORTANT:
+         *
+         * Do not select CURRENT_TIMESTAMP in the same
+         * SELECT ... FOR UPDATE statement.
+         *
+         * That timestamp may be evaluated when the SQL
+         * statement begins, before it finishes waiting for
+         * another transaction to release the User row.
+         *
+         * First acquire the row lock. Only afterwards obtain
+         * database time in a second statement.
+         *
+         * Therefore transactionNow is guaranteed to be taken
+         * after any preceding session-creation transaction
+         * that held this User row has completed.
+         */
+        const databaseTimes =
+          await transaction.$queryRaw<
+            Array<{
+              transactionNow: Date;
+            }>
+          >`
+            SELECT
+              CURRENT_TIMESTAMP(3)
+                AS transactionNow
+          `;
+
+        const transactionNow =
+          databaseTimes[0]
+            ?.transactionNow;
+
+        if (transactionNow === undefined) {
+          throw new Error(
+            'Unable to read database transaction time',
+          );
+        }
+
+        const consumed =
+          await transaction
+            .passwordResetChallenge
+            .updateMany({
+              where: {
+                userId:
+                  input.userId,
+
+                resetTokenDigest:
+                  new Uint8Array(
+                    input.resetTokenDigest,
+                  ),
+
+                resetTokenExpiresAt: {
+                  gt:
+                    transactionNow,
+                },
+
+                verifiedAt: {
+                  not:
+                    null,
+                },
+
+                usedAt:
+                  null,
+              },
+
+              data: {
+                usedAt:
+                  transactionNow,
+              },
+            });
+
+        if (consumed.count !== 1) {
+          return false;
+        }
+
+        await transaction.user.update({
+          where: {
+            id:
+              input.userId,
           },
-          verifiedAt: {
-            not: null,
+
+          data: {
+            passwordHash:
+              input.newPasswordHash,
+
+            failedLoginAttempts:
+              0,
+
+            loginCooldownUntil:
+              null,
+
+            securityLockedAt:
+              null,
+
+            securityLockReason:
+              null,
           },
-          usedAt: null,
-        },
-        data: {
-          usedAt: input.now,
-        },
-      });
+        });
 
-      if (consumed.count !== 1) {
-        return false;
-      }
+        await transaction.authSession.updateMany({
+          where: {
+            userId:
+              input.userId,
 
-      await transaction.user.update({
-        where: {
-          id: input.userId,
-        },
-        data: {
-          passwordHash: input.newPasswordHash,
-        },
-      });
+            revokedAt:
+              null,
+          },
 
-      await transaction.authSession.updateMany({
-        where: {
-          userId: input.userId,
-          revokedAt: null,
-        },
-        data: {
-          revokedAt: input.now,
-        },
-      });
+          data: {
+            revokedAt:
+              transactionNow,
+          },
+        });
 
-      return true;
-    });
+        return true;
+      },
+    );
   }
 }
