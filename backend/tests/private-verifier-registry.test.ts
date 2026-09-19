@@ -129,6 +129,67 @@ describe(
     );
 
     it(
+      'resolves hidden cases for the objects and promises hardening set',
+      () => {
+        const targets = [
+          [
+            'js-objects-coding-pick-01',
+            'step-1',
+            2,
+          ],
+          [
+            'js-objects-object-entries-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-promises-chain-transform-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-promises-coding-fetch-label-01',
+            'step-1',
+            2,
+          ],
+          [
+            'js-promises-error-recovery-01',
+            'step-4',
+            3,
+          ],
+        ] as const;
+
+        for (
+          const [
+            sessionId,
+            exerciseId,
+            expectedHiddenCases,
+          ] of targets
+        ) {
+          const config =
+            resolvePrivateVerifierConfig(
+              sessionId,
+              exerciseId,
+            );
+
+          expect(
+            config.hiddenTestCases,
+          ).toHaveLength(
+            expectedHiddenCases,
+          );
+
+          expect(
+            config.pedagogicalRequirements,
+          ).toEqual([]);
+
+          expect(
+            config.oracle,
+          ).toBeNull();
+        }
+      },
+    );
+
+    it(
       'does not allow another exercise to inherit the registered verifier config',
       () => {
         const config =

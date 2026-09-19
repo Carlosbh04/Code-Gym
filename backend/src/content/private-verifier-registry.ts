@@ -221,6 +221,572 @@ const registry =
 
     [
       verifierKey(
+        'js-objects-coding-pick-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    id: 7,
+                    nombre: 'Ada',
+                    activo: false,
+                    rol: 'admin',
+                  }),
+                  Object.freeze([
+                    'id',
+                    'rol',
+                  ]),
+                ]),
+
+              expected:
+                Object.freeze({
+                  id: 7,
+                  rol: 'admin',
+                }),
+
+              call:
+                'seleccionar(...input)',
+
+              description:
+                'selecciona claves arbitrarias distintas a los ejemplos públicos',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    a: 1,
+                    b: 2,
+                  }),
+                  Object.freeze([
+                    'b',
+                    'z',
+                  ]),
+                ]),
+
+              expected:
+                Object.freeze({
+                  b: 2,
+                }),
+
+              call:
+                'seleccionar(...input)',
+
+              description:
+                'omite claves inexistentes sin alterar las existentes',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-object-entries-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  uno: 10,
+                  dos: -3,
+                  tres: 0,
+                  cuatro: 5,
+                }),
+
+              expected:
+                12,
+
+              call:
+                'sumar(input)',
+
+              description:
+                'suma valores arbitrarios incluyendo negativos y cero',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  x: 1,
+                  y: 2,
+                  z: 3,
+                  w: 4,
+                }),
+
+              expected:
+                10,
+
+              call:
+                'sumar(input)',
+
+              description:
+                'suma más de dos propiedades sin depender de nombres concretos',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-chain-transform-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                7,
+
+              expected:
+                14,
+
+              call:
+                'duplicar(input)',
+
+              description:
+                'duplica otro valor mediante la cadena asíncrona',
+            }),
+
+            Object.freeze({
+              input:
+                5,
+
+              expected:
+                true,
+
+              call:
+                'duplicar(input) instanceof Promise',
+
+              description:
+                'devuelve una Promise al llamador',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-coding-fetch-label-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  nombre: 'Noa',
+                }),
+
+              expected:
+                'Hola, Noa',
+
+              call:
+                'etiquetaUsuario(Promise.resolve(input))',
+
+              description:
+                'usa dinámicamente el nombre de otro usuario',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  nombre: 'Eva',
+                }),
+
+              expected:
+                true,
+
+              call:
+                'etiquetaUsuario(Promise.resolve(input)) instanceof Promise',
+
+              description:
+                'mantiene un contrato asíncrono',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-error-recovery-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                true,
+
+              expected:
+                true,
+
+              call:
+                'cargar(input) instanceof Promise',
+
+              description:
+                'la rama remota devuelve una Promise',
+            }),
+
+            Object.freeze({
+              input:
+                false,
+
+              expected:
+                true,
+
+              call:
+                'cargar(input) instanceof Promise',
+
+              description:
+                'la rama de rechazo devuelve una Promise',
+            }),
+
+            Object.freeze({
+              input:
+                false,
+
+              expected:
+                'Error',
+
+              call:
+                "cargar(input).then(() => 'sin error').catch((error) => error.name)",
+
+              description:
+                'el rechazo sigue disponible para el caller',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-coding-pick-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    id: 7,
+                    nombre: 'Ada',
+                    activo: false,
+                    rol: 'admin',
+                  }),
+                  Object.freeze([
+                    'id',
+                    'rol',
+                  ]),
+                ]),
+
+              expected:
+                Object.freeze({
+                  id: 7,
+                  rol: 'admin',
+                }),
+
+              call:
+                'seleccionar(...input)',
+
+              description:
+                'selecciona claves arbitrarias distintas a los ejemplos públicos',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    a: 1,
+                    b: 2,
+                  }),
+                  Object.freeze([
+                    'b',
+                    'z',
+                  ]),
+                ]),
+
+              expected:
+                Object.freeze({
+                  b: 2,
+                }),
+
+              call:
+                'seleccionar(...input)',
+
+              description:
+                'omite claves inexistentes sin alterar las existentes',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-object-entries-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  uno: 10,
+                  dos: -3,
+                  tres: 0,
+                  cuatro: 5,
+                }),
+
+              expected:
+                12,
+
+              call:
+                'sumar(input)',
+
+              description:
+                'suma valores arbitrarios incluyendo negativos y cero',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  x: 1,
+                  y: 2,
+                  z: 3,
+                  w: 4,
+                }),
+
+              expected:
+                10,
+
+              call:
+                'sumar(input)',
+
+              description:
+                'suma más de dos propiedades sin depender de nombres concretos',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-chain-transform-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                7,
+
+              expected:
+                14,
+
+              call:
+                'duplicar(input)',
+
+              description:
+                'duplica otro valor mediante la cadena asíncrona',
+            }),
+
+            Object.freeze({
+              input:
+                5,
+
+              expected:
+                true,
+
+              call:
+                'duplicar(input) instanceof Promise',
+
+              description:
+                'devuelve una Promise al llamador',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-coding-fetch-label-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  nombre: 'Noa',
+                }),
+
+              expected:
+                'Hola, Noa',
+
+              call:
+                'etiquetaUsuario(Promise.resolve(input))',
+
+              description:
+                'usa dinámicamente el nombre de otro usuario',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  nombre: 'Eva',
+                }),
+
+              expected:
+                true,
+
+              call:
+                'etiquetaUsuario(Promise.resolve(input)) instanceof Promise',
+
+              description:
+                'mantiene un contrato asíncrono',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-error-recovery-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                true,
+
+              expected:
+                true,
+
+              call:
+                'cargar(input) instanceof Promise',
+
+              description:
+                'la rama remota devuelve una Promise',
+            }),
+
+            Object.freeze({
+              input:
+                false,
+
+              expected:
+                true,
+
+              call:
+                'cargar(input) instanceof Promise',
+
+              description:
+                'la rama de rechazo devuelve una Promise',
+            }),
+
+            Object.freeze({
+              input:
+                false,
+
+              expected:
+                'Error',
+
+              call:
+                "cargar(input).then(() => 'sin error').catch((error) => error.name)",
+
+              description:
+                'el rechazo sigue disponible para el caller',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
         'js-arrays-filter-mutation-01',
         'step-4',
       ),
