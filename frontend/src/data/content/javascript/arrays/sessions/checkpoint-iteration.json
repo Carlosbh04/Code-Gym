@@ -1,0 +1,172 @@
+{
+  "id": "js-arrays-iteration-checkpoint-01",
+  "title": "Checkpoint: fundamentos de iteración de arrays",
+  "difficulty": "beginner",
+  "conceptId": "js-array-iteration",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-17",
+  "updatedAt": null,
+  "kind": "checkpoint",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Quieres obtener un array con cada número multiplicado por dos. ¿Qué implementación es la correcta?",
+      "code": "const numeros = [1, 2, 3];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "numeros.forEach((numero) => numero * 2)",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "numeros.map((numero) => numero * 2)",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "numeros.filter((numero) => numero * 2)",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "numeros.reduce((acc, numero) => acc + numero, 0)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "map transforma cada elemento y construye un array nuevo con los valores devueltos por el callback.",
+      "hints": [
+        "Necesitas transformar todos los elementos.",
+        "El resultado debe seguir siendo un array."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime este código?",
+      "code": "const nombres = ['Ana', 'Luis'];\n\nconst resultado = nombres.forEach(\n  (nombre) => nombre.toUpperCase(),\n);\n\nconsole.log(resultado);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "['ANA', 'LUIS']",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "['Ana', 'Luis']",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "null",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "forEach ejecuta el callback, pero el propio método devuelve undefined.",
+      "hints": [
+        "No confundas el retorno del callback con el retorno de forEach."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué expresión conserva únicamente los números pares?",
+      "code": "const numeros = [1, 2, 3, 4, 5, 6];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "numeros.map((numero) => numero % 2 === 0)",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "numeros.filter((numero) => numero % 2 === 0)",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "numeros.forEach((numero) => numero % 2 === 0)",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "numeros.reduce((acc, numero) => acc + numero, 0)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "filter conserva los elementos cuyo callback devuelve un valor verdadero.",
+      "hints": [
+        "Quieres seleccionar, no transformar."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué valor imprime total?",
+      "code": "const precios = [10, 20, 30];\n\nconst total = precios.reduce(\n  (acc, precio) => acc + precio,\n  0,\n);\n\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "30",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "60",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "reduce comienza con acumulador 0 y suma 10, 20 y 30, por lo que el resultado final es 60.",
+      "hints": [
+        "Empieza por el valor inicial 0.",
+        "Sigue el acumulador en cada vuelta."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 5
+}

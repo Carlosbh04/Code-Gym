@@ -140,6 +140,8 @@ function testApp(
       authenticatedRequireAuth,
 ) {
   return createApp({
+    loginFailureKeySecret:
+      'test-login-failure-key-secret',
     config:
       testConfig(),
 

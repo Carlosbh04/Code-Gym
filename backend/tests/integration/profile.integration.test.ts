@@ -78,6 +78,8 @@ const app =
       database.healthCheck(),
     registrationService,
     loginService,
+  loginFailureKeySecret:
+    config.rateLimitKeySecret,
     refreshService:
       new RefreshService(
         authSessionRepository,
@@ -102,9 +104,11 @@ const app =
       ),
     requireAuth:
       createRequireAuth({
-        accessTokenService,
-        authSessionRepository,
-      }),
+    accessTokenService,
+    authSessionRepository,
+    idleSessionTimeoutSeconds:
+      config.auth.idleSessionTimeoutSeconds,
+  }),
   });
 
 const runId =
@@ -271,6 +275,7 @@ describe(
             email:
               emailA,
             password,
+            remember: false,
           });
 
       expect(

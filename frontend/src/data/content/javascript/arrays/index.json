@@ -3,11 +3,422 @@
   "name": "Métodos de iteración de arrays",
   "topicId": "js-arrays",
   "technologyId": "javascript",
-  "content": { "sections": [
-    { "type": "intro", "title": "Introducción", "body": "Los métodos de arrays expresan una transformación, una selección o un efecto con intención clara." },
-    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Distinguir map de forEach", "Evitar mutaciones accidentales"] },
-    { "type": "code", "title": "Ejemplo", "language": "javascript", "code": "const doubles = numbers.map((number) => number * 2);" },
-    { "type": "comparison", "title": "map frente a forEach", "left": { "title": "map", "body": "Devuelve un nuevo array transformado." }, "right": { "title": "forEach", "body": "Ejecuta un efecto y devuelve undefined." } },
-    { "type": "quick-check", "question": "¿Qué método elegirías para crear un array nuevo?", "answer": "map." }
-  ] }
+  "position": 0,
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "levelId": "foundation",
+        "title": "Introducción",
+        "body": "Los métodos de iteración permiten recorrer un array con una intención concreta: ejecutar una acción, transformar valores, seleccionar elementos o resumir toda la colección en un único resultado."
+      },
+      {
+        "type": "objectives",
+        "levelId": "foundation",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Elegir entre forEach, map, filter y reduce según el resultado que necesitas",
+          "Reconocer qué devuelve cada método",
+          "Usar map para construir un nuevo array transformado",
+          "Usar filter para seleccionar elementos sin cambiar la colección original",
+          "Usar reduce con un acumulador y un valor inicial sencillo"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "foundation",
+        "title": "forEach: recorrer para producir un efecto",
+        "body": "forEach ejecuta el callback una vez por cada elemento. Se utiliza cuando quieres realizar una acción, como mostrar un valor o llamar a otra función. El propio forEach devuelve undefined, aunque el callback devuelva algo."
+      },
+      {
+        "type": "code",
+        "levelId": "foundation",
+        "title": "Ejemplo con forEach",
+        "language": "javascript",
+        "code": "const nombres = ['Ana', 'Luis'];\n\nnombres.forEach((nombre) => {\n  console.log(nombre);\n});",
+        "caption": "forEach recorre el array, pero no construye un array nuevo."
+      },
+      {
+        "type": "explanation",
+        "levelId": "foundation",
+        "title": "map: transformar cada elemento",
+        "body": "map ejecuta el callback para cada elemento y utiliza el valor devuelto por ese callback para construir un array nuevo del mismo tamaño."
+      },
+      {
+        "type": "code",
+        "levelId": "foundation",
+        "title": "Ejemplo con map",
+        "language": "javascript",
+        "code": "const numeros = [1, 2, 3];\nconst dobles = numeros.map((numero) => numero * 2);\n\nconsole.log(dobles); // [2, 4, 6]"
+      },
+      {
+        "type": "comparison",
+        "levelId": "foundation",
+        "title": "map frente a forEach",
+        "left": {
+          "title": "map",
+          "body": "Devuelve un array nuevo construido con el valor que retorna el callback en cada vuelta."
+        },
+        "right": {
+          "title": "forEach",
+          "body": "Recorre los elementos para producir un efecto y el método devuelve undefined."
+        }
+      },
+      {
+        "type": "quick-check",
+        "levelId": "foundation",
+        "question": "Necesitas duplicar cada número y obtener un array nuevo. ¿Qué método elegirías?",
+        "answer": "map."
+      },
+      {
+        "type": "explanation",
+        "levelId": "foundation",
+        "title": "filter: seleccionar elementos",
+        "body": "filter ejecuta una condición para cada elemento. Si el callback devuelve un valor verdadero, conserva ese elemento. El resultado es un array nuevo con los elementos que superaron la condición."
+      },
+      {
+        "type": "code",
+        "levelId": "foundation",
+        "title": "Ejemplo con filter",
+        "language": "javascript",
+        "code": "const numeros = [1, 2, 3, 4];\nconst pares = numeros.filter((numero) => numero % 2 === 0);\n\nconsole.log(pares); // [2, 4]"
+      },
+      {
+        "type": "quick-check",
+        "levelId": "foundation",
+        "question": "Quieres conservar solamente los números mayores que 10. ¿Qué método expresa esa intención?",
+        "answer": "filter."
+      },
+      {
+        "type": "explanation",
+        "levelId": "foundation",
+        "title": "reduce: obtener un único resultado",
+        "body": "reduce combina todos los elementos del array en un resultado acumulado. El callback recibe primero el acumulador y después el elemento actual. Lo que devuelve el callback se convierte en el acumulador de la siguiente vuelta."
+      },
+      {
+        "type": "code",
+        "levelId": "foundation",
+        "title": "Ejemplo básico con reduce",
+        "language": "javascript",
+        "code": "const precios = [10, 20, 30];\nconst total = precios.reduce(\n  (acumulador, precio) => acumulador + precio,\n  0,\n);\n\nconsole.log(total); // 60",
+        "caption": "El 0 es el valor inicial del acumulador."
+      },
+      {
+        "type": "key-point",
+        "levelId": "foundation",
+        "title": "El valor inicial de reduce",
+        "body": "Pasar un valor inicial hace explícito desde dónde empieza el acumulador. Para una suma suele utilizarse 0. Además permite que una suma sobre un array vacío produzca 0."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "foundation",
+        "question": "En reduce((acc, numero) => acc + numero, 0), ¿qué representa el 0?",
+        "answer": "El valor inicial del acumulador."
+      },
+      {
+        "type": "comparison",
+        "levelId": "foundation",
+        "title": "Cómo elegir el método",
+        "left": {
+          "title": "Quiero otra colección",
+          "body": "Usa map si transformas cada elemento. Usa filter si quieres conservar solo algunos elementos."
+        },
+        "right": {
+          "title": "No quiero otra colección",
+          "body": "Usa forEach para ejecutar un efecto. Usa reduce para obtener un resultado acumulado."
+        }
+      },
+      {
+        "type": "quick-check",
+        "levelId": "foundation",
+        "question": "Quieres sumar todos los precios y obtener un solo número. ¿Qué método elegirías?",
+        "answer": "reduce."
+      },
+      {
+        "type": "key-point",
+        "levelId": "foundation",
+        "title": "Resumen",
+        "body": "forEach ejecuta una acción y devuelve undefined. map transforma y devuelve un array nuevo. filter selecciona y devuelve un array nuevo. reduce acumula y devuelve un único resultado."
+      },
+      {
+        "type": "intro",
+        "levelId": "deepening",
+        "title": "Profundización",
+        "body": "Saber qué devuelve cada método es solo el primer paso. Ahora vas a estudiar qué ocurre con los datos que recorren los callbacks, cuándo una operación modifica información existente y cómo combinar métodos sin introducir efectos inesperados."
+      },
+      {
+        "type": "objectives",
+        "levelId": "deepening",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Distinguir entre crear un array nuevo y modificar los objetos que contiene",
+          "Comprender que los objetos se comparten mediante referencias",
+          "Detectar efectos secundarios dentro de callbacks",
+          "Diferenciar asignación de comparación dentro de filter",
+          "Crear objetos nuevos con spread cuando necesitas evitar una mutación",
+          "Combinar filter, map y reduce manteniendo clara la intención de cada paso"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Un array nuevo no significa objetos nuevos",
+        "body": "Métodos como map y filter pueden devolver un array nuevo, pero si sus elementos son objetos, esos objetos pueden seguir siendo las mismas referencias que estaban en el array original. Cambiar una propiedad de uno de esos objetos también puede verse desde la colección original."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "La referencia sigue siendo la misma",
+        "language": "javascript",
+        "code": "const usuarios = [\n  { nombre: 'Ana', activo: false },\n];\n\nconst copia = usuarios.filter((usuario) => true);\ncopia[0].activo = true;\n\nconsole.log(usuarios[0].activo); // true",
+        "caption": "El array copia es nuevo, pero el objeto almacenado dentro sigue siendo la misma referencia."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "question": "Si filter devuelve un array nuevo con objetos, ¿significa que también clonó cada objeto?",
+        "answer": "No. El nuevo array puede contener las mismas referencias a objetos que el array original."
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "El callback también puede producir efectos secundarios",
+        "body": "Un callback no está obligado a limitarse a calcular un valor. También puede escribir en variables u objetos externos. Eso puede producir efectos secundarios difíciles de detectar. En map y filter suele ser más predecible que el callback calcule su resultado sin modificar los datos que recibe."
+      },
+      {
+        "type": "warning",
+        "levelId": "deepening",
+        "title": "Asignar no es comparar",
+        "body": "Dentro de filter, usuario.activo = true modifica la propiedad y además produce el valor true. Por eso filter conservaría ese elemento. Para comprobar una condición debes leer el booleano o realizar una comparación, no una asignación."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Asignación accidental dentro de filter",
+        "language": "javascript",
+        "code": "const usuarios = [\n  { nombre: 'Ana', activo: false },\n  { nombre: 'Luis', activo: true },\n];\n\nconst incorrecto = usuarios.filter(\n  (usuario) => (usuario.activo = true),\n);\n\nconst correcto = usuarios.filter(\n  (usuario) => usuario.activo,\n);"
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "question": "¿Qué problema tiene usuarios.filter((u) => (u.activo = true))?",
+        "answer": "Asigna true a cada objeto en vez de comprobar su valor, por lo que modifica los datos y hace que todos pasen el filtro."
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Crear un objeto nuevo con spread",
+        "body": "Cuando necesitas transformar las propiedades de un objeto sin modificar el original, puedes crear otro objeto y copiar sus propiedades con spread. Después sobrescribes solamente las propiedades que deben cambiar."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Transformar objetos sin mutarlos",
+        "language": "javascript",
+        "code": "const usuarios = [\n  { nombre: 'ana', activo: true },\n];\n\nconst normalizados = usuarios.map((usuario) => ({\n  ...usuario,\n  nombre: usuario.nombre.toUpperCase(),\n}));\n\nconsole.log(usuarios[0].nombre); // ana\nconsole.log(normalizados[0].nombre); // ANA"
+      },
+      {
+        "type": "comparison",
+        "levelId": "deepening",
+        "title": "Mutar frente a crear un nuevo objeto",
+        "left": {
+          "title": "Mutar",
+          "body": "usuario.nombre = 'ANA' cambia el mismo objeto que pueden estar usando otras partes del programa."
+        },
+        "right": {
+          "title": "Crear otro objeto",
+          "body": "{ ...usuario, nombre: 'ANA' } produce otro objeto y mantiene intacta la referencia original."
+        }
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "question": "Quieres cambiar nombre durante un map sin modificar el objeto original. ¿Qué enfoque usarías?",
+        "answer": "Devolver un objeto nuevo, por ejemplo ({ ...usuario, nombre: usuario.nombre.toUpperCase() })."
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Combinar métodos",
+        "body": "Cada método debe mantener una responsabilidad clara. Puedes usar filter para seleccionar datos y después map para transformarlos. Si al final necesitas un único resultado, puedes aplicar reduce. Lee una cadena de métodos de izquierda a derecha y determina qué tipo de dato produce cada paso."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "filter seguido de map",
+        "language": "javascript",
+        "code": "const pedidos = [\n  { total: 20, pagado: true },\n  { total: 15, pagado: false },\n  { total: 40, pagado: true },\n];\n\nconst totalesPagados = pedidos\n  .filter((pedido) => pedido.pagado)\n  .map((pedido) => pedido.total);\n\nconsole.log(totalesPagados); // [20, 40]"
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "filter, map y reduce",
+        "language": "javascript",
+        "code": "const numeros = [1, 2, 3, 4, 5, 6];\n\nconst total = numeros\n  .filter((numero) => numero % 2 === 0)\n  .map((numero) => numero * 10)\n  .reduce((acc, numero) => acc + numero, 0);\n\nconsole.log(total); // 120"
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "question": "En filter(...).map(...), ¿sobre qué elementos trabaja map?",
+        "answer": "Sobre el array que devolvió filter, es decir, únicamente sobre los elementos que superaron la condición."
+      },
+      {
+        "type": "key-point",
+        "levelId": "deepening",
+        "title": "Resumen",
+        "body": "Un array nuevo puede seguir compartiendo referencias a objetos. Evita efectos secundarios accidentales dentro de callbacks. Usa spread cuando quieras producir un objeto nuevo y combina filter, map y reduce respetando la responsabilidad de cada método."
+      },
+      {
+        "type": "intro",
+        "levelId": "mastery",
+        "title": "Dominio",
+        "body": "En este nivel reduce deja de utilizarse únicamente para producir un número. Vas a utilizar acumuladores estructurados para construir objetos, agrupar información, contar frecuencias y resumir datos complejos manteniendo explícito el estado del acumulador."
+      },
+      {
+        "type": "objectives",
+        "levelId": "mastery",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Usar objetos como valor inicial y acumulador de reduce",
+          "Crear propiedades dinámicas con acc[key]",
+          "Agrupar datos por una clave",
+          "Construir conteos de frecuencias e histogramas",
+          "Mantener varios campos dentro del mismo acumulador",
+          "Combinar filter, map y reduce para resolver transformaciones completas"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "El acumulador puede ser un objeto",
+        "body": "El valor inicial de reduce determina la forma del acumulador. Si utilizas {}, el acumulador puede almacenar propiedades que se van construyendo durante el recorrido. Esto permite producir un resultado estructurado en vez de un único número."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Acumular totales dentro de un objeto",
+        "language": "javascript",
+        "code": "const ventas = [\n  { tipo: 'libro', total: 10 },\n  { tipo: 'curso', total: 30 },\n  { tipo: 'libro', total: 15 },\n];\n\nconst totales = ventas.reduce((acc, venta) => {\n  const tipo = venta.tipo;\n  acc[tipo] = (acc[tipo] || 0) + venta.total;\n  return acc;\n}, {});\n\nconsole.log(totales);\n// { libro: 25, curso: 30 }",
+        "caption": "El acumulador empieza como {} y cada clave guarda el total correspondiente a ese tipo."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "question": "Si reduce empieza con {}, ¿qué tipo de resultado puede construir el acumulador?",
+        "answer": "Un objeto cuyas propiedades pueden ir creándose y actualizándose durante el recorrido."
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Claves dinámicas con acc[key]",
+        "body": "La notación acc[key] permite decidir durante la ejecución qué propiedad del acumulador debes leer o actualizar. La variable key puede proceder del propio elemento actual, por ejemplo una categoría, un estado o un tipo."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Contar frecuencias",
+        "language": "javascript",
+        "code": "const categorias = ['js', 'react', 'js', 'css', 'js'];\n\nconst frecuencias = categorias.reduce((acc, categoria) => {\n  acc[categoria] = (acc[categoria] || 0) + 1;\n  return acc;\n}, {});\n\nconsole.log(frecuencias);\n// { js: 3, react: 1, css: 1 }",
+        "caption": "Cada propiedad funciona como una barra lógica del histograma: la clave identifica el valor y el número indica cuántas veces apareció."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "question": "En acc[categoria] = (acc[categoria] || 0) + 1, ¿para qué sirve || 0?",
+        "answer": "Proporciona 0 cuando esa categoría todavía no existe en el acumulador, para poder comenzar su conteo en 1."
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Agrupar significa compartir una clave de acumulación",
+        "body": "Agrupar consiste en hacer que varios elementos actualicen la misma entrada del acumulador cuando comparten una propiedad. No siempre necesitas guardar los elementos completos: un grupo también puede representarse mediante un resumen, por ejemplo cantidad y total."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Agrupar estadísticas por categoría",
+        "language": "javascript",
+        "code": "const pedidos = [\n  { categoria: 'libros', total: 20 },\n  { categoria: 'cursos', total: 50 },\n  { categoria: 'libros', total: 30 },\n];\n\nconst grupos = pedidos.reduce((acc, pedido) => {\n  const key = pedido.categoria;\n\n  const actual = acc[key] || {\n    cantidad: 0,\n    total: 0,\n  };\n\n  acc[key] = {\n    cantidad: actual.cantidad + 1,\n    total: actual.total + pedido.total,\n  };\n\n  return acc;\n}, {});\n\nconsole.log(grupos.libros);\n// { cantidad: 2, total: 50 }",
+        "caption": "Todos los pedidos de la misma categoría actualizan la misma clave."
+      },
+      {
+        "type": "key-point",
+        "levelId": "mastery",
+        "title": "El callback debe devolver el acumulador",
+        "body": "Después de actualizar un acumulador objeto debes devolver acc. Si el callback no devuelve el acumulador, la siguiente iteración recibirá undefined y la reducción dejará de funcionar correctamente."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "question": "Si el callback de un reduce con acumulador objeto actualiza acc[key] pero no ejecuta return acc, ¿qué problema aparece?",
+        "answer": "La siguiente iteración recibe undefined como acumulador porque el callback no devolvió el estado actualizado."
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Un acumulador puede mantener varios campos",
+        "body": "También puedes utilizar un único objeto para calcular varias métricas al mismo tiempo. Cada iteración devuelve un nuevo estado lógico del resumen: por ejemplo total acumulado y cantidad de elementos."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Total y cantidad en una sola reducción",
+        "language": "javascript",
+        "code": "const precios = [10, 25, 15];\n\nconst resumen = precios.reduce(\n  (acc, precio) => ({\n    total: acc.total + precio,\n    cantidad: acc.cantidad + 1,\n  }),\n  {\n    total: 0,\n    cantidad: 0,\n  },\n);\n\nconsole.log(resumen);\n// { total: 50, cantidad: 3 }"
+      },
+      {
+        "type": "comparison",
+        "levelId": "mastery",
+        "title": "Acumulador simple frente a estructurado",
+        "left": {
+          "title": "Simple",
+          "body": "Un número como 0 es apropiado cuando el resultado final solo necesita representar una métrica, por ejemplo una suma."
+        },
+        "right": {
+          "title": "Estructurado",
+          "body": "Un objeto permite mantener varias métricas o claves dinámicas cuando el resultado final necesita más estructura."
+        }
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Integrar selección, transformación y acumulación",
+        "body": "Un problema completo puede dividirse en etapas. filter selecciona, map transforma y reduce construye el resultado final. Antes de escribir la cadena, identifica qué tipo de dato produce cada etapa y qué forma debe tener el acumulador final."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Transformación integrada",
+        "language": "javascript",
+        "code": "const pedidos = [\n  { categoria: 'libro', total: 20, pagado: true },\n  { categoria: 'curso', total: 40, pagado: false },\n  { categoria: 'libro', total: 30, pagado: true },\n];\n\nconst resumen = pedidos\n  .filter((pedido) => pedido.pagado)\n  .map((pedido) => ({\n    ...pedido,\n    total: pedido.total * 2,\n  }))\n  .reduce((acc, pedido) => {\n    const key = pedido.categoria;\n    acc[key] = (acc[key] || 0) + pedido.total;\n    return acc;\n  }, {});\n\nconsole.log(resumen);\n// { libro: 100 }",
+        "caption": "Cada etapa conserva una responsabilidad: seleccionar, transformar y finalmente resumir."
+      },
+      {
+        "type": "key-point",
+        "levelId": "mastery",
+        "title": "Resumen",
+        "body": "En Mastery, reduce puede construir objetos, trabajar con claves dinámicas, agrupar información, producir histogramas y mantener varias métricas. La forma del valor inicial define la forma del acumulador y cada callback debe devolver correctamente el siguiente estado."
+      }
+    ]
+  },
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Aprende a elegir entre forEach, map, filter y reduce y comprende qué devuelve cada método.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Trabaja con mutabilidad, referencias, callbacks y combinaciones de métodos.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Resuelve transformaciones complejas, acumuladores estructurados y problemas integrados.",
+      "position": 2
+    }
+  ]
 }

@@ -31,6 +31,15 @@ export interface AccountSecurityRepository {
   recordFailedPasswordAttempt(
     input: RecordFailedPasswordAttemptInput,
   ): Promise<FailedPasswordAttemptResult>;
+
+  isAccountLockedByEmail(
+    email: string,
+  ): Promise<boolean>;
+
+  getActiveLoginCooldownUntilByEmail(
+    email: string,
+    now: Date,
+  ): Promise<Date | null>;
 }
 
 interface LockedUserSecurityRow {
@@ -49,6 +58,61 @@ implements AccountSecurityRepository {
   public constructor(
     private readonly prisma: PrismaClient,
   ) {}
+
+  public async isAccountLockedByEmail(
+    email: string,
+  ): Promise<boolean> {
+    const user =
+      await this.prisma.user.findUnique({
+        where: {
+          email,
+        },
+        select: {
+          securityLockedAt:
+            true,
+        },
+      });
+
+    return (
+      user?.securityLockedAt
+      !== null
+      && user?.securityLockedAt
+      !== undefined
+    );
+  }
+
+  public async getActiveLoginCooldownUntilByEmail(
+    email: string,
+    now: Date,
+  ): Promise<Date | null> {
+    const user =
+      await this.prisma.user.findUnique({
+        where: {
+          email,
+        },
+        select: {
+          securityLockedAt:
+            true,
+          loginCooldownUntil:
+            true,
+        },
+      });
+
+    if (
+      user === null
+      || user.securityLockedAt
+        !== null
+      || user.loginCooldownUntil
+        === null
+      || user.loginCooldownUntil
+        .getTime()
+        <= now.getTime()
+    ) {
+      return null;
+    }
+
+    return user.loginCooldownUntil;
+  }
 
   public recordFailedPasswordAttempt(
     input: RecordFailedPasswordAttemptInput,

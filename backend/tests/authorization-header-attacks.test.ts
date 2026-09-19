@@ -49,6 +49,8 @@ AccessTokenClaims =
 const activeSession:
 AuthSessionAuthenticationRecord =
   Object.freeze({
+    lastActivityAt:
+      now,
     userId:
       claims.sub,
 
@@ -86,6 +88,8 @@ function testApp(
     '/protected',
 
     createRequireAuth({
+      idleSessionTimeoutSeconds:
+        3600,
       accessTokenService: {
         verify,
       },

@@ -67,6 +67,10 @@ export class ExpiredPasswordResetTokenError extends Error {
   }
 }
 
+export interface PasswordResetConfirmationResult {
+  readonly email: string;
+}
+
 export type PasswordResetClock = () => Date;
 export type PasswordHasher = (password: string) => Promise<string>;
 
@@ -201,7 +205,7 @@ export class PasswordResetService {
   public async confirmReset(
     resetToken: string,
     newPassword: string,
-  ): Promise<void> {
+  ): Promise<PasswordResetConfirmationResult> {
     const now = this.clock();
     const resetTokenDigest = this.dependencies.crypto.digestResetToken(resetToken);
     const authorization = await this.dependencies.passwordResetRepository
@@ -230,6 +234,11 @@ export class PasswordResetService {
     if (!consumed) {
       throw new InvalidPasswordResetTokenError();
     }
+
+    return Object.freeze({
+      email:
+        authorization.email,
+    });
   }
 
   private assertChallengeAvailable(

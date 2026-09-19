@@ -5,9 +5,18 @@ import {
   type ContentVerifier,
 } from '../content/content-verifier.js';
 import {
+  conceptIdSchema,
   contentSessionIdSchema,
   exerciseIdSchema,
 } from '../content/content-id.js';
+import type {
+  CanonicalTrainingSessionMetadata,
+  ContentRepository,
+} from '../content/content-repository.js';
+import {
+  LearningConceptNotFoundError,
+  type LearningProgressService,
+} from '../progress/learning-progress-service.js';
 import {
   CodeExecutionUnavailableError,
   type CodeExecutionResult,
@@ -104,6 +113,18 @@ export class TrainingService {
         () => new Date(),
     private readonly codeExecutionService?:
       CodeExecutionService,
+    private readonly learningProgressService?:
+      Pick<
+        LearningProgressService,
+        | 'getLevelState'
+        | 'reconcileTrainingCompletionForLevel'
+        | 'canStartRequiredPracticeForLevel'
+      >,
+    private readonly contentRepository?:
+      Pick<
+        ContentRepository,
+        'getCanonicalTrainingSessionMetadata'
+      >,
   ) {}
 
   public async startRun(
@@ -138,6 +159,24 @@ export class TrainingService {
       throw new TrainingCodeExecutionUnavailableError();
     }
 
+    const activeRun =
+      await this.repository
+        .findActiveOwnedRunBySession?.(
+          input.userId,
+          sessionId,
+        );
+
+    if (activeRun !== undefined && activeRun !== null) {
+      return toTrainingRunView(
+        activeRun,
+      );
+    }
+
+    await this.assertLearningSessionAvailable(
+      input.userId,
+      sessionId,
+    );
+
     const run =
       await this.repository.createRun({
         userId: input.userId,
@@ -157,6 +196,115 @@ export class TrainingService {
     return toTrainingRunView(
       run,
     );
+  }
+
+  private async assertLearningSessionAvailable(
+    userId: string,
+    sessionId: string,
+  ): Promise<void> {
+    if (
+      this.learningProgressService === undefined
+      || this.contentRepository === undefined
+    ) {
+      throw new TrainingProgressionUnavailableError();
+    }
+
+    const metadata =
+      await this.contentRepository
+        .getCanonicalTrainingSessionMetadata(
+          sessionId,
+        );
+
+    if (metadata === null) {
+      throw new TrainingSessionUnavailableError();
+    }
+
+    if (
+      !metadata.progressionEnabled
+    ) {
+      return;
+    }
+
+    let state;
+
+    try {
+      state =
+        await this.learningProgressService
+          .getLevelState(
+            userId,
+            conceptIdSchema.parse(
+              metadata.conceptId,
+            ),
+            metadata.levelId,
+          );
+    } catch (error) {
+      if (
+        error instanceof
+          LearningConceptNotFoundError
+      ) {
+        throw new TrainingSessionUnavailableError();
+      }
+
+      throw error;
+    }
+
+    if (state.locked) {
+      throw new TrainingSessionLockedError(
+        metadata.kind,
+      );
+    }
+
+    if (
+      metadata.kind === 'QUIZ'
+      && state.stages.theory.status
+        !== 'completed'
+    ) {
+      throw new TrainingSessionLockedError(
+        metadata.kind,
+      );
+    }
+
+    if (
+      metadata.kind === 'PRACTICE'
+      && state.stages.quiz.status
+        !== 'completed'
+    ) {
+      throw new TrainingSessionLockedError(
+        metadata.kind,
+      );
+    }
+
+    if (
+      metadata.kind === 'PRACTICE'
+      && metadata.requiredForProgression
+    ) {
+      const canStart =
+        await this.learningProgressService
+          .canStartRequiredPracticeForLevel(
+            userId,
+            conceptIdSchema.parse(
+              metadata.conceptId,
+            ),
+            metadata.levelId,
+            metadata.position,
+          );
+
+      if (!canStart) {
+        throw new TrainingSessionLockedError(
+          metadata.kind,
+        );
+      }
+    }
+
+    if (
+      metadata.kind === 'CHECKPOINT'
+      && state.stages.practice.status
+        !== 'completed'
+    ) {
+      throw new TrainingSessionLockedError(
+        metadata.kind,
+      );
+    }
   }
 
   public async submitAnswer(
@@ -276,6 +424,33 @@ export class TrainingService {
       verification,
     );
 
+    const isFinalAnswer =
+      run.answeredExercises + 1
+      === run.totalExercises;
+
+    let completionMetadata:
+      CanonicalTrainingSessionMetadata | null =
+        null;
+
+    if (isFinalAnswer) {
+      if (
+        this.learningProgressService === undefined
+        || this.contentRepository === undefined
+      ) {
+        throw new TrainingProgressionUnavailableError();
+      }
+
+      completionMetadata =
+        await this.contentRepository
+          .getCanonicalTrainingSessionMetadata(
+            run.sessionId,
+          );
+
+      if (completionMetadata === null) {
+        throw new TrainingSessionUnavailableError();
+      }
+    }
+
     const recorded =
       await this.repository
         .recordScoredAnswerAndMaybeComplete({
@@ -291,6 +466,49 @@ export class TrainingService {
           attemptedAt:
             this.clock(),
         });
+
+    if (
+      recorded.completion !== null
+      && completionMetadata !== null
+      && completionMetadata.progressionEnabled
+    ) {
+      await this.learningProgressService!
+        .reconcileTrainingCompletionForLevel(
+          input.userId,
+          {
+            conceptId:
+              conceptIdSchema.parse(
+                completionMetadata.conceptId,
+              ),
+
+            levelId:
+              completionMetadata.levelId,
+
+            kind:
+              completionMetadata.kind,
+
+            passingPercentage:
+              completionMetadata
+                .passingPercentage,
+
+            requiredForProgression:
+              completionMetadata
+                .requiredForProgression,
+
+            totalExercises:
+              recorded.completion
+                .totalExercises,
+
+            correctExercises:
+              recorded.completion
+                .correctExercises,
+
+            completedAt:
+              recorded.completion
+                .completedAt,
+          },
+        );
+    }
 
     return Object.freeze({
       attempt: Object.freeze({
@@ -510,6 +728,33 @@ export {
   TrainingHintsExhaustedError,
   VerifierExerciseNotFoundError,
 };
+
+export class TrainingProgressionUnavailableError
+extends Error {
+  public constructor() {
+    super(
+      'Training progression dependencies are unavailable',
+    );
+
+    this.name =
+      'TrainingProgressionUnavailableError';
+  }
+}
+
+export class TrainingSessionLockedError
+extends Error {
+  public constructor(
+    public readonly kind:
+      CanonicalTrainingSessionMetadata['kind'],
+  ) {
+    super(
+      `Training session ${kind} is locked by learning progression`,
+    );
+
+    this.name =
+      'TrainingSessionLockedError';
+  }
+}
 
 export class TrainingRunNotFoundPublicError
 extends Error {

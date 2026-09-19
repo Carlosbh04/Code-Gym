@@ -1,5 +1,6 @@
 {
   "id": "html-accessible-forms", "name": "Etiquetas y controles", "topicId": "html-forms", "technologyId": "html",
+  "position": 0,
   "content": { "sections": [
     { "type": "intro", "title": "Introducción", "body": "Un formulario usable explica cada control antes de pedir una respuesta." },
     { "type": "objectives", "title": "Qué vas a aprender", "items": ["Asociar label e input", "Usar tipos de control apropiados"] },

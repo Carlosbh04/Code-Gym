@@ -1,3 +1,8 @@
+export type ExerciseSessionKind =
+  | 'quiz'
+  | 'practice'
+  | 'checkpoint';
+
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 
 export type ContentStatus =
@@ -19,6 +24,17 @@ export interface ExerciseSession {
   conceptId: string;
   technologyId: string;
   difficulty: Difficulty;
+  readonly kind?: ExerciseSessionKind;
+  /**
+   * Nivel pedagógico al que pertenece esta sesión.
+   * Ausente únicamente para contenido legacy.
+   */
+  readonly levelId?:
+    | 'foundation'
+    | 'deepening'
+    | 'mastery';
+  readonly passingPercentage?: number | null;
+  readonly requiredForProgression?: boolean;
   version: string;
   status: ContentStatus;
   createdAt: string;

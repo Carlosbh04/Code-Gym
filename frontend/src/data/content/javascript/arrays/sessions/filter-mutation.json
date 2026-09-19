@@ -1,10 +1,11 @@
 {
   "id": "js-arrays-filter-mutation-01",
-  "title": "Filter no debería mutar",
-  "difficulty": "intermediate",
+  "title": "Taller: seleccionar con filter",
+  "difficulty": "beginner",
+  "levelId": "foundation",
   "conceptId": "js-array-iteration",
   "technologyId": "javascript",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "published",
   "createdAt": "2026-09-01",
   "updatedAt": null,
@@ -12,28 +13,28 @@
     {
       "id": "step-1",
       "type": "code-reading",
-      "prompt": "¿Cuántos elementos tiene `activos`?",
-      "code": "const usuarios = [\n  { nombre: 'Ana', activo: false },\n  { nombre: 'Luis', activo: true },\n];\n\nconst activos = usuarios.filter((u) => (u.activo = true));\n\nconsole.log(activos.length);",
+      "prompt": "¿Qué valores contiene pares?",
+      "code": "const numeros = [1, 2, 3, 4];\n\nconst pares = numeros.filter(\n  (numero) => numero % 2 === 0,\n);\n\nconsole.log(pares);",
       "language": "javascript",
       "options": [
         {
           "id": "a",
-          "text": "0",
+          "text": "[1, 3]",
           "correct": false
         },
         {
           "id": "b",
-          "text": "1",
-          "correct": false
-        },
-        {
-          "id": "c",
-          "text": "2",
+          "text": "[2, 4]",
           "correct": true
         },
         {
+          "id": "c",
+          "text": "[1, 2, 3, 4]",
+          "correct": false
+        },
+        {
           "id": "d",
-          "text": "Lanza un TypeError",
+          "text": "[]",
           "correct": false
         }
       ],
@@ -41,39 +42,38 @@
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
-      "explanation": "En la línea 6 hay `=` (asignación), no `===` (comparación). Una asignación evalúa al valor asignado, así que el callback devuelve `true` para todos los usuarios y `filter` los conserva a los dos. De paso, deja a todos con `activo: true`.",
+      "explanation": "filter conserva únicamente los elementos para los que el callback devuelve un valor verdadero. Solo 2 y 4 cumplen numero % 2 === 0.",
       "hints": [
-        "Lee con atención el operador dentro del callback.",
-        "¿Qué valor produce una expresión de asignación como `x = true`?",
-        "Si el callback siempre devuelve `true`, ¿qué elementos descarta `filter`?"
+        "Evalúa la condición para cada número.",
+        "filter conserva los elementos que cumplen la condición."
       ],
       "stepOrder": 1
     },
     {
       "id": "step-2",
       "type": "predict-output",
-      "prompt": "Se descarta el resultado de `filter`. Aun así, ¿qué imprime la última línea?",
-      "code": "const usuarios = [\n  { nombre: 'Ana', activo: false },\n  { nombre: 'Luis', activo: true },\n];\n\nusuarios.filter((u) => (u.activo = true));\n\nconsole.log(usuarios[0].activo);",
+      "prompt": "¿Qué imprime este código?",
+      "code": "const edades = [12, 18, 25, 15];\nconst adultos = edades.filter(\n  (edad) => edad >= 18,\n);\n\nconsole.log(adultos.length);",
       "language": "javascript",
       "options": [
         {
           "id": "a",
-          "text": "false",
+          "text": "1",
           "correct": false
         },
         {
           "id": "b",
-          "text": "true",
+          "text": "2",
           "correct": true
         },
         {
           "id": "c",
-          "text": "undefined",
+          "text": "3",
           "correct": false
         },
         {
           "id": "d",
-          "text": "Lanza un TypeError porque el array es de solo lectura",
+          "text": "4",
           "correct": false
         }
       ],
@@ -81,60 +81,58 @@
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
-      "explanation": "`filter` no modifica el array original, pero eso no protege a los objetos que contiene: el callback recibe la misma referencia que está en el array, y `u.activo = true` la muta. Aunque tiremos el resultado, el daño ya está hecho.",
+      "explanation": "18 y 25 cumplen edad >= 18, por lo que filter devuelve dos elementos.",
       "hints": [
-        "`filter` no toca el array. ¿Y los objetos de dentro?",
-        "El parámetro `u` no es una copia del objeto."
+        "Cuenta solo los valores mayores o iguales a 18."
       ],
       "stepOrder": 2
     },
     {
       "id": "step-3",
       "type": "find-error",
-      "prompt": "Esta función devuelve los usuarios correctos, pero deja un rastro no deseado. Localiza la línea del error y clasifícalo.",
-      "code": "function usuariosActivos(usuarios) {\n  return usuarios.filter((u) => {\n    u.visto = true;\n    return u.activo;\n  });\n}",
+      "prompt": "La función debería devolver únicamente los números positivos. Localiza la línea del error y clasifícalo.",
+      "code": "function positivos(numeros) {\n  return numeros.map((numero) => numero > 0);\n}",
       "language": "javascript",
       "options": [
         {
-          "id": "mutacion",
-          "text": "Mutación: el callback modifica los objetos que recibe",
+          "id": "conceptual",
+          "text": "Conceptual: se usa map cuando hace falta filter",
           "correct": true
         },
         {
           "id": "logico",
-          "text": "Lógico: la condición `u.activo` está invertida",
+          "text": "Lógico: numero > 0 debería ser numero < 0",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: numeros no puede ser un array",
           "correct": false
         },
         {
           "id": "flujo",
-          "text": "Flujo: falta un `return` en la función",
-          "correct": false
-        },
-        {
-          "id": "scope",
-          "text": "Scope: `u` no está definida en ese ámbito",
+          "text": "Flujo: falta devolver la función positivos",
           "correct": false
         }
       ],
       "errorLines": [
-        3
+        2
       ],
-      "errorType": "mutacion",
+      "errorType": "conceptual",
       "testCases": null,
       "expectedPatterns": null,
-      "explanation": "El filtrado en sí es correcto: la línea 4 devuelve `u.activo`. El problema está en la línea 3, que escribe `visto` en cada objeto recorrido. El callback de `filter` debe limitarse a responder sí o no; si además escribe, el método deja de ser predecible y quien lo llama acaba con datos modificados sin saberlo.",
+      "explanation": "map transforma cada elemento y produciría valores booleanos. Para conservar únicamente algunos elementos debe usarse filter.",
       "hints": [
-        "La función devuelve lo que promete. Mira qué más hace por el camino.",
-        "Pregúntate qué le ocurre al array que recibe quien llama a esta función.",
-        "Una de las dos líneas del cuerpo del callback no debería estar ahí."
+        "La condición ya es correcta.",
+        "Piensa qué método selecciona elementos."
       ],
       "stepOrder": 3
     },
     {
       "id": "step-4",
       "type": "fix-code",
-      "prompt": "Corrige `usuariosActivos` para que devuelva solo los usuarios activos sin modificar el array recibido.",
-      "code": "function usuariosActivos(usuarios) {\n  return usuarios.filter((u) => (u.activo = true));\n}",
+      "prompt": "Corrige positivos para que devuelva únicamente los números mayores que cero.",
+      "code": "function positivos(numeros) {\n  return numeros.map((numero) => numero > 0);\n}",
       "language": "javascript",
       "options": null,
       "errorLines": null,
@@ -142,65 +140,45 @@
       "testCases": [
         {
           "input": [
-            {
-              "nombre": "Ana",
-              "activo": false
-            },
-            {
-              "nombre": "Luis",
-              "activo": true
-            }
+            -2,
+            0,
+            3,
+            5
           ],
           "expected": [
-            {
-              "nombre": "Luis",
-              "activo": true
-            }
+            3,
+            5
           ],
-          "call": "usuariosActivos(input)",
-          "description": "devuelve solo los usuarios activos"
-        },
-        {
-          "input": [
-            {
-              "nombre": "Ana",
-              "activo": false
-            },
-            {
-              "nombre": "Luis",
-              "activo": true
-            }
-          ],
-          "expected": false,
-          "call": "(usuariosActivos(input), input[0].activo)",
-          "description": "no modifica los objetos del array recibido"
-        },
-        {
-          "input": [
-            {
-              "nombre": "Ana",
-              "activo": false
-            }
-          ],
-          "expected": [],
-          "call": "usuariosActivos(input)",
-          "description": "si no hay activos devuelve un array vacío"
+          "call": "positivos(input)",
+          "description": "conserva únicamente los números positivos"
         },
         {
           "input": [],
           "expected": [],
-          "call": "usuariosActivos(input)",
+          "call": "positivos(input)",
           "description": "un array vacío devuelve un array vacío"
+        },
+        {
+          "input": [
+            -3,
+            -1
+          ],
+          "expected": [],
+          "call": "positivos(input)",
+          "description": "devuelve vacío cuando ninguno cumple"
         }
       ],
       "expectedPatterns": null,
-      "explanation": "El callback debe comparar, no asignar: `return usuarios.filter((u) => u.activo === true);`, o directamente `(u) => u.activo` si el campo ya es booleano. Con `=` se asigna `true` a todos y el filtro deja de filtrar.",
+      "explanation": "Sustituye map por filter: return numeros.filter((numero) => numero > 0);",
       "hints": [
-        "Solo hay que cambiar un operador.",
-        "`=` asigna; para comparar hace falta otro.",
-        "El callback tiene que responder una pregunta, no cambiar el objeto."
+        "No tienes que cambiar la condición.",
+        "Necesitas seleccionar, no transformar."
       ],
       "stepOrder": 4
     }
-  ]
+  ],
+  "position": 2,
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "kind": "practice"
 }

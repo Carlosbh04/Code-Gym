@@ -14,6 +14,11 @@ import { Link } from 'react-router-dom';
 
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { PageLoadTransition } from '@/components/codegym/PageLoadTransition';
+import { useAuth } from '@/features/auth/AuthContext';
+import { browserLearningApi } from '@/features/learning/learning-api';
+import {
+  canEnterLearningSession,
+} from '@/features/learning/session-learning-kind';
 import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
 import { useContent } from '@/hooks/useContent';
 import { useDashboard } from '@/hooks/useDashboard';
@@ -52,7 +57,18 @@ type CatalogState =
   | { status: 'success'; catalog: HomeCatalog }
   | { status: 'error'; message: string };
 
+
+type ContinueAccessState =
+  | {
+      sessionId: string | null;
+      status: 'idle' | 'loading' | 'allowed' | 'blocked';
+    };
+
 function HomePage() {
+  const {
+    accessToken,
+  } = useAuth();
+
   const {
     technologies,
     getTopics,
@@ -102,6 +118,18 @@ function HomePage() {
     setCatalogState,
   ] = useState<CatalogState>({
     status: 'loading',
+  });
+
+
+  // HOME_CANONICAL_CONTINUE_GATE
+  const [
+    continueAccess,
+    setContinueAccess,
+  ] = useState<ContinueAccessState>({
+    sessionId:
+      null,
+    status:
+      'idle',
   });
 
   const [technologyDiscoverySeed] =
@@ -219,7 +247,7 @@ function HomePage() {
       [technologyProgress],
     );
 
-  const continueItem =
+  const continueCandidate =
     useMemo(
       () =>
         catalog === null
@@ -235,6 +263,117 @@ function HomePage() {
         recovery,
       ],
     );
+
+  // HOME_CANONICAL_CONTINUE_GATE
+  useEffect(() => {
+    const session =
+      continueCandidate?.session;
+
+    if (
+      session === undefined
+      || session.levelId === undefined
+    ) {
+      return;
+    }
+
+    let active = true;
+
+    if (accessToken === null) {
+      void Promise.resolve().then(
+        () => {
+          if (active) {
+            setContinueAccess({
+              sessionId:
+                session.id,
+              status:
+                'blocked',
+            });
+          }
+        },
+      );
+
+      return () => {
+        active = false;
+      };
+    }
+
+    setContinueAccess({
+      sessionId:
+        session.id,
+      status:
+        'loading',
+    });
+
+    void browserLearningApi
+      .getLevelState(
+        session.conceptId,
+        session.levelId,
+        accessToken,
+      )
+      .then(
+        levelState => {
+          if (!active) {
+            return;
+          }
+
+          setContinueAccess({
+            sessionId:
+              session.id,
+
+            status:
+              canEnterLearningSession(
+                session,
+                levelState,
+              )
+                ? 'allowed'
+                : 'blocked',
+          });
+        },
+      )
+      .catch(
+        () => {
+          if (active) {
+            setContinueAccess({
+              sessionId:
+                session.id,
+              status:
+                'blocked',
+            });
+          }
+        },
+      );
+
+    return () => {
+      active = false;
+    };
+  }, [
+    accessToken,
+    continueCandidate,
+  ]);
+
+  const continueAccessPending =
+    continueCandidate !== null
+    && continueCandidate.session.levelId
+      !== undefined
+    && (
+      continueAccess.sessionId
+        !== continueCandidate.session.id
+      || continueAccess.status
+        === 'loading'
+    );
+
+  const continueItem =
+    continueCandidate === null
+      ? null
+      : continueCandidate.session.levelId
+          === undefined
+        ? continueCandidate
+        : continueAccess.sessionId
+            === continueCandidate.session.id
+          && continueAccess.status
+            === 'allowed'
+          ? continueCandidate
+          : null;
 
   const activities =
     useMemo(
@@ -333,6 +472,7 @@ function HomePage() {
     dashboardLoading
     || progressLoading
     || completedSessionsLoading
+    || continueAccessPending
     || (
       dashboard === null
       && dashboardError === null
@@ -521,6 +661,7 @@ function HomePage() {
               isLoading={
                 catalogLoading
                 || progressLoading
+                || continueAccessPending
               }
               error={
                 catalogState.status === 'error'

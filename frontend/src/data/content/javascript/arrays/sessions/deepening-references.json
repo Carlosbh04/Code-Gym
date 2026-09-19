@@ -1,0 +1,172 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-arrays",
+  "conceptId": "js-array-iteration",
+  "levelId": "deepening",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-arrays-deepening-references-01",
+  "title": "Taller: referencias y copias con spread",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "intermediate",
+  "position": 2,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime este código?",
+      "code": "const original = {\n  nombre: 'Ana',\n};\n\nconst copia = original;\ncopia.nombre = 'Luis';\n\nconsole.log(original.nombre);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ana",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Luis",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "null",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "copia y original apuntan al mismo objeto.",
+      "hints": [
+        "No se creó ningún objeto nuevo."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime original.nombre?",
+      "code": "const original = {\n  nombre: 'Ana',\n  activo: true,\n};\n\nconst copia = {\n  ...original,\n  nombre: 'Luis',\n};\n\nconsole.log(original.nombre);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ana",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Luis",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "true",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Spread creó un objeto diferente. Modificar nombre en copia no cambia original.",
+      "hints": [
+        "Aquí sí aparece {...original}."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Cuál de estas transformaciones mantiene intactos los objetos originales?",
+      "code": "const usuarios = [\n  { nombre: 'ana' },\n  { nombre: 'luis' },\n];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "usuarios.map((u) => { u.nombre = u.nombre.toUpperCase(); return u; })",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "usuarios.map((u) => ({ ...u, nombre: u.nombre.toUpperCase() }))",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "usuarios.forEach((u) => u.nombre.toUpperCase())",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "usuarios.filter((u) => u.nombre)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La opción con spread crea un objeto nuevo en cada vuelta.",
+      "hints": [
+        "Busca la opción que construye otro objeto."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "La función debería devolver usuarios con nombre normalizado sin mutar los originales. Localiza el error.",
+      "code": "function normalizar(usuarios) {\n  return usuarios.map((usuario) => {\n    usuario.nombre = usuario.nombre.toUpperCase();\n    return usuario;\n  });\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "mutacion",
+          "text": "Conceptual: se modifica directamente usuario.nombre",
+          "correct": true
+        },
+        {
+          "id": "map",
+          "text": "Conceptual: map no permite devolver objetos",
+          "correct": false
+        },
+        {
+          "id": "return",
+          "text": "Flujo: sobra return usuario",
+          "correct": false
+        },
+        {
+          "id": "string",
+          "text": "Tipo: toUpperCase no existe",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El problema es escribir directamente en usuario.nombre. Debe devolverse un objeto nuevo.",
+      "hints": [
+        "Busca una escritura sobre el objeto recibido."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "createdAt": "2026-09-18",
+  "updatedAt": null
+}

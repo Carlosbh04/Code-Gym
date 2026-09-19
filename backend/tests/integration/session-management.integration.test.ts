@@ -131,6 +131,8 @@ const requireAuth =
   createRequireAuth({
     accessTokenService,
     authSessionRepository,
+    idleSessionTimeoutSeconds:
+      config.auth.idleSessionTimeoutSeconds,
   });
 
 const app =
@@ -148,6 +150,8 @@ const app =
 
     registrationService,
     loginService,
+  loginFailureKeySecret:
+    config.rateLimitKeySecret,
     refreshService,
     logoutService,
     currentUserService,
@@ -299,6 +303,7 @@ async function loginUser(
       .send({
         email,
         password,
+        remember: false,
       });
 
   expect(

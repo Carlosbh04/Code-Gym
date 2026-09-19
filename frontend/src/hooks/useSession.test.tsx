@@ -238,19 +238,14 @@ describe('useSession · TrainingRun (T229.6B.3)', () => {
 
     await waitFor(() =>
       expect(
-        view.result.current.recoveryStatus,
-      ).toBe('available'),
+        view.result.current.session,
+      ).not.toBeNull(),
     );
-
-    act(() => {
-      view.result.current
-        .continueRecovery();
-    });
 
     await waitFor(() =>
       expect(
-        view.result.current.session,
-      ).not.toBeNull(),
+        view.result.current.recoveryStatus,
+      ).toBe('none'),
     );
 
     expect(
@@ -798,19 +793,17 @@ describe('useSession · sessionStorage recovery (T052)', () => {
     expect(view.result.current.recoveryStatus).toBe('none');
   });
 
-  it('ofrece un recovery válido sin sobrescribirlo y lo restaura completo', async () => {
+  it('restaura automáticamente un recovery válido de la misma sesión', async () => {
     const recovery = new FakeSessionRecoveryStore();
     recovery.snapshot = await recoverableSnapshot();
     const view = montar(undefined, undefined, recovery);
 
     await waitFor(() =>
-      expect(view.result.current.recoveryStatus).toBe('available'),
+      expect(view.result.current.session).not.toBeNull(),
     );
-    expect(view.result.current.session).toBeNull();
-    expect(recovery.saves).toHaveLength(0);
-
-    act(() => view.result.current.continueRecovery());
-    await waitFor(() => expect(view.result.current.session).not.toBeNull());
+    await waitFor(() =>
+      expect(view.result.current.recoveryStatus).toBe('none'),
+    );
 
     expect(view.result.current.state).toMatchObject({
       sessionId: SESSION_ID,
@@ -831,11 +824,10 @@ describe('useSession · sessionStorage recovery (T052)', () => {
     recovery.snapshot = await recoverableSnapshot();
     const view = montar(undefined, undefined, recovery);
 
-    await waitFor(() =>
-      expect(view.result.current.recoveryStatus).toBe('available'),
-    );
-    act(() => view.result.current.continueRecovery());
     await waitFor(() => expect(view.result.current.session).not.toBeNull());
+    await waitFor(() =>
+      expect(view.result.current.recoveryStatus).toBe('none'),
+    );
     await waitFor(() => expect(recovery.saves.at(-1)?.elapsedMs).toBe(3_000));
 
     now = 12_500;
@@ -871,11 +863,10 @@ describe('useSession · sessionStorage recovery (T052)', () => {
     recovery.snapshot = { ...(await recoverableSnapshot()), elapsedMs: 7_000 };
     const view = montar(undefined, undefined, recovery);
 
-    await waitFor(() =>
-      expect(view.result.current.recoveryStatus).toBe('available'),
-    );
-    act(() => view.result.current.continueRecovery());
     await waitFor(() => expect(view.result.current.session).not.toBeNull());
+    await waitFor(() =>
+      expect(view.result.current.recoveryStatus).toBe('none'),
+    );
 
     now = 51_200;
 
@@ -909,10 +900,6 @@ describe('useSession · sessionStorage recovery (T052)', () => {
     };
     const view = montar(undefined, undefined, recovery);
 
-    await waitFor(() =>
-      expect(view.result.current.recoveryStatus).toBe('available'),
-    );
-    act(() => view.result.current.continueRecovery());
     await waitFor(() =>
       expect(view.result.current.recoveryStatus).toBe('recovery-failed'),
     );
@@ -1007,33 +994,42 @@ describe('useSession · sessionStorage recovery (T052)', () => {
     ]);
   });
 
-  it('unmount y remount no borran ni sobrescriben recovery válido', async () => {
+  it('unmount y remount reanudan automáticamente el recovery válido', async () => {
     const recovery = new FakeSessionRecoveryStore();
     const first = await loaded(undefined, undefined, recovery);
     await waitFor(() => expect(recovery.snapshot).not.toBeNull());
-    const savesBefore = recovery.saves.length;
 
     first.unmount();
     expect(recovery.clearCalls).toBe(0);
 
     const second = montar(undefined, undefined, recovery);
+
     await waitFor(() =>
-      expect(second.result.current.recoveryStatus).toBe('available'),
+      expect(second.result.current.session).not.toBeNull(),
     );
-    expect(recovery.saves).toHaveLength(savesBefore);
+    await waitFor(() =>
+      expect(second.result.current.recoveryStatus).toBe('none'),
+    );
+
+    expect(second.result.current.state.sessionId).toBe(SESSION_ID);
+    expect(recovery.snapshot).not.toBeNull();
     expect(recovery.clearCalls).toBe(0);
   });
 
-  it('StrictMode inspecciona una vez y no destruye un recovery pendiente', async () => {
+  it('StrictMode inspecciona una vez y reanuda sin destruir el recovery', async () => {
     const recovery = new FakeSessionRecoveryStore();
     recovery.snapshot = await recoverableSnapshot();
     const view = montar(undefined, undefined, recovery, true);
 
     await waitFor(() =>
-      expect(view.result.current.recoveryStatus).toBe('available'),
+      expect(view.result.current.session).not.toBeNull(),
     );
+    await waitFor(() =>
+      expect(view.result.current.recoveryStatus).toBe('none'),
+    );
+
     expect(recovery.loadCalls).toBe(1);
-    expect(recovery.saves).toHaveLength(0);
+    expect(recovery.snapshot).not.toBeNull();
     expect(recovery.clearCalls).toBe(0);
   });
 

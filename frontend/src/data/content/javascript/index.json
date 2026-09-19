@@ -1,5 +1,11 @@
 [
   {
+    "id": "js-fundamentals",
+    "name": "Fundamentos",
+    "technologyId": "javascript",
+    "description": "Conceptos esenciales de JavaScript antes de avanzar a estructuras, funciones y programación asíncrona."
+  },
+  {
     "id": "js-arrays",
     "name": "Arrays",
     "technologyId": "javascript",

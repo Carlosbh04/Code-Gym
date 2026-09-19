@@ -6,6 +6,7 @@ export interface ApiErrorBody {
   readonly error?: {
     readonly code?: string;
     readonly message?: string;
+    readonly cooldownUntil?: string;
   };
 }
 
@@ -15,6 +16,7 @@ export class ApiError extends Error {
     public readonly code: string | undefined,
     message: string,
     public readonly retryAfterSeconds: number | null = null,
+    public readonly cooldownUntil: string | null = null,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -93,6 +95,9 @@ export async function apiRequest<T>(
       parseRetryAfterHeader(
         response.headers.get('Retry-After'),
       ),
+      typeof errorBody?.error?.cooldownUntil === 'string'
+        ? errorBody.error.cooldownUntil
+        : null,
     );
   }
 

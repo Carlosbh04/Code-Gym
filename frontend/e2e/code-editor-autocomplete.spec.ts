@@ -1,5 +1,10 @@
 import { expect, test, type Page } from './fixtures';
 
+test.use({
+  authScenario:
+    'topic-recovery',
+});
+
 async function reachCodeEditor(page: Page) {
   await page.goto('/practice/js-arrays-map-vs-foreach-01');
   await expect(page.getByRole('heading', { name: /forEach no devuelve/i })).toBeVisible();

@@ -1,8 +1,29 @@
 import { type ReactNode } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
+import { browserLearningApi } from '@/features/learning/learning-api';
+
+const authMockState =
+  vi.hoisted(
+    () => ({
+      accessToken:
+        'dashboard-test-token' as string | null,
+    }),
+  );
+
+// DASHBOARD_CANONICAL_RECOMMENDATION_TEST_AUTH
+vi.mock(
+  '@/features/auth/AuthContext',
+  () => ({
+    useAuth:
+      () => ({
+        accessToken:
+          authMockState.accessToken,
+      }),
+  }),
+);
 import { HistoryContext } from '@/contexts/history-context';
 import { ProgressContext } from '@/contexts/progress-context';
 
@@ -39,6 +60,25 @@ const SESSION: ExerciseSession = {
 };
 const COMPLETED: CompletedSession = { id: 'completion-1', sessionId: SESSION.id, technologyId: 'javascript', conceptId: 'arrays', totalSteps: 4, correctSteps: 3, accuracy: 75, timeSpentMs: 62_000, completedAt: '2026-09-02T10:00:00.000Z' };
 
+
+// DASHBOARD_STAGED_RECOMMENDATION_FIXTURE
+const STAGED_SESSION: ExerciseSession = {
+  ...SESSION,
+
+  id:
+    'arrays-staged-session',
+
+  levelId:
+    'foundation',
+
+  kind:
+    'practice',
+
+  requiredForProgression:
+    true,
+};
+
+
 const progressOf = (conceptId: string, totalAttempts: number, correctAttempts: number, lastPracticed = '2026-09-02T10:00:00.000Z'): ConceptProgress => ({
   conceptId, domain: 0, totalAttempts, correctAttempts, difficultyDistribution: { beginner: { total: totalAttempts, correct: correctAttempts }, intermediate: { total: 0, correct: 0 }, advanced: { total: 0, correct: 0 } }, recentErrors: [], lastPracticed, schemaVersion: 1,
 });
@@ -50,13 +90,22 @@ interface RenderOptions {
   completed?: CompletedSession[];
   historyLoading?: boolean;
   historyError?: string | null;
+  recommendedSessions?: ExerciseSession[];
 }
 
-function renderDashboard({ progress = [], progressLoading = false, progressError = null, completed = [], historyLoading = false, historyError = null }: RenderOptions = {}) {
+function renderDashboard({
+  progress = [],
+  progressLoading = false,
+  progressError = null,
+  completed = [],
+  historyLoading = false,
+  historyError = null,
+  recommendedSessions = [SESSION],
+}: RenderOptions = {}) {
   const progressValue: ProgressContextValue = { progress: new Map(progress.map((item) => [item.conceptId, item])), updateProgress: vi.fn(), getConceptDomain: vi.fn(), isLoading: progressLoading, error: progressError };
   const historyValue: HistoryContextValue = { recentCompletedSessions: completed, completedSessionsLoading: historyLoading, completedSessionsError: historyError, getCompletedSession: vi.fn(), getAttemptsBySession: vi.fn(), attemptsLoading: false, attemptsError: null };
   const contentValue: ContentContextValue = {
-    technologies: [JAVASCRIPT], getTechnology: vi.fn((id: string) => id === JAVASCRIPT.id ? JAVASCRIPT : undefined), getTopics: vi.fn(async (id: string) => id === JAVASCRIPT.id ? [ARRAYS_TOPIC] : []), getConceptsByTopic: vi.fn(async (id: string) => id === ARRAYS_TOPIC.id ? CONCEPTS : []), getConcept: vi.fn(async (id: string) => CONCEPTS.find((concept) => concept.id === id) ?? null), getSessionsByConcept: vi.fn(async (id: string) => id === 'arrays' ? [SESSION] : []), getSession: vi.fn(async (id: string) => id === SESSION.id ? SESSION : null), isLoading: false,
+    technologies: [JAVASCRIPT], getTechnology: vi.fn((id: string) => id === JAVASCRIPT.id ? JAVASCRIPT : undefined), getTopics: vi.fn(async (id: string) => id === JAVASCRIPT.id ? [ARRAYS_TOPIC] : []), getConceptsByTopic: vi.fn(async (id: string) => id === ARRAYS_TOPIC.id ? CONCEPTS : []), getConcept: vi.fn(async (id: string) => CONCEPTS.find((concept) => concept.id === id) ?? null), getSessionsByConcept: vi.fn(async (id: string) => id === 'arrays' ? recommendedSessions : []), getSession: vi.fn(async (id: string) => id === SESSION.id ? SESSION : null), isLoading: false,
   };
   function Wrapper({ children }: { children: ReactNode }) {
     return <ProgressContext.Provider value={progressValue}><HistoryContext.Provider value={historyValue}><ContentContext.Provider value={contentValue}><MemoryRouter><main>{children}</main></MemoryRouter></ContentContext.Provider></HistoryContext.Provider></ProgressContext.Provider>;
@@ -140,6 +189,311 @@ describe('DashboardPage', () => {
     renderDashboard({ progress: [progressOf('arrays', 10, 5)] });
     expect(await screen.findByRole('link', { name: 'Continuar práctica' })).toHaveAttribute('href', '/practice/arrays-session');
   });
+
+  it(
+    'no muestra Continuar práctica para una sesión staged bloqueada',
+    async () => {
+      // DASHBOARD_CANONICAL_RECOMMENDATION_REGRESSION
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockResolvedValue({
+          conceptId:
+            'arrays',
+
+          levelId:
+            'foundation',
+
+          previousLevelId:
+            null,
+
+          nextLevelId:
+            null,
+
+          locked:
+            true,
+
+          lockReason:
+            'previous-concept-incomplete',
+
+          stages: {
+            theory: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+
+            quiz: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+
+            practice: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+
+            checkpoint: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+          },
+
+          completed:
+            false,
+
+          completedAt:
+            null,
+        });
+
+      const rendered =
+        renderDashboard({
+          progress: [
+            progressOf(
+              'arrays',
+              10,
+              5,
+            ),
+          ],
+
+          recommendedSessions: [
+            STAGED_SESSION,
+          ],
+        });
+
+      try {
+        await waitFor(
+          () => {
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledWith(
+              'arrays',
+              'foundation',
+              'dashboard-test-token',
+            );
+          },
+        );
+
+        expect(
+          screen.getByRole(
+            'link',
+            {
+              name:
+                'Explorar tecnologías',
+            },
+          ),
+        ).toHaveAttribute(
+          'href',
+          '/#technologies',
+        );
+
+        expect(
+          screen.queryByRole(
+            'link',
+            {
+              name:
+                'Continuar práctica',
+            },
+          ),
+        ).not.toBeInTheDocument();
+      } finally {
+        rendered.unmount();
+
+        getLevelState.mockRestore();
+      }
+    },
+  );
+
+  it(
+    'muestra Continuar práctica cuando la sesión staged está canónicamente disponible',
+    async () => {
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockResolvedValue({
+          conceptId:
+            'arrays',
+
+          levelId:
+            'foundation',
+
+          previousLevelId:
+            null,
+
+          nextLevelId:
+            null,
+
+          locked:
+            false,
+
+          lockReason:
+            null,
+
+          stages: {
+            theory: {
+              status:
+                'completed',
+              completedAt:
+                null,
+            },
+
+            quiz: {
+              status:
+                'completed',
+              completedAt:
+                null,
+            },
+
+            practice: {
+              status:
+                'available',
+              completedAt:
+                null,
+            },
+
+            checkpoint: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+          },
+
+          completed:
+            false,
+
+          completedAt:
+            null,
+        });
+
+      const rendered =
+        renderDashboard({
+          progress: [
+            progressOf(
+              'arrays',
+              10,
+              5,
+            ),
+          ],
+
+          recommendedSessions: [
+            STAGED_SESSION,
+          ],
+        });
+
+      try {
+        expect(
+          await screen.findByRole(
+            'link',
+            {
+              name:
+                'Continuar práctica',
+            },
+          ),
+        ).toHaveAttribute(
+          'href',
+          '/practice/arrays-staged-session',
+        );
+
+        expect(
+          getLevelState,
+        ).toHaveBeenCalledWith(
+          'arrays',
+          'foundation',
+          'dashboard-test-token',
+        );
+      } finally {
+        rendered.unmount();
+
+        getLevelState.mockRestore();
+      }
+    },
+  );
+
+  it(
+    'falla cerrado si no puede verificar una sesión staged',
+    async () => {
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockRejectedValue(
+          new Error(
+            'learning unavailable',
+          ),
+        );
+
+      const rendered =
+        renderDashboard({
+          progress: [
+            progressOf(
+              'arrays',
+              10,
+              5,
+            ),
+          ],
+
+          recommendedSessions: [
+            STAGED_SESSION,
+          ],
+        });
+
+      try {
+        await waitFor(
+          () => {
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledWith(
+              'arrays',
+              'foundation',
+              'dashboard-test-token',
+            );
+          },
+        );
+
+        // DASHBOARD_FAIL_CLOSED_STABLE_STATE
+        await waitFor(
+          () => {
+            expect(
+              screen.queryByRole(
+                'link',
+                {
+                  name:
+                    'Continuar práctica',
+                },
+              ),
+            ).not.toBeInTheDocument();
+
+            expect(
+              screen.getByRole(
+                'link',
+                {
+                  name:
+                    'Ver todas las tecnologías',
+                },
+              ),
+            ).toHaveAttribute(
+              'href',
+              '/tech',
+            );
+          },
+        );
+      } finally {
+        rendered.unmount();
+
+        getLevelState.mockRestore();
+      }
+    },
+  );
 
   it('mantiene el error de History acotado a la actividad', async () => {
     renderDashboard({ progress: [progressOf('arrays', 10, 7)], historyError: 'Storage no disponible' });

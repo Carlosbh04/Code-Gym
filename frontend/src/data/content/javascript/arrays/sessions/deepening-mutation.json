@@ -1,0 +1,172 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-arrays",
+  "conceptId": "js-array-iteration",
+  "levelId": "deepening",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-arrays-deepening-mutation-01",
+  "title": "Taller: detectar mutaciones accidentales",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "intermediate",
+  "position": 1,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué línea modifica directamente los objetos originales?",
+      "code": "const usuarios = [\n  { nombre: 'Ana', activo: false },\n  { nombre: 'Luis', activo: true },\n];\n\nconst resultado = usuarios.map((usuario) => {\n  usuario.activo = true;\n  return usuario;\n});",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "const resultado = usuarios.map(...)",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "usuario.activo = true",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "return usuario",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "const usuarios = [...]",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La asignación escribe sobre el mismo objeto recibido por el callback.",
+      "hints": [
+        "Busca una asignación a una propiedad."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime el segundo console.log?",
+      "code": "const producto = {\n  precio: 10,\n};\n\nconst productos = [producto];\nconst copia = productos.map((item) => item);\n\ncopia[0].precio = 20;\n\nconsole.log(copia[0].precio);\nconsole.log(productos[0].precio);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "10",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "20",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "NaN",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "map creó otro array, pero ambos contienen la misma referencia al objeto producto.",
+      "hints": [
+        "¿Se creó un objeto nuevo dentro de map?"
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La intención es obtener solo los usuarios activos sin modificar los datos. Localiza el error.",
+      "code": "function activos(usuarios) {\n  return usuarios.filter(\n    (usuario) => (usuario.activo = true),\n  );\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "asignacion",
+          "text": "Conceptual: se asigna true en vez de comprobar",
+          "correct": true
+        },
+        {
+          "id": "metodo",
+          "text": "Conceptual: debería usarse map",
+          "correct": false
+        },
+        {
+          "id": "return",
+          "text": "Flujo: falta return dentro de activos",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: filter no puede recibir objetos",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La asignación modifica usuario.activo. Basta leer la propiedad: usuario => usuario.activo.",
+      "hints": [
+        "Observa = dentro del callback."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "code-reading",
+      "prompt": "¿Qué alternativa evita modificar usuario?",
+      "code": "const resultado = usuarios.map((usuario) => {\n  // transformar activo sin mutar\n});",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "usuario.activo = true; return usuario;",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "return { ...usuario, activo: true };",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "return usuario.activo;",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "usuarios.activo = true;",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Spread crea otro objeto y permite sobrescribir activo sin tocar el original.",
+      "hints": [
+        "La respuesta debe devolver un objeto nuevo."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "createdAt": "2026-09-18",
+  "updatedAt": null
+}

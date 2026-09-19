@@ -154,30 +154,143 @@ describe('StaticContentRepository (T019)', () => {
       expect(source).toContain('path.startsWith(topicDirectory)');
     });
 
-    it('devuelve las 4 sesiones de Arrays', async () => {
+    it('devuelve las 18 sesiones de Arrays', async () => {
       const sessions = await repo.getSessionsByConcept(ARRAYS_CONCEPT);
 
-      expect(sessions).toHaveLength(4);
+      expect(sessions).toHaveLength(18);
       expect(sessions.map((s) => s.id).sort()).toEqual([
         'js-arrays-coding-transform-01',
+        'js-arrays-deepening-callback-effects-01',
+        'js-arrays-deepening-chaining-01',
+        'js-arrays-deepening-checkpoint-01',
+        'js-arrays-deepening-mutation-01',
+        'js-arrays-deepening-quiz-01',
+        'js-arrays-deepening-references-01',
         'js-arrays-filter-mutation-01',
+        'js-arrays-iteration-checkpoint-01',
+        'js-arrays-iteration-quiz-01',
         'js-arrays-map-vs-foreach-01',
+        'js-arrays-mastery-checkpoint-01',
+        'js-arrays-mastery-frequency-01',
+        'js-arrays-mastery-grouping-01',
+        'js-arrays-mastery-integrated-01',
+        'js-arrays-mastery-object-accumulator-01',
+        'js-arrays-mastery-quiz-01',
         'js-arrays-reduce-accumulator-01',
-      ]);
+]);
       expect(sessions.every((s) => s.conceptId === ARRAYS_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 4 sesiones de Functions', async () => {
-      const sessions = await repo.getSessionsByConcept(FUNCTIONS_CONCEPT);
+    it(
+      'devuelve las 12 sesiones staged de Functions',
+      async () => {
+        const sessions =
+          await repo.getSessionsByConcept(
+            FUNCTIONS_CONCEPT,
+          );
 
-      expect(sessions).toHaveLength(4);
-      expect(sessions.map((s) => s.difficulty).sort()).toEqual([
-        'advanced',
-        'beginner',
-        'beginner',
-        'intermediate',
-      ]);
-    });
+        expect(
+          sessions,
+        ).toHaveLength(
+          12,
+        );
+
+        expect(
+          sessions.every(
+            session =>
+              session.requiredForProgression
+              === true,
+          ),
+        ).toBe(
+          true,
+        );
+
+        const signature =
+          sessions
+            .map(
+              session =>
+                [
+                  session.levelId,
+                  session.kind,
+                  session.id,
+                ].join(':'),
+            )
+            .sort();
+
+        expect(
+          signature,
+        ).toEqual(
+          [
+            'deepening:checkpoint:js-functions-deepening-checkpoint-01',
+            'deepening:practice:js-functions-return-flow-01',
+            'deepening:practice:js-functions-scope-hoisting-01',
+            'deepening:quiz:js-functions-deepening-quiz-01',
+            'foundation:checkpoint:js-functions-foundation-checkpoint-01',
+            'foundation:practice:js-functions-coding-format-name-01',
+            'foundation:practice:js-functions-default-parameters-01',
+            'foundation:quiz:js-functions-foundation-quiz-01',
+            'mastery:checkpoint:js-functions-mastery-checkpoint-01',
+            'mastery:practice:js-functions-mastery-consistent-return-01',
+            'mastery:practice:js-functions-mastery-contracts-01',
+            'mastery:quiz:js-functions-mastery-quiz-01',
+          ].sort(),
+        );
+
+        expect(
+          sessions
+            .filter(
+              session =>
+                session.kind === 'quiz',
+            )
+            .every(
+              session =>
+                session.passingPercentage
+                === 100,
+            ),
+        ).toBe(
+          true,
+        );
+
+        expect(
+          sessions
+            .filter(
+              session =>
+                session.kind !== 'quiz',
+            )
+            .every(
+              session =>
+                session.passingPercentage
+                === null,
+            ),
+        ).toBe(
+          true,
+        );
+
+        expect(
+          sessions
+            .map(
+              session =>
+                session.difficulty,
+            )
+            .sort(),
+        ).toEqual(
+          [
+            'advanced',
+            'advanced',
+            'advanced',
+            'advanced',
+            'advanced',
+            'beginner',
+            'beginner',
+            'beginner',
+            'beginner',
+            'intermediate',
+            'intermediate',
+            'intermediate',
+          ].sort(),
+        );
+      },
+    );
 
     it('devuelve las 4 sesiones de Closures', async () => {
       const sessions = await repo.getSessionsByConcept(CLOSURES_CONCEPT);
@@ -253,7 +366,7 @@ describe('StaticContentRepository (T019)', () => {
     it('solo devuelve loaders del topic físico que contiene el concepto', async () => {
       const arrays = await repo.getSessionsByConcept(ARRAYS_CONCEPT);
 
-      expect(arrays).toHaveLength(4);
+      expect(arrays).toHaveLength(18);
       expect(arrays.every((session) => session.id.startsWith('js-arrays-'))).toBe(true);
       expect(arrays.some((session) => session.id.startsWith('js-functions-'))).toBe(false);
     });
@@ -356,6 +469,7 @@ describe('StaticContentRepository (T019)', () => {
       const topics = await repo.getTopicsByTechnology('javascript');
 
       expect(topics.map((t) => t.id)).toEqual([
+        'js-fundamentals',
         'js-arrays',
         'js-functions',
         'js-closures',
@@ -496,7 +610,7 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 28 sesiones de JavaScript conservan su contrato', async () => {
+    it('las 50 sesiones de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
@@ -507,8 +621,8 @@ describe('StaticContentRepository (T019)', () => {
         ...(await repo.getSessionsByConcept(ERRORS_CONCEPT)),
       ];
 
-      expect(all).toHaveLength(28);
-      expect(new Set(all.map((s) => s.id)).size).toBe(28);
+      expect(all).toHaveLength(50);
+      expect(new Set(all.map((s) => s.id)).size).toBe(50);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length >= 1)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);
@@ -545,7 +659,7 @@ describe('StaticContentRepository (T019)', () => {
       ]);
 
       expect(first).not.toBe(second);
-      expect(first).toHaveLength(4);
+      expect(first).toHaveLength(18);
       first.forEach((session, i) => expect(session).toBe(second[i]));
     });
   });
@@ -623,6 +737,8 @@ describe('StaticContentRepository (T019)', () => {
     const SESSION_IDS = [
       'js-arrays-coding-transform-01',
       'js-arrays-filter-mutation-01',
+      'js-arrays-iteration-checkpoint-01',
+      'js-arrays-iteration-quiz-01',
       'js-arrays-map-vs-foreach-01',
       'js-arrays-reduce-accumulator-01',
       'js-functions-default-parameters-01',

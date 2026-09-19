@@ -1,19 +1,32 @@
 import type { ExerciseSession } from './exercise';
 
 export type LearningSection =
-  | { type: 'intro' | 'explanation' | 'key-point' | 'warning'; title: string; body: string }
-  | { type: 'objectives'; title: string; items: string[] }
-  | { type: 'code'; title: string; code: string; language: string; caption?: string }
+  | { type: 'intro' | 'explanation' | 'key-point' | 'warning'; levelId?: LearningLevelId; title: string; body: string }
+  | { type: 'objectives'; levelId?: LearningLevelId; title: string; items: string[] }
+  | { type: 'code'; levelId?: LearningLevelId; title: string; code: string; language: string; caption?: string }
   | {
       type: 'comparison';
+      levelId?: LearningLevelId;
       title: string;
       left: { title: string; body: string };
       right: { title: string; body: string };
     }
-  | { type: 'quick-check'; question: string; answer: string };
+  | { type: 'quick-check'; levelId?: LearningLevelId; question: string; answer: string };
 
 export interface LearningContent {
   sections: LearningSection[];
+}
+
+export type LearningLevelId =
+  | 'foundation'
+  | 'deepening'
+  | 'mastery';
+
+export interface LearningLevel {
+  readonly id: LearningLevelId;
+  readonly name: string;
+  readonly description: string;
+  readonly position: number;
 }
 
 export interface Technology {
@@ -38,6 +51,8 @@ export interface Concept {
   contentMarkdown: string;
   /** Lección estructurada opcional; `contentMarkdown` mantiene compatibilidad. */
   content?: LearningContent;
+  /** Niveles pedagógicos disponibles dentro del concepto. */
+  levels?: readonly LearningLevel[];
 }
 
 export interface ContentContextValue {

@@ -1,0 +1,56 @@
+{
+  "id": "js-functions-foundation-quiz-01",
+  "title": "Test: fundamentos de funciones",
+  "difficulty": "beginner",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "foundation",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-18",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué llamada activa el valor por defecto de nombre?",
+      "code": "function saludar(nombre = 'invitado') {\n  return `Hola, ${nombre}`;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "saludar(null)",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "saludar('')",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "saludar(undefined)",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "saludar(false)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los parámetros por defecto se activan cuando el argumento es undefined, ya sea porque se omite o porque se pasa undefined explícitamente.",
+      "hints": [
+        "Revisa el contrato del nivel antes de responder."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

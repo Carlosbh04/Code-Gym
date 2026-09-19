@@ -175,5 +175,10 @@
       ],
       "stepOrder": 4
     }
-  ]
+  ],
+  "kind": "practice",
+  "levelId": "deepening",
+  "position": 1,
+  "passingPercentage": null,
+  "requiredForProgression": true
 }

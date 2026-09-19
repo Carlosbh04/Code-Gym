@@ -1,4 +1,12 @@
 import type { Concept, ContentContextValue, Topic } from '@/types/content';
+import type {
+  ConceptLearningState,
+  LearningLevelId,
+  LearningLevelState,
+} from '@/features/learning/learning-types';
+import {
+  canEnterLearningSession,
+} from '@/features/learning/session-learning-kind';
 import type { ExerciseSession } from '@/types/exercise';
 import type { HistoryContextValue } from '@/types/history';
 import type { ProgressContextValue } from '@/types/progress';
@@ -17,7 +25,20 @@ export interface TechnologyViewModel {
   completedConcepts: number;
   totalConcepts: number;
   practicedConcepts: number;
+
+  /*
+   * Todas las sesiones publicadas.
+   * Se conservan para resultados e historial.
+   */
   sessions: TechnologySessionItem[];
+
+  /*
+   * TECHNOLOGY_PRACTICE_CANONICAL_GATE_MODEL
+   *
+   * Solo sesiones que pueden abrir /practice.
+   */
+  practiceSessions: TechnologySessionItem[];
+
   completionErrors: number;
   nextPractice: NextPractice | null;
 }
@@ -35,6 +56,16 @@ interface TopicCatalog {
   sessionsByConcept: ExerciseSession[][];
 }
 
+type ConceptLearningLookup =
+  | {
+      status: 'ready';
+      state: ConceptLearningState;
+    }
+  | {
+      status: 'error';
+      message: string;
+    };
+
 export async function buildTechnologyViewModel({
   technologyId,
   getTopics,
@@ -42,6 +73,8 @@ export async function buildTechnologyViewModel({
   getSessionsByConcept,
   getCompletedSession,
   progress,
+  getConceptLearningState,
+  getSessionLearningState,
 }: {
   technologyId: string;
   getTopics: ContentContextValue['getTopics'];
@@ -49,6 +82,17 @@ export async function buildTechnologyViewModel({
   getSessionsByConcept: ContentContextValue['getSessionsByConcept'];
   getCompletedSession: HistoryContextValue['getCompletedSession'];
   progress: ProgressContextValue['progress'];
+
+  getConceptLearningState?:
+    (
+      conceptId: string,
+    ) => Promise<ConceptLearningState>;
+
+  getSessionLearningState?:
+    (
+      conceptId: string,
+      levelId: LearningLevelId,
+    ) => Promise<LearningLevelState>;
 }): Promise<TechnologyViewModel> {
   const topics = await getTopics(technologyId);
   const catalog = await Promise.all(
@@ -60,6 +104,65 @@ export async function buildTechnologyViewModel({
       return { topic, concepts, sessionsByConcept };
     }),
   );
+  // CANONICAL_CONCEPT_COMPLETION
+  const concepts =
+    catalog.flatMap(
+      item =>
+        item.concepts,
+    );
+
+  const conceptLearningEntries =
+    getConceptLearningState === undefined
+      ? []
+      : await Promise.all(
+          concepts.map(
+            async (
+              concept,
+            ): Promise<
+              readonly [
+                string,
+                ConceptLearningLookup,
+              ]
+            > => {
+              try {
+                const state =
+                  await getConceptLearningState(
+                    concept.id,
+                  );
+
+                return [
+                  concept.id,
+                  {
+                    status:
+                      'ready',
+                    state,
+                  },
+                ];
+              } catch (
+                error:
+                  unknown
+              ) {
+                return [
+                  concept.id,
+                  {
+                    status:
+                      'error',
+                    message:
+                      error instanceof Error
+                        ? error.message
+                        : 'No se pudo comprobar el progreso del concepto.',
+                  },
+                ];
+              }
+            },
+          ),
+        );
+
+  const learningByConcept =
+    new Map(
+      conceptLearningEntries,
+    );
+
   const sessions = catalog.flatMap(({ topic, concepts, sessionsByConcept }) =>
     concepts.flatMap((concept, index) =>
       (sessionsByConcept[index] ?? [])
@@ -67,6 +170,104 @@ export async function buildTechnologyViewModel({
         .map((session) => ({ topic, concept, session })),
     ),
   );
+  // TECHNOLOGY_LEVEL_STATE_REQUEST_DEDUPE
+  const sessionLearningStateRequests =
+    new Map<
+      string,
+      Promise<LearningLevelState>
+    >();
+
+  // TECHNOLOGY_PRACTICE_CANONICAL_GATE_MODEL
+  const practiceAccessEntries =
+    await Promise.all(
+      sessions.map(
+        async (
+          { session },
+        ): Promise<
+          readonly [
+            string,
+            boolean,
+          ]
+        > => {
+          /*
+           * Compatibilidad legacy:
+           * una sesión sin levelId conserva
+           * el comportamiento existente.
+           */
+          if (
+            session.levelId
+            === undefined
+          ) {
+            return [
+              session.id,
+              true,
+            ];
+          }
+
+          /*
+           * Staged falla cerrado si TechnologyPage
+           * no dispone de autoridad canónica.
+           */
+          if (
+            getSessionLearningState
+            === undefined
+          ) {
+            return [
+              session.id,
+              false,
+            ];
+          }
+
+          try {
+            const requestKey =
+              `${session.conceptId}\u0000${session.levelId}`;
+
+            let levelStateRequest =
+              sessionLearningStateRequests.get(
+                requestKey,
+              );
+
+            if (
+              levelStateRequest
+              === undefined
+            ) {
+              levelStateRequest =
+                getSessionLearningState(
+                  session.conceptId,
+                  session.levelId,
+                );
+
+              sessionLearningStateRequests.set(
+                requestKey,
+                levelStateRequest,
+              );
+            }
+
+            const levelState =
+              await levelStateRequest;
+
+            return [
+              session.id,
+              canEnterLearningSession(
+                session,
+                levelState,
+              ),
+            ];
+          } catch {
+            return [
+              session.id,
+              false,
+            ];
+          }
+        },
+      ),
+    );
+
+  const practiceAccessBySession =
+    new Map(
+      practiceAccessEntries,
+    );
+
   const completions = await Promise.all(
     sessions.map(async ({ session }): Promise<readonly [string, CompletionLookup]> => {
       try {
@@ -112,6 +313,8 @@ export async function buildTechnologyViewModel({
         sessionsByConcept,
         progress,
         completedSessionIds,
+        learningByConcept,
+        getConceptLearningState !== undefined,
       ),
     ]),
   );
@@ -131,10 +334,28 @@ export async function buildTechnologyViewModel({
         : [],
     )),
   );
-  const publishedSessions = sessions.map(({ session }) => session);
+  const practiceSessions =
+    sessions.filter(
+      ({ session }) =>
+        practiceAccessBySession.get(
+          session.id,
+        ) === true,
+    );
+
+  const availablePracticeSessions =
+    practiceSessions.map(
+      ({ session }) =>
+        session,
+    );
+
   const nextSession =
-    publishedSessions.find((session) => !completedSessionIds.has(session.id)) ??
-    publishedSessions[0];
+    availablePracticeSessions.find(
+      session =>
+        !completedSessionIds.has(
+          session.id,
+        ),
+    )
+    ?? availablePracticeSessions[0];
 
   return {
     technologyId,
@@ -150,15 +371,46 @@ export async function buildTechnologyViewModel({
         message: 'No se pudo comprobar el historial de esta sesión.',
       },
     })),
-    completionErrors: completions.filter(([, completion]) => completion.status === 'error').length,
+
+    practiceSessions:
+      practiceSessions.map(
+        item => ({
+          ...item,
+          completion:
+            completionBySession.get(
+              item.session.id,
+            )
+            ?? {
+              status:
+                'error',
+              message:
+                'No se pudo comprobar el historial de esta sesión.',
+            },
+        }),
+      ),
+    completionErrors:
+      completions.filter(
+        ([, completion]) =>
+          completion.status
+          === 'error',
+      ).length
+      + conceptLearningEntries.filter(
+        ([, learning]) =>
+          learning.status
+          === 'error',
+      ).length,
     nextPractice:
       nextSession === undefined
         ? null
         : {
             session: nextSession,
-            isRepeat: publishedSessions.every((session) =>
-              completedSessionIds.has(session.id),
-            ),
+            isRepeat:
+              availablePracticeSessions.every(
+                session =>
+                  completedSessionIds.has(
+                    session.id,
+                  ),
+              ),
           },
   };
 }
@@ -168,6 +420,13 @@ function createTopicInsight(
   sessionsByConcept: ExerciseSession[][],
   progress: ProgressContextValue['progress'],
   completedSessionIds: ReadonlySet<string>,
+  learningByConcept:
+    ReadonlyMap<
+      string,
+      ConceptLearningLookup
+    >,
+  useCanonicalCompletion:
+    boolean,
 ): TopicInsight {
   const publishedByConcept = sessionsByConcept.map((sessions) =>
     sessions.filter((session) => session.status === 'published'),
@@ -180,18 +439,80 @@ function createTopicInsight(
   const practicedConcepts = concepts.filter(
     (concept) => (progress.get(concept.id)?.totalAttempts ?? 0) > 0,
   ).length;
-  const completedConcepts = publishedByConcept.filter(
-    (sessions) =>
-      sessions.length > 0 &&
-      sessions.every((session) => completedSessionIds.has(session.id)),
-  ).length;
-  const completedSessions = publishedSessions.filter((session) =>
-    completedSessionIds.has(session.id),
-  ).length;
+  const legacyCompletedConcepts =
+    publishedByConcept.filter(
+      sessions =>
+        sessions.length > 0
+        && sessions.every(
+          session =>
+            completedSessionIds.has(
+              session.id,
+            ),
+        ),
+    ).length;
+
+  const canonicalCompletedConcepts =
+    concepts.filter(
+      concept => {
+        const learning =
+          learningByConcept.get(
+            concept.id,
+          );
+
+        return (
+          learning?.status
+            === 'ready'
+          && learning.state.completed
+        );
+      },
+    ).length;
+
+  const completedConcepts =
+    useCanonicalCompletion
+      ? canonicalCompletedConcepts
+      : legacyCompletedConcepts;
+
+  const completedSessions =
+    publishedSessions.filter(
+      session =>
+        completedSessionIds.has(
+          session.id,
+        ),
+    ).length;
+
+  const canonicalActivity =
+    concepts.some(
+      concept => {
+        const learning =
+          learningByConcept.get(
+            concept.id,
+          );
+
+        if (
+          learning?.status
+          !== 'ready'
+        ) {
+          return false;
+        }
+
+        return Object.values(
+          learning.state.stages,
+        ).some(
+          stage =>
+            stage.status
+            === 'completed',
+        );
+      },
+    );
+
   const status =
-    concepts.length > 0 && completedConcepts === concepts.length
+    concepts.length > 0
+    && completedConcepts
+      === concepts.length
       ? 'completed'
-      : practicedConcepts > 0 || completedSessions > 0
+      : canonicalActivity
+        || practicedConcepts > 0
+        || completedSessions > 0
         ? 'in-progress'
         : 'pending';
 

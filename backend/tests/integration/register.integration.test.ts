@@ -108,6 +108,8 @@ const unusedRequireAuth: RequestHandler = (
   next();
 };
 const app = createApp({
+  loginFailureKeySecret:
+    'test-login-failure-key-secret',
   config,
   logger: pino({
     level: 'silent',

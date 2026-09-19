@@ -60,6 +60,7 @@ function fixture(
         're_test-only-key',
 
         'CodeGym <security@example.com>',
+        'https://app.codegym.example/forgot-password',
 
         client,
       ),
@@ -170,6 +171,7 @@ describe(
             're_private',
 
             'CodeGym <security@example.com>',
+            'https://app.codegym.example/forgot-password',
 
             client,
           );

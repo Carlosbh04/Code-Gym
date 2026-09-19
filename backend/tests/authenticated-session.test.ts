@@ -55,6 +55,11 @@ const user = {
 
 const session:
   AuthSessionRecord = {
+  remembered:
+    false,
+
+  lastActivityAt:
+    now,
     id:
       'session-1',
     userId:
@@ -124,6 +129,9 @@ function createRepository(
         .mockResolvedValue(
           null,
         ),
+    touchSessionActivity:
+      async () => true,
+
     revokeSessionByRefreshTokenDigest:
       vi
         .fn<

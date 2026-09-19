@@ -3,6 +3,7 @@
   "name": "Captura, estado y binding vivo",
   "topicId": "js-closures",
   "technologyId": "javascript",
+  "position": 0,
   "content": { "sections": [
     { "type": "intro", "title": "Introducción", "body": "Un closure conserva acceso al entorno léxico donde se creó una función." },
     { "type": "objectives", "title": "Qué vas a aprender", "items": ["Reconocer variables capturadas", "Distinguir valor y binding"] },

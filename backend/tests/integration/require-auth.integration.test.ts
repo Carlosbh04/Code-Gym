@@ -85,6 +85,8 @@ const requireAuth =
   createRequireAuth({
     accessTokenService,
     authSessionRepository,
+    idleSessionTimeoutSeconds:
+      config.auth.idleSessionTimeoutSeconds,
   });
 const app =
   express();
@@ -104,6 +106,8 @@ app.use(
     sessionManagementService,
     requireAuth,
     config,
+    loginFailureKeySecret:
+      config.rateLimitKeySecret,
   }),
 );
 app.get(
@@ -286,6 +290,7 @@ describe(
           .send({
             email,
             password,
+            remember: false,
           });
       expect(
         loginResponse.status,

@@ -23,6 +23,7 @@ import type {
 } from '../src/training/training-repository.js';
 import {
   TrainingCodeExecutionUnavailableError,
+  TrainingProgressionUnavailableError,
   TrainingExerciseOutOfOrderError,
   TrainingHintsExhaustedError,
   TrainingRunClosedPublicError,
@@ -168,6 +169,105 @@ describe('TrainingService (T229.4C)', () => {
         createRepository({ createRun }),
         createVerifier(),
         () => startedAt,
+        undefined,
+        {
+          getLevelState:
+            vi.fn()
+              .mockResolvedValue({
+                conceptId:
+                  activeRun.conceptId,
+
+                previousConceptId:
+                  null,
+
+                locked:
+                  false,
+
+                lockReason:
+                  null,
+
+                stages: {
+                  theory: {
+                    status:
+                      'completed',
+
+                    completedAt:
+                      startedAt.toISOString(),
+                  },
+
+                  quiz: {
+                    status:
+                      'completed',
+
+                    completedAt:
+                      startedAt.toISOString(),
+                  },
+
+                  practice: {
+                    status:
+                      'available',
+
+                    completedAt:
+                      null,
+                  },
+
+                  checkpoint: {
+                    status:
+                      'locked',
+
+                    completedAt:
+                      null,
+                  },
+                },
+
+                completed:
+                  false,
+
+                completedAt:
+                  null,
+              }),
+
+          reconcileTrainingCompletionForLevel:
+            vi.fn(),
+
+          canStartRequiredPracticeForLevel:
+            vi.fn()
+              .mockResolvedValue(
+                true,
+              ),
+        },
+        {
+          getCanonicalTrainingSessionMetadata:
+            vi.fn()
+              .mockResolvedValue({
+                id:
+                  activeRun.sessionId,
+
+                conceptId:
+                  activeRun.conceptId,
+
+                technologyId:
+                  activeRun.technologyId,
+
+                kind:
+                  'PRACTICE',
+
+                passingPercentage:
+                  null,
+
+                requiredForProgression:
+                  true,
+
+                position:
+                  0,
+
+                progressionEnabled:
+                  false,
+
+                status:
+                  'PUBLISHED',
+              }),
+        },
       );
 
     await service.startRun({
@@ -329,6 +429,26 @@ describe('TrainingService (T229.4C)', () => {
         {
           execute,
         },
+        {
+          getLevelState: vi.fn(),
+          reconcileTrainingCompletionForLevel: vi.fn(),
+          canStartRequiredPracticeForLevel: vi.fn(),
+        },
+        {
+          getCanonicalTrainingSessionMetadata:
+            vi.fn()
+              .mockResolvedValue({
+                id: fixRun.sessionId,
+                conceptId: fixRun.conceptId,
+                technologyId: fixRun.technologyId,
+                kind: 'PRACTICE',
+                passingPercentage: null,
+                requiredForProgression: true,
+                position: 0,
+                progressionEnabled: false,
+                status: 'PUBLISHED',
+              }),
+        },
       );
 
     const result =
@@ -440,6 +560,63 @@ describe('TrainingService (T229.4C)', () => {
   );
 
   it(
+    'fails closed before persisting a final answer when progression dependencies are unavailable',
+    async () => {
+      const runBeforeFinal: TrainingRunRecord = {
+        ...activeRun,
+        answeredExercises: 1,
+        correctExercises: 1,
+        durationMs: 1200,
+      };
+
+      const record =
+        vi.fn<
+          TrainingRepository[
+            'recordScoredAnswerAndMaybeComplete'
+          ]
+        >();
+
+      const service =
+        new TrainingService(
+          createRepository({
+            findOwnedRun:
+              vi.fn<
+                TrainingRepository[
+                  'findOwnedRun'
+                ]
+              >()
+                .mockResolvedValue(
+                  runBeforeFinal,
+                ),
+
+            recordScoredAnswerAndMaybeComplete:
+              record,
+          }),
+          createVerifier(),
+          () => attemptedAt,
+        );
+
+      await expect(
+        service.submitAnswer({
+          userId: 'user-1',
+          runId: 'run-1',
+          exerciseId: 'step-2',
+          answer: {
+            line: 3,
+            errorType: 'ReferenceError',
+          },
+          durationMs: 500,
+        }),
+      ).rejects.toBeInstanceOf(
+        TrainingProgressionUnavailableError,
+      );
+
+      expect(record)
+        .not.toHaveBeenCalled();
+    },
+  );
+
+  it(
     'accepts the second exercise only after one canonical answer exists',
     async () => {
       const runAfterFirst:
@@ -505,6 +682,27 @@ describe('TrainingService (T229.4C)', () => {
           }),
           createVerifier(),
           () => attemptedAt,
+          undefined,
+          {
+            getLevelState: vi.fn(),
+            reconcileTrainingCompletionForLevel: vi.fn(),
+            canStartRequiredPracticeForLevel: vi.fn(),
+          },
+          {
+            getCanonicalTrainingSessionMetadata:
+              vi.fn()
+                .mockResolvedValue({
+                  id: runAfterFirst.sessionId,
+                  conceptId: runAfterFirst.conceptId,
+                  technologyId: runAfterFirst.technologyId,
+                  kind: 'PRACTICE',
+                  passingPercentage: null,
+                  requiredForProgression: true,
+                  position: 0,
+                  progressionEnabled: false,
+                  status: 'PUBLISHED',
+                }),
+          },
         );
 
       const result =

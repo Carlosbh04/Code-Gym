@@ -1,6 +1,7 @@
 export const AUTHENTICATION_SCENARIOS = [
   'default',
   'main-flow',
+  'topic-recovery',
   'dashboard',
   'review',
   'technology-results',

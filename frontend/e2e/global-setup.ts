@@ -9,6 +9,7 @@ import {
   type E2EAuthenticationState,
 } from './helpers/authentication';
 import {
+  ensureFoundationPrerequisites,
   seedCompletedSession,
   seedReviewProgress,
 } from './helpers/progress';
@@ -88,6 +89,16 @@ export default async function globalSetup(
             scenario,
           )
         ] = accessToken;
+
+        if (
+          scenario === 'main-flow'
+          || scenario === 'topic-recovery'
+        ) {
+          await ensureFoundationPrerequisites(
+            api,
+            accessToken,
+          );
+        }
 
         if (scenario === 'dashboard') {
           await seedCompletedSession(

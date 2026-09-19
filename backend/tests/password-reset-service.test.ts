@@ -101,6 +101,7 @@ class MemoryRepository implements PasswordResetRepository {
     ) return Promise.resolve(null);
     return Promise.resolve({
       userId: this.challenge.userId,
+      email: user.email,
       expiresAt: this.challenge.resetTokenExpiresAt,
       usedAt: this.challenge.usedAt,
       verifiedAt: this.challenge.verifiedAt,
@@ -224,7 +225,9 @@ describe('password reset service', () => {
     await expect(context.service.verifyCode(user.email, context.delivered[0]?.code ?? ''))
       .rejects.toBeInstanceOf(UnavailablePasswordResetCodeError);
     await expect(context.service.confirmReset(token, 'a secure replacement password'))
-      .resolves.toBeUndefined();
+      .resolves.toEqual({
+        email: user.email,
+      });
     expect(context.repository.passwordHash).toBe('hashed:a secure replacement password');
     expect(context.repository.revokedAllSessions).toBe(true);
     await expect(context.service.confirmReset(token, 'another secure replacement'))

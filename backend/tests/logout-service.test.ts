@@ -79,6 +79,16 @@ function createAuthSessionRepository(
           null,
         ),
 
+    touchSessionActivity:
+      vi.fn<
+        AuthSessionRepository[
+          'touchSessionActivity'
+        ]
+      >()
+        .mockResolvedValue(
+          true,
+        ),
+
     revokeSessionByRefreshTokenDigest,
 
     revokeSessionById:

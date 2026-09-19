@@ -61,12 +61,20 @@ const app = createApp({
     accessTokenService,
     config.auth,
   ),
+  loginFailureKeySecret:
+    config.rateLimitKeySecret,
   refreshService: new RefreshService(authSessionRepository, accessTokenService, config.auth),
   logoutService: new LogoutService(authSessionRepository),
   currentUserService: new CurrentUserService(userRepository),
   sessionManagementService: new SessionManagementService(authSessionRepository),
   passwordResetService,
-  requireAuth: createRequireAuth({ accessTokenService, authSessionRepository }),
+  requireAuth:
+    createRequireAuth({
+      accessTokenService,
+      authSessionRepository,
+      idleSessionTimeoutSeconds:
+        config.auth.idleSessionTimeoutSeconds,
+    }),
 });
 
 const runId = randomUUID().replaceAll('-', '');
@@ -123,14 +131,17 @@ describe('password reset MySQL integration (explicit opt-in)', () => {
     const firstLogin = await request(app).post('/auth/login').send({
       email: ownerEmail,
       password: oldPassword,
+      remember: false,
     }).expect(200);
     const secondLogin = await request(app).post('/auth/login').send({
       email: ownerEmail,
       password: oldPassword,
+      remember: false,
     }).expect(200);
     const otherLogin = await request(app).post('/auth/login').send({
       email: otherEmail,
       password: oldPassword,
+      remember: false,
     }).expect(200);
 
     const unknownResponse = await request(app)
@@ -172,10 +183,12 @@ describe('password reset MySQL integration (explicit opt-in)', () => {
     await request(app).post('/auth/login').send({
       email: ownerEmail,
       password: oldPassword,
+      remember: false,
     }).expect(401);
     await request(app).post('/auth/login').send({
       email: ownerEmail,
       password: newPassword,
+      remember: false,
     }).expect(200);
 
     await request(app)
@@ -221,6 +234,7 @@ describe('password reset MySQL integration (explicit opt-in)', () => {
     await request(app).post('/auth/login').send({
       email: ownerEmail,
       password: finalPassword,
+      remember: false,
     }).expect(200);
   }, 30_000);
 

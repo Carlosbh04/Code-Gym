@@ -10,16 +10,22 @@ import {
 } from '../src/auth/account-lock-email-template.js';
 
 
+const recoveryUrl =
+  'https://app.codegym.example/forgot-password';
+
+
 describe(
   'account lock email template',
   () => {
     it(
-      'renders a security-only notification without sensitive authentication data',
+      'renders the final branded account-lock security design',
       () => {
         const content =
           renderAccountLockEmail({
             displayName:
               'Carlos',
+
+            recoveryUrl,
           });
 
         expect(
@@ -35,9 +41,63 @@ describe(
         );
 
         expect(
+          content.html,
+        ).toContain(
+          'Tu cuenta ha sido bloqueada',
+        );
+
+        expect(
+          content.html,
+        ).toContain(
+          'por seguridad',
+        );
+
+        expect(
+          content.html,
+        ).toContain(
+          'Alerta de seguridad',
+        );
+
+        expect(
+          content.html,
+        ).toContain(
+          'Si fuiste tú',
+        );
+
+        expect(
+          content.html,
+        ).toContain(
+          'Si no reconoces esta actividad',
+        );
+
+        expect(
+          content.html,
+        ).toContain(
+          'Recuperar acceso',
+        );
+
+        expect(
+          content.html,
+        ).toContain(
+          'Cambiar contraseña',
+        );
+
+        expect(
+          content.html,
+        ).toContain(
+          recoveryUrl,
+        );
+
+        expect(
+          content.html,
+        ).toContain(
+          'Practica. Construye. Avanza.',
+        );
+
+        expect(
           content.text,
         ).toContain(
-          'recuperación de contraseña',
+          recoveryUrl,
         );
 
         expect(
@@ -56,6 +116,8 @@ describe(
           renderAccountLockEmail({
             displayName:
               '<script>alert("x")</script>',
+
+            recoveryUrl,
           });
 
         expect(
@@ -68,6 +130,45 @@ describe(
           content.html,
         ).toContain(
           '&lt;script&gt;',
+        );
+      },
+    );
+
+
+    it(
+      'rejects non-http recovery URLs',
+      () => {
+        expect(
+          () =>
+            renderAccountLockEmail({
+              displayName:
+                'Carlos',
+
+              recoveryUrl:
+                'javascript:alert(1)',
+            }),
+        ).toThrow(
+          'Account recovery URL must be an absolute HTTP(S) URL',
+        );
+      },
+    );
+
+
+    it(
+      'renders a generic greeting when no display name exists',
+      () => {
+        const content =
+          renderAccountLockEmail({
+            displayName:
+              null,
+
+            recoveryUrl,
+          });
+
+        expect(
+          content.html,
+        ).toContain(
+          'Hola:',
         );
       },
     );

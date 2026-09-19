@@ -38,6 +38,7 @@ extends PasswordResetChallengeMutationInput {
 
 export interface ResetAuthorizationRecord {
   readonly userId: string;
+  readonly email: string;
   readonly expiresAt: Date;
   readonly usedAt: Date | null;
   readonly verifiedAt: Date | null;
@@ -219,6 +220,11 @@ implements PasswordResetRepository {
         resetTokenExpiresAt: true,
         usedAt: true,
         verifiedAt: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
       },
     });
 
@@ -228,6 +234,7 @@ implements PasswordResetRepository {
 
     return {
       userId: record.userId,
+      email: record.user.email,
       expiresAt: record.resetTokenExpiresAt,
       usedAt: record.usedAt,
       verifiedAt: record.verifiedAt,

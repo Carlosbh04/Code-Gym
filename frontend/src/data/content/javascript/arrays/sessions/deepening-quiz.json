@@ -1,0 +1,213 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-arrays",
+  "conceptId": "js-array-iteration",
+  "levelId": "deepening",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-arrays-deepening-quiz-01",
+  "title": "Test: referencias, mutación y composición",
+  "status": "published",
+  "kind": "quiz",
+  "difficulty": "intermediate",
+  "position": 0,
+  "passingPercentage": 100,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime este código?",
+      "code": "const usuarios = [\n  { nombre: 'Ana', activo: false },\n];\n\nconst copia = usuarios.filter(() => true);\ncopia[0].activo = true;\n\nconsole.log(usuarios[0].activo);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "true",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza TypeError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "filter crea un array nuevo, pero el objeto sigue siendo la misma referencia. Al cambiar activo también cambia lo observado desde usuarios.",
+      "hints": [
+        "El array es nuevo.",
+        "Pregunta si el objeto también fue clonado."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Qué expresión transforma el nombre sin modificar el objeto original?",
+      "code": "const usuario = {\n  nombre: 'ana',\n  activo: true,\n};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "usuario.nombre = usuario.nombre.toUpperCase()",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "({ ...usuario, nombre: usuario.nombre.toUpperCase() })",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "usuario.nombre.toUpperCase()",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Object.keys(usuario)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Spread crea un nuevo objeto copiando las propiedades. Después se sobrescribe únicamente nombre.",
+      "hints": [
+        "No debes escribir sobre usuario.nombre.",
+        "Necesitas devolver otro objeto."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué problema tiene este filter?",
+      "code": "const activos = usuarios.filter(\n  (usuario) => (usuario.activo = true),\n);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "No tiene ningún problema",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Asigna true en vez de comprobar la propiedad",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "filter no admite callbacks",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "filter solo sirve con números",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "usuario.activo = true es una asignación. Modifica el objeto y además produce true, por lo que todos pasan.",
+      "hints": [
+        "Observa el operador usado.",
+        "= no significa comparar."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime este código?",
+      "code": "const numeros = [1, 2, 3, 4];\n\nconst resultado = numeros\n  .filter((numero) => numero % 2 === 0)\n  .map((numero) => numero * 10);\n\nconsole.log(resultado);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "[10, 20, 30, 40]",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "[2, 4]",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "[20, 40]",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "60",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "filter produce [2, 4]. Después map transforma esos dos valores en [20, 40].",
+      "hints": [
+        "Resuelve primero filter.",
+        "Después aplica map sobre su resultado."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué valor obtiene total?",
+      "code": "const numeros = [1, 2, 3, 4];\n\nconst total = numeros\n  .filter((numero) => numero > 1)\n  .map((numero) => numero * 2)\n  .reduce((acc, numero) => acc + numero, 0);\n\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "9",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "12",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "18",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "20",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "filter produce [2, 3, 4], map produce [4, 6, 8] y reduce suma 18.",
+      "hints": [
+        "Calcula el resultado de cada método por separado."
+      ],
+      "stepOrder": 5
+    }
+  ],
+  "createdAt": "2026-09-18",
+  "updatedAt": null
+}

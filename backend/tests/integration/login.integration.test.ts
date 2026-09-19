@@ -78,6 +78,8 @@ const requireAuth =
   createRequireAuth({
     accessTokenService,
     authSessionRepository,
+    idleSessionTimeoutSeconds:
+      config.auth.idleSessionTimeoutSeconds,
   });
 const app = createApp({
   config,
@@ -88,6 +90,8 @@ const app = createApp({
     database.healthCheck(),
   registrationService,
   loginService,
+  loginFailureKeySecret:
+    config.rateLimitKeySecret,
   refreshService,
   logoutService,
   currentUserService,
@@ -272,6 +276,7 @@ describe(
             email:
               `  ${email.toUpperCase()}  `,
             password,
+            remember: false,
           });
       expect(
         loginResponse.status,
@@ -437,6 +442,7 @@ describe(
             email,
             password:
               'this password is incorrect',
+            remember: false,
           });
       expect(
         loginResponse.status,
@@ -479,6 +485,7 @@ describe(
             email,
             password:
               'correct horse battery staple',
+            remember: false,
           });
       expect(
         loginResponse.status,

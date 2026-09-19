@@ -111,10 +111,10 @@ export function TopicSessionList({ concepts, results }: TopicSessionListProps) {
             id="practice-heading"
             className="mt-1 break-normal whitespace-normal text-xl font-bold tracking-tight text-foreground"
           >
-            Sesiones disponibles
+            Prácticas del nivel
           </h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Aplica lo que acabas de repasar en ejercicios guiados.
+            Entrena lo aprendido con las prácticas disponibles de este nivel.
           </p>
         </div>
       </div>
@@ -142,6 +142,18 @@ export function TopicSessionList({ concepts, results }: TopicSessionListProps) {
         </p>
       ) : null}
 
+      {/* PRACTICE_WORKSPACE_PROGRESS_TOP */}
+      {sessions.length > 0 ? (
+        sessionStatesLoading ? (
+          <PracticeProgressLoading />
+        ) : (
+          <PracticeProgress
+            sessions={sessions}
+            states={sessionStates}
+          />
+        )
+      ) : null}
+
       <div className="mt-5 space-y-4">
         {DIFFICULTY_GROUPS.map((presentation) => {
           const groupedSessions = sessionsWithConcept.filter(
@@ -159,13 +171,6 @@ export function TopicSessionList({ concepts, results }: TopicSessionListProps) {
         })}
       </div>
 
-      {sessions.length > 0 ? (
-        sessionStatesLoading ? (
-          <PracticeProgressLoading />
-        ) : (
-          <PracticeProgress sessions={sessions} states={sessionStates} />
-        )
-      ) : null}
     </section>
   );
 }
@@ -500,10 +505,10 @@ function PracticeProgress({
         </span>
         <div className="min-w-0 flex-1">
           <h3 className="break-normal whitespace-normal font-semibold text-foreground">
-            Completa todas las sesiones
+            Progreso de práctica
           </h3>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Pon en práctica lo aprendido y domina este tema.
+            Sigue tu avance en las prácticas disponibles de este nivel.
           </p>
           <div className="mt-3 flex items-center gap-3">
             <div

@@ -418,6 +418,7 @@ describe('AuthPanel', () => {
         429,
         'RATE_LIMITED',
         'Too many requests',
+        15 * 60,
       ),
     );
 
@@ -627,11 +628,19 @@ describe('AuthPanel', () => {
     });
 
     try {
+      vi.setSystemTime(
+        new Date(
+          '2026-09-17T12:02:00.000Z',
+        ),
+      );
+
       loginMock.mockRejectedValue(
         new ApiError(
           429,
           'ACCOUNT_COOLDOWN',
           'Account login is temporarily unavailable',
+          null,
+          '2026-09-17T12:15:00.000Z',
         ),
       );
 
@@ -672,7 +681,7 @@ describe('AuthPanel', () => {
           'alert',
         ),
       ).toHaveTextContent(
-        'Tiempo restante:',
+        'Tiempo restante: 13:00',
       );
 
       expect(
@@ -693,6 +702,137 @@ describe('AuthPanel', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+
+  it('permite volver al inicio de sesión y usar otra cuenta después del aviso de bloqueo', async () => {
+    loginMock
+      .mockRejectedValueOnce(
+        new ApiError(
+          423,
+          'ACCOUNT_LOCKED',
+          'Account access is locked',
+        ),
+      )
+      .mockResolvedValueOnce(
+        undefined,
+      );
+
+    render(<AuthPanel />);
+
+    fireEvent.change(
+      screen.getByLabelText('Email'),
+      {
+        target: {
+          value:
+            'bloqueada@example.com',
+        },
+      },
+    );
+
+    fireEvent.change(
+      screen.getByLabelText('Contraseña'),
+      {
+        target: {
+          value:
+            'incorrecta-123',
+        },
+      },
+    );
+
+    fireEvent.click(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            /Iniciar sesión/,
+        },
+      ),
+    );
+
+    expect(
+      await screen.findByRole(
+        'dialog',
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            'Volver al inicio de sesión',
+        },
+      ),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole(
+          'dialog',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    const submit =
+      screen.getByRole(
+        'button',
+        {
+          name:
+            /Iniciar sesión/,
+        },
+      );
+
+    expect(
+      submit,
+    ).toBeEnabled();
+
+    expect(
+      screen.queryByText(
+        /Tu cuenta está bloqueada por seguridad\. Recupera el acceso para continuar\./i,
+      ),
+    ).not.toBeInTheDocument();
+
+    fireEvent.change(
+      screen.getByLabelText('Email'),
+      {
+        target: {
+          value:
+            'otra@example.com',
+        },
+      },
+    );
+
+    fireEvent.change(
+      screen.getByLabelText('Contraseña'),
+      {
+        target: {
+          value:
+            'Segura123!CodeGym',
+        },
+      },
+    );
+
+    fireEvent.click(
+      submit,
+    );
+
+    await waitFor(() => {
+      expect(
+        loginMock,
+      ).toHaveBeenCalledTimes(
+        2,
+      );
+    });
+
+    expect(
+      loginMock,
+    ).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        email:
+          'otra@example.com',
+      }),
+    );
   });
 
 

@@ -16,8 +16,8 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'NODE_ENV=test PORT=3100 DB_NAME=codegym_test FRONTEND_ORIGINS=http://127.0.0.1:4173 node --import tsx src/server.ts',
-      cwd: '../codeGYM-Back',
+      command: 'NODE_ENV=test PORT=3100 DB_NAME=codegym_test FRONTEND_ORIGINS=http://127.0.0.1:4173 sh -c "node --import tsx scripts/e2e/ensure-static-catalog.ts && node --import tsx src/server.ts"',
+      cwd: '../backend',
       url: 'http://127.0.0.1:3100/health/db',
       reuseExistingServer: false,
     },

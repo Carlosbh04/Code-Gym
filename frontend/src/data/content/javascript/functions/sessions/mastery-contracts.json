@@ -1,0 +1,58 @@
+{
+  "id": "js-functions-mastery-contracts-01",
+  "title": "Diseñar un contrato previsible",
+  "difficulty": "advanced",
+  "position": 1,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-18",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "fix-code",
+      "prompt": "Corrige configurar para que conserve 0 y false como valores válidos y utilice los defaults solo cuando falten argumentos.",
+      "code": "function configurar(reintentos, silencioso) {\n  reintentos = reintentos || 3;\n  silencioso = silencioso || true;\n  return { reintentos, silencioso };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            0,
+            false
+          ],
+          "expected": {
+            "reintentos": 0,
+            "silencioso": false
+          },
+          "call": "configurar(...input)",
+          "description": "conserva valores falsy válidos"
+        },
+        {
+          "input": [],
+          "expected": {
+            "reintentos": 3,
+            "silencioso": true
+          },
+          "call": "configurar(...input)",
+          "description": "aplica defaults cuando faltan argumentos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Los parámetros por defecto representan correctamente la ausencia basada en undefined sin destruir 0 o false.",
+      "hints": [
+        "Haz explícito el contrato de entrada y salida.",
+        "No sustituyas valores válidos por accidente."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

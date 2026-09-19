@@ -36,6 +36,8 @@ const passwordChangeService = new PasswordChangeService(
   new PrismaPasswordChangeRepository(prisma),
 );
 const app = createApp({
+  loginFailureKeySecret:
+    'test-login-failure-key-secret',
   config,
   logger: pino({ level: 'silent' }),
   databaseHealthCheck: () => database.healthCheck(),
@@ -55,7 +57,9 @@ const app = createApp({
   currentUserService: new CurrentUserService(userRepository),
   passwordChangeService,
   sessionManagementService: new SessionManagementService(authSessionRepository),
-  requireAuth: createRequireAuth({ accessTokenService, authSessionRepository }),
+  requireAuth: createRequireAuth({
+    idleSessionTimeoutSeconds:
+      3600, accessTokenService, authSessionRepository }),
 });
 
 const runId = randomUUID().replaceAll('-', '');

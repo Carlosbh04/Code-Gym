@@ -65,6 +65,8 @@ function testApp(
   requireAuth: RequestHandler = authenticatedRequireAuth,
 ) {
   return createApp({
+    loginFailureKeySecret:
+      'test-login-failure-key-secret',
     config: testConfig(),
     logger: pino({ level: 'silent' }),
     databaseHealthCheck: () => Promise.resolve(true),

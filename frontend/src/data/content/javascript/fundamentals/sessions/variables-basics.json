@@ -1,0 +1,101 @@
+{
+  "id": "js-variables-basics-01",
+  "title": "Variables: let y const",
+  "difficulty": "beginner",
+  "conceptId": "js-variables-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-15",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué valor tiene nombre después de ejecutar este código?",
+      "code": "const nombre = \"Carlos\";",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "option-a",
+          "text": "Carlos",
+          "correct": true
+        },
+        {
+          "id": "option-b",
+          "text": "nombre",
+          "correct": false
+        },
+        {
+          "id": "option-c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La variable nombre guarda la cadena \"Carlos\".",
+      "hints": [
+        "Observa el valor que aparece a la derecha del signo igual."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué valor termina teniendo contador?",
+      "code": "let contador = 1;\ncontador = 2;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "option-a",
+          "text": "1",
+          "correct": false
+        },
+        {
+          "id": "option-b",
+          "text": "2",
+          "correct": true
+        },
+        {
+          "id": "option-c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "let permite reasignar la variable, por eso contador termina valiendo 2.",
+      "hints": [
+        "Mira la última asignación realizada a contador."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Selecciona la línea donde ocurre el error y clasifícalo.",
+      "code": "const edad = 25;\nedad = 26;",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        2
+      ],
+      "errorType": "assignment-to-constant",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Una variable declarada con const no puede recibir una nueva asignación.",
+      "hints": [
+        "Comprueba cómo fue declarada edad antes de intentar cambiarla."
+      ],
+      "stepOrder": 3
+    }
+  ],
+  "position": 0,
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

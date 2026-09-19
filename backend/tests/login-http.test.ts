@@ -11,6 +11,9 @@ import {
   type AppDependencies,
 } from '../src/app.js';
 
+import {
+  AccountLockedError,
+} from '../src/auth/account-security-errors.js';
 import type { CurrentUserService } from '../src/auth/current-user-service.js';
 
 import {
@@ -189,6 +192,8 @@ function loginService(
 
 function testApp(
   service: LoginService,
+  accountSecurityRepository?:
+    AppDependencies['accountSecurityRepository'],
 ) {
   const config =
     testConfig();
@@ -211,6 +216,9 @@ function testApp(
     loginService:
 
       service,
+
+
+    accountSecurityRepository,
 
     refreshService:
 
@@ -1068,6 +1076,96 @@ describe('POST /auth/login', () => {
 
 });
 
+
+describe(
+  'POST /auth/login persistent account lock priority',
+  () => {
+    it(
+      'returns ACCOUNT_LOCKED when the Redis failure limiter is already exhausted',
+      async () => {
+        const login =
+          vi
+            .fn<LoginService['login']>()
+            .mockRejectedValue(
+              new AccountLockedError(),
+            );
+
+        const isAccountLockedByEmail =
+          vi.fn(
+            async (
+              email: string,
+            ) =>
+              email
+              === 'locked@example.test',
+          );
+
+        const app =
+          testApp(
+            loginService(
+              login,
+            ),
+            {
+              isAccountLockedByEmail,
+              getActiveLoginCooldownUntilByEmail:
+                vi.fn(
+                  async () =>
+                    null,
+                ),
+            },
+          );
+
+        for (
+          let attempt = 1;
+          attempt <= 4;
+          attempt += 1
+        ) {
+          const response =
+            await request(app)
+              .post('/auth/login')
+              .send({
+                email:
+                  'locked@example.test',
+                password:
+                  'wrong-password-value',
+              });
+
+          expect(
+            response.status,
+          ).toBe(423);
+
+          expect(
+            response.body,
+          ).toEqual({
+            error: {
+              code:
+                'ACCOUNT_LOCKED',
+              message:
+                'Account access is locked',
+            },
+          });
+        }
+
+        /*
+         * Attempts 1-3 reach LoginService normally.
+         * Attempt 4 is over the Redis failure threshold.
+         * The limiter must consult persistent state and
+         * allow the canonical ACCOUNT_LOCKED response through.
+         */
+        expect(
+          login,
+        ).toHaveBeenCalledTimes(
+          4,
+        );
+
+        expect(
+          isAccountLockedByEmail,
+        ).toHaveBeenCalledWith(
+          'locked@example.test',
+        );
+      },
+    );
+  },
+);
 
 describe('POST /auth/login login-failure throttling', () => {
   it(

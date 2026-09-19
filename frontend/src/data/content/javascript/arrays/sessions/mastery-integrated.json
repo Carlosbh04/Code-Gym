@@ -1,0 +1,172 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-arrays",
+  "conceptId": "js-array-iteration",
+  "levelId": "mastery",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-arrays-mastery-integrated-01",
+  "title": "Taller: transformación integrada de datos",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "advanced",
+  "position": 4,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué orden expresa seleccionar, transformar y finalmente acumular?",
+      "code": "const datos = [/* ... */];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "datos.filter(...).map(...).reduce(...)",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "datos.reduce(...).filter(...).map(...)",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "datos.forEach(...).filter(...).map(...)",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "datos.map(...).forEach(...).reduce(...)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "filter selecciona, map transforma y reduce construye el resumen final.",
+      "hints": [
+        "Piensa en la responsabilidad de cada etapa."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime resultado.frontend?",
+      "code": "const cursos = [\n  { area: 'frontend', precio: 10, activo: true },\n  { area: 'backend', precio: 20, activo: false },\n  { area: 'frontend', precio: 30, activo: true },\n];\n\nconst resultado = cursos\n  .filter((curso) => curso.activo)\n  .map((curso) => ({\n    ...curso,\n    precio: curso.precio * 2,\n  }))\n  .reduce((acc, curso) => {\n    const key = curso.area;\n    acc[key] = (acc[key] || 0) + curso.precio;\n    return acc;\n  }, {});\n\nconsole.log(resultado.frontend);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "40",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "60",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "80",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "120",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los cursos frontend activos cuestan 10 y 30. map los transforma en 20 y 60; reduce suma 80.",
+      "hints": [
+        "Resuelve filter, luego map y luego reduce."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "Después de filter, ¿qué datos recibe map en este flujo?",
+      "code": "const activos = cursos\n  .filter((curso) => curso.activo)\n  .map((curso) => curso.precio);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Todos los cursos originales",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Solo los cursos que superaron filter",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "El objeto acumulador de reduce",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Únicamente el último curso",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada método trabaja sobre el resultado producido por la etapa inmediatamente anterior.",
+      "hints": [
+        "La cadena se evalúa de izquierda a derecha."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "El flujo debe acumular por área. Localiza el error.",
+      "code": "function resumir(cursos) {\n  return cursos\n    .filter((curso) => curso.activo)\n    .reduce((acc, curso) => {\n      const key = curso.area;\n      acc[key] = (acc[key] || 0) + curso.precio;\n    }, {});\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "return",
+          "text": "Flujo: falta return acc dentro de reduce",
+          "correct": true
+        },
+        {
+          "id": "filter",
+          "text": "Conceptual: filter no puede preceder a reduce",
+          "correct": false
+        },
+        {
+          "id": "key",
+          "text": "Conceptual: no se puede usar una clave dinámica",
+          "correct": false
+        },
+        {
+          "id": "inicial",
+          "text": "Conceptual: {} debería ser 0",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        6
+      ],
+      "errorType": "flow",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El acumulador actualizado debe devolverse para que pase a la siguiente iteración.",
+      "hints": [
+        "Revisa el final del callback de reduce."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "createdAt": "2026-09-18",
+  "updatedAt": null
+}

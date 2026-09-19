@@ -1,4 +1,5 @@
-import { TriangleAlert } from 'lucide-react';
+import { CheckCircle2, TriangleAlert } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { ExerciseCard } from '@/components/codegym/ExerciseCard';
@@ -7,6 +8,13 @@ import { ResultFeedback } from '@/components/codegym/ResultFeedback';
 import { SessionHeader } from '@/components/codegym/SessionHeader';
 import { useSession } from '@/hooks/useSession';
 import { useContent } from '@/hooks/useContent';
+import { useAuth } from '@/features/auth/AuthContext';
+import { browserLearningApi } from '@/features/learning/learning-api';
+import {
+  canEnterLearningSession,
+} from '@/features/learning/session-learning-kind';
+import type { UserAnswer } from '@/types/progress';
+import type { ExerciseSession } from '@/types/exercise';
 import { CodeReadingStep } from './steps/CodeReadingStep';
 import { FindErrorStep } from './steps/FindErrorStep';
 import { PredictOutputStep } from './steps/PredictOutputStep';
@@ -37,10 +45,30 @@ import { Skeleton } from '@/components/codegym/Skeleton';
 const BUTTON =
   'inline-flex min-h-11 items-center justify-center rounded-md px-5 py-2.5 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
 
+type SessionEntryAccessState =
+  | {
+      readonly sessionId:
+        null;
+      readonly status:
+        'idle';
+    }
+  | {
+      readonly sessionId:
+        string;
+      readonly status:
+        'checking'
+        | 'allowed'
+        | 'blocked'
+        | 'error';
+    };
+
 function SessionPage() {
   const { sessionId = '' } = useParams();
   const navigate = useNavigate();
   const { getTechnology } = useContent();
+  const {
+    accessToken,
+  } = useAuth();
   const {
     session,
     currentStep,
@@ -73,6 +101,111 @@ function SessionPage() {
     retryRecoveryPersistence,
     retryCompletion,
   } = useSession(sessionId);
+
+  const [
+    entryAccess,
+    setEntryAccess,
+  ] = useState<SessionEntryAccessState>({
+    sessionId:
+      null,
+    status:
+      'idle',
+  });
+
+  // SESSION_ENTRY_CANONICAL_GATE
+  useEffect(
+    () => {
+      if (
+        session === null
+        || session.levelId
+          === undefined
+      ) {
+        return;
+      }
+
+      const levelId =
+        session.levelId;
+
+      let active =
+        true;
+
+      setEntryAccess({
+        sessionId:
+          session.id,
+        status:
+          'checking',
+      });
+
+      const verifyAccess =
+        async () => {
+          if (
+            accessToken
+            === null
+          ) {
+            if (active) {
+              setEntryAccess({
+                sessionId:
+                  session.id,
+                status:
+                  'error',
+              });
+            }
+
+            return;
+          }
+
+          try {
+            const levelState =
+              await browserLearningApi
+                .getLevelState(
+                  session.conceptId,
+                  levelId,
+                  accessToken,
+                );
+
+            if (!active) {
+              return;
+            }
+
+            setEntryAccess({
+              sessionId:
+                session.id,
+              status:
+                canEnterLearningSession(
+                  session,
+                  levelState,
+                )
+                  ? 'allowed'
+                  : 'blocked',
+            });
+          } catch {
+            if (active) {
+              setEntryAccess({
+                sessionId:
+                  session.id,
+                status:
+                  'error',
+              });
+            }
+          }
+        };
+
+      void verifyAccess();
+
+      return () => {
+        active =
+          false;
+      };
+    },
+    [
+      accessToken,
+      session?.conceptId,
+      session?.id,
+      session?.kind,
+      session?.levelId,
+      session?.requiredForProgression,
+    ],
+  );
 
   const isValidating = state.isValidating;
   // El resultado ya lo calculó el engine al responder (D012): aquí solo se lee.
@@ -152,8 +285,123 @@ function SessionPage() {
     return <SessionLoading />;
   }
 
+  if (
+    session.levelId
+    !== undefined
+  ) {
+    const currentAccess =
+      entryAccess.sessionId
+        === session.id
+        ? entryAccess
+        : null;
+
+    if (
+      currentAccess === null
+      || currentAccess.status
+        === 'checking'
+    ) {
+      return (
+        <section
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+          className="
+            mx-auto
+            w-full
+            max-w-2xl
+            rounded-2xl
+            border
+            border-border
+            bg-card
+            p-6
+            text-center
+            text-sm
+            text-muted-foreground
+            shadow-sm
+          "
+        >
+          Verificando acceso a la sesión…
+        </section>
+      );
+    }
+
+    if (
+      currentAccess.status
+      === 'blocked'
+    ) {
+      return (
+        <EmptyState
+          icon={TriangleAlert}
+          title="Sesión bloqueada"
+          description="Esta sesión todavía no está disponible según tu progreso actual."
+          action={
+            <Link
+              to={`/tech/${session.technologyId}`}
+              className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
+            >
+              Volver al recorrido
+            </Link>
+          }
+        />
+      );
+    }
+
+    if (
+      currentAccess.status
+      === 'error'
+    ) {
+      return (
+        <EmptyState
+          icon={TriangleAlert}
+          title="No pudimos verificar el acceso"
+          description="No abriremos esta sesión hasta confirmar su estado de aprendizaje."
+          action={
+            <Link
+              to={`/tech/${session.technologyId}`}
+              className={`${BUTTON} bg-primary text-primary-foreground hover:bg-primary/90`}
+            >
+              Volver al recorrido
+            </Link>
+          }
+        />
+      );
+    }
+  }
+
   if (state.isComplete) {
-    return <SessionCompleteCelebration session={session} answers={state.answers} />;
+    if (
+      session.kind === 'quiz'
+      || session.kind === 'practice'
+    ) {
+      return (
+        <StageComplete
+          session={session}
+          correct={state.answers.filter(
+            answer => answer.isCorrect,
+          ).length}
+          total={state.answers.length}
+        />
+      );
+    }
+
+    if (
+      session.kind === 'checkpoint'
+      && session.levelId !== undefined
+    ) {
+      return (
+        <CheckpointComplete
+          session={session}
+          answers={state.answers}
+        />
+      );
+    }
+
+    return (
+      <SessionCompleteCelebration
+        session={session}
+        answers={state.answers}
+      />
+    );
   }
 
   const technology = getTechnology(session.technologyId)?.name ?? session.technologyId;
@@ -306,6 +554,551 @@ function SessionPage() {
           )}
         </div>
       </ExerciseCard>
+    </section>
+  );
+}
+
+type CheckpointResolution =
+  | {
+      readonly status:
+        'checking';
+    }
+  | {
+      readonly status:
+        'retry';
+    }
+  | {
+      readonly status:
+        'level-complete';
+    }
+  | {
+      readonly status:
+        'concept-complete';
+    }
+  | {
+      readonly status:
+        'verification-error';
+    };
+
+function CheckpointComplete({
+  session,
+  answers,
+}: {
+  readonly session:
+    ExerciseSession;
+
+  readonly answers:
+    UserAnswer[];
+}) {
+  const {
+    accessToken,
+  } = useAuth();
+
+  const {
+    getConcept,
+  } = useContent();
+
+  const [
+    destination,
+    setDestination,
+  ] = useState(
+    `/tech/${session.technologyId}`,
+  );
+
+  const [
+    resolution,
+    setResolution,
+  ] =
+    useState<CheckpointResolution>({
+      status:
+        'checking',
+    });
+
+  useEffect(
+    () => {
+      let active =
+        true;
+
+      void Promise
+        .resolve(
+          getConcept(
+            session.conceptId,
+          ),
+        )
+        .then(
+          concept => {
+            if (
+              !active
+              || concept === null
+            ) {
+              return;
+            }
+
+            setDestination(
+              `/tech/${session.technologyId}/${concept.topicId}`,
+            );
+          },
+        )
+        .catch(
+          () => {
+            // El fallback de tecnología sigue siendo navegable.
+          },
+        );
+
+      return () => {
+        active =
+          false;
+      };
+    },
+    [
+      getConcept,
+      session.conceptId,
+      session.technologyId,
+    ],
+  );
+
+  useEffect(
+    () => {
+      let active =
+        true;
+
+      const resolveCompletion =
+        async () => {
+          if (
+            accessToken === null
+            || session.levelId
+              === undefined
+          ) {
+            if (active) {
+              setResolution({
+                status:
+                  'verification-error',
+              });
+            }
+
+            return;
+          }
+
+          try {
+            const levelState =
+              await browserLearningApi
+                .getLevelState(
+                  session.conceptId,
+                  session.levelId,
+                  accessToken,
+                );
+
+            if (!active) {
+              return;
+            }
+
+            if (
+              !levelState.completed
+            ) {
+              setResolution({
+                status:
+                  'retry',
+              });
+
+              return;
+            }
+
+            if (
+              levelState.nextLevelId
+              !== null
+            ) {
+              setResolution({
+                status:
+                  'level-complete',
+              });
+
+              return;
+            }
+
+            const conceptState =
+              await browserLearningApi
+                .getConceptState(
+                  session.conceptId,
+                  accessToken,
+                );
+
+            if (!active) {
+              return;
+            }
+
+            setResolution(
+              conceptState.completed
+                ? {
+                    status:
+                      'concept-complete',
+                  }
+                : {
+                    status:
+                      'verification-error',
+                  },
+            );
+          } catch {
+            if (active) {
+              setResolution({
+                status:
+                  'verification-error',
+              });
+            }
+          }
+        };
+
+      void resolveCompletion();
+
+      return () => {
+        active =
+          false;
+      };
+    },
+    [
+      accessToken,
+      session.conceptId,
+      session.levelId,
+    ],
+  );
+
+  if (
+    resolution.status
+    === 'checking'
+  ) {
+    return (
+      <section
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        className="
+          mx-auto
+          flex
+          w-full
+          max-w-2xl
+          flex-col
+          items-center
+          rounded-2xl
+          border
+          border-border
+          bg-card
+          p-6
+          text-center
+          text-sm
+          text-muted-foreground
+          shadow-sm
+          sm:p-10
+        "
+      >
+        Verificando el progreso del checkpoint…
+      </section>
+    );
+  }
+
+  if (
+    resolution.status
+    === 'concept-complete'
+  ) {
+    return (
+      <SessionCompleteCelebration
+        session={session}
+        answers={answers}
+      />
+    );
+  }
+
+  const isLevelComplete =
+    resolution.status
+    === 'level-complete';
+
+  const needsRetry =
+    resolution.status
+    === 'retry';
+
+  return (
+    <section
+      aria-labelledby="checkpoint-complete-title"
+      className="
+        mx-auto
+        flex
+        w-full
+        max-w-2xl
+        flex-col
+        items-center
+        rounded-2xl
+        border
+        border-success/30
+        bg-card
+        p-6
+        text-center
+        shadow-sm
+        sm:p-10
+      "
+    >
+      <span
+        className="
+          flex
+          size-14
+          items-center
+          justify-center
+          rounded-full
+          bg-success/10
+          text-success
+        "
+      >
+        <CheckCircle2
+          aria-hidden="true"
+          className="size-7"
+        />
+      </span>
+
+      <p
+        className="
+          mt-5
+          text-sm
+          font-semibold
+          text-success
+        "
+      >
+        {
+          isLevelComplete
+            ? 'Nivel completado'
+            : needsRetry
+              ? 'Checkpoint completado'
+              : 'Progreso guardado'
+        }
+      </p>
+
+      <h1
+        id="checkpoint-complete-title"
+        className="
+          mt-2
+          text-2xl
+          font-bold
+          text-foreground
+          sm:text-3xl
+        "
+      >
+        {
+          isLevelComplete
+            ? 'Has desbloqueado el siguiente nivel'
+            : needsRetry
+              ? 'Aún no has superado este nivel'
+              : 'No pudimos verificar el siguiente paso'
+        }
+      </h1>
+
+      <p
+        className="
+          mt-3
+          max-w-lg
+          text-sm
+          leading-relaxed
+          text-muted-foreground
+        "
+      >
+        {
+          isLevelComplete
+            ? (
+              'Has superado correctamente el checkpoint. '
+              + 'Continúa el recorrido para seguir aprendiendo.'
+            )
+            : needsRetry
+              ? (
+                'El intento quedó guardado, pero este nivel '
+                + 'todavía no está completado. Vuelve al '
+                + 'recorrido para intentarlo de nuevo.'
+              )
+              : (
+                'La sesión quedó finalizada, pero todavía no '
+                + 'podemos confirmar si el concepto está '
+                + 'completado. Vuelve al recorrido para '
+                + 'continuar desde el estado autoritativo.'
+              )
+        }
+      </p>
+
+      <Link
+        to={destination}
+        className={`
+          ${BUTTON}
+          mt-7
+          bg-primary
+          text-primary-foreground
+          hover:bg-primary/90
+        `}
+      >
+        Volver al recorrido
+      </Link>
+    </section>
+  );
+}
+
+function StageComplete({
+  session,
+  correct,
+  total,
+}: {
+  readonly session: {
+    readonly id: string;
+    readonly title: string;
+    readonly conceptId: string;
+    readonly technologyId: string;
+    readonly kind?: 'quiz' | 'practice' | 'checkpoint';
+  };
+  readonly correct: number;
+  readonly total: number;
+}) {
+  const {
+    getConcept,
+  } = useContent();
+
+  const [
+    destination,
+    setDestination,
+  ] = useState(
+    `/tech/${session.technologyId}`,
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    void Promise
+      .resolve(
+        getConcept(
+          session.conceptId,
+        ),
+      )
+      .then(concept => {
+        if (
+          !active
+          || concept === null
+        ) {
+          return;
+        }
+
+        setDestination(
+          `/tech/${session.technologyId}/${concept.topicId}`,
+        );
+      })
+      .catch(() => {
+        // El fallback de tecnología sigue siendo navegable.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [
+    getConcept,
+    session.conceptId,
+    session.technologyId,
+  ]);
+
+  const isQuiz =
+    session.kind === 'quiz';
+
+  return (
+    <section
+      aria-labelledby="stage-complete-title"
+      className="
+        mx-auto
+        flex
+        w-full
+        max-w-2xl
+        flex-col
+        items-center
+        rounded-2xl
+        border
+        border-success/30
+        bg-card
+        p-6
+        text-center
+        shadow-sm
+        sm:p-10
+      "
+    >
+      <span
+        className="
+          flex
+          size-14
+          items-center
+          justify-center
+          rounded-full
+          bg-success/10
+          text-success
+        "
+      >
+        <CheckCircle2
+          aria-hidden="true"
+          className="size-7"
+        />
+      </span>
+
+      <p
+        className="
+          mt-5
+          text-sm
+          font-semibold
+          text-success
+        "
+      >
+        {
+          isQuiz
+            ? 'Test superado'
+            : 'Práctica completada'
+        }
+      </p>
+
+      <h1
+        id="stage-complete-title"
+        className="
+          mt-2
+          text-2xl
+          font-bold
+          text-foreground
+          sm:text-3xl
+        "
+      >
+        {
+          isQuiz
+            ? 'Has desbloqueado la práctica'
+            : 'Progreso guardado'
+        }
+      </h1>
+
+      <p
+        className="
+          mt-3
+          max-w-lg
+          text-sm
+          leading-relaxed
+          text-muted-foreground
+        "
+      >
+        Has completado {
+          correct
+        } de {
+          total
+        } ejercicios correctamente en {
+          session.title
+        }.
+      </p>
+
+      <Link
+        to={destination}
+        className={`
+          ${BUTTON}
+          mt-7
+          bg-primary
+          text-primary-foreground
+          hover:bg-primary/90
+        `}
+      >
+        {
+          isQuiz
+            ? 'Continuar a práctica'
+            : 'Continuar recorrido'
+        }
+      </Link>
     </section>
   );
 }

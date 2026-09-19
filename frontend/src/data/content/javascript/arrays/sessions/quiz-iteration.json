@@ -1,0 +1,213 @@
+{
+  "id": "js-arrays-iteration-quiz-01",
+  "title": "Test: métodos de iteración de arrays",
+  "difficulty": "beginner",
+  "conceptId": "js-array-iteration",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-17",
+  "updatedAt": null,
+  "kind": "quiz",
+  "levelId": "foundation",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué valor contiene `resultado` después de ejecutar este código?",
+      "code": "const numeros = [1, 2, 3];\nconst resultado = numeros.forEach((n) => n * 2);\n\nconsole.log(resultado);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "[2, 4, 6]",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "[1, 2, 3]",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "null",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`forEach` recorre el array para producir efectos, pero siempre devuelve `undefined`. Si necesitas construir un array nuevo debes usar `map`.",
+      "hints": [
+        "No mires solamente lo que devuelve el callback.",
+        "Piensa en el valor de retorno del propio método `forEach`."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime este código?",
+      "code": "const numeros = [2, 4, 6];\nconst dobles = numeros.map((n) => n * 2);\n\nconsole.log(numeros);\nconsole.log(dobles);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "[2, 4, 6] y después [4, 8, 12]",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "[4, 8, 12] y después [4, 8, 12]",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "[2, 4, 6] y después undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined y después [4, 8, 12]",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`map` devuelve un array nuevo con los valores transformados. El array original sigue intacto.",
+      "hints": [
+        "`map` construye una colección nueva.",
+        "Separa mentalmente el array original del valor retornado por `map`."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "Quieres obtener únicamente los números mayores que 10. ¿Qué expresión es la correcta?",
+      "code": "const numeros = [4, 12, 8, 20];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "numeros.map((numero) => numero > 10)",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "numeros.filter((numero) => numero > 10)",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "numeros.forEach((numero) => numero > 10)",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "numeros.reduce((acc, numero) => acc + numero, 0)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "filter conserva únicamente los elementos para los que la condición devuelve un valor verdadero. En este caso el resultado sería [12, 20].",
+      "hints": [
+        "No quieres transformar los números.",
+        "Necesitas conservar solo algunos elementos."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué valor obtiene `total`?",
+      "code": "const precios = [10, 20, 30];\nconst total = precios.reduce((acc, precio) => acc + precio, 0);\n\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "30",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "60",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`reduce` comienza con acumulador `0` y suma cada precio: 0 + 10 + 20 + 30 = 60.",
+      "hints": [
+        "El segundo argumento de `reduce` es el valor inicial.",
+        "Sigue el acumulador en cada iteración."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "code-reading",
+      "prompt": "Quieres aplicar un descuento a cada precio y obtener un array nuevo. ¿Qué método expresa mejor esa intención?",
+      "code": "const precios = [100, 50, 25];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "forEach",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "filter",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "map",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "reduce sin valor inicial",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "`map` representa una transformación uno-a-uno y devuelve un nuevo array.",
+      "hints": [
+        "No quieres seleccionar elementos: quieres transformar cada uno.",
+        "Busca el método cuyo resultado natural es otro array del mismo tamaño."
+      ],
+      "stepOrder": 5
+    }
+  ],
+  "position": 0
+}

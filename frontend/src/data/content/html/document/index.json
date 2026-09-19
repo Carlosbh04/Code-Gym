@@ -3,6 +3,7 @@
   "name": "Documento HTML bien formado",
   "topicId": "html-document",
   "technologyId": "html",
+  "position": 0,
   "content": { "sections": [
     { "type": "intro", "title": "Introducción", "body": "Un documento HTML comunica estructura al navegador y a las tecnologías de asistencia." },
     { "type": "objectives", "title": "Qué vas a aprender", "items": ["Reconocer la estructura mínima", "Entender el propósito de head y body"] },

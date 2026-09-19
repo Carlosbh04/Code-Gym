@@ -2,9 +2,15 @@ import { useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Skeleton } from '@/components/codegym/Skeleton';
 import { ProgressContext } from '@/contexts/progress-context';
+import { useAuth } from '@/features/auth/AuthContext';
+import { browserLearningApi } from '@/features/learning/learning-api';
+import {
+  canEnterLearningSession,
+} from '@/features/learning/session-learning-kind';
+import type { LearningLevelState } from '@/features/learning/learning-types';
 import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
-import type { Topic } from '@/types/content';
+import type { Concept, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
 import type { CompletedSession } from '@/types/progress';
 import type { HistoryAttempt } from '@/types/history';
@@ -20,8 +26,36 @@ type ResultState =
   | { sessionId: string; status: 'success'; completedSession: CompletedSession };
 type MetadataState =
   | { sessionId: string; status: 'loading' }
-  | { sessionId: string; status: 'success'; session: ExerciseSession; topic: Topic | null }
+  | {
+      sessionId: string;
+      status: 'success';
+      session: ExerciseSession;
+      concept: Concept | null;
+      topic: Topic | null;
+    }
   | { sessionId: string; status: 'unavailable' };
+
+type LevelTransitionState =
+  | {
+      sessionId: string;
+      status: 'idle' | 'loading' | 'unavailable';
+    }
+  | {
+      sessionId: string;
+      status: 'success';
+      state: LearningLevelState;
+    };
+type NextConceptTransitionState =
+  | {
+      sessionId: string;
+      status: 'idle' | 'loading' | 'unavailable';
+    }
+  | {
+      sessionId: string;
+      status: 'success';
+      concept: Concept | null;
+    };
+
 type AttemptsState =
   | { sessionId: string; status: 'success'; attempts: HistoryAttempt[] }
   | { sessionId: string; status: 'error'; message: string };
@@ -33,11 +67,26 @@ const errorMessage = (error: unknown) => error instanceof Error ? error.message 
 function ResultsPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { getCompletedSession, getAttemptsBySession } = useHistory();
-  const { getSession, getConcept, getTopics, getTechnology } = useContent();
+  const {
+    getSession,
+    getConcept,
+    getConceptsByTopic,
+    getTopics,
+    getTechnology,
+  } = useContent();
+  const { accessToken } = useAuth();
   const progressContext = useContext(ProgressContext);
   const [result, setResult] = useState<ResultState | null>(null);
   const [metadata, setMetadata] = useState<MetadataState | null>(null);
   const [attempts, setAttempts] = useState<AttemptsState | null>(null);
+  const [
+    nextConceptTransition,
+    setNextConceptTransition,
+  ] = useState<NextConceptTransitionState | null>(
+    null,
+  );
+  const [levelTransition, setLevelTransition] =
+    useState<LevelTransitionState | null>(null);
 
   useEffect(() => {
     if (sessionId === undefined) return;
@@ -59,18 +108,178 @@ function ResultsPage() {
         const concept = await Promise.resolve(getConcept(session.conceptId)).catch(() => null);
         const topics = await Promise.resolve(getTopics(session.technologyId)).catch(() => []);
         const topicId = concept === null || concept === undefined ? null : concept.topicId;
-        if (active) setMetadata({
-          sessionId,
-          status: 'success',
-          session,
-          topic: topicId === null || !Array.isArray(topics) ? null : topics.find((topic) => topic.id === topicId) ?? null,
-        });
+        const topic =
+          topicId === null
+          || !Array.isArray(topics)
+            ? null
+            : topics.find(
+                (item) =>
+                  item.id === topicId,
+              )
+              ?? null;
+
+        if (active) {
+          setMetadata({
+            sessionId,
+            status: 'success',
+            session,
+            concept:
+              concept
+              ?? null,
+            topic,
+          });
+        }
+
+        /*
+         * CHECKPOINT_LEVEL_TRANSITION
+         * RESULT_REPEAT_CANONICAL_GATE
+         *
+         * Todo resultado staged necesita estado
+         * de nivel para decidir si puede volver
+         * a abrir /practice.
+         */
+        if (
+          session.levelId !== undefined
+          && concept !== null
+          && concept !== undefined
+          && accessToken !== null
+        ) {
+          if (active) {
+            setLevelTransition({
+              sessionId,
+              status: 'loading',
+            });
+          }
+
+          try {
+            const levelState =
+              await browserLearningApi
+                .getLevelState(
+                  concept.id,
+                  session.levelId,
+                  accessToken,
+                );
+
+            if (active) {
+              setLevelTransition({
+                sessionId,
+                status: 'success',
+                state: levelState,
+              });
+            }
+
+            // NEXT_CONCEPT_RESULT_TRANSITION
+            if (
+              session.kind === 'checkpoint'
+              && levelState.completed
+              && levelState.nextLevelId === null
+              && concept.topicId.length > 0
+            ) {
+              if (active) {
+                setNextConceptTransition({
+                  sessionId,
+                  status: 'loading',
+                });
+              }
+
+              try {
+                const topicConcepts =
+                  await Promise.resolve(
+                    getConceptsByTopic(
+                      concept.topicId,
+                    ),
+                  );
+
+                const currentConceptIndex =
+                  topicConcepts.findIndex(
+                    item =>
+                      item.id
+                      === concept.id,
+                  );
+
+                const nextConcept =
+                  currentConceptIndex >= 0
+                    ? topicConcepts[
+                        currentConceptIndex + 1
+                      ]
+                      ?? null
+                    : null;
+
+                if (nextConcept === null) {
+                  if (active) {
+                    setNextConceptTransition({
+                      sessionId,
+                      status: 'success',
+                      concept: null,
+                    });
+                  }
+                } else {
+                  const nextConceptState =
+                    await browserLearningApi
+                      .getConceptState(
+                        nextConcept.id,
+                        accessToken,
+                      );
+
+                  if (active) {
+                    setNextConceptTransition({
+                      sessionId,
+                      status: 'success',
+                      concept:
+                        nextConceptState.locked
+                          ? null
+                          : nextConcept,
+                    });
+                  }
+                }
+              } catch {
+                if (active) {
+                  setNextConceptTransition({
+                    sessionId,
+                    status: 'unavailable',
+                  });
+                }
+              }
+            } else if (active) {
+              setNextConceptTransition({
+                sessionId,
+                status: 'idle',
+              });
+            }
+          } catch {
+            if (active) {
+              setLevelTransition({
+                sessionId,
+                status: 'unavailable',
+              });
+            }
+          }
+        } else if (active) {
+          setLevelTransition({
+            sessionId,
+            status: 'idle',
+          });
+
+          setNextConceptTransition({
+            sessionId,
+            status: 'idle',
+          });
+        }
       }).catch(() => { if (active) setMetadata({ sessionId, status: 'unavailable' }); });
     }).catch((error: unknown) => {
       if (active) setResult({ sessionId, status: 'error', message: errorMessage(error) });
     });
     return () => { active = false; };
-  }, [getAttemptsBySession, getCompletedSession, getConcept, getSession, getTopics, sessionId]);
+  }, [
+    accessToken,
+    getAttemptsBySession,
+    getCompletedSession,
+    getConcept,
+    getConceptsByTopic,
+    getSession,
+    getTopics,
+    sessionId,
+  ]);
 
   const currentResult: ResultState | null = sessionId === undefined ? { sessionId: '', status: 'missing' } : result;
   if (currentResult === null || currentResult.sessionId !== sessionId || currentResult.status === 'loading') return <Loading />;
@@ -85,15 +294,143 @@ function ResultsPage() {
 
   const technology = getTechnology(completedSession.technologyId);
   const topic = currentMetadata?.topic ?? null;
+  const concept = currentMetadata?.concept ?? null;
+
+  const currentLevel =
+    currentMetadata?.session.levelId === undefined
+      ? null
+      : concept?.levels?.find(
+          (level) =>
+            level.id
+            === currentMetadata.session.levelId,
+        )
+        ?? null;
+
+  const transitionStatus =
+    levelTransition?.sessionId === sessionId
+      ? levelTransition
+      : null;
+
+  const nextLevelId =
+    transitionStatus?.status === 'success'
+    && transitionStatus.state.completed
+      ? transitionStatus.state.nextLevelId
+      : null;
+
+  const nextLevel =
+    nextLevelId === null
+      ? null
+      : concept?.levels?.find(
+          (level) =>
+            level.id === nextLevelId,
+        )
+        ?? null;
+
+  // FINAL_CONCEPT_COMPLETION
+  const finalLevelCompleted =
+    transitionStatus?.status === 'success'
+    && transitionStatus.state.completed
+    && transitionStatus.state.nextLevelId === null;
+
+  const currentNextConceptTransition =
+    nextConceptTransition?.sessionId
+    === sessionId
+      ? nextConceptTransition
+      : null;
+
+  const nextConcept =
+    currentNextConceptTransition?.status
+    === 'success'
+      ? currentNextConceptTransition.concept
+      : null;
 
   const sessionTitle = currentMetadata?.session.title
     ?? (metadataUnavailable ? 'Sesión completada' : null);
+
+  const topicPath =
+    topic === null
+      ? null
+      : `/tech/${topic.technologyId}/${topic.id}`;
+
+  const isCheckpoint =
+    currentMetadata?.session.kind
+    === 'checkpoint';
+
+
+  // RESULT_REPEAT_CANONICAL_GATE
+  const repeatPracticeAllowed =
+    currentMetadata !== null
+    && (
+      currentMetadata.session.levelId
+        === undefined
+      || (
+        transitionStatus?.status
+          === 'success'
+        && canEnterLearningSession(
+          currentMetadata.session,
+          transitionStatus.state,
+        )
+      )
+    );
+
+  const primaryAction =
+    isCheckpoint
+    && topicPath !== null
+      ? nextLevel !== null
+        ? {
+            to: topicPath,
+            label:
+              `Continuar a ${nextLevel.name}`,
+          }
+        : finalLevelCompleted
+          && nextConcept !== null
+          ? {
+              to:
+                `${topicPath}?concept=${encodeURIComponent(
+                  nextConcept.id,
+                )}`,
+              label:
+                'Continuar aprendiendo',
+            }
+          : {
+              to: topicPath,
+              label:
+                finalLevelCompleted
+                  ? 'Volver al tema'
+                  : 'Volver al recorrido',
+            }
+      : repeatPracticeAllowed
+        ? {
+            to:
+              `/practice/${completedSession.sessionId}`,
+            label:
+              'Seguir practicando',
+          }
+        : topicPath !== null
+          ? {
+              to:
+                topicPath,
+              label:
+                'Volver al tema',
+            }
+          : {
+              to:
+                '/dashboard',
+              label:
+                'Ver mi progreso',
+            };
 
   const secondaryAction = metadataLoading
     ? null
     : topic === null
       ? { to: '/dashboard', label: 'Ver mi progreso' }
-      : { to: `/tech/${topic.technologyId}/${topic.id}`, label: 'Repasar tema' };
+      : isCheckpoint
+        ? { to: '/dashboard', label: 'Ver mi progreso' }
+        : {
+            to:
+              `/tech/${topic.technologyId}/${topic.id}`,
+            label: 'Repasar tema',
+          };
 
   const currentAttempts = attempts?.sessionId === sessionId ? attempts : null;
   const conceptProgress = progressContext?.progress.get(completedSession.conceptId);
@@ -110,8 +447,69 @@ function ResultsPage() {
         <ResultsHero
           completedSession={completedSession}
           sessionTitle={sessionTitle}
+          primaryAction={primaryAction}
           secondaryAction={secondaryAction}
         />
+
+        {isCheckpoint
+          && transitionStatus?.status === 'success'
+          && transitionStatus.state.completed
+          && currentLevel !== null ? (
+            <section
+              aria-labelledby="level-transition-title"
+              className="
+                rounded-2xl
+                border
+                border-success/25
+                bg-success/[0.055]
+                p-5
+                shadow-sm
+                sm:p-6
+              "
+            >
+              <p
+                className="
+                  text-xs
+                  font-semibold
+                  uppercase
+                  tracking-[0.16em]
+                  text-success
+                "
+              >
+                Nivel superado
+              </p>
+
+              <h2
+                id="level-transition-title"
+                className="
+                  mt-1
+                  text-xl
+                  font-bold
+                  tracking-tight
+                  text-foreground
+                "
+              >
+                {currentLevel.name} completado
+              </h2>
+
+              <p
+                className="
+                  mt-2
+                  text-sm
+                  leading-relaxed
+                  text-muted-foreground
+                "
+              >
+                {nextLevel !== null
+                  ? `Has desbloqueado ${nextLevel.name}.`
+                  : finalLevelCompleted
+                    ? nextConcept !== null
+                      ? `Has completado todos los niveles de este concepto. Siguiente: ${nextConcept.name}.`
+                      : 'Has completado todos los niveles de este concepto.'
+                    : 'Has completado el último nivel de este concepto.'}
+              </p>
+            </section>
+          ) : null}
 
         {metadataLoading ? (
           <ResultDetailsLoading />

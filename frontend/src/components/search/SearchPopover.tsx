@@ -18,6 +18,11 @@ import {
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TechnologyIcon } from '@/components/codegym/TechnologyIcon';
+import { useAuth } from '@/features/auth/AuthContext';
+import { browserLearningApi } from '@/features/learning/learning-api';
+import {
+  canEnterLearningSession,
+} from '@/features/learning/session-learning-kind';
 import type { ContentContextValue } from '@/types/content';
 import { cn } from '@/lib/utils';
 import {
@@ -53,6 +58,10 @@ const RESULT_ICONS: Record<SearchResultType, typeof Search> = {
 export function SearchPopover({ content }: SearchPopoverProps) {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const {
+    accessToken,
+  } = useAuth();
   const rootRef = useRef<HTMLDivElement>(null);
   const desktopInputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
@@ -68,7 +77,81 @@ export function SearchPopover({ content }: SearchPopoverProps) {
     if (content === null || content.isLoading) return;
 
     let active = true;
-    void buildSearchIndex(content)
+
+    // SEARCH_LEVEL_STATE_REQUEST_DEDUPE
+    const levelStateRequests =
+      new Map<
+        string,
+        ReturnType<
+          typeof browserLearningApi.getLevelState
+        >
+      >();
+
+    // SEARCH_CANONICAL_PRACTICE_GATE
+    void buildSearchIndex(
+      content,
+
+      async session => {
+        /*
+         * Legacy conserva el comportamiento histórico.
+         */
+        if (
+          session.levelId
+          === undefined
+        ) {
+          return true;
+        }
+
+        /*
+         * Staged no puede generar una entrada
+         * /practice si no hay autoridad autenticada.
+         */
+        if (
+          accessToken
+          === null
+        ) {
+          return false;
+        }
+
+        try {
+          const requestKey =
+            `${session.conceptId}\u0000${session.levelId}`;
+
+          let levelStateRequest =
+            levelStateRequests.get(
+              requestKey,
+            );
+
+          if (
+            levelStateRequest
+            === undefined
+          ) {
+            levelStateRequest =
+              browserLearningApi
+                .getLevelState(
+                  session.conceptId,
+                  session.levelId,
+                  accessToken,
+                );
+
+            levelStateRequests.set(
+              requestKey,
+              levelStateRequest,
+            );
+          }
+
+          const levelState =
+            await levelStateRequest;
+
+          return canEnterLearningSession(
+            session,
+            levelState,
+          );
+        } catch {
+          return false;
+        }
+      },
+    )
       .then((nextIndex) => {
         if (active) setIndex(nextIndex);
       })
@@ -82,7 +165,10 @@ export function SearchPopover({ content }: SearchPopoverProps) {
     return () => {
       active = false;
     };
-  }, [content]);
+  }, [
+    accessToken,
+    content,
+  ]);
 
   useEffect(() => {
     const closeOnOutsidePointer = (event: PointerEvent) => {

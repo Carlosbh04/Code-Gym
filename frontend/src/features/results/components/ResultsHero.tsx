@@ -19,10 +19,16 @@ function copyFor(accuracy: number) {
 export interface ResultsHeroProps {
   completedSession: CompletedSession;
   sessionTitle: string | null;
+  primaryAction: { to: string; label: string };
   secondaryAction: { to: string; label: string } | null;
 }
 
-export function ResultsHero({ completedSession, sessionTitle, secondaryAction }: ResultsHeroProps) {
+export function ResultsHero({
+  completedSession,
+  sessionTitle,
+  primaryAction,
+  secondaryAction,
+}: ResultsHeroProps) {
   const copy = copyFor(completedSession.accuracy);
 
   return (
@@ -41,7 +47,9 @@ export function ResultsHero({ completedSession, sessionTitle, secondaryAction }:
           <p className="mt-2 text-sm font-medium text-foreground">{sessionTitle}</p>
         )}
         <div className="mt-7 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
-          <Link to={`/practice/${completedSession.sessionId}`} className={PRIMARY}>Seguir practicando</Link>
+          <Link to={primaryAction.to} className={PRIMARY}>
+            {primaryAction.label}
+          </Link>
           {secondaryAction === null ? (
             <Skeleton aria-hidden="true" className="h-11 w-full rounded-md sm:w-36" />
           ) : (

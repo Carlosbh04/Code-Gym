@@ -1,5 +1,6 @@
 {
   "id": "html-data-tables", "name": "Encabezados de tabla", "topicId": "html-tables", "technologyId": "html",
+  "position": 0,
   "content": { "sections": [
     { "type": "intro", "title": "Introducción", "body": "Las tablas expresan relaciones entre filas y columnas de datos, no posiciones visuales." },
     { "type": "objectives", "title": "Qué vas a aprender", "items": ["Distinguir th de td", "Relacionar encabezados y datos"] },

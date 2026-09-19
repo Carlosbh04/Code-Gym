@@ -71,7 +71,15 @@ test('sincroniza colores en una transición corta sin animar sombras ni CodeMirr
   await page.addInitScript(() => localStorage.setItem('codegym:theme', 'dark'));
   await page.goto('/');
   await expect(page).toHaveURL('/');
-  await page.getByRole('heading', { name: 'Todo empieza con la primera práctica.', exact: true }).waitFor();
+  await page
+    .getByRole(
+      'banner',
+      {
+        name:
+          'Barra de usuario',
+      },
+    )
+    .waitFor();
 
   const root = page.locator('html');
   await root.evaluate((element) => element.classList.add('theme-transition'));

@@ -69,6 +69,9 @@ function createRepository(
         ),
       }),
 
+    touchSessionActivity:
+      async () => true,
+
     revokeSessionByRefreshTokenDigest: vi
       .fn<AuthSessionRepository['revokeSessionByRefreshTokenDigest']>()
       .mockResolvedValue(),

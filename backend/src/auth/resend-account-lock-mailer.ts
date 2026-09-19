@@ -43,10 +43,14 @@ implements AccountLockMailer {
   private readonly client:
     ResendAccountLockEmailClient;
 
+
   public constructor(
     apiKey: string,
 
     private readonly mailFrom:
+      string,
+
+    private readonly recoveryUrl:
       string,
 
     client?:
@@ -65,9 +69,13 @@ implements AccountLockMailer {
       SendAccountLockedInput,
   ): Promise<void> {
     const content =
-      renderAccountLockEmail(
-        input,
-      );
+      renderAccountLockEmail({
+        displayName:
+          input.displayName,
+
+        recoveryUrl:
+          this.recoveryUrl,
+      });
 
     try {
       const response =
@@ -89,7 +97,6 @@ implements AccountLockMailer {
             text:
               content.text,
           },
-
           {
             idempotencyKey:
               input.idempotencyKey,
@@ -103,9 +110,21 @@ implements AccountLockMailer {
         throw new
           AccountLockMailerUnavailableError();
       }
-    } catch {
+    } catch (
+      error
+    ) {
       /*
-       * Never propagate provider payloads or API details.
+       * Template/configuration errors represent a programming
+       * error and must not be disguised as provider failures.
+       */
+      if (
+        error instanceof TypeError
+      ) {
+        throw error;
+      }
+
+      /*
+       * Never propagate provider payloads or private API details.
        */
       throw new
         AccountLockMailerUnavailableError();
@@ -136,7 +155,6 @@ function createResendAccountLockEmailClient(
               ...message.to,
             ],
           },
-
           {
             idempotencyKey:
               options

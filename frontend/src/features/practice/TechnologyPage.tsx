@@ -3,6 +3,8 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { Skeleton } from '@/components/codegym/Skeleton';
+import { browserLearningApi } from '@/features/learning/learning-api';
+import { useAuth } from '@/features/auth/AuthContext';
 import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
 import { useProgress } from '@/hooks/useProgress';
@@ -33,6 +35,7 @@ function TechnologyPage() {
   } = useContent();
   const { getCompletedSession } = useHistory();
   const { progress } = useProgress();
+  const { accessToken } = useAuth();
   const technology = technologyId ? getTechnology(technologyId) : undefined;
   const activeTab = resolveTechnologyTab(searchParams.get('tab'));
   const [model, setModel] = useState<TechnologyModel | null>(null);
@@ -48,7 +51,32 @@ function TechnologyPage() {
       getSessionsByConcept,
       getCompletedSession,
       progress,
-    })
+
+      // CANONICAL_TOPIC_PROGRESS
+      getConceptLearningState:
+        accessToken === null
+          ? undefined
+          : conceptId =>
+              browserLearningApi.getConceptState(
+                conceptId,
+                accessToken,
+              ),
+
+          // TECHNOLOGY_PRACTICE_CANONICAL_GATE
+          getSessionLearningState:
+            accessToken === null
+              ? undefined
+              : (
+                  conceptId,
+                  levelId,
+                ) =>
+                  browserLearningApi
+                    .getLevelState(
+                      conceptId,
+                      levelId,
+                      accessToken,
+                    ),
+})
       .then((nextModel) => {
         if (active) setModel({ ...nextModel, status: 'success' });
       })
@@ -69,6 +97,7 @@ function TechnologyPage() {
       active = false;
     };
   }, [
+    accessToken,
     getCompletedSession,
     getConceptsByTopic,
     getSessionsByConcept,
@@ -121,7 +150,7 @@ function TechnologyPage() {
       ) : activeTab === 'exercises' ? (
         <TechnologyExerciseList
           technologyName={technology.name}
-          sessions={currentModel.sessions}
+          sessions={currentModel.practiceSessions}
         />
       ) : activeTab === 'results' ? (
         <TechnologyResults technology={technology} model={currentModel} />

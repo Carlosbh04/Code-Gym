@@ -2,6 +2,7 @@
   "id": "js-arrays-map-vs-foreach-01",
   "title": "forEach no devuelve lo que crees",
   "difficulty": "beginner",
+  "levelId": "foundation",
   "conceptId": "js-array-iteration",
   "technologyId": "javascript",
   "version": "1.0.0",
@@ -184,5 +185,9 @@
       ],
       "stepOrder": 4
     }
-  ]
+  ],
+  "position": 3,
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "kind": "practice"
 }

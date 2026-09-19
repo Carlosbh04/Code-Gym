@@ -85,6 +85,8 @@ const requireAuth =
   createRequireAuth({
     accessTokenService,
     authSessionRepository,
+    idleSessionTimeoutSeconds:
+      config.auth.idleSessionTimeoutSeconds,
   });
 const app = createApp({
   config,
@@ -95,6 +97,8 @@ const app = createApp({
     database.healthCheck(),
   registrationService,
   loginService,
+  loginFailureKeySecret:
+    config.rateLimitKeySecret,
   refreshService,
   logoutService,
   currentUserService,

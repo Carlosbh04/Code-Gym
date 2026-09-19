@@ -1,0 +1,56 @@
+{
+  "id": "js-functions-deepening-quiz-01",
+  "title": "Test: ámbito y flujo",
+  "difficulty": "intermediate",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "deepening",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-18",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué ocurre al intentar devolver valor fuera del bloque?",
+      "code": "function obtener() {\n  if (true) {\n    const valor = 10;\n  }\n\n  return valor;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Devuelve 10",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Devuelve undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Lanza ReferenceError",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "Lanza SyntaxError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "const tiene ámbito de bloque. valor deja de existir al salir del if.",
+      "hints": [
+        "Revisa el contrato del nivel antes de responder."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

@@ -101,6 +101,13 @@ import {
 } from './progress/attempt-repository.js';
 import { AttemptService } from './progress/attempt-service.js';
 import { ConceptProgressService } from './progress/concept-progress-service.js';
+import {
+  PrismaLearningProgressRepository,
+  type LearningProgressRepository,
+} from './progress/learning-progress-repository.js';
+import {
+  LearningProgressService,
+} from './progress/learning-progress-service.js';
 import { CompletedSessionService } from './progress/completed-session-service.js';
 import { ReviewService } from './progress/review-service.js';
 import { BadgeService } from './progress/badge-service.js';
@@ -216,6 +223,9 @@ export interface RuntimeDatabase {
     PasswordChangeRepository;
   readonly trainingRepository?:
     TrainingRepository;
+
+  readonly learningProgressRepository?:
+    LearningProgressRepository;
   readonly conceptProgressRepository?:
     ConceptProgressRepository;
   readonly completedSessionRepository?:
@@ -361,6 +371,11 @@ function defaultDatabaseFactory(
       ),
     trainingRepository:
       new PrismaTrainingRepository(
+        prisma,
+      ),
+
+    learningProgressRepository:
+      new PrismaLearningProgressRepository(
         prisma,
       ),
     conceptProgressRepository:
@@ -864,6 +879,14 @@ export async function startRuntime(
             database.contentRepository,
           );
 
+    const learningProgressService =
+      database.learningProgressRepository
+      === undefined
+        ? undefined
+        : new LearningProgressService(
+            database.learningProgressRepository,
+          );
+
     const trainingService =
       database.trainingRepository === undefined
         ? undefined
@@ -876,6 +899,8 @@ export async function startRuntime(
             ),
             undefined,
             new ProcessCodeExecutionService(),
+            learningProgressService,
+            database.contentRepository,
           );
     const completedSessionService =
       database.completedSessionRepository === undefined
@@ -929,6 +954,7 @@ export async function startRuntime(
 
           createAccountLockMailer(
             config.mail,
+            config.frontendOrigins[0],
           ),
 
           logger,
@@ -959,6 +985,9 @@ export async function startRuntime(
           loginFailureKeySecret:
             config.rateLimitKeySecret,
 
+          accountSecurityRepository:
+            database.accountSecurityRepository,
+
           googleLoginService,
           refreshService,
           logoutService,
@@ -968,6 +997,7 @@ export async function startRuntime(
           passwordChangeService,
           sessionManagementService,
           sessionActivityService,
+          learningProgressService,
           trainingService,
           dashboardService,
           attemptService,

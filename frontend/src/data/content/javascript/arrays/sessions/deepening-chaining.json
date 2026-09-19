@@ -1,0 +1,173 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-arrays",
+  "conceptId": "js-array-iteration",
+  "levelId": "deepening",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-arrays-deepening-chaining-01",
+  "title": "Taller: combinar filter, map y reduce",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "intermediate",
+  "position": 4,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime resultado?",
+      "code": "const numeros = [1, 2, 3, 4, 5];\n\nconst resultado = numeros\n  .filter((n) => n >= 3)\n  .map((n) => n * 2);\n\nconsole.log(resultado);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "[6, 8, 10]",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "[3, 4, 5]",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "[2, 4, 6, 8, 10]",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "24",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "filter deja [3, 4, 5] y map produce [6, 8, 10].",
+      "hints": [
+        "Ejecuta mentalmente la cadena de izquierda a derecha."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué valor imprime total?",
+      "code": "const pedidos = [\n  { total: 10, pagado: true },\n  { total: 20, pagado: false },\n  { total: 30, pagado: true },\n];\n\nconst total = pedidos\n  .filter((pedido) => pedido.pagado)\n  .map((pedido) => pedido.total)\n  .reduce((acc, valor) => acc + valor, 0);\n\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "10",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "30",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "40",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "60",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Se conservan los pedidos de 10 y 30; map obtiene [10, 30] y reduce suma 40.",
+      "hints": [
+        "El pedido de total 20 no está pagado."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "Quieres obtener nombres en mayúsculas solo de usuarios activos. ¿Qué cadena expresa mejor la intención?",
+      "code": "const usuarios = [\n  { nombre: 'ana', activo: true },\n  { nombre: 'luis', activo: false },\n];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "usuarios.filter((u) => u.activo).map((u) => u.nombre.toUpperCase())",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "usuarios.map((u) => u.activo).filter((u) => u.nombre)",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "usuarios.forEach((u) => u.nombre)",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "usuarios.reduce((acc, u) => acc + u.nombre, 0)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Primero se seleccionan los activos y después se transforma cada usuario en su nombre en mayúsculas.",
+      "hints": [
+        "Seleccionar corresponde a filter.",
+        "Transformar corresponde a map."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "La intención es sumar el doble de los números pares. Localiza el problema conceptual.",
+      "code": "function totalPares(numeros) {\n  return numeros\n    .map((n) => n % 2 === 0)\n    .map((n) => n * 2)\n    .reduce((acc, n) => acc + n, 0);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "metodo",
+          "text": "Conceptual: el primer map debería ser filter",
+          "correct": true
+        },
+        {
+          "id": "reduce",
+          "text": "Conceptual: reduce no puede sumar",
+          "correct": false
+        },
+        {
+          "id": "doble",
+          "text": "Lógico: n * 2 debería ser n / 2",
+          "correct": false
+        },
+        {
+          "id": "return",
+          "text": "Flujo: falta return",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El primer paso necesita seleccionar pares, no transformarlos en booleanos.",
+      "hints": [
+        "Pregunta qué produce el primer map."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "createdAt": "2026-09-18",
+  "updatedAt": null
+}

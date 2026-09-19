@@ -3,6 +3,8 @@ import type {
   AccountSecurityRepository,
 } from './account-security-repository.js';
 import {
+  AccountCooldownError,
+  AccountLockedError,
   StalePasswordCredentialError,
 } from './account-security-errors.js';
 
@@ -71,7 +73,8 @@ export class LoginService {
     private readonly accountSecurityRepository?:
       Pick<
         AccountSecurityRepository,
-        'recordFailedPasswordAttempt'
+        | 'recordFailedPasswordAttempt'
+        | 'getActiveLoginCooldownUntilByEmail'
       >,
   ) {}
 
@@ -117,24 +120,53 @@ export class LoginService {
         && user.passwordHash !== null
         && !passwordMatches
       ) {
-        await this
-          .accountSecurityRepository
-          ?.recordFailedPasswordAttempt({
-            userId:
-              user.id,
+        const occurredAt =
+          this.clock();
 
-            occurredAt:
-              this.clock(),
+        const securityResult =
+          await this
+            .accountSecurityRepository
+            ?.recordFailedPasswordAttempt({
+              userId:
+                user.id,
+              occurredAt,
+              expectedPasswordHash:
+                user.passwordHash,
+            });
 
-            expectedPasswordHash:
-              user.passwordHash,
-          });
+        if (
+          securityResult === 'LOCKED'
+        ) {
+          throw new AccountLockedError();
+        }
+
+        if (
+          securityResult === 'COOLDOWN'
+          && this.accountSecurityRepository
+            !== undefined
+        ) {
+          const cooldownUntil =
+            await this
+              .accountSecurityRepository
+              .getActiveLoginCooldownUntilByEmail(
+                email,
+                occurredAt,
+              );
+
+          if (
+            cooldownUntil !== null
+          ) {
+            throw new AccountCooldownError(
+              cooldownUntil,
+            );
+          }
+        }
       }
 
       /*
-       * Incluso si el intento acaba de bloquear la cuenta,
-       * una contraseña incorrecta sigue teniendo exactamente
-       * el mismo contrato externo.
+       * Ordinary password failures remain generic.
+       * A persistent lock is surfaced above because it is
+       * now the authoritative security state.
        */
       throw new InvalidCredentialsError();
     }

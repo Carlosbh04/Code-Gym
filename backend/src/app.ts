@@ -18,6 +18,10 @@ import {
   pinoHttp,
 } from 'pino-http';
 import type {
+  AccountSecurityRepository,
+} from './auth/account-security-repository.js';
+
+import type {
   CurrentUserService,
 } from './auth/current-user-service.js';
 import type {
@@ -89,6 +93,12 @@ import {
   createTrainingRouter,
 } from './routes/training.js';
 import {
+  createLearningRouter,
+} from './routes/learning.js';
+import type {
+  LearningProgressService,
+} from './progress/learning-progress-service.js';
+import {
   createContentRouter,
 } from './routes/content.js';
 import type {
@@ -97,6 +107,9 @@ import type {
 export interface AppDependencies {
   contentService?:
     ContentService | undefined;
+
+  learningProgressService?:
+    LearningProgressService | undefined;
   config:
     AppConfig;
   logger:
@@ -111,6 +124,14 @@ export interface AppDependencies {
     Store | undefined;
   loginFailureKeySecret:
     string;
+
+  accountSecurityRepository?:
+    | Pick<
+        AccountSecurityRepository,
+        | 'isAccountLockedByEmail'
+        | 'getActiveLoginCooldownUntilByEmail'
+      >
+    | undefined;
 
   googleLoginService?:
 
@@ -200,6 +221,7 @@ export function createApp({
   loginService,
   loginFailureStore,
   loginFailureKeySecret,
+  accountSecurityRepository,
   googleLoginService,
 
   refreshService,
@@ -211,6 +233,7 @@ export function createApp({
   sessionManagementService,
   sessionActivityService,
   contentService,
+  learningProgressService,
   dashboardService,
   attemptService,
   completedSessionService,
@@ -341,6 +364,7 @@ app.use(
       loginService,
       loginFailureStore,
       loginFailureKeySecret,
+      accountSecurityRepository,
       googleLoginService,
 
       refreshService,
@@ -374,6 +398,18 @@ app.use(
       createHistoryRouter({
         attemptService,
         completedSessionService,
+        requireAuth,
+      }),
+    );
+  }
+
+  if (
+    learningProgressService
+    !== undefined
+  ) {
+    app.use(
+      createLearningRouter({
+        learningProgressService,
         requireAuth,
       }),
     );

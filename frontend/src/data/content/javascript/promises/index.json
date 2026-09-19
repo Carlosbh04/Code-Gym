@@ -3,6 +3,7 @@
   "name": "Flujo, errores y espera asíncrona",
   "topicId": "js-promises",
   "technologyId": "javascript",
+  "position": 0,
   "content": { "sections": [
     { "type": "intro", "title": "Introducción", "body": "Una promesa representa un resultado que puede llegar más tarde o fallar." },
     { "type": "objectives", "title": "Qué vas a aprender", "items": ["Encadenar transformaciones", "Capturar rechazos"] },

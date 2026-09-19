@@ -1,5 +1,6 @@
 {
   "id": "html-semantic-landmarks", "name": "Landmarks semánticos", "topicId": "html-semantic", "technologyId": "html",
+  "position": 0,
   "content": { "sections": [
     { "type": "intro", "title": "Introducción", "body": "La semántica describe la función del contenido aunque cambie su estilo visual." },
     { "type": "objectives", "title": "Qué vas a aprender", "items": ["Distinguir main de section", "Elegir navegación y encabezados coherentes"] },

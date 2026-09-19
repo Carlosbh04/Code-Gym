@@ -1,5 +1,6 @@
 {
   "id": "html-media-alternatives", "name": "Alternativas para medios", "topicId": "html-media", "technologyId": "html",
+  "position": 0,
   "content": { "sections": [
     { "type": "intro", "title": "Introducción", "body": "Las alternativas textuales permiten entender una imagen cuando no se ve, no carga o no se puede oír." },
     { "type": "objectives", "title": "Qué vas a aprender", "items": ["Escribir alt con propósito", "Distinguir imágenes decorativas"] },

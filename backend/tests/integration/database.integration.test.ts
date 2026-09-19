@@ -60,14 +60,19 @@ describe('T204/T206 MySQL schema integration (explicit opt-in)', () => {
       'auth_identities',
       'auth_sessions',
       'completed_sessions',
+      'concept_learning_level_progress',
+      'concept_learning_levels',
+      'concept_learning_progress',
       'concept_progress',
       'concepts',
       'exercise_sessions',
       'exercise_steps',
       'learning_sections',
       'password_reset_challenges',
+      'security_outbox_events',
       'technologies',
       'topics',
+      'training_hint_reveals',
       'training_runs',
       'users',
     ]);
@@ -83,7 +88,7 @@ describe('T204/T206 MySQL schema integration (explicit opt-in)', () => {
       WHERE rolled_back_at IS NULL
       ORDER BY migration_name
     `;
-    expect(migrations).toHaveLength(8);
+    expect(migrations).toHaveLength(16);
     expect(migrations.map(({ migrationName }) => migrationName)).toEqual([
       '20260909203656_init_core_schema',
       '20260910201112_add_auth_sessions',
@@ -93,6 +98,14 @@ describe('T204/T206 MySQL schema integration (explicit opt-in)', () => {
       '20260913183000_add_password_reset_challenges',
       '20260915071555_content_catalog',
       '20260915080213_google_auth_identity',
+      '20260915194048_add_training_hint_reveals',
+      '20260915200454_add_auth_session_remembered',
+      '20260916070714_add_auth_session_last_activity',
+      '20260917111000_add_account_security_state',
+      '20260917161449_add_learning_progression',
+      '20260917184359_add_learning_levels',
+      '20260917185556_add_concept_learning_levels',
+      '20260917192041_add_learning_section_levels',
     ]);
     for (const migration of migrations) {
       expect(migration.finishedAt).toBeInstanceOf(Date);

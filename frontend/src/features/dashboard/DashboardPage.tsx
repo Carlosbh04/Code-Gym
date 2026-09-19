@@ -6,6 +6,11 @@ import { PageLoadTransition } from '@/components/codegym/PageLoadTransition';
 import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
 import { useProgress } from '@/hooks/useProgress';
+import { useAuth } from '@/features/auth/AuthContext';
+import { browserLearningApi } from '@/features/learning/learning-api';
+import {
+  canEnterLearningSession,
+} from '@/features/learning/session-learning-kind';
 import type { ExerciseSession } from '@/types/exercise';
 import { calculateAccuracy, createDashboardViewModel, selectRecommendedSession } from './dashboard-view-model';
 import { DashboardHeader } from './components/DashboardHeader';
@@ -27,6 +32,10 @@ type RecommendationState = { conceptId: string | null; status: 'idle' | 'loading
 const ACTION = 'inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
 
 function DashboardPage() {
+  const {
+    accessToken,
+  } = useAuth();
+
   const { progress, isLoading: progressLoading, error: progressError } = useProgress();
   const { recentCompletedSessions, completedSessionsLoading, completedSessionsError } = useHistory();
   const { technologies, getConceptsByTopic, getSession, getSessionsByConcept, getTechnology, getTopics, isLoading: contentLoading } = useContent();
@@ -104,23 +113,208 @@ function DashboardPage() {
   }, [model.observedConcepts, model.priorityConcept]);
   useEffect(() => {
     if (progressLoading) return;
+
     let active = true;
-    if (catalog.status !== 'success' || nextConcept === null) {
+
+    if (
+      catalog.status !== 'success'
+      || nextConcept === null
+    ) {
       void Promise.resolve().then(() => {
-        if (active) setRecommendationState({ conceptId: nextConcept?.conceptId ?? null, status: 'idle', session: null });
+        if (active) {
+          setRecommendationState({
+            conceptId:
+              nextConcept?.conceptId ?? null,
+            status:
+              'idle',
+            session:
+              null,
+          });
+        }
       });
-      return () => { active = false; };
+
+      return () => {
+        active = false;
+      };
     }
-    void Promise.resolve().then(() => {
-      if (active) setRecommendationState({ conceptId: nextConcept.conceptId, status: 'loading', session: null });
-      return getSessionsByConcept(nextConcept.conceptId);
-    }).then((sessions) => {
-      if (active) setRecommendationState({ conceptId: nextConcept.conceptId, status: 'success', session: selectRecommendedSession(sessions) });
-    }).catch(() => {
-      if (active) setRecommendationState({ conceptId: nextConcept.conceptId, status: 'success', session: null });
-    });
-    return () => { active = false; };
-  }, [catalog.status, getSessionsByConcept, nextConcept, progressLoading]);
+
+    // DASHBOARD_CANONICAL_RECOMMENDATION
+    const resolveRecommendation =
+      async () => {
+        if (active) {
+          setRecommendationState({
+            conceptId:
+              nextConcept.conceptId,
+            status:
+              'loading',
+            session:
+              null,
+          });
+        }
+
+        try {
+          const sessions =
+            await getSessionsByConcept(
+              nextConcept.conceptId,
+            );
+
+          const levelStatePromises =
+            new Map<
+              string,
+              ReturnType<
+                typeof browserLearningApi.getLevelState
+              >
+            >();
+
+          const stateFor =
+            (
+              session:
+                ExerciseSession,
+            ) => {
+              if (
+                session.levelId
+                === undefined
+              ) {
+                return Promise.resolve(
+                  undefined,
+                );
+              }
+
+              if (
+                accessToken
+                === null
+              ) {
+                return Promise.resolve(
+                  undefined,
+                );
+              }
+
+              const key =
+                `${session.conceptId}:${session.levelId}`;
+
+              const existing =
+                levelStatePromises.get(
+                  key,
+                );
+
+              if (
+                existing
+                !== undefined
+              ) {
+                return existing;
+              }
+
+              const request =
+                browserLearningApi
+                  .getLevelState(
+                    session.conceptId,
+                    session.levelId,
+                    accessToken,
+                  );
+
+              levelStatePromises.set(
+                key,
+                request,
+              );
+
+              return request;
+            };
+
+          const availability =
+            await Promise.all(
+              sessions.map(
+                async session => {
+                  if (
+                    session.levelId
+                    === undefined
+                  ) {
+                    return {
+                      session,
+                      allowed:
+                        true,
+                    };
+                  }
+
+                  try {
+                    const levelState =
+                      await stateFor(
+                        session,
+                      );
+
+                    return {
+                      session,
+                      allowed:
+                        canEnterLearningSession(
+                          session,
+                          levelState,
+                        ),
+                    };
+                  } catch {
+                    /*
+                     * Una verificación staged que falla
+                     * no debe producir un CTA optimista.
+                     */
+                    return {
+                      session,
+                      allowed:
+                        false,
+                    };
+                  }
+                },
+              ),
+            );
+
+          if (!active) {
+            return;
+          }
+
+          const allowedSessions =
+            availability
+              .filter(
+                item =>
+                  item.allowed,
+              )
+              .map(
+                item =>
+                  item.session,
+              );
+
+          setRecommendationState({
+            conceptId:
+              nextConcept.conceptId,
+            status:
+              'success',
+            session:
+              selectRecommendedSession(
+                allowedSessions,
+              ),
+          });
+        } catch {
+          if (active) {
+            setRecommendationState({
+              conceptId:
+                nextConcept.conceptId,
+              status:
+                'success',
+              session:
+                null,
+            });
+          }
+        }
+      };
+
+    void resolveRecommendation();
+
+    return () => {
+      active = false;
+    };
+  }, [
+    accessToken,
+    catalog.status,
+    getSessionsByConcept,
+    nextConcept,
+    progressLoading,
+  ]);
 
   const recommendation = useMemo<DashboardRecommendation | null>(() => {
     if (nextConcept === null || recommendationState.conceptId !== nextConcept.conceptId || recommendationState.session === null) return null;

@@ -1,0 +1,172 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-arrays",
+  "conceptId": "js-array-iteration",
+  "levelId": "mastery",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-arrays-mastery-grouping-01",
+  "title": "Taller: agrupación con claves dinámicas",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "advanced",
+  "position": 2,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué expresión usa el valor de key como nombre dinámico de propiedad?",
+      "code": "const key = 'libros';\nconst acc = {};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "acc.key",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "acc[key]",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "key.acc",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "acc = key",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "acc[key] evalúa el contenido de la variable key. acc.key accedería literalmente a una propiedad llamada key.",
+      "hints": [
+        "Compara punto frente a corchetes."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime grupos.a.total?",
+      "code": "const datos = [\n  { grupo: 'a', total: 10 },\n  { grupo: 'b', total: 20 },\n  { grupo: 'a', total: 5 },\n];\n\nconst grupos = datos.reduce((acc, item) => {\n  const key = item.grupo;\n  const actual = acc[key] || { total: 0 };\n  acc[key] = { total: actual.total + item.total };\n  return acc;\n}, {});\n\nconsole.log(grupos.a.total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "5",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "10",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "15",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "35",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los dos elementos del grupo a actualizan la misma clave: 10 + 5.",
+      "hints": [
+        "Ignora primero el grupo b."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué representa actual en este patrón de agrupación?",
+      "code": "const actual = acc[key] || {\n  cantidad: 0,\n  total: 0,\n};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "El resumen ya acumulado para esa clave o su estado inicial",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "El array original completo",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "La posición numérica del elemento",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Una copia automática de todos los grupos",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Si la clave ya existe se recupera su resumen; si no existe se parte de cantidad 0 y total 0.",
+      "hints": [
+        "Observa el operador ||."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "La función debe agrupar totales por tipo. Localiza el error.",
+      "code": "function agrupar(datos) {\n  return datos.reduce((acc, item) => {\n    const key = item.tipo;\n    acc.key = (acc.key || 0) + item.total;\n    return acc;\n  }, {});\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "clave",
+          "text": "Conceptual: usa acc.key en vez de acc[key]",
+          "correct": true
+        },
+        {
+          "id": "reduce",
+          "text": "Conceptual: reduce no puede devolver objetos",
+          "correct": false
+        },
+        {
+          "id": "return",
+          "text": "Flujo: sobra return acc",
+          "correct": false
+        },
+        {
+          "id": "inicial",
+          "text": "Conceptual: {} debería ser []",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        4
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "acc.key escribe siempre la propiedad literal key. Para usar el valor de la variable debe escribirse acc[key].",
+      "hints": [
+        "La clave cambia según item.tipo."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "createdAt": "2026-09-18",
+  "updatedAt": null
+}

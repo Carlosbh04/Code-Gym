@@ -311,6 +311,326 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-arrays-deepening-callback-effects-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Hay tres elementos.",
+            "contador cambia dentro del callback."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Busca el callback que solo depende de su argumento."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Busca una asignación innecesaria."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La solución solo debe leer usuario.activo."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-deepening-chaining-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Ejecuta mentalmente la cadena de izquierda a derecha."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "El pedido de total 20 no está pagado."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Seleccionar corresponde a filter.",
+            "Transformar corresponde a map."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Pregunta qué produce el primer map."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "filter no clona los objetos."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Evita escribir sobre u.nombre."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Selecciona antes de transformar."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "El producto de precio 20 no está disponible."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-deepening-mutation-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Busca una asignación a una propiedad."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "¿Se creó un objeto nuevo dentro de map?"
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa = dentro del callback."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "La respuesta debe devolver un objeto nuevo."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "El array es nuevo.",
+            "Pregunta si el objeto también fue clonado."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "No debes escribir sobre usuario.nombre.",
+            "Necesitas devolver otro objeto."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Observa el operador usado.",
+            "= no significa comparar."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Resuelve primero filter.",
+            "Después aplica map sobre su resultado."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Calcula el resultado de cada método por separado."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-deepening-references-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "No se creó ningún objeto nuevo."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Aquí sí aparece {...original}."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Busca la opción que construye otro objeto."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Busca una escritura sobre el objeto recibido."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-arrays-filter-mutation-01",
       "technologyId": "javascript",
       "topicId": "js-arrays",
@@ -322,12 +642,11 @@ export const verifierManifest = {
           "id": "step-1",
           "type": "code-reading",
           "correctOptionIds": [
-            "c"
+            "b"
           ],
           "hints": [
-            "Lee con atención el operador dentro del callback.",
-            "¿Qué valor produce una expresión de asignación como `x = true`?",
-            "Si el callback siempre devuelve `true`, ¿qué elementos descarta `filter`?"
+            "Evalúa la condición para cada número.",
+            "filter conserva los elementos que cumplen la condición."
           ]
         },
         {
@@ -337,21 +656,19 @@ export const verifierManifest = {
             "b"
           ],
           "hints": [
-            "`filter` no toca el array. ¿Y los objetos de dentro?",
-            "El parámetro `u` no es una copia del objeto."
+            "Cuenta solo los valores mayores o iguales a 18."
           ]
         },
         {
           "id": "step-3",
           "type": "find-error",
           "errorLines": [
-            3
+            2
           ],
-          "errorType": "mutacion",
+          "errorType": "conceptual",
           "hints": [
-            "La función devuelve lo que promete. Mira qué más hace por el camino.",
-            "Pregúntate qué le ocurre al array que recibe quien llama a esta función.",
-            "Una de las dos líneas del cuerpo del callback no debería estar ahí."
+            "La condición ya es correcta.",
+            "Piensa qué método selecciona elementos."
           ]
         },
         {
@@ -360,61 +677,154 @@ export const verifierManifest = {
           "testCases": [
             {
               "input": [
-                {
-                  "nombre": "Ana",
-                  "activo": false
-                },
-                {
-                  "nombre": "Luis",
-                  "activo": true
-                }
+                -2,
+                0,
+                3,
+                5
               ],
               "expected": [
-                {
-                  "nombre": "Luis",
-                  "activo": true
-                }
+                3,
+                5
               ],
-              "call": "usuariosActivos(input)",
-              "description": "devuelve solo los usuarios activos"
-            },
-            {
-              "input": [
-                {
-                  "nombre": "Ana",
-                  "activo": false
-                },
-                {
-                  "nombre": "Luis",
-                  "activo": true
-                }
-              ],
-              "expected": false,
-              "call": "(usuariosActivos(input), input[0].activo)",
-              "description": "no modifica los objetos del array recibido"
-            },
-            {
-              "input": [
-                {
-                  "nombre": "Ana",
-                  "activo": false
-                }
-              ],
-              "expected": [],
-              "call": "usuariosActivos(input)",
-              "description": "si no hay activos devuelve un array vacío"
+              "call": "positivos(input)",
+              "description": "conserva únicamente los números positivos"
             },
             {
               "input": [],
               "expected": [],
-              "call": "usuariosActivos(input)",
+              "call": "positivos(input)",
               "description": "un array vacío devuelve un array vacío"
+            },
+            {
+              "input": [
+                -3,
+                -1
+              ],
+              "expected": [],
+              "call": "positivos(input)",
+              "description": "devuelve vacío cuando ninguno cumple"
             }
           ],
           "hints": [
-            "Solo hay que cambiar un operador.",
-            "`=` asigna; para comparar hace falta otro.",
-            "El callback tiene que responder una pregunta, no cambiar el objeto."
+            "No tienes que cambiar la condición.",
+            "Necesitas seleccionar, no transformar."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-iteration-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Necesitas transformar todos los elementos.",
+            "El resultado debe seguir siendo un array."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "No confundas el retorno del callback con el retorno de forEach."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Quieres seleccionar, no transformar."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Empieza por el valor inicial 0.",
+            "Sigue el acumulador en cada vuelta."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-iteration-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "No mires solamente lo que devuelve el callback.",
+            "Piensa en el valor de retorno del propio método `forEach`."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "`map` construye una colección nueva.",
+            "Separa mentalmente el array original del valor retornado por `map`."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "No quieres transformar los números.",
+            "Necesitas conservar solo algunos elementos."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "El segundo argumento de `reduce` es el valor inicial.",
+            "Sigue el acumulador en cada iteración."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "No quieres seleccionar elementos: quieres transformar cada uno.",
+            "Busca el método cuyo resultado natural es otro array del mismo tamaño."
           ]
         }
       ]
@@ -511,6 +921,332 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-arrays-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Cuenta las apariciones de js."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Necesitas acc[key] y un valor inicial objeto."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue ambos campos del acumulador."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Analiza la primera aparición de una clave."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Resuelve una etapa cada vez."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-mastery-frequency-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Cuenta únicamente los elementos 'error'."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Piensa en categoría -> cantidad."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "¿Qué vale acc[categoria] la primera vez?"
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La primera aparición debe producir 1."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-mastery-grouping-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Compara punto frente a corchetes."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Ignora primero el grupo b."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Observa el operador ||."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "La clave cambia según item.tipo."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-mastery-integrated-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Piensa en la responsabilidad de cada etapa."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Resuelve filter, luego map y luego reduce."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "La cadena se evalúa de izquierda a derecha."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            6
+          ],
+          "errorType": "flow",
+          "hints": [
+            "Revisa el final del callback de reduce."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-mastery-object-accumulator-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Observa el segundo argumento de reduce."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Sigue el valor de acc.total."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "flow",
+          "hints": [
+            "Mira qué devuelve el callback."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Busca un objeto con dos campos."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays",
+      "conceptId": "js-array-iteration",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Cuenta cuántas veces aparece 'js'.",
+            "Cada aparición actualiza la misma propiedad."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Piensa en la forma del resultado final."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue total y cantidad por separado."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "La propiedad no se llama literalmente 'categoria'."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Lee la cadena de izquierda a derecha."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-arrays-reduce-accumulator-01",
       "technologyId": "javascript",
       "topicId": "js-arrays",
@@ -525,33 +1261,30 @@ export const verifierManifest = {
             "b"
           ],
           "hints": [
-            "Compara `(acc, item) => acc + item.precio` con lo que hay escrito aquí.",
-            "¿Qué devuelve una función de flecha con llaves y sin `return`?",
-            "Sigue el valor del acumulador vuelta a vuelta empezando por 0."
+            "Empieza por el valor inicial.",
+            "Suma cada precio al acumulador."
           ]
         },
         {
           "id": "step-2",
           "type": "predict-output",
           "correctOptionIds": [
-            "d"
+            "a"
           ],
           "hints": [
-            "¿De dónde saca `reduce` el acumulador de la primera vuelta si no le das valor inicial?",
-            "El array está vacío. ¿Hay un primer elemento del que partir?"
+            "El segundo argumento es el valor inicial."
           ]
         },
         {
           "id": "step-3",
           "type": "find-error",
           "errorLines": [
-            5
+            3
           ],
-          "errorType": "logico",
+          "errorType": "flujo",
           "hints": [
-            "Las tres líneas del cuerpo hacen cosas distintas. Solo una está mal.",
-            "¿Qué tiene que valer `acc` en la segunda vuelta?",
-            "Mira qué devuelve el callback y compáralo con lo que recibe como primer parámetro."
+            "¿Qué devuelve actualmente el callback?",
+            "Con llaves no existe retorno implícito."
           ]
         },
         {
@@ -560,57 +1293,33 @@ export const verifierManifest = {
           "testCases": [
             {
               "input": [
-                {
-                  "nombre": "teclado",
-                  "tipo": "perifericos"
-                },
-                {
-                  "nombre": "raton",
-                  "tipo": "perifericos"
-                },
-                {
-                  "nombre": "monitor",
-                  "tipo": "pantallas"
-                }
+                10,
+                20,
+                30
               ],
-              "expected": {
-                "perifericos": [
-                  "teclado",
-                  "raton"
-                ],
-                "pantallas": [
-                  "monitor"
-                ]
-              },
-              "call": "agrupar(input)",
-              "description": "agrupa los nombres por tipo respetando el orden"
-            },
-            {
-              "input": [
-                {
-                  "nombre": "monitor",
-                  "tipo": "pantallas"
-                }
-              ],
-              "expected": {
-                "pantallas": [
-                  "monitor"
-                ]
-              },
-              "call": "agrupar(input)",
-              "description": "un solo producto crea un solo grupo"
+              "expected": 60,
+              "call": "sumar(input)",
+              "description": "suma varios números"
             },
             {
               "input": [],
-              "expected": {},
-              "call": "agrupar(input)",
-              "description": "un array vacío devuelve un objeto vacío"
+              "expected": 0,
+              "call": "sumar(input)",
+              "description": "un array vacío devuelve el valor inicial"
+            },
+            {
+              "input": [
+                -5,
+                5
+              ],
+              "expected": 0,
+              "call": "sumar(input)",
+              "description": "funciona con números negativos"
             }
           ],
           "hints": [
-            "Solo hay que cambiar una línea.",
-            "El acumulador se llama `acc`.",
-            "Lo que devuelve el callback es lo que recibirá la siguiente vuelta como primer parámetro."
+            "El callback debe producir el acumulador siguiente.",
+            "Puedes usar retorno implícito o return explícito."
           ]
         }
       ]
@@ -1416,6 +2125,58 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-functions-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": 120,
+              "expected": "avanzado",
+              "call": "clasificar(input)",
+              "description": "clasifica nivel avanzado"
+            },
+            {
+              "input": 20,
+              "expected": "inicial",
+              "call": "clasificar(input)",
+              "description": "clasifica nivel inicial"
+            }
+          ],
+          "hints": [
+            "Revisa entradas, ámbito y retorno.",
+            "Comprueba los casos límite incluidos en los tests."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Revisa el contrato del nivel antes de responder."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-functions-default-parameters-01",
       "technologyId": "javascript",
       "topicId": "js-functions",
@@ -1504,6 +2265,211 @@ export const verifierManifest = {
             "El arreglo está en la firma de la función, no en el cuerpo.",
             "JavaScript ya tiene una forma de dar valor a un parámetro ausente.",
             "Si usas el parámetro por defecto, la línea 2 sobra."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                10,
+                2
+              ],
+              "expected": 12,
+              "call": "calcular(...input)",
+              "description": "suma impuesto explícito"
+            },
+            {
+              "input": [
+                10
+              ],
+              "expected": 10,
+              "call": "calcular(...input)",
+              "description": "usa impuesto 0 por defecto"
+            }
+          ],
+          "hints": [
+            "Revisa entradas, ámbito y retorno.",
+            "Comprueba los casos límite incluidos en los tests."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Revisa el contrato del nivel antes de responder."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                "Ana",
+                0
+              ],
+              "expected": {
+                "nombre": "Ana",
+                "edad": 0
+              },
+              "call": "crearPerfil(...input)",
+              "description": "conserva edad cero"
+            },
+            {
+              "input": [],
+              "expected": {
+                "nombre": "Invitado",
+                "edad": 18
+              },
+              "call": "crearPerfil(...input)",
+              "description": "usa defaults cuando faltan argumentos"
+            }
+          ],
+          "hints": [
+            "Revisa entradas, ámbito y retorno.",
+            "Comprueba los casos límite incluidos en los tests."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-mastery-consistent-return-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                [
+                  {
+                    "id": 1,
+                    "nombre": "Ana"
+                  }
+                ],
+                1
+              ],
+              "expected": {
+                "id": 1,
+                "nombre": "Ana"
+              },
+              "call": "buscarUsuario(...input)",
+              "description": "devuelve el usuario encontrado"
+            },
+            {
+              "input": [
+                [],
+                7
+              ],
+              "expected": null,
+              "call": "buscarUsuario(...input)",
+              "description": "devuelve null explícitamente cuando no existe"
+            }
+          ],
+          "hints": [
+            "Haz explícito el contrato de entrada y salida.",
+            "No sustituyas valores válidos por accidente."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-mastery-contracts-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                0,
+                false
+              ],
+              "expected": {
+                "reintentos": 0,
+                "silencioso": false
+              },
+              "call": "configurar(...input)",
+              "description": "conserva valores falsy válidos"
+            },
+            {
+              "input": [],
+              "expected": {
+                "reintentos": 3,
+                "silencioso": true
+              },
+              "call": "configurar(...input)",
+              "description": "aplica defaults cuando faltan argumentos"
+            }
+          ],
+          "hints": [
+            "Haz explícito el contrato de entrada y salida.",
+            "No sustituyas valores válidos por accidente."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Revisa el contrato del nivel antes de responder."
           ]
         }
       ]
@@ -2164,6 +3130,47 @@ export const verifierManifest = {
           "hints": [
             "Las Promise se crean, pero no salen de cargar.",
             "Añade return a cada rama."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-basics-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "option-a"
+          ],
+          "hints": [
+            "Observa el valor que aparece a la derecha del signo igual."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "option-b"
+          ],
+          "hints": [
+            "Mira la última asignación realizada a contador."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "assignment-to-constant",
+          "hints": [
+            "Comprueba cómo fue declarada edad antes de intentar cambiarla."
           ]
         }
       ]

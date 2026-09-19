@@ -130,6 +130,8 @@ function createApp(
 describe('HTTP application', () => {
   it('keeps proxy trust disabled until deployment topology is defined', () => {
     const app = createApp({
+      loginFailureKeySecret:
+        'test-login-failure-key-secret',
       config: testConfig(),
       logger,
       databaseHealthCheck,
@@ -141,6 +143,8 @@ describe('HTTP application', () => {
   it('reports health through a Supertest-managed listener', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -157,6 +161,8 @@ describe('HTTP application', () => {
   it('reports a healthy injected database dependency', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -184,6 +190,8 @@ describe('HTTP application', () => {
     async (unhealthyCheck) => {
       const response = await request(
         createApp({
+          loginFailureKeySecret:
+            'test-login-failure-key-secret',
           config: testConfig(),
           logger,
           databaseHealthCheck:
@@ -229,6 +237,8 @@ describe('HTTP application', () => {
 
     await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger: httpLogger,
 
@@ -253,6 +263,8 @@ describe('HTTP application', () => {
   it('does not expose health as a business mutation endpoint', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -276,6 +288,8 @@ describe('HTTP application', () => {
   it('adds security headers and does not identify Express', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -302,6 +316,8 @@ describe('HTTP application', () => {
   it('reflects an exactly allowed CORS origin with credentials enabled', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -345,6 +361,8 @@ describe('HTTP application', () => {
   it('does not emit CORS headers for a disallowed origin', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -368,6 +386,8 @@ describe('HTTP application', () => {
   it('allows requests without an Origin header', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -386,6 +406,8 @@ describe('HTTP application', () => {
   it('answers allowed CORS preflight requests deterministically', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -433,6 +455,8 @@ describe('HTTP application', () => {
   it('does not grant a disallowed CORS preflight request', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -466,6 +490,8 @@ describe('HTTP application', () => {
   it('returns a consistent JSON 404', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -485,6 +511,8 @@ describe('HTTP application', () => {
   it('rejects malformed JSON with a safe 400 response', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -511,6 +539,8 @@ describe('HTTP application', () => {
   it('rejects JSON primitives because the parser is strict', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -590,6 +620,8 @@ describe('HTTP application', () => {
   it('accepts a JSON body below 100kb before routing it to the 404 handler', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -615,6 +647,8 @@ describe('HTTP application', () => {
   it('rejects JSON bodies larger than 100kb', async () => {
     const response = await request(
       createApp({
+        loginFailureKeySecret:
+          'test-login-failure-key-secret',
         config: testConfig(),
         logger,
         databaseHealthCheck,
@@ -701,6 +735,8 @@ describe('HTTP application', () => {
     );
 
     const app = createApp({
+      loginFailureKeySecret:
+        'test-login-failure-key-secret',
       config: testConfig(),
       logger: httpLogger,
       databaseHealthCheck,

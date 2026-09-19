@@ -196,6 +196,8 @@ function testApp(
 ) {
 
   return createApp({
+    loginFailureKeySecret:
+      'test-login-failure-key-secret',
 
     config: testConfig(),
 

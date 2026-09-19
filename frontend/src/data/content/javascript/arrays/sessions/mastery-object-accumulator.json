@@ -1,0 +1,172 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-arrays",
+  "conceptId": "js-array-iteration",
+  "levelId": "mastery",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-arrays-mastery-object-accumulator-01",
+  "title": "Taller: reduce con acumuladores objeto",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "advanced",
+  "position": 1,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué forma tiene el acumulador durante este reduce?",
+      "code": "const resultado = numeros.reduce((acc, numero) => {\n  acc.total = acc.total + numero;\n  return acc;\n}, { total: 0 });",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un número",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Un objeto",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "Un booleano",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Un string",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El valor inicial es { total: 0 }, por lo que acc es un objeto durante la reducción.",
+      "hints": [
+        "Observa el segundo argumento de reduce."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime resultado.total?",
+      "code": "const numeros = [2, 3, 5];\n\nconst resultado = numeros.reduce((acc, numero) => {\n  acc.total = acc.total + numero;\n  return acc;\n}, { total: 0 });\n\nconsole.log(resultado.total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "5",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "8",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "10",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El campo total comienza en 0 y acumula 2 + 3 + 5.",
+      "hints": [
+        "Sigue el valor de acc.total."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El código debe devolver un objeto con el total. Localiza el error.",
+      "code": "function resumir(numeros) {\n  return numeros.reduce((acc, numero) => {\n    acc.total = acc.total + numero;\n  }, { total: 0 });\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "sin-return",
+          "text": "Flujo: falta devolver acc desde el callback",
+          "correct": true
+        },
+        {
+          "id": "valor-inicial",
+          "text": "Conceptual: el valor inicial debería ser 0",
+          "correct": false
+        },
+        {
+          "id": "metodo",
+          "text": "Conceptual: debería utilizarse filter",
+          "correct": false
+        },
+        {
+          "id": "propiedad",
+          "text": "Tipo: un objeto no puede tener total",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "flow",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El callback debe devolver el acumulador actualizado para que la siguiente vuelta lo reciba.",
+      "hints": [
+        "Mira qué devuelve el callback."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "code-reading",
+      "prompt": "¿Qué implementación mantiene total y cantidad en el mismo acumulador?",
+      "code": "const precios = [10, 20, 30];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "precios.reduce((acc, p) => ({ total: acc.total + p, cantidad: acc.cantidad + 1 }), { total: 0, cantidad: 0 })",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "precios.map((p) => p + 1)",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "precios.filter((p) => p > 0)",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "precios.forEach((p) => p)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El acumulador objeto puede mantener ambas métricas en una única reducción.",
+      "hints": [
+        "Busca un objeto con dos campos."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "createdAt": "2026-09-18",
+  "updatedAt": null
+}

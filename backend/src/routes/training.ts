@@ -22,6 +22,8 @@ import {
   TrainingHintsExhaustedError,
   TrainingRunClosedPublicError,
   TrainingRunNotFoundPublicError,
+  TrainingSessionLockedError,
+  TrainingProgressionUnavailableError,
   TrainingSessionUnavailableError,
   VerifierExerciseNotFoundError,
   type TrainingService,
@@ -129,6 +131,34 @@ export function createTrainingRouter({
             'TRAINING_SESSION_NOT_FOUND',
             'Training session was not found',
           );
+          return;
+        }
+
+        if (
+          error instanceof
+            TrainingProgressionUnavailableError
+        ) {
+          respondError(
+            response,
+            503,
+            'TRAINING_PROGRESSION_UNAVAILABLE',
+            'Training progression is temporarily unavailable',
+          );
+
+          return;
+        }
+
+        if (
+          error instanceof
+            TrainingSessionLockedError
+        ) {
+          respondError(
+            response,
+            409,
+            'TRAINING_SESSION_LOCKED',
+            'Training session is locked by learning progression',
+          );
+
           return;
         }
 

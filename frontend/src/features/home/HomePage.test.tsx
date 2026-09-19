@@ -63,6 +63,29 @@ import type {
   ProgressContextValue,
 } from '@/types/progress';
 
+
+import { browserLearningApi } from '@/features/learning/learning-api';
+
+const authMockState =
+  vi.hoisted(
+    () => ({
+      accessToken:
+        null as string | null,
+    }),
+  );
+
+// HOME_TEST_AUTH_MOCK
+vi.mock(
+  '@/features/auth/AuthContext',
+  () => ({
+    useAuth:
+      () => ({
+        accessToken:
+          authMockState.accessToken,
+      }),
+  }),
+);
+
 import HomePage from './HomePage';
 
 const JAVASCRIPT: Technology = {
@@ -318,6 +341,7 @@ const ACTIVE_DASHBOARD: DashboardSnapshot = {
 };
 
 interface RenderHomeOptions {
+  javascriptSessions?: ExerciseSession[];
   technologies?: Technology[];
   contentLoading?: boolean;
 
@@ -340,6 +364,9 @@ interface RenderHomeOptions {
 }
 
 function renderHome({
+  javascriptSessions = [
+    JS_SESSION,
+  ],
   technologies = [
     JAVASCRIPT,
     HTML,
@@ -399,7 +426,7 @@ function renderHome({
     getSessionsByConcept: vi.fn(
       async (conceptId) =>
         conceptId === ITERATION.id
-          ? [JS_SESSION]
+          ? javascriptSessions
           : conceptId === SEMANTICS.id
             ? [HTML_SESSION]
             : [],
@@ -508,6 +535,142 @@ function renderHome({
     recoveryStore,
   };
 }
+
+describe(
+  'HomePage · canonical continue gate',
+  () => {
+    it(
+      'no ofrece /practice para una sesión staged bloqueada',
+      async () => {
+        // HOME_CANONICAL_CONTINUE_REGRESSION
+        authMockState.accessToken =
+          'home-canonical-token';
+
+        const stagedSession:
+          ExerciseSession = {
+            ...JS_SESSION,
+
+            id:
+              'home-staged-session',
+
+            title:
+              'Práctica staged Home',
+
+            kind:
+              'practice',
+
+            levelId:
+              'foundation',
+
+            requiredForProgression:
+              true,
+          };
+
+        const getLevelState =
+          vi.spyOn(
+            browserLearningApi,
+            'getLevelState',
+          ).mockResolvedValue({
+            conceptId:
+              stagedSession.conceptId,
+
+            levelId:
+              'foundation',
+
+            previousLevelId:
+              null,
+
+            nextLevelId:
+              null,
+
+            locked:
+              true,
+
+            lockReason:
+              'previous-concept-incomplete',
+
+            stages: {
+              theory: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+
+              quiz: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+
+              practice: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+
+              checkpoint: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+            },
+
+            completed:
+              false,
+
+            completedAt:
+              null,
+          });
+
+        const rendered =
+          renderHome({
+            javascriptSessions: [
+              stagedSession,
+            ],
+
+            progress:
+              new Map([
+                [
+                  PROGRESS.conceptId,
+                  PROGRESS,
+                ],
+              ]),
+          });
+
+        try {
+          await waitFor(
+            () => {
+              expect(
+                getLevelState,
+              ).toHaveBeenCalledWith(
+                stagedSession.conceptId,
+                'foundation',
+                'home-canonical-token',
+              );
+            },
+          );
+
+          expect(
+            rendered.container.querySelector(
+              `a[href="/practice/${stagedSession.id}"]`,
+            ),
+          ).not.toBeInTheDocument();
+        } finally {
+          rendered.unmount();
+
+          authMockState.accessToken =
+            null;
+
+          getLevelState.mockRestore();
+        }
+      },
+    );
+  },
+);
 
 describe('HomePage', () => {
   it('muestra onboarding para un usuario realmente nuevo sin métricas vacías', async () => {

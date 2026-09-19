@@ -1,0 +1,65 @@
+{
+  "id": "js-variables-basics",
+  "name": "Variables: let y const",
+  "topicId": "js-fundamentals",
+  "technologyId": "javascript",
+  "position": 0,
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Introducción",
+        "body": "Una variable permite guardar un valor para poder utilizarlo después en el programa."
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Entender qué es una variable",
+          "Declarar valores con let y const",
+          "Saber cuándo un valor puede cambiar"
+        ]
+      },
+      {
+        "type": "explanation",
+        "title": "¿Qué es una variable?",
+        "body": "Una variable es un nombre asociado a un valor. Ese nombre permite leer o reutilizar el valor sin repetirlo directamente."
+      },
+      {
+        "type": "explanation",
+        "title": "const",
+        "body": "const se utiliza cuando la variable no debe recibir otra asignación después de declararse."
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo con const",
+        "language": "javascript",
+        "code": "const nombre = \"Carlos\";",
+        "caption": "nombre mantiene la misma asignación."
+      },
+      {
+        "type": "explanation",
+        "title": "let",
+        "body": "let se utiliza cuando el valor de la variable necesita cambiar durante la ejecución del programa."
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo con let",
+        "language": "javascript",
+        "code": "let edad = 25;\nedad = 26;",
+        "caption": "edad puede recibir una nueva asignación."
+      },
+      {
+        "type": "key-point",
+        "title": "Punto clave",
+        "body": "Usa const por defecto y cambia a let solamente cuando realmente necesites reasignar la variable."
+      },
+      {
+        "type": "quick-check",
+        "title": "Comprobación rápida",
+        "question": "Si un valor no necesita cambiar, ¿qué declaración deberías preferir?",
+        "answer": "const"
+      }
+    ]
+  }
+}

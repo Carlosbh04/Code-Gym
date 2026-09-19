@@ -3,11 +3,292 @@
   "name": "Parámetros, ámbito y retorno",
   "topicId": "js-functions",
   "technologyId": "javascript",
-  "content": { "sections": [
-    { "type": "intro", "title": "Introducción", "body": "Las funciones agrupan una tarea, reciben datos y devuelven un resultado o un efecto." },
-    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Leer parámetros", "Seguir un return"] },
-    { "type": "code", "title": "Ejemplo", "language": "javascript", "code": "function total(price, tax = 0) { return price + tax; }" },
-    { "type": "warning", "title": "Error común", "body": "Olvidar return hace que una función que debía producir un valor devuelva undefined." },
-    { "type": "quick-check", "question": "¿Qué devuelve total(10, 2)?", "answer": "12." }
-  ] }
+  "position": 0,
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "levelId": "foundation",
+        "title": "Fundamentos de una función",
+        "body": "Una función recibe datos mediante parámetros, ejecuta una tarea y puede devolver un resultado. Entender qué entra y qué sale permite razonar sobre su comportamiento antes de ejecutarla."
+      },
+      {
+        "type": "objectives",
+        "levelId": "foundation",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Distinguir parámetros de argumentos",
+          "Comprender cuándo se aplica un parámetro por defecto",
+          "Reconocer que undefined activa el valor por defecto",
+          "Diferenciar null, 0, false y cadena vacía de un argumento ausente",
+          "Seguir un return sencillo"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "foundation",
+        "title": "Parámetros y argumentos",
+        "body": "Los parámetros son los nombres declarados en la función. Los argumentos son los valores concretos enviados al llamarla. Cada llamada puede proporcionar valores diferentes."
+      },
+      {
+        "type": "code",
+        "levelId": "foundation",
+        "title": "Parámetro y argumento",
+        "language": "javascript",
+        "code": "function saludar(nombre) {\n  return `Hola, ${nombre}`;\n}\n\nsaludar('Ada');"
+      },
+      {
+        "type": "quick-check",
+        "levelId": "foundation",
+        "question": "En saludar('Ada'), ¿qué es 'Ada'?",
+        "answer": "El argumento enviado al parámetro nombre."
+      },
+      {
+        "type": "explanation",
+        "levelId": "foundation",
+        "title": "El valor por defecto solo se activa con undefined",
+        "body": "Un parámetro por defecto se utiliza cuando no se proporciona argumento o cuando el argumento es undefined. Valores como null, 0, false y una cadena vacía siguen siendo valores explícitos."
+      },
+      {
+        "type": "code",
+        "levelId": "foundation",
+        "title": "Valores por defecto",
+        "language": "javascript",
+        "code": "function precioFinal(base, descuento = 10) {\n  return base - descuento;\n}\n\nprecioFinal(100);            // 90\nprecioFinal(100, 0);         // 100\nprecioFinal(100, undefined); // 90"
+      },
+      {
+        "type": "warning",
+        "levelId": "foundation",
+        "title": "No sustituyas un parámetro por defecto con ||",
+        "body": "La expresión cantidad = cantidad || 1 también reemplaza valores válidos como 0, false o una cadena vacía. Un parámetro por defecto conserva esos valores."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "foundation",
+        "question": "¿Se aplica el valor por defecto si el argumento es null?",
+        "answer": "No. null es un valor explícito; el valor por defecto se activa con undefined."
+      },
+      {
+        "type": "explanation",
+        "levelId": "foundation",
+        "title": "Return produce el resultado",
+        "body": "return termina la ejecución de la función y entrega un valor al código que realizó la llamada. Si una función llega al final sin ejecutar return, devuelve undefined."
+      },
+      {
+        "type": "code",
+        "levelId": "foundation",
+        "title": "Devolver un resultado",
+        "language": "javascript",
+        "code": "function total(precio, impuesto = 0) {\n  return precio + impuesto;\n}\n\nconst resultado = total(10, 2);\nconsole.log(resultado); // 12"
+      },
+      {
+        "type": "quick-check",
+        "levelId": "foundation",
+        "question": "¿Qué devuelve una función que termina sin ejecutar ningún return?",
+        "answer": "undefined."
+      },
+      {
+        "type": "key-point",
+        "levelId": "foundation",
+        "title": "Resumen",
+        "body": "Los parámetros describen las entradas de la función, los argumentos proporcionan los valores y return define su resultado. Los parámetros por defecto solo sustituyen undefined."
+      },
+      {
+        "type": "intro",
+        "levelId": "deepening",
+        "title": "Profundización",
+        "body": "Una función no solo depende de sus entradas y salidas. También importa dónde existen sus variables, cuándo pueden utilizarse y qué caminos de ejecución alcanzan realmente un return."
+      },
+      {
+        "type": "objectives",
+        "levelId": "deepening",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Distinguir ámbito de función y ámbito de bloque",
+          "Comprender las diferencias entre var, let y const",
+          "Reconocer la zona muerta temporal",
+          "Diferenciar declaraciones de función y expresiones asignadas a const",
+          "Seguir todos los caminos de retorno",
+          "Detectar retornos prematuros"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Ámbito de bloque y ámbito de función",
+        "body": "let y const pertenecen al bloque delimitado por llaves donde se declaran. var pertenece al ámbito de la función y puede seguir existiendo después de un bloque interno."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "El bloque cambia qué variables existen",
+        "language": "javascript",
+        "code": "function ejemplo() {\n  if (true) {\n    var a = 'var';\n    let b = 'let';\n  }\n\n  console.log(a);        // 'var'\n  console.log(typeof b); // 'undefined'\n}"
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "question": "¿Puede utilizarse fuera de un if un const declarado dentro de ese if?",
+        "answer": "No. const tiene ámbito de bloque."
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Hoisting no significa que todo pueda usarse antes",
+        "body": "Las declaraciones de función se elevan con su implementación disponible. let y const también se registran antes de su línea de declaración, pero permanecen inaccesibles en la zona muerta temporal."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Declaración frente a expresión",
+        "language": "javascript",
+        "code": "declarada(); // funciona\n\nfunction declarada() {}\n\n// expresada(); // ReferenceError\nconst expresada = function () {};"
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "question": "¿typeof evita un ReferenceError si un const está todavía en su zona muerta temporal?",
+        "answer": "No."
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Todos los caminos importan",
+        "body": "Una función puede devolver correctamente en un camino y terminar con undefined en otro. Para razonar sobre ella hay que recorrer cada rama posible."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Una rama sin return",
+        "language": "javascript",
+        "code": "function clasificar(edad) {\n  if (edad >= 18) {\n    return 'adulto';\n  }\n\n  return 'menor';\n}"
+      },
+      {
+        "type": "warning",
+        "levelId": "deepening",
+        "title": "Un return prematuro detiene todo",
+        "body": "Cuando se ejecuta return, ninguna instrucción posterior de esa llamada se ejecuta. Un retorno colocado demasiado pronto puede impedir validaciones, acumulaciones o transformaciones posteriores."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "question": "Si una función ejecuta return dentro del primer if, ¿continúa evaluando las instrucciones posteriores?",
+        "answer": "No. La ejecución de esa llamada termina inmediatamente."
+      },
+      {
+        "type": "key-point",
+        "levelId": "deepening",
+        "title": "Resumen",
+        "body": "El ámbito determina dónde existe cada variable. El hoisting determina cuándo puede accederse a una declaración. El flujo de control determina qué return se ejecuta realmente."
+      },
+      {
+        "type": "intro",
+        "levelId": "mastery",
+        "title": "Dominio",
+        "body": "Dominar funciones significa poder diseñar contratos previsibles: entradas válidas, comportamiento claro ante casos límite y un resultado consistente en todos los caminos importantes."
+      },
+      {
+        "type": "objectives",
+        "levelId": "mastery",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Diseñar firmas de función que expresen valores opcionales correctamente",
+          "Evitar defaults que destruyen valores falsy válidos",
+          "Garantizar retornos coherentes",
+          "Separar validación de salida prematura accidental",
+          "Construir funciones pequeñas que puedan componerse",
+          "Revisar contratos de entrada y salida"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Una función tiene un contrato",
+        "body": "La firma y el comportamiento observable forman un contrato: qué datos acepta, qué casos considera ausencia, qué devuelve y en qué situaciones termina antes. Un contrato claro reduce comportamientos sorprendentes."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Preservar valores válidos",
+        "language": "javascript",
+        "code": "function configurar(reintentos = 3, silencioso = false) {\n  return { reintentos, silencioso };\n}\n\nconfigurar(0, false); // conserva ambos valores"
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "question": "¿Por qué reintentos = reintentos || 3 rompe un contrato que acepta 0?",
+        "answer": "Porque || trata 0 como falsy y lo sustituye aunque sea un valor válido."
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Retornos consistentes",
+        "body": "Si una función representa una operación que produce un resultado, sus caminos principales deberían devolver valores compatibles. Mezclar objetos, undefined y booleanos accidentalmente obliga al llamador a adivinar qué ocurrió."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Contrato de retorno previsible",
+        "language": "javascript",
+        "code": "function buscarUsuario(usuarios, id) {\n  const usuario = usuarios.find((item) => item.id === id);\n\n  if (usuario === undefined) {\n    return null;\n  }\n\n  return usuario;\n}"
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "question": "¿Qué ventaja tiene devolver null explícitamente cuando no existe un usuario?",
+        "answer": "Hace explícito el caso de ausencia y mantiene previsible el contrato de retorno."
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Separar pasos facilita componer funciones",
+        "body": "Cuando cada función realiza una transformación concreta y devuelve su resultado, puede utilizarse como entrada de otra función sin depender de variables externas ni efectos ocultos."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Composición sencilla",
+        "language": "javascript",
+        "code": "function limpiar(texto) {\n  return texto.trim();\n}\n\nfunction unirNombre(nombre, apellido) {\n  return `${limpiar(nombre)} ${limpiar(apellido)}`;\n}"
+      },
+      {
+        "type": "warning",
+        "levelId": "mastery",
+        "title": "No confundas guard clauses con retornos accidentales",
+        "body": "Salir pronto puede ser correcto cuando la condición representa un caso completo y deliberado. Es un error cuando impide terminar parte del trabajo que todavía debía ejecutarse."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "question": "¿Cuándo es seguro un return temprano?",
+        "answer": "Cuando resuelve de forma completa e intencional ese camino y no omite trabajo necesario."
+      },
+      {
+        "type": "key-point",
+        "levelId": "mastery",
+        "title": "Resumen",
+        "body": "Una función robusta conserva valores válidos, tiene reglas explícitas para ausencia, devuelve resultados previsibles y termina temprano solo cuando ese camino está realmente completo."
+      }
+    ]
+  },
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Comprende parámetros, valores por defecto, argumentos y retornos básicos de una función.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Analiza ámbito, hoisting, zona muerta temporal y flujo de retorno en diferentes caminos de ejecución.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Diseña funciones robustas con contratos claros, retornos consistentes y manejo correcto de casos límite.",
+      "position": 2
+    }
+  ]
 }

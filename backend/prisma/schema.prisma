@@ -44,6 +44,8 @@ model User {
   attempts               Attempt[]
   completedSessions      CompletedSession[]
   conceptProgress        ConceptProgress[]
+  learningProgress       ConceptLearningProgress[]
+  learningLevelProgress  ConceptLearningLevelProgress[]
   authSessions           AuthSession[]
   authIdentities         AuthIdentity[]
   passwordResetChallenge PasswordResetChallenge?
@@ -248,6 +250,49 @@ model ConceptProgress {
   @@map("concept_progress")
 }
 
+model ConceptLearningProgress {
+  id                    String    @id @default(cuid(2)) @db.VarChar(30)
+  userId                String    @map("user_id") @db.VarChar(30)
+  conceptId             String    @map("concept_id") @db.VarChar(191)
+  theoryCompletedAt     DateTime? @map("theory_completed_at") @db.DateTime(3)
+  quizPassedAt          DateTime? @map("quiz_passed_at") @db.DateTime(3)
+  practiceCompletedAt   DateTime? @map("practice_completed_at") @db.DateTime(3)
+  checkpointCompletedAt DateTime? @map("checkpoint_completed_at") @db.DateTime(3)
+  completedAt           DateTime? @map("completed_at") @db.DateTime(3)
+  createdAt             DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "concept_learning_progress_user_id_fkey")
+
+  @@unique([userId, conceptId], map: "concept_learning_progress_user_id_concept_id_key")
+  @@index([userId], map: "concept_learning_progress_user_id_idx")
+  @@index([conceptId], map: "concept_learning_progress_concept_id_idx")
+  @@index([userId, completedAt], map: "concept_learning_progress_user_id_completed_at_idx")
+  @@map("concept_learning_progress")
+}
+
+model ConceptLearningLevelProgress {
+  id                    String        @id @default(cuid(2)) @db.VarChar(30)
+  userId                String        @map("user_id") @db.VarChar(30)
+  conceptId             String        @map("concept_id") @db.VarChar(191)
+  levelId               LearningLevel @map("level_id")
+  theoryCompletedAt     DateTime?     @map("theory_completed_at") @db.DateTime(3)
+  quizPassedAt          DateTime?     @map("quiz_passed_at") @db.DateTime(3)
+  practiceCompletedAt   DateTime?     @map("practice_completed_at") @db.DateTime(3)
+  checkpointCompletedAt DateTime?     @map("checkpoint_completed_at") @db.DateTime(3)
+  completedAt           DateTime?     @map("completed_at") @db.DateTime(3)
+  createdAt             DateTime      @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt             DateTime      @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "concept_learning_level_progress_user_id_fkey")
+
+  @@unique([userId, conceptId, levelId], map: "concept_learning_level_progress_user_concept_level_key")
+  @@index([userId], map: "concept_learning_level_progress_user_id_idx")
+  @@index([conceptId, levelId], map: "concept_learning_level_progress_concept_level_idx")
+  @@index([userId, completedAt], map: "concept_learning_level_progress_user_completed_at_idx")
+  @@map("concept_learning_level_progress")
+}
+
 enum ContentStatus {
   DRAFT
   PUBLISHED
@@ -260,6 +305,18 @@ enum ContentDifficulty {
   BEGINNER
   INTERMEDIATE
   ADVANCED
+}
+
+enum ExerciseSessionKind {
+  QUIZ
+  PRACTICE
+  CHECKPOINT
+}
+
+enum LearningLevel {
+  FOUNDATION
+  DEEPENING
+  MASTERY
 }
 
 enum LearningSectionType {
@@ -328,6 +385,7 @@ model Concept {
   topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   learningSections LearningSection[]
+  learningLevels   ConceptLearningLevel[]
   sessions         ExerciseSession[]
 
   @@index([topicId, position], map: "concepts_topic_position_idx")
@@ -335,9 +393,28 @@ model Concept {
   @@map("concepts")
 }
 
+model ConceptLearningLevel {
+  id          String        @id @default(cuid(2)) @db.VarChar(30)
+  conceptId   String        @map("concept_id") @db.VarChar(191)
+  levelId     LearningLevel @map("level_id")
+  name        String        @db.VarChar(100)
+  description String        @db.Text
+  position    Int           @db.UnsignedInt
+  createdAt   DateTime      @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([conceptId, levelId], map: "concept_learning_levels_concept_level_key")
+  @@unique([conceptId, position], map: "concept_learning_levels_concept_position_key")
+  @@index([conceptId, position], map: "concept_learning_levels_concept_position_idx")
+  @@map("concept_learning_levels")
+}
+
 model LearningSection {
   id        String              @id @default(cuid(2)) @db.VarChar(30)
   conceptId String              @map("concept_id") @db.VarChar(191)
+  levelId   LearningLevel       @default(FOUNDATION) @map("level_id")
   type      LearningSectionType
   title     String?             @db.VarChar(200)
   content   Json
@@ -348,26 +425,32 @@ model LearningSection {
   concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([conceptId, position], map: "learning_sections_concept_position_idx")
+  @@index([conceptId, levelId, position], map: "learning_sections_concept_level_position_idx")
   @@map("learning_sections")
 }
 
 model ExerciseSession {
-  id           String            @id @db.VarChar(191)
-  conceptId    String            @map("concept_id") @db.VarChar(191)
-  technologyId String            @map("technology_id") @db.VarChar(191)
-  title        String            @db.VarChar(200)
-  difficulty   ContentDifficulty
-  version      String            @db.VarChar(30)
-  status       ContentStatus
-  position     Int               @default(0) @db.UnsignedInt
-  createdAt    DateTime          @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
+  id                     String              @id @db.VarChar(191)
+  conceptId              String              @map("concept_id") @db.VarChar(191)
+  technologyId           String              @map("technology_id") @db.VarChar(191)
+  title                  String              @db.VarChar(200)
+  difficulty             ContentDifficulty
+  kind                   ExerciseSessionKind @default(PRACTICE)
+  levelId                LearningLevel       @default(FOUNDATION) @map("level_id")
+  passingPercentage      Int?                @map("passing_percentage") @db.UnsignedTinyInt
+  requiredForProgression Boolean             @default(true) @map("required_for_progression")
+  version                String              @db.VarChar(30)
+  status                 ContentStatus
+  position               Int                 @default(0) @db.UnsignedInt
+  createdAt              DateTime            @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt              DateTime            @default(now()) @updatedAt @map("updated_at") @db.DateTime(3)
 
   concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   steps ExerciseStep[]
 
   @@index([conceptId, position], map: "exercise_sessions_concept_position_idx")
+  @@index([conceptId, levelId, position], map: "exercise_sessions_concept_level_position_idx")
   @@index([technologyId], map: "exercise_sessions_technology_id_idx")
   @@map("exercise_sessions")
 }

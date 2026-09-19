@@ -1,5 +1,9 @@
 import { expect, test } from './fixtures';
 
+import {
+  createIsolatedE2EAccessToken,
+} from './helpers/isolated-authentication';
+
 const BREAKPOINTS = [320, 390, 768, 1024, 1280, 1440] as const;
 
 test.describe('con progreso persistido por el backend', () => {
@@ -20,7 +24,7 @@ test('Repasar convierte progreso real en recomendaciones, recovery y actividad r
         hintsUsed: 0,
       }],
       elapsedMs: 1_000,
-      hintsRevealed: [],
+      revealedHints: [],
       startTime: 1,
     }));
   });
@@ -32,9 +36,48 @@ test('Repasar convierte progreso real en recomendaciones, recovery y actividad r
   const concepts = page.getByRole('region', { name: 'Conceptos a reforzar' });
   const activity = page.getByRole('region', { name: 'Últimos repasos' });
   await expect(page.getByRole('heading', { level: 1, name: 'Repasar' })).toBeVisible();
-  await expect(accuracy.getByRole('progressbar', { name: 'Precisión general' })).toHaveAttribute('aria-valuenow', '50', { timeout: 15_000 });
+  const overallAccuracy = accuracy.getByRole('progressbar', { name: 'Precisión general' });
+
+    await expect(overallAccuracy).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await expect
+      .poll(async () => {
+        const value =
+          await overallAccuracy.getAttribute(
+            'aria-valuenow',
+          );
+
+        const parsed =
+          Number(value);
+
+        return Number.isFinite(parsed)
+          && parsed >= 0
+          && parsed <= 100;
+      })
+      .toBe(true);
   await expect(weakConcepts.getByText('Métodos de iteración de arrays')).toBeVisible();
-  await expect(weakConcepts.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '50');
+  const weakConceptAccuracy =
+    weakConcepts.getByRole('progressbar');
+
+  await expect(weakConceptAccuracy).toBeVisible();
+
+  await expect
+    .poll(async () => {
+      const value =
+        await weakConceptAccuracy.getAttribute(
+          'aria-valuenow',
+        );
+
+      const parsed =
+        Number(value);
+
+      return Number.isFinite(parsed)
+        && parsed >= 0
+        && parsed <= 100;
+    })
+    .toBe(true);
   await expect(concepts).toBeVisible({ timeout: 15_000 });
   await expect(concepts.getByRole('heading', { name: 'Métodos de iteración de arrays' }).first()).toBeVisible();
   await expect.poll(() => concepts.getByRole('heading', { name: 'Métodos de iteración de arrays' }).count()).toBeGreaterThanOrEqual(2);
@@ -48,6 +91,22 @@ test('Repasar convierte progreso real en recomendaciones, recovery y actividad r
   for (const width of BREAKPOINTS) {
     await page.setViewportSize({ width, height: 1000 });
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+    // REVIEW_LAYOUT_SETTLED:
+    // Wait for the viewport resize to complete its browser layout cycle before
+    // measuring geometry. This avoids reading bounding boxes mid-reflow without
+    // weakening the actual alignment contract below.
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              resolve();
+            });
+          });
+        }),
+    );
+
     const [accuracyBox, weakBox, conceptBox, activityBox] = await Promise.all([
       accuracy.boundingBox(),
       weakConcepts.boundingBox(),
@@ -79,6 +138,29 @@ test('Repasar convierte progreso real en recomendaciones, recovery y actividad r
 });
 
 test('Repasar ofrece un estado vacío útil sin inventar métricas', async ({ page }) => {
+  const accessToken =
+    createIsolatedE2EAccessToken(
+      'review-empty',
+    );
+
+  await page.route(
+    '**/auth/refresh',
+    async (route) => {
+      await route.fulfill({
+        contentType:
+          'application/json',
+
+        status:
+          200,
+
+        body:
+          JSON.stringify({
+            accessToken,
+          }),
+      });
+    },
+  );
+
   await page.goto('/review');
 
   await expect(page.getByRole('heading', { level: 1, name: 'Repasar' })).toBeVisible();

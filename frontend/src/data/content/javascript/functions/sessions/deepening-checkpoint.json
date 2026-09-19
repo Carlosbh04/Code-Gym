@@ -1,0 +1,49 @@
+{
+  "id": "js-functions-deepening-checkpoint-01",
+  "title": "Checkpoint: ámbito y flujo",
+  "difficulty": "intermediate",
+  "position": 3,
+  "kind": "checkpoint",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-18",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "fix-code",
+      "prompt": "Corrige clasificar para que rango exista en el ámbito correcto y todos los caminos devuelvan un resultado.",
+      "code": "function clasificar(puntos) {\n  if (puntos >= 100) {\n    const rango = 'avanzado';\n  }\n\n  return rango;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": 120,
+          "expected": "avanzado",
+          "call": "clasificar(input)",
+          "description": "clasifica nivel avanzado"
+        },
+        {
+          "input": 20,
+          "expected": "inicial",
+          "call": "clasificar(input)",
+          "description": "clasifica nivel inicial"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Aplica conjuntamente las reglas aprendidas en este nivel.",
+      "hints": [
+        "Revisa entradas, ámbito y retorno.",
+        "Comprueba los casos límite incluidos en los tests."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

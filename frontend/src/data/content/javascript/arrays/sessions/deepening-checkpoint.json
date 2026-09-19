@@ -1,0 +1,170 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-arrays",
+  "conceptId": "js-array-iteration",
+  "levelId": "deepening",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-arrays-deepening-checkpoint-01",
+  "title": "Checkpoint: profundización en iteración de arrays",
+  "status": "published",
+  "kind": "checkpoint",
+  "difficulty": "intermediate",
+  "position": 5,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime original.activo?",
+      "code": "const original = {\n  nombre: 'Ana',\n  activo: false,\n};\n\nconst lista = [original];\nconst copia = lista.filter(() => true);\ncopia[0].activo = true;\n\nconsole.log(original.activo);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "true",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "null",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El array es nuevo pero conserva la referencia al mismo objeto.",
+      "hints": [
+        "filter no clona los objetos."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Qué implementación transforma los nombres sin mutar los objetos originales?",
+      "code": "const usuarios = [\n  { nombre: 'ana', activo: true },\n];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "usuarios.map((u) => { u.nombre = u.nombre.toUpperCase(); return u; })",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "usuarios.map((u) => ({ ...u, nombre: u.nombre.toUpperCase() }))",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "usuarios.filter((u) => u.nombre)",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "usuarios.forEach((u) => u.nombre)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Spread crea objetos nuevos en cada transformación.",
+      "hints": [
+        "Evita escribir sobre u.nombre."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué cadena obtiene los precios de productos disponibles?",
+      "code": "const productos = [\n  { precio: 10, disponible: true },\n  { precio: 20, disponible: false },\n  { precio: 30, disponible: true },\n];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "productos.filter((p) => p.disponible).map((p) => p.precio)",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "productos.map((p) => p.disponible).filter((p) => p.precio)",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "productos.forEach((p) => p.precio)",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "productos.reduce((acc, p) => acc + p, 0)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "filter selecciona productos disponibles y map transforma esos productos en sus precios.",
+      "hints": [
+        "Selecciona antes de transformar."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué valor imprime total?",
+      "code": "const productos = [\n  { precio: 10, disponible: true },\n  { precio: 20, disponible: false },\n  { precio: 30, disponible: true },\n];\n\nconst total = productos\n  .filter((p) => p.disponible)\n  .map((p) => p.precio)\n  .reduce((acc, precio) => acc + precio, 0);\n\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "10",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "30",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "40",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "60",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Solo entran 10 y 30, por lo que el total es 40.",
+      "hints": [
+        "El producto de precio 20 no está disponible."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "createdAt": "2026-09-18",
+  "updatedAt": null
+}

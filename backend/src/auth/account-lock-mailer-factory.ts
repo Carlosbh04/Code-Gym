@@ -14,6 +14,8 @@ import {
 
 export function createAccountLockMailer(
   config: MailConfig,
+  frontendOrigin:
+    string | undefined,
 ): AccountLockMailer {
   if (
     config.provider ===
@@ -23,9 +25,24 @@ export function createAccountLockMailer(
       UnavailableAccountLockMailer();
   }
 
+  if (
+    frontendOrigin ===
+    undefined
+  ) {
+    return new
+      UnavailableAccountLockMailer();
+  }
+
+  const recoveryUrl =
+    new URL(
+      '/forgot-password',
+      frontendOrigin,
+    ).toString();
+
   return new
     ResendAccountLockMailer(
       config.resendApiKey,
       config.from,
+      recoveryUrl,
     );
 }

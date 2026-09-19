@@ -1,4 +1,5 @@
 import type { ContentContextValue, Technology } from '@/types/content';
+import type { ExerciseSession } from '@/types/exercise';
 
 export type SearchResultType =
   | 'technology'
@@ -58,6 +59,12 @@ function createResult(
 
 export async function buildSearchIndex(
   content: ContentContextValue,
+
+  // SEARCH_CANONICAL_PRACTICE_GATE_MODEL
+  canIncludeSession?:
+    (
+      session: ExerciseSession,
+    ) => Promise<boolean>,
 ): Promise<SearchResult[]> {
   const catalogs = await Promise.all(
     content.technologies.map(async (technology) => {
@@ -66,12 +73,52 @@ export async function buildSearchIndex(
         topics.map(async (topic) => {
           const concepts = await content.getConceptsByTopic(topic.id);
           const conceptCatalogs = await Promise.all(
-            concepts.map(async (concept) => ({
-              concept,
-              sessions: (await content.getSessionsByConcept(concept.id)).filter(
-                (session) => session.status === 'published',
-              ),
-            })),
+            concepts.map(
+              async concept => {
+                const publishedSessions =
+                  (
+                    await content
+                      .getSessionsByConcept(
+                        concept.id,
+                      )
+                  ).filter(
+                    session =>
+                      session.status
+                      === 'published',
+                  );
+
+                const sessions =
+                  canIncludeSession
+                    === undefined
+                    ? publishedSessions
+                    : (
+                        await Promise.all(
+                          publishedSessions.map(
+                            async session => ({
+                              session,
+                              allowed:
+                                await canIncludeSession(
+                                  session,
+                                ),
+                            }),
+                          ),
+                        )
+                      )
+                        .filter(
+                          entry =>
+                            entry.allowed,
+                        )
+                        .map(
+                          entry =>
+                            entry.session,
+                        );
+
+                return {
+                  concept,
+                  sessions,
+                };
+              },
+            ),
           );
 
           return { topic, conceptCatalogs };

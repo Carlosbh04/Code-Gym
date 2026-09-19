@@ -613,6 +613,369 @@ describe('login failure throttling', () => {
   );
 });
 
+  it(
+    'lets a persistently locked account reach the login service when the failure limiter is exhausted',
+    async () => {
+      const limiters =
+        createAuthRateLimiters({
+          windowMs:
+            60_000,
+          loginLimit:
+            100,
+          loginFailureLimit:
+            1,
+          loginFailureKeySecret:
+            TEST_RATE_LIMIT_KEY_SECRET,
+          isLoginAccountLocked:
+            async (email) =>
+              email
+              === 'locked@example.test',
+        });
+
+      const app =
+        express();
+
+      app.set(
+        'trust proxy',
+        false,
+      );
+
+      app.use(
+        express.json(),
+      );
+
+      let reachedHandler =
+        0;
+
+      app.post(
+        '/auth/login',
+        limiters.loginFailures,
+        (
+          _request,
+          response,
+        ) => {
+          reachedHandler += 1;
+
+          response
+            .status(423)
+            .json({
+              error: {
+                code:
+                  'ACCOUNT_LOCKED',
+              },
+            });
+        },
+      );
+
+      const first =
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'locked@example.test',
+            password:
+              'wrong-password',
+          });
+
+      const second =
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'locked@example.test',
+            password:
+              'wrong-password',
+          });
+
+      expect(
+        first.status,
+      ).toBe(423);
+
+      expect(
+        second.status,
+      ).toBe(423);
+
+      expect(
+        reachedHandler,
+      ).toBe(2);
+    },
+  );
+
+  it(
+    'returns the persistent account cooldown instead of the Redis window when the limiter is exhausted',
+    async () => {
+      const cooldownUntil =
+        new Date(
+          Date.now()
+          + 15 * 60 * 1_000,
+        );
+
+      const limiters =
+        createAuthRateLimiters({
+          windowMs:
+            15 * 60 * 1_000,
+          loginFailureLimit:
+            1,
+          loginFailureKeySecret:
+            TEST_RATE_LIMIT_KEY_SECRET,
+          isLoginAccountLocked:
+            async () =>
+              false,
+          getLoginAccountCooldownUntil:
+            async () =>
+              cooldownUntil,
+        });
+
+      const app =
+        express();
+
+      app.set(
+        'trust proxy',
+        false,
+      );
+
+      app.use(
+        express.json(),
+      );
+
+      app.post(
+        '/auth/login',
+        limiters.loginFailures,
+        (
+          _request,
+          response,
+        ) => {
+          response
+            .status(401)
+            .json({
+              error: {
+                code:
+                  'INVALID_CREDENTIALS',
+              },
+            });
+        },
+      );
+
+      await request(app)
+        .post('/auth/login')
+        .send({
+          email:
+            'person@example.test',
+          password:
+            'wrong-password',
+        });
+
+      const response =
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'person@example.test',
+            password:
+              'wrong-password',
+          });
+
+      expect(
+        response.status,
+      ).toBe(429);
+
+      expect(
+        response.body,
+      ).toEqual({
+        error: {
+          code:
+            'ACCOUNT_COOLDOWN',
+          message:
+            'Account login is temporarily unavailable',
+          cooldownUntil:
+            cooldownUntil.toISOString(),
+        },
+      });
+    },
+  );
+
+  it(
+    'returns authoritative account cooldown when the coarse login IP limiter is exhausted',
+    async () => {
+      const cooldownUntil =
+        new Date(
+          Date.now()
+          + 15 * 60 * 1_000,
+        );
+
+      const limiters =
+        createAuthRateLimiters({
+          windowMs:
+            15 * 60 * 1_000,
+          loginLimit:
+            1,
+          loginFailureLimit:
+            100,
+          loginFailureKeySecret:
+            TEST_RATE_LIMIT_KEY_SECRET,
+          isLoginAccountLocked:
+            async () =>
+              false,
+          getLoginAccountCooldownUntil:
+            async (email) =>
+              email
+              === 'cooldown@example.test'
+                ? cooldownUntil
+                : null,
+        });
+
+      const app =
+        express();
+
+      app.set(
+        'trust proxy',
+        false,
+      );
+
+      app.use(
+        express.json(),
+      );
+
+      app.post(
+        '/auth/login',
+        limiters.login,
+        (
+          _request,
+          response,
+        ) => {
+          response.status(401).json({
+            error: {
+              code:
+                'INVALID_CREDENTIALS',
+            },
+          });
+        },
+      );
+
+      await request(app)
+        .post('/auth/login')
+        .send({
+          email:
+            'cooldown@example.test',
+          password:
+            'wrong-password',
+        });
+
+      const blocked =
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'cooldown@example.test',
+            password:
+              'wrong-password',
+          });
+
+      expect(
+        blocked.status,
+      ).toBe(429);
+
+      expect(
+        blocked.body,
+      ).toEqual({
+        error: {
+          code:
+            'ACCOUNT_COOLDOWN',
+          message:
+            'Account login is temporarily unavailable',
+          cooldownUntil:
+            cooldownUntil.toISOString(),
+        },
+      });
+    },
+  );
+
+  it(
+    'returns persistent account lock when the coarse login IP limiter is exhausted',
+    async () => {
+      const limiters =
+        createAuthRateLimiters({
+          windowMs:
+            15 * 60 * 1_000,
+          loginLimit:
+            1,
+          loginFailureLimit:
+            100,
+          loginFailureKeySecret:
+            TEST_RATE_LIMIT_KEY_SECRET,
+          isLoginAccountLocked:
+            async (email) =>
+              email
+              === 'locked@example.test',
+          getLoginAccountCooldownUntil:
+            async () =>
+              null,
+        });
+
+      const app =
+        express();
+
+      app.set(
+        'trust proxy',
+        false,
+      );
+
+      app.use(
+        express.json(),
+      );
+
+      app.post(
+        '/auth/login',
+        limiters.login,
+        (
+          _request,
+          response,
+        ) => {
+          response.status(401).json({
+            error: {
+              code:
+                'INVALID_CREDENTIALS',
+            },
+          });
+        },
+      );
+
+      await request(app)
+        .post('/auth/login')
+        .send({
+          email:
+            'locked@example.test',
+          password:
+            'wrong-password',
+        });
+
+      const blocked =
+        await request(app)
+          .post('/auth/login')
+          .send({
+            email:
+              'locked@example.test',
+            password:
+              'wrong-password',
+          });
+
+      expect(
+        blocked.status,
+      ).toBe(423);
+
+      expect(
+        blocked.body,
+      ).toEqual({
+        error: {
+          code:
+            'ACCOUNT_LOCKED',
+          message:
+            'Account access is locked',
+        },
+      });
+    },
+  );
+
 describe(
   'login failure key privacy',
   () => {

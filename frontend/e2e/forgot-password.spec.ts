@@ -88,12 +88,12 @@ test('completes the public password reset and accepts only the new password', as
   await page.getByRole('link', { name: 'Iniciar sesión' }).click();
   await page.getByLabel('Email').fill(email);
   await page.getByRole('textbox', { name: 'Contraseña', exact: true }).fill(initialPassword);
-  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
   await expect(page.getByText('Email o contraseña incorrectos.')).toBeVisible();
 
   await page.getByRole('textbox', { name: 'Contraseña', exact: true }).fill(replacementPassword);
-  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
+  await expect(page).toHaveURL('/');
 });
 
 test('distinguishes incorrect, expired, and exhausted verification codes', async ({ page }) => {

@@ -1,14 +1,27 @@
-import { useEffect, useState } from 'react';
-import { BookOpen } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { Skeleton } from '@/components/codegym/Skeleton';
 import { useContent } from '@/hooks/useContent';
 import { useProgress } from '@/hooks/useProgress';
-import type { Concept, Topic } from '@/types/content';
-import { LearningContent } from './components/LearningContent';
+import type {
+  Concept,
+  LearningLevelId,
+  Topic,
+} from '@/types/content';
 import { TopicHeader } from './components/TopicHeader';
-import { TopicSessionList, type TopicSessionResult } from './components/TopicSessionList';
+import type { TopicSessionResult } from './components/TopicSessionList';
+import { browserLearningApi } from '@/features/learning/learning-api';
+import {
+  getConfiguredLearningLevelIds,
+  isStagedLearningConcept,
+} from '@/features/learning/learning-workspace-model';
+import { LearningWorkspace } from '@/features/learning/LearningWorkspace';
+import type {
+  ConceptLearningState,
+  LearningLevelState,
+} from '@/features/learning/learning-types';
+import { useAuth } from '@/features/auth/AuthContext';
 
 type TopicsResult =
   | { technologyId: string; status: 'success'; topics: Topic[] }
@@ -28,11 +41,56 @@ function TopicPage() {
   const { getTechnology, getTopics, getConceptsByTopic, getSessionsByConcept, isLoading } =
     useContent();
   const { progress } = useProgress();
+  const { accessToken } = useAuth();
   const technology = technologyId ? getTechnology(technologyId) : undefined;
   const [topicsResult, setTopicsResult] = useState<TopicsResult | null>(null);
   const [conceptsResult, setConceptsResult] =
     useState<ConceptsResult | null>(null);
   const [sessionsByConcept, setSessionsByConcept] = useState<Record<string, SessionsResult>>({});
+
+  const [
+    learningStates,
+    setLearningStates,
+  ] = useState<
+    Record<
+      string,
+      ConceptLearningState
+    >
+  >({});
+
+  const [
+    levelLearningStates,
+    setLevelLearningStates,
+  ] = useState<
+    Record<
+      string,
+      Partial<
+        Record<
+          LearningLevelState['levelId'],
+          LearningLevelState
+        >
+      >
+    >
+  >({});
+
+  const [
+    learningErrors,
+    setLearningErrors,
+  ] = useState<
+    Record<
+      string,
+      string
+    >
+  >({});
+
+  const [
+    completingTheoryId,
+    setCompletingTheoryId,
+  ] = useState<
+    string | null
+  >(
+    null,
+  );
 
   useEffect(() => {
     if (isLoading || technology === undefined || technologyId === undefined) {
@@ -127,6 +185,323 @@ function TopicPage() {
     };
   }, [currentConcepts, getSessionsByConcept]);
 
+  const stagedConceptIds =
+    useMemo(
+      () => {
+        if (
+          currentConcepts?.status
+          !== 'success'
+        ) {
+          return [];
+        }
+
+        return currentConcepts.concepts
+          .filter(
+            concept =>
+              isStagedLearningConcept(
+                concept,
+              ),
+          )
+          .map(
+            concept =>
+              concept.id,
+          );
+      },
+      [
+        currentConcepts,
+      ],
+    );
+
+  useEffect(
+    () => {
+      if (
+        stagedConceptIds.length
+        === 0
+        || accessToken === null
+      ) {
+        return;
+      }
+
+      const authenticatedAccessToken = accessToken;
+
+      let active =
+        true;
+
+      void Promise.all(
+        stagedConceptIds.map(
+          async conceptId => {
+            try {
+              const concept =
+                currentConcepts?.status
+                === 'success'
+                  ? currentConcepts.concepts.find(
+                      item =>
+                        item.id === conceptId,
+                    )
+                  : undefined;
+
+              if (
+                concept === undefined
+              ) {
+                throw new Error(
+                  `Concept ${conceptId} no está disponible`,
+                );
+              }
+
+              const levelIds =
+                getConfiguredLearningLevelIds(
+                  concept,
+                );
+
+              const [
+                conceptState,
+                levelStates,
+              ] =
+                await Promise.all([
+                  browserLearningApi
+                    .getConceptState(
+                      conceptId,
+                      authenticatedAccessToken,
+                    ),
+
+                  Promise.all(
+                    levelIds.map(
+                      levelId =>
+                        browserLearningApi
+                          .getLevelState(
+                            conceptId,
+                            levelId,
+                            authenticatedAccessToken,
+                          ),
+                    ),
+                  ),
+                ]);
+
+              return {
+                conceptId,
+                conceptState,
+                levelStates,
+                error:
+                  null,
+              } as const;
+            } catch (
+              error:
+                unknown
+            ) {
+              return {
+                conceptId,
+                conceptState:
+                  null,
+                levelStates:
+                  null,
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : 'No se pudo verificar el progreso.',
+              } as const;
+            }
+          },
+        ),
+      ).then(
+        entries => {
+          if (!active) {
+            return;
+          }
+
+          setLearningStates(
+            previous => {
+              const next = {
+                ...previous,
+              };
+
+              for (
+                const entry
+                of entries
+              ) {
+                if (
+                  entry.conceptState
+                  !== null
+                ) {
+                  next[
+                    entry.conceptId
+                  ] =
+                    entry.conceptState;
+                }
+              }
+
+              return next;
+            },
+          );
+
+          setLevelLearningStates(
+            previous => {
+              const next = {
+                ...previous,
+              };
+
+              for (
+                const entry
+                of entries
+              ) {
+                if (
+                  entry.levelStates
+                  === null
+                ) {
+                  continue;
+                }
+
+                const conceptLevels = {
+                  ...next[
+                    entry.conceptId
+                  ],
+                };
+
+                for (
+                  const levelState
+                  of entry.levelStates
+                ) {
+                  conceptLevels[
+                    levelState.levelId
+                  ] =
+                    levelState;
+                }
+
+                next[
+                  entry.conceptId
+                ] =
+                  conceptLevels;
+              }
+
+              return next;
+            },
+          );
+
+          setLearningErrors(
+            previous => {
+              const next = {
+                ...previous,
+              };
+
+              for (
+                const entry
+                of entries
+              ) {
+                if (
+                  entry.error
+                  === null
+                ) {
+                  delete next[
+                    entry.conceptId
+                  ];
+                } else {
+                  next[
+                    entry.conceptId
+                  ] =
+                    entry.error;
+                }
+              }
+
+              return next;
+            },
+          );
+        },
+      );
+
+      return () => {
+        active =
+          false;
+      };
+    },
+    [
+      accessToken,
+      currentConcepts,
+      stagedConceptIds,
+    ],
+  );
+
+  const completeTheory =
+    useCallback(
+      async (
+        conceptId:
+          string,
+
+        levelId:
+          LearningLevelId,
+      ) => {
+        setCompletingTheoryId(
+          conceptId,
+        );
+
+        setLearningErrors(
+          previous => {
+            const next = {
+              ...previous,
+            };
+
+            delete next[
+              conceptId
+            ];
+
+            return next;
+          },
+        );
+
+        if (accessToken === null) {
+          throw new Error(
+            'Authentication required',
+          );
+        }
+
+        try {
+          const state =
+            await browserLearningApi
+              .completeLevelTheory(
+                conceptId,
+                levelId,
+                accessToken,
+              );
+
+          setLevelLearningStates(
+            previous => ({
+              ...previous,
+
+              [conceptId]: {
+                ...previous[
+                  conceptId
+                ],
+
+                [state.levelId]:
+                  state,
+              },
+            }),
+          );
+        } catch (
+          error:
+            unknown
+        ) {
+          setLearningErrors(
+            previous => ({
+              ...previous,
+
+              [conceptId]:
+                error instanceof Error
+                  ? error.message
+                  : 'No se pudo guardar el progreso.',
+            }),
+          );
+
+          throw error;
+        } finally {
+          setCompletingTheoryId(
+            null,
+          );
+        }
+      },
+      [
+        accessToken,
+      ],
+    );
+
   if (isLoading) {
     return <TopicLoading />;
   }
@@ -209,59 +584,35 @@ function TopicPage() {
         practicedConcepts={practicedConcepts}
       />
 
-      <div className="mt-5 grid gap-5 sm:mt-6 xl:grid-cols-[minmax(0,1fr)_minmax(26rem,0.9fr)] xl:items-start xl:gap-6">
-        <section
-          aria-busy={currentConcepts === null}
-          aria-labelledby="concepts-heading"
-          className="min-w-0 rounded-2xl border border-border bg-card/80 p-4 shadow-sm sm:p-5"
-        >
-          <div className="flex items-center gap-3 border-b border-border pb-4">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary" aria-hidden="true">
-              <BookOpen className="size-5" />
-            </span>
-            <div className="min-w-0">
-              <h2 id="concepts-heading" className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                Teoría y conceptos
-              </h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Comprende las ideas clave antes de practicar.</p>
-            </div>
-          </div>
-
-          {currentConcepts === null ? (
-            <TopicConceptsLoading />
-          ) : currentConcepts.status === 'error' ? (
-            <p role="alert" className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-              No pudimos cargar los conceptos de este tema. {currentConcepts.message}
-            </p>
-          ) : concepts.length === 0 ? (
-            <EmptyState
-              title="Todavía no hay conceptos disponibles"
-              description="Este tema está disponible, pero aún no tiene conceptos preparados para practicar."
-              className="mt-4 rounded-xl border border-border bg-background/50"
-            />
-          ) : (
-            <ul className="mt-1 divide-y divide-border">
-              {concepts.map((concept) => (
-                <li key={concept.id} className="min-w-0 py-5 first:pt-4 last:pb-0">
-                  <h3 className="min-w-0 break-normal whitespace-normal text-xl font-semibold leading-tight tracking-tight text-foreground">
-                    {concept.name}
-                  </h3>
-                  <LearningContent
-                    content={concept.content}
-                    fallbackMarkdown={concept.contentMarkdown}
-                    conceptName={concept.name}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        {currentConcepts?.status === 'success' && concepts.length > 0 ? (
-          <aside className="min-w-0 xl:sticky xl:top-20">
-            <TopicSessionList concepts={concepts} results={sessionsByConcept} />
-          </aside>
-        ) : null}
+      <div className="mt-5 sm:mt-6">
+        {currentConcepts === null ? (
+          <TopicConceptsLoading />
+        ) : currentConcepts.status === 'error' ? (
+          <p
+            role="alert"
+            className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+          >
+            No pudimos cargar los conceptos de este tema. {currentConcepts.message}
+          </p>
+        ) : concepts.length === 0 ? (
+          <EmptyState
+            title="Todavía no hay conceptos disponibles"
+            description="Este tema está disponible, pero aún no tiene conceptos preparados para practicar."
+            className="rounded-xl border border-border bg-background/50"
+          />
+        ) : (
+          <LearningWorkspace
+            technologyName={technology.name}
+            topicName={topic.name}
+            concepts={concepts}
+            results={sessionsByConcept}
+            learningStates={learningStates}
+            levelLearningStates={levelLearningStates}
+            learningErrors={learningErrors}
+            completingTheoryId={completingTheoryId}
+            onCompleteTheory={completeTheory}
+          />
+        )}
       </div>
     </section>
   );

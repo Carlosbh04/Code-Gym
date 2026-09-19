@@ -1,0 +1,56 @@
+{
+  "id": "js-functions-mastery-quiz-01",
+  "title": "Test: contratos robustos",
+  "difficulty": "advanced",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "mastery",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-18",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Una función debe aceptar 0 como número válido de reintentos y usar 3 solo si no se proporciona valor. ¿Qué firma expresa correctamente ese contrato?",
+      "code": null,
+      "language": null,
+      "options": [
+        {
+          "id": "a",
+          "text": "function configurar(reintentos) { reintentos = reintentos || 3; }",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "function configurar(reintentos = 3) { }",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "function configurar(reintentos) { reintentos = 3; }",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "function configurar(reintentos) { if (!reintentos) reintentos = 3; }",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El parámetro por defecto solo sustituye undefined y conserva 0.",
+      "hints": [
+        "Revisa el contrato del nivel antes de responder."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

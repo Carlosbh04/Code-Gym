@@ -1,0 +1,63 @@
+{
+  "id": "js-functions-mastery-consistent-return-01",
+  "title": "Mantener un retorno consistente",
+  "difficulty": "advanced",
+  "position": 2,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-18",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "fix-code",
+      "prompt": "Corrige buscarUsuario para que devuelva el usuario encontrado o null cuando no existe, sin dejar caminos que produzcan undefined accidentalmente.",
+      "code": "function buscarUsuario(usuarios, id) {\n  const usuario = usuarios.find((item) => item.id === id);\n\n  if (usuario) {\n    return usuario;\n  }\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            [
+              {
+                "id": 1,
+                "nombre": "Ana"
+              }
+            ],
+            1
+          ],
+          "expected": {
+            "id": 1,
+            "nombre": "Ana"
+          },
+          "call": "buscarUsuario(...input)",
+          "description": "devuelve el usuario encontrado"
+        },
+        {
+          "input": [
+            [],
+            7
+          ],
+          "expected": null,
+          "call": "buscarUsuario(...input)",
+          "description": "devuelve null explícitamente cuando no existe"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "El contrato queda explícito: objeto cuando existe y null cuando no existe.",
+      "hints": [
+        "Haz explícito el contrato de entrada y salida.",
+        "No sustituyas valores válidos por accidente."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

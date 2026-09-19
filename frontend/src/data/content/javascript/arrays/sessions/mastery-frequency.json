@@ -1,0 +1,172 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-arrays",
+  "conceptId": "js-array-iteration",
+  "levelId": "mastery",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-arrays-mastery-frequency-01",
+  "title": "Taller: frecuencias e histogramas",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "advanced",
+  "position": 3,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime frecuencias.error?",
+      "code": "const eventos = ['ok', 'error', 'ok', 'error', 'error'];\n\nconst frecuencias = eventos.reduce((acc, evento) => {\n  acc[evento] = (acc[evento] || 0) + 1;\n  return acc;\n}, {});\n\nconsole.log(frecuencias.error);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "1",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "2",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "3",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "5",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La clave error se incrementa una vez por cada aparición.",
+      "hints": [
+        "Cuenta únicamente los elementos 'error'."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Por qué este resultado puede considerarse un histograma?",
+      "code": "const frecuencias = {\n  javascript: 4,\n  react: 2,\n  css: 3,\n};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Porque cada clave representa una categoría y su valor representa la frecuencia",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Porque todos los valores son arrays",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Porque modifica el array original",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Porque reduce siempre devuelve histogramas",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Un histograma de este tipo relaciona cada categoría con el número de apariciones.",
+      "hints": [
+        "Piensa en categoría -> cantidad."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El código debe contar categorías. Localiza el error lógico.",
+      "code": "function contar(categorias) {\n  return categorias.reduce((acc, categoria) => {\n    acc[categoria] = acc[categoria] + 1;\n    return acc;\n  }, {});\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "inicializacion",
+          "text": "Conceptual: una clave nueva vale undefined y falta partir de 0",
+          "correct": true
+        },
+        {
+          "id": "return",
+          "text": "Flujo: debería eliminarse return acc",
+          "correct": false
+        },
+        {
+          "id": "metodo",
+          "text": "Conceptual: debería utilizarse map",
+          "correct": false
+        },
+        {
+          "id": "objeto",
+          "text": "Tipo: reduce no admite {} como valor inicial",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "undefined + 1 produce un resultado incorrecto. La clave debe empezar desde 0 cuando todavía no existe.",
+      "hints": [
+        "¿Qué vale acc[categoria] la primera vez?"
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "code-reading",
+      "prompt": "¿Qué corrección implementa correctamente el conteo?",
+      "code": "acc[categoria] = /* completar */;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "(acc[categoria] || 0) + 1",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "categoria + 1",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "acc + categoria",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "acc[categoria] || 1 + 1",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Primero se obtiene el valor existente o 0 y después se incrementa exactamente una vez.",
+      "hints": [
+        "La primera aparición debe producir 1."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "createdAt": "2026-09-18",
+  "updatedAt": null
+}

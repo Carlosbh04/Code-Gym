@@ -125,6 +125,8 @@ function testApp(
 
   app.use(
     createAuthRouter({
+      loginFailureKeySecret:
+        'test-login-failure-key-secret',
       registrationService:
         unusedRegistrationService,
       loginService:

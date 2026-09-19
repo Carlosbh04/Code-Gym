@@ -22,7 +22,7 @@ const FRONTEND_ROOT =
   join(
     process.cwd(),
     '..',
-    'codeGYM',
+    'frontend',
   );
 
 const CONTENT_ROOT =
@@ -58,7 +58,21 @@ interface StaticTopic {
 interface StaticLearningSection {
   readonly type: string;
   readonly title?: string;
+  readonly levelId?:
+    | 'foundation'
+    | 'deepening'
+    | 'mastery';
   readonly [key: string]: unknown;
+}
+
+interface StaticLearningLevel {
+  readonly id:
+    | 'foundation'
+    | 'deepening'
+    | 'mastery';
+  readonly name: string;
+  readonly description: string;
+  readonly position: number;
 }
 
 interface StaticConcept {
@@ -66,6 +80,9 @@ interface StaticConcept {
   readonly name: string;
   readonly topicId: string;
   readonly technologyId: string;
+  readonly position: number;
+  readonly levels?:
+    readonly StaticLearningLevel[];
   readonly content: {
     readonly sections:
       readonly StaticLearningSection[];
@@ -92,6 +109,11 @@ interface StaticExerciseSession {
   readonly id: string;
   readonly title: string;
   readonly difficulty: string;
+  readonly position?: number;
+  readonly kind?: string;
+  readonly levelId?: string;
+  readonly passingPercentage?: number | null;
+  readonly requiredForProgression?: boolean;
   readonly conceptId: string;
   readonly technologyId: string;
   readonly version: string;
@@ -128,6 +150,79 @@ function mapDifficulty(
     default:
       throw new Error(
         `Difficulty desconocida: ${value}`,
+      );
+  }
+}
+
+function declaredLearningLevels(
+  concept: StaticConcept,
+): readonly StaticLearningLevel[] {
+  return concept.levels ?? [];
+}
+
+function configuredLearningLevels(
+  concept: StaticConcept,
+): readonly StaticLearningLevel[] {
+  if (
+    concept.levels !== undefined
+    && concept.levels.length > 0
+  ) {
+    return concept.levels;
+  }
+
+  return [
+    {
+      id: 'foundation',
+      name: 'Fundamentos',
+      description:
+        'Nivel base del concepto.',
+      position: 0,
+    },
+  ];
+}
+
+function mapLearningLevel(
+  value: string,
+):
+  | 'FOUNDATION'
+  | 'DEEPENING'
+  | 'MASTERY' {
+  switch (value) {
+    case 'foundation':
+      return 'FOUNDATION';
+
+    case 'deepening':
+      return 'DEEPENING';
+
+    case 'mastery':
+      return 'MASTERY';
+
+    default:
+      throw new Error(
+        `LearningLevel desconocido: ${value}`,
+      );
+  }
+}
+
+function mapSessionKind(
+  value: string,
+):
+  | 'QUIZ'
+  | 'PRACTICE'
+  | 'CHECKPOINT' {
+  switch (value) {
+    case 'quiz':
+      return 'QUIZ';
+
+    case 'practice':
+      return 'PRACTICE';
+
+    case 'checkpoint':
+      return 'CHECKPOINT';
+
+    default:
+      throw new Error(
+        `ExerciseSessionKind desconocido: ${value}`,
       );
   }
 }
@@ -242,7 +337,8 @@ function sectionContent(
         .filter(
           ([key]) =>
             key !== 'type'
-            && key !== 'title',
+            && key !== 'title'
+            && key !== 'levelId',
         ),
     );
 
@@ -460,6 +556,12 @@ Promise<void> {
           technologyDirectory,
         );
 
+      const conceptPositionsByTopic =
+        new Map<
+          string,
+          Set<number>
+        >();
+
       for (
         const conceptDirectoryName
         of conceptDirectories
@@ -498,6 +600,17 @@ Promise<void> {
           );
         }
 
+        if (
+          !Number.isSafeInteger(
+            concept.position,
+          )
+          || concept.position < 0
+        ) {
+          throw new Error(
+            `Concept ${concept.id}: position debe ser un entero no negativo`,
+          );
+        }
+
         const topic =
           topics.find(
             candidate =>
@@ -512,6 +625,31 @@ Promise<void> {
             `Concept ${concept.id}: topic ${concept.topicId} no existe en ${technology.id}/index.json`,
           );
         }
+
+        const usedPositions =
+          conceptPositionsByTopic.get(
+            concept.topicId,
+          )
+          ?? new Set<number>();
+
+        if (
+          usedPositions.has(
+            concept.position,
+          )
+        ) {
+          throw new Error(
+            `Concept ${concept.id}: position ${concept.position} está duplicada dentro de ${concept.topicId}`,
+          );
+        }
+
+        usedPositions.add(
+          concept.position,
+        );
+
+        conceptPositionsByTopic.set(
+          concept.topicId,
+          usedPositions,
+        );
 
         await prisma.concept.upsert({
           where: {
@@ -530,7 +668,7 @@ Promise<void> {
             contentMarkdown:
               markdown,
             position:
-              0,
+              concept.position,
             isPublished:
               true,
           },
@@ -545,13 +683,130 @@ Promise<void> {
             contentMarkdown:
               markdown,
             position:
-              0,
+              concept.position,
             isPublished:
               true,
           },
         });
 
         counters.concepts += 1;
+
+        const declaredLevels =
+          declaredLearningLevels(
+            concept,
+          );
+
+        const effectiveLevels =
+          configuredLearningLevels(
+            concept,
+          );
+
+        const levelIds =
+          new Set<string>();
+
+        const levelPositions =
+          new Set<number>();
+
+        for (
+          const level
+          of effectiveLevels
+        ) {
+          if (
+            levelIds.has(
+              level.id,
+            )
+          ) {
+            throw new Error(
+              `Concept ${concept.id}: learning level duplicado ${level.id}`,
+            );
+          }
+
+          if (
+            !Number.isSafeInteger(
+              level.position,
+            )
+            || level.position < 0
+          ) {
+            throw new Error(
+              `Concept ${concept.id}: learning level ${level.id} tiene position invalida`,
+            );
+          }
+
+          if (
+            levelPositions.has(
+              level.position,
+            )
+          ) {
+            throw new Error(
+              `Concept ${concept.id}: learning level position duplicada ${level.position}`,
+            );
+          }
+
+          levelIds.add(
+            level.id,
+          );
+
+          levelPositions.add(
+            level.position,
+          );
+        }
+
+        await prisma
+          .conceptLearningLevel
+          .deleteMany({
+            where: {
+              conceptId:
+                concept.id,
+            },
+          });
+
+        if (
+          declaredLevels.length > 0
+        ) {
+          await prisma
+            .conceptLearningLevel
+            .createMany({
+              data:
+                declaredLevels.map(
+                  level => ({
+                    conceptId:
+                      concept.id,
+                    levelId:
+                      mapLearningLevel(
+                        level.id,
+                      ),
+                    name:
+                      level.name,
+                    description:
+                      level.description,
+                    position:
+                      level.position,
+                  }),
+                ),
+            });
+        }
+
+        for (
+          const section
+          of concept.content.sections
+        ) {
+          const sectionLevelId =
+            section.levelId
+            ?? 'foundation';
+
+          const levelExists =
+            effectiveLevels.some(
+              level =>
+                level.id
+                === sectionLevelId,
+            );
+
+          if (!levelExists) {
+            throw new Error(
+              `Concept ${concept.id}: sección ${section.type} referencia nivel no configurado ${sectionLevelId}`,
+            );
+          }
+        }
 
         await prisma.learningSection.deleteMany({
           where: {
@@ -573,6 +828,11 @@ Promise<void> {
                 ) => ({
                   conceptId:
                     concept.id,
+                  levelId:
+                    mapLearningLevel(
+                      section.levelId
+                      ?? 'foundation',
+                    ),
                   type:
                     mapSectionType(
                       section.type,
@@ -604,9 +864,15 @@ Promise<void> {
             sessionsDirectory,
           );
 
+        const usedSessionPositionsByLevel =
+          new Map<
+            string,
+            Set<number>
+          >();
+
         for (
           const [
-            sessionPosition,
+            legacySessionPosition,
             sessionFile,
           ]
           of sessionFiles.entries()
@@ -620,6 +886,21 @@ Promise<void> {
                 sessionFile,
               ),
             );
+
+          const sessionPosition =
+            session.position
+            ?? legacySessionPosition;
+
+          if (
+            !Number.isSafeInteger(
+              sessionPosition,
+            )
+            || sessionPosition < 0
+          ) {
+            throw new Error(
+              `Session ${session.id}: position debe ser un entero no negativo`,
+            );
+          }
 
           if (
             session.conceptId
@@ -654,6 +935,118 @@ Promise<void> {
             );
           }
 
+          const sessionKind =
+            mapSessionKind(
+              session.kind ?? 'practice',
+            );
+
+          const learningLevelId =
+            session.levelId ?? 'foundation';
+
+          const configuredLevelIds =
+            new Set(
+              effectiveLevels.map(
+                level =>
+                  level.id,
+              ),
+            );
+
+          if (
+            !configuredLevelIds.has(
+              learningLevelId as
+                StaticLearningLevel['id'],
+            )
+          ) {
+            throw new Error(
+              `Session ${session.id}: levelId ${learningLevelId} no está configurado en concept ${concept.id}`,
+            );
+          }
+
+          const learningLevel =
+            mapLearningLevel(
+              learningLevelId,
+            );
+
+          const usedSessionPositions =
+            usedSessionPositionsByLevel.get(
+              learningLevelId,
+            )
+            ?? new Set<number>();
+
+          if (
+            usedSessionPositions.has(
+              sessionPosition,
+            )
+          ) {
+            throw new Error(
+              `Session ${session.id}: position ${sessionPosition} está duplicada dentro de ${concept.id}/${learningLevelId}`,
+            );
+          }
+
+          usedSessionPositions.add(
+            sessionPosition,
+          );
+
+          usedSessionPositionsByLevel.set(
+            learningLevelId,
+            usedSessionPositions,
+          );
+
+          const passingPercentage =
+            session.passingPercentage
+            ?? null;
+
+          const requiredForProgression =
+            session.requiredForProgression
+            ?? true;
+
+          if (
+            session.passingPercentage
+            !== undefined
+            && session.passingPercentage
+            !== null
+            && (
+              !Number.isInteger(
+                session.passingPercentage,
+              )
+              || session.passingPercentage < 0
+              || session.passingPercentage > 100
+            )
+          ) {
+            throw new Error(
+              `Session ${session.id}: passingPercentage debe ser un entero entre 0 y 100`,
+            );
+          }
+
+          if (
+            session.requiredForProgression
+            !== undefined
+            && typeof session.requiredForProgression
+              !== 'boolean'
+          ) {
+            throw new Error(
+              `Session ${session.id}: requiredForProgression debe ser boolean`,
+            );
+          }
+
+          if (
+            sessionKind === 'QUIZ'
+            && passingPercentage === null
+          ) {
+            throw new Error(
+              `Session ${session.id}: un QUIZ requiere passingPercentage`,
+            );
+          }
+
+          if (
+            sessionKind !== 'QUIZ'
+            && passingPercentage !== null
+          ) {
+            throw new Error(
+              `Session ${session.id}: passingPercentage solo está permitido para QUIZ`,
+            );
+          }
+
           await prisma.exerciseSession.upsert({
             where: {
               id:
@@ -673,6 +1066,12 @@ Promise<void> {
                 mapDifficulty(
                   session.difficulty,
                 ),
+              kind:
+                sessionKind,
+              levelId:
+                learningLevel,
+              passingPercentage,
+              requiredForProgression,
               version:
                 session.version,
               status:
@@ -695,6 +1094,12 @@ Promise<void> {
                 mapDifficulty(
                   session.difficulty,
                 ),
+              kind:
+                sessionKind,
+              levelId:
+                learningLevel,
+              passingPercentage,
+              requiredForProgression,
               version:
                 session.version,
               status:

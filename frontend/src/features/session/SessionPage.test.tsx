@@ -1,4 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ContentProvider } from '@/contexts/ContentContext';
@@ -11,10 +18,35 @@ import type { Concept, Technology, Topic } from '@/types/content';
 import type { ExerciseSession } from '@/types/exercise';
 import type { IContentRepository } from '@/types/repository';
 import type { SessionRecoverySnapshot } from '@/lib/recovery/ISessionRecoveryStore';
+import { browserLearningApi } from '@/features/learning/learning-api';
+
+const authMockState =
+  vi.hoisted(
+    () => ({
+      accessToken:
+        null as string | null,
+    }),
+  );
+
+vi.mock(
+  '@/features/auth/AuthContext',
+  () => ({
+    useAuth:
+      () => ({
+        accessToken:
+          authMockState.accessToken,
+      }),
+  }),
+);
+
 import SessionPage from './SessionPage';
 import { RelativeActivityTime } from './components/SessionRecoveryDialog';
 
 const SESSION_ID = 'js-arrays-map-vs-foreach-01';
+
+const CHECKPOINT_SESSION_ID =
+  'js-arrays-iteration-checkpoint-01';
+
 const repo = new StaticContentRepository();
 function LocationProbe() {
   return <div data-testid="location">{useLocation().pathname}</div>;
@@ -92,6 +124,185 @@ const recoveryOf = (sessionId = SESSION_ID): SessionRecoverySnapshot => ({
   startTime: 1_000,
 });
 
+const checkpointSession =
+  async (): Promise<ExerciseSession> => {
+    const found =
+      await repo.getSessionById(
+        CHECKPOINT_SESSION_ID,
+      );
+
+    if (found === null) {
+      throw new Error(
+        'No existe el checkpoint real de Arrays',
+      );
+    }
+
+    return found;
+  };
+
+/**
+ * Completa los cuatro pasos del checkpoint real de Arrays.
+ *
+ * FakeTraining sigue siendo la autoridad del resultado durante
+ * estos tests; las opciones se obtienen siempre del contenido real.
+ */
+const finishRealCheckpoint =
+  async (): Promise<void> => {
+    const real =
+      await checkpointSession();
+
+    for (
+      let index = 0;
+      index < real.steps.length - 1;
+      index += 1
+    ) {
+      const step =
+        real.steps[index];
+
+      if (
+        step.options === null
+        || step.options.length === 0
+      ) {
+        throw new Error(
+          `El paso ${step.id} no tiene opciones`,
+        );
+      }
+
+      fireEvent.click(
+        screen.getByRole(
+          'radio',
+          {
+            name:
+              step.options[0].text,
+          },
+        ),
+      );
+
+      await waitFor(
+        () =>
+          expect(
+            screen.getByRole(
+              'button',
+              {
+                name:
+                  'Comprobar',
+              },
+            ),
+          ).toBeEnabled(),
+      );
+
+      fireEvent.click(
+        screen.getByRole(
+          'button',
+          {
+            name:
+              'Comprobar',
+          },
+        ),
+      );
+
+      await waitFor(
+        () =>
+          expect(
+            screen.getByRole(
+              'button',
+              {
+                name:
+                  'Siguiente paso',
+              },
+            ),
+          ).toBeEnabled(),
+      );
+
+      fireEvent.click(
+        screen.getByRole(
+          'button',
+          {
+            name:
+              'Siguiente paso',
+          },
+        ),
+      );
+    }
+
+    const lastStep =
+      real.steps[
+        real.steps.length - 1
+      ];
+
+    if (
+      lastStep === undefined
+      || lastStep.options === null
+      || lastStep.options.length === 0
+    ) {
+      throw new Error(
+        'El último paso del checkpoint no tiene opciones',
+      );
+    }
+
+    fireEvent.click(
+      screen.getByRole(
+        'radio',
+        {
+          name:
+            lastStep.options[0].text,
+        },
+      ),
+    );
+
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole(
+            'button',
+            {
+              name:
+                'Comprobar',
+            },
+          ),
+        ).toBeEnabled(),
+    );
+
+    fireEvent.click(
+      screen.getByRole(
+        'button',
+        {
+          name:
+            'Comprobar',
+        },
+      ),
+    );
+
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole(
+            'button',
+            {
+              name:
+                'Terminar sesión',
+            },
+          ),
+        ).toBeEnabled(),
+    );
+
+    await act(
+      async () => {
+        fireEvent.click(
+          screen.getByRole(
+            'button',
+            {
+              name:
+                'Terminar sesión',
+            },
+          ),
+        );
+
+        await Promise.resolve();
+      },
+    );
+  };
+
 /** Envía la respuesta ya elegida del paso visible y avanza al siguiente. */
 const submitAndAdvance = async () => {
   await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobar' })).toBeEnabled());
@@ -129,6 +340,84 @@ const failingRepo: IContentRepository = {
   getSessionById: () => Promise.reject(new Error('el contenido no se pudo leer')),
 };
 
+// SESSION_ENTRY_GATE_TEST_DEFAULT
+beforeEach(
+  () => {
+    authMockState.accessToken =
+      'session-page-test-token';
+
+    vi.spyOn(
+      browserLearningApi,
+      'getLevelState',
+    ).mockImplementation(
+      async (
+        conceptId,
+        levelId,
+      ) => ({
+        conceptId,
+        levelId,
+
+        previousLevelId:
+          null,
+
+        nextLevelId:
+          null,
+
+        locked:
+          false,
+
+        lockReason:
+          null,
+
+        stages: {
+          theory: {
+            status:
+              'completed',
+            completedAt:
+              null,
+          },
+
+          quiz: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+
+          practice: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+
+          checkpoint: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+        },
+
+        completed:
+          false,
+
+        completedAt:
+          null,
+      }),
+    );
+  },
+);
+
+afterEach(
+  () => {
+    authMockState.accessToken =
+      null;
+
+    vi.restoreAllMocks();
+  },
+);
+
 describe('SessionPage (T027)', () => {
   describe('carga', () => {
     it('muestra un estado de carga antes de tener la sesión', async () => {
@@ -162,6 +451,237 @@ describe('SessionPage (T027)', () => {
       );
     });
   });
+
+  describe(
+    'acceso canónico a sesiones staged',
+    () => {
+      it(
+        'bloquea /practice/:sessionId cuando el backend marca el nivel como locked',
+        async () => {
+          // SESSION_ENTRY_DIRECT_ROUTE_REGRESSION
+          const getLevelState =
+            vi.spyOn(
+              browserLearningApi,
+              'getLevelState',
+            ).mockResolvedValue({
+              conceptId:
+                'js-array-iteration',
+
+              levelId:
+                'foundation',
+
+              previousLevelId:
+                null,
+
+              nextLevelId:
+                'deepening',
+
+              locked:
+                true,
+
+              lockReason:
+                'previous-concept-incomplete',
+
+              stages: {
+                theory: {
+                  status:
+                    'locked',
+                  completedAt:
+                    null,
+                },
+
+                quiz: {
+                  status:
+                    'locked',
+                  completedAt:
+                    null,
+                },
+
+                practice: {
+                  status:
+                    'locked',
+                  completedAt:
+                    null,
+                },
+
+                checkpoint: {
+                  status:
+                    'locked',
+                  completedAt:
+                    null,
+                },
+              },
+
+              completed:
+                false,
+
+              completedAt:
+                null,
+            });
+
+          renderAt(
+            SESSION_ID,
+          );
+
+          expect(
+            await screen.findByRole(
+              'heading',
+              {
+                name:
+                  'Sesión bloqueada',
+              },
+            ),
+          ).toBeInTheDocument();
+
+          expect(
+            getLevelState,
+          ).toHaveBeenCalledWith(
+            'js-array-iteration',
+            'foundation',
+            'session-page-test-token',
+          );
+
+          expect(
+            screen.queryByRole(
+              'article',
+              {
+                name:
+                  'Ejercicio actual',
+              },
+            ),
+          ).not.toBeInTheDocument();
+
+          expect(
+            screen.queryByRole(
+              'button',
+              {
+                name:
+                  'Comprobar',
+              },
+            ),
+          ).not.toBeInTheDocument();
+        },
+      );
+
+      it(
+        'falla cerrado mientras todavía se verifica el estado del nivel',
+        async () => {
+          let resolveLevelState:
+            | ((
+                value:
+                  Awaited<
+                    ReturnType<
+                      typeof browserLearningApi.getLevelState
+                    >
+                  >,
+              ) => void)
+            | undefined;
+
+          vi.spyOn(
+            browserLearningApi,
+            'getLevelState',
+          ).mockImplementation(
+            () =>
+              new Promise(
+                resolve => {
+                  resolveLevelState =
+                    resolve;
+                },
+              ),
+          );
+
+          const rendered =
+            renderAt(
+              SESSION_ID,
+            );
+
+          try {
+            expect(
+              await screen.findByText(
+                'Verificando acceso a la sesión…',
+              ),
+            ).toBeInTheDocument();
+
+            expect(
+              screen.queryByRole(
+                'article',
+                {
+                  name:
+                    'Ejercicio actual',
+                },
+              ),
+            ).not.toBeInTheDocument();
+
+            if (
+              resolveLevelState
+              === undefined
+            ) {
+              throw new Error(
+                'No se capturó el resolver del estado canónico',
+              );
+            }
+
+            resolveLevelState({
+              conceptId:
+                'js-array-iteration',
+              levelId:
+                'foundation',
+              previousLevelId:
+                null,
+              nextLevelId:
+                'deepening',
+              locked:
+                false,
+              lockReason:
+                null,
+              stages: {
+                theory: {
+                  status:
+                    'completed',
+                  completedAt:
+                    null,
+                },
+                quiz: {
+                  status:
+                    'completed',
+                  completedAt:
+                    null,
+                },
+                practice: {
+                  status:
+                    'available',
+                  completedAt:
+                    null,
+                },
+                checkpoint: {
+                  status:
+                    'locked',
+                  completedAt:
+                    null,
+                },
+              },
+              completed:
+                false,
+              completedAt:
+                null,
+            });
+
+            expect(
+              await screen.findByRole(
+                'article',
+                {
+                  name:
+                    'Ejercicio actual',
+                },
+              ),
+            ).toBeInTheDocument();
+          } finally {
+            rendered.unmount();
+          }
+        },
+      );
+    },
+  );
 
   describe('errores', () => {
     it('una sesión inexistente muestra el estado vacío con vuelta al inicio', async () => {
@@ -376,19 +896,670 @@ describe('SessionPage (T027)', () => {
       log.mockRestore();
     });
 
-    it('muestra la celebración de sesión solo después de la finalización canónica', async () => {
-      await loaded();
+    it('un quiz completado continúa al recorrido sin mostrar resultados finales', async () => {
+      const quizRepo =
+        Object.create(repo) as typeof repo;
+
+      quizRepo.getSessionById =
+        async (id: string) => {
+          const real =
+            await repo.getSessionById(id);
+
+          return real === null
+            ? null
+            : {
+                ...real,
+                kind: 'quiz' as const,
+              };
+        };
+
+      renderAt(
+        SESSION_ID,
+        quizRepo,
+      );
+
+      await screen.findByRole(
+        'heading',
+        {
+          name: /forEach no devuelve/i,
+        },
+      );
+
       await llegarAFixCode();
       await escribirCodigo(SOLUCION);
 
-      fireEvent.click(screen.getByRole('button', { name: 'Comprobar' }));
-      await waitFor(() => expect(screen.getByText('Respuesta correcta')).toBeInTheDocument());
-      fireEvent.click(screen.getByRole('button', { name: 'Terminar sesión' }));
+      fireEvent.click(
+        screen.getByRole(
+          'button',
+          {
+            name: 'Comprobar',
+          },
+        ),
+      );
 
-      await waitFor(() => expect(screen.getByRole('heading', { name: '¡Sesión completada!' })).toBeInTheDocument());
-      expect(screen.getByRole('link', { name: 'Ver resultados' })).toHaveAttribute('href', `/results/${SESSION_ID}`);
-      expect(document.querySelector('[data-confetti-event]')).not.toBeNull();
+      await waitFor(() =>
+        expect(
+          screen.getByText(
+            'Respuesta correcta',
+          ),
+        ).toBeInTheDocument(),
+      );
+
+      fireEvent.click(
+        screen.getByRole(
+          'button',
+          {
+            name: 'Terminar sesión',
+          },
+        ),
+      );
+
+      expect(
+        await screen.findByRole(
+          'heading',
+          {
+            name:
+              'Has desbloqueado la práctica',
+          },
+        ),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByRole(
+          'link',
+          {
+            name:
+              'Continuar a práctica',
+          },
+        ),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.queryByRole(
+          'link',
+          {
+            name:
+              'Ver resultados',
+          },
+        ),
+      ).toBeNull();
     });
+
+
+    it(
+      'un checkpoint guardado que no completa el nivel no muestra celebración final',
+      async () => {
+        authMockState.accessToken =
+          'checkpoint-access-token';
+
+        const getLevelState =
+          vi.spyOn(
+            browserLearningApi,
+            'getLevelState',
+          ).mockResolvedValue({
+            conceptId:
+              'js-array-iteration',
+
+            levelId:
+              'foundation',
+
+            previousLevelId:
+              null,
+
+            nextLevelId:
+              'deepening',
+
+            locked:
+              false,
+
+            lockReason:
+              null,
+
+            stages: {
+              theory: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:00:00.000Z',
+              },
+
+              quiz: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:10:00.000Z',
+              },
+
+              practice: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:20:00.000Z',
+              },
+
+              checkpoint: {
+                status:
+                  'available',
+                completedAt:
+                  null,
+              },
+            },
+
+            completed:
+              false,
+
+            completedAt:
+              null,
+          });
+
+        const getConceptState =
+          vi.spyOn(
+            browserLearningApi,
+            'getConceptState',
+          );
+
+        const rendered =
+          await loaded(
+            CHECKPOINT_SESSION_ID,
+          );
+
+        try {
+          await finishRealCheckpoint();
+
+          expect(
+            await screen.findByRole(
+              'heading',
+              {
+                name:
+                  'Aún no has superado este nivel',
+              },
+            ),
+          ).toBeInTheDocument();
+
+          expect(
+            getLevelState,
+          ).toHaveBeenCalledWith(
+            'js-array-iteration',
+            'foundation',
+            'checkpoint-access-token',
+          );
+
+          await waitFor(
+            () => {
+              expect(
+                screen.getByRole(
+                  'link',
+                  {
+                    name:
+                      'Volver al recorrido',
+                  },
+                ),
+              ).toHaveAttribute(
+                'href',
+                '/tech/javascript/js-arrays',
+              );
+            },
+          );
+
+          expect(
+            getConceptState,
+          ).not.toHaveBeenCalled();
+
+          expect(
+            screen.queryByRole(
+              'link',
+              {
+                name:
+                  'Ver resultados',
+              },
+            ),
+          ).toBeNull();
+
+          expect(
+            document.querySelector(
+              '[data-confetti-event]',
+            ),
+          ).toBeNull();
+        } finally {
+          rendered.unmount();
+
+          authMockState.accessToken =
+            null;
+
+          vi.restoreAllMocks();
+        }
+      },
+    );
+
+    it(
+      'un checkpoint de foundation completado desbloquea el siguiente nivel sin cerrar el concepto',
+      async () => {
+        authMockState.accessToken =
+          'checkpoint-access-token';
+
+        const getLevelState =
+          vi.spyOn(
+            browserLearningApi,
+            'getLevelState',
+          ).mockResolvedValue({
+            conceptId:
+              'js-array-iteration',
+
+            levelId:
+              'foundation',
+
+            previousLevelId:
+              null,
+
+            nextLevelId:
+              'deepening',
+
+            locked:
+              false,
+
+            lockReason:
+              null,
+
+            stages: {
+              theory: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:00:00.000Z',
+              },
+
+              quiz: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:10:00.000Z',
+              },
+
+              practice: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:20:00.000Z',
+              },
+
+              checkpoint: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:30:00.000Z',
+              },
+            },
+
+            completed:
+              true,
+
+            completedAt:
+              '2026-09-17T20:30:00.000Z',
+          });
+
+        const getConceptState =
+          vi.spyOn(
+            browserLearningApi,
+            'getConceptState',
+          );
+
+        const rendered =
+          await loaded(
+            CHECKPOINT_SESSION_ID,
+          );
+
+        try {
+          await finishRealCheckpoint();
+
+          expect(
+            await screen.findByRole(
+              'heading',
+              {
+                name:
+                  'Has desbloqueado el siguiente nivel',
+              },
+            ),
+          ).toBeInTheDocument();
+
+          expect(
+            getLevelState,
+          ).toHaveBeenCalledWith(
+            'js-array-iteration',
+            'foundation',
+            'checkpoint-access-token',
+          );
+
+          await waitFor(
+            () => {
+              expect(
+                screen.getByRole(
+                  'link',
+                  {
+                    name:
+                      'Volver al recorrido',
+                  },
+                ),
+              ).toHaveAttribute(
+                'href',
+                '/tech/javascript/js-arrays',
+              );
+            },
+          );
+
+          expect(
+            getConceptState,
+          ).not.toHaveBeenCalled();
+
+          expect(
+            screen.queryByRole(
+              'heading',
+              {
+                name:
+                  '¡Sesión completada!',
+              },
+            ),
+          ).toBeNull();
+
+          expect(
+            screen.queryByRole(
+              'link',
+              {
+                name:
+                  'Ver resultados',
+              },
+            ),
+          ).toBeNull();
+
+          expect(
+            document.querySelector(
+              '[data-confetti-event]',
+            ),
+          ).toBeNull();
+        } finally {
+          rendered.unmount();
+
+          authMockState.accessToken =
+            null;
+
+          vi.restoreAllMocks();
+        }
+      },
+    );
+
+    it(
+      'el checkpoint del último nivel celebra solo cuando el concepto está completado',
+      async () => {
+        authMockState.accessToken =
+          'checkpoint-access-token';
+
+        const getLevelState =
+          vi.spyOn(
+            browserLearningApi,
+            'getLevelState',
+          ).mockResolvedValue({
+            conceptId:
+              'js-array-iteration',
+
+            levelId:
+              'foundation',
+
+            previousLevelId:
+              null,
+
+            nextLevelId:
+              null,
+
+            locked:
+              false,
+
+            lockReason:
+              null,
+
+            stages: {
+              theory: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:00:00.000Z',
+              },
+
+              quiz: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:10:00.000Z',
+              },
+
+              practice: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:20:00.000Z',
+              },
+
+              checkpoint: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:30:00.000Z',
+              },
+            },
+
+            completed:
+              true,
+
+            completedAt:
+              '2026-09-17T20:30:00.000Z',
+          });
+
+        const getConceptState =
+          vi.spyOn(
+            browserLearningApi,
+            'getConceptState',
+          ).mockResolvedValue({
+            conceptId:
+              'js-array-iteration',
+
+            previousConceptId:
+              null,
+
+            locked:
+              false,
+
+            lockReason:
+              null,
+
+            stages: {
+              theory: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:00:00.000Z',
+              },
+
+              quiz: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:10:00.000Z',
+              },
+
+              practice: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:20:00.000Z',
+              },
+
+              checkpoint: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-17T20:30:00.000Z',
+              },
+            },
+
+            completed:
+              true,
+
+            completedAt:
+              '2026-09-17T20:30:00.000Z',
+          });
+
+        const rendered =
+          await loaded(
+            CHECKPOINT_SESSION_ID,
+          );
+
+        try {
+          await finishRealCheckpoint();
+
+          expect(
+            await screen.findByRole(
+              'heading',
+              {
+                name:
+                  '¡Sesión completada!',
+              },
+            ),
+          ).toBeInTheDocument();
+
+          expect(
+            getLevelState,
+          ).toHaveBeenCalledWith(
+            'js-array-iteration',
+            'foundation',
+            'checkpoint-access-token',
+          );
+
+          expect(
+            getConceptState,
+          ).toHaveBeenCalledWith(
+            'js-array-iteration',
+            'checkpoint-access-token',
+          );
+
+          expect(
+            screen.getByRole(
+              'link',
+              {
+                name:
+                  'Ver resultados',
+              },
+            ),
+          ).toHaveAttribute(
+            'href',
+            `/results/${CHECKPOINT_SESSION_ID}`,
+          );
+
+          expect(
+            document.querySelector(
+              '[data-confetti-event]',
+            ),
+          ).not.toBeNull();
+        } finally {
+          rendered.unmount();
+
+          authMockState.accessToken =
+            null;
+
+          vi.restoreAllMocks();
+        }
+      },
+    );
+
+    it(
+      'una práctica completada guarda el progreso sin mostrar celebración final',
+      async () => {
+        await loaded();
+        await llegarAFixCode();
+        await escribirCodigo(SOLUCION);
+
+        fireEvent.click(
+          screen.getByRole(
+            'button',
+            {
+              name:
+                'Comprobar',
+            },
+          ),
+        );
+
+        await waitFor(
+          () =>
+            expect(
+              screen.getByText(
+                'Respuesta correcta',
+              ),
+            ).toBeInTheDocument(),
+        );
+
+        fireEvent.click(
+          screen.getByRole(
+            'button',
+            {
+              name:
+                'Terminar sesión',
+            },
+          ),
+        );
+
+        expect(
+          await screen.findByRole(
+            'heading',
+            {
+              name:
+                'Progreso guardado',
+            },
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          screen.getByText(
+            'Práctica completada',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          screen.getByRole(
+            'link',
+            {
+              name:
+                'Continuar recorrido',
+            },
+          ),
+        ).toHaveAttribute(
+          'href',
+          '/tech/javascript/js-arrays',
+        );
+
+        expect(
+          screen.queryByRole(
+            'heading',
+            {
+              name:
+                '¡Sesión completada!',
+            },
+          ),
+        ).toBeNull();
+
+        expect(
+          screen.queryByRole(
+            'link',
+            {
+              name:
+                'Ver resultados',
+            },
+          ),
+        ).toBeNull();
+
+        expect(
+          document.querySelector(
+            '[data-confetti-event]',
+          ),
+        ).toBeNull();
+      },
+    );
   });
 
   describe('pistas (T033)', () => {
@@ -586,7 +1757,7 @@ describe('SessionPage · recovery (T052)', () => {
       }],
       lastActivityAt,
     };
-    renderAt(SESSION_ID, repo, undefined, recovery);
+    renderAt('js-functions-return-flow-01', repo, undefined, recovery);
 
     const title = await screen.findByRole('heading', { name: 'Tienes una sesión incompleta' });
     const dialog = screen.getByRole('dialog');
@@ -621,7 +1792,7 @@ describe('SessionPage · recovery (T052)', () => {
   it('cerrar conserva el recovery y vuelve al topic real', async () => {
     const recovery = new FakeSessionRecoveryStore();
     recovery.snapshot = recoveryOf();
-    renderAt(SESSION_ID, repo, undefined, recovery);
+    renderAt('js-functions-return-flow-01', repo, undefined, recovery);
 
     await screen.findByText('JavaScript');
     fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }));
@@ -634,7 +1805,7 @@ describe('SessionPage · recovery (T052)', () => {
   it('Escape cierra sin borrar el recovery', async () => {
     const recovery = new FakeSessionRecoveryStore();
     recovery.snapshot = recoveryOf();
-    renderAt(SESSION_ID, repo, undefined, recovery);
+    renderAt('js-functions-return-flow-01', repo, undefined, recovery);
 
     const dialog = await screen.findByRole('dialog');
     await screen.findByText('JavaScript');
@@ -649,7 +1820,7 @@ describe('SessionPage · recovery (T052)', () => {
     vi.spyOn(Date, 'now').mockReturnValue(61_000);
     const recovery = new FakeSessionRecoveryStore();
     recovery.snapshot = recoveryOf();
-    renderAt(SESSION_ID, repo, undefined, recovery);
+    renderAt('js-functions-return-flow-01', repo, undefined, recovery);
 
     expect(await screen.findByText(/Última actividad: hace 1 minuto/)).toBeInTheDocument();
     expect(recovery.saves).toHaveLength(0);

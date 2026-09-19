@@ -103,6 +103,11 @@ export interface TrainingRepository {
     runId: string,
   ): Promise<TrainingRunRecord | null>;
 
+  findActiveOwnedRunBySession?(
+    userId: string,
+    sessionId: ContentSessionId,
+  ): Promise<TrainingRunRecord | null>;
+
   revealNextHint(
     input: RevealNextTrainingHintInput,
   ): Promise<TrainingHintRevealRecord>;
@@ -146,6 +151,27 @@ implements TrainingRepository {
         where: {
           id: runId,
           userId,
+        },
+      });
+
+    return run === null
+      ? null
+      : mapTrainingRun(run);
+  }
+
+  public async findActiveOwnedRunBySession(
+    userId: string,
+    sessionId: ContentSessionId,
+  ): Promise<TrainingRunRecord | null> {
+    const run =
+      await this.prisma.trainingRun.findFirst({
+        where: {
+          userId,
+          sessionId,
+          status: 'ACTIVE',
+        },
+        orderBy: {
+          startedAt: 'desc',
         },
       });
 
@@ -263,6 +289,28 @@ implements TrainingRepository {
 
           if (currentRun.status !== 'ACTIVE') {
             throw new TrainingRunClosedError();
+          }
+
+          /*
+           * Distinguish an actual replay from a request for a
+           * different exercise position. The unique constraint
+           * remains the concurrency backstop below.
+           */
+          const existingAttempt =
+            await transaction.attempt.findFirst({
+              where: {
+                trainingRunId:
+                  currentRun.id,
+                exerciseId:
+                  input.exerciseId,
+              },
+              select: {
+                id: true,
+              },
+            });
+
+          if (existingAttempt !== null) {
+            throw new DuplicateTrainingAnswerError();
           }
 
           if (

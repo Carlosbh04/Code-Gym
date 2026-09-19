@@ -15,7 +15,12 @@ import { EmptyState } from '@/components/codegym/EmptyState';
 import { PageLoadTransition } from '@/components/codegym/PageLoadTransition';
 import { Skeleton } from '@/components/codegym/Skeleton';
 import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
+import { useAuth } from '@/features/auth/AuthContext';
 import { formatDuration } from '@/features/dashboard/components/dashboard-formatters';
+import { browserLearningApi } from '@/features/learning/learning-api';
+import {
+  canEnterLearningSession,
+} from '@/features/learning/session-learning-kind';
 import { useSessionRecoveryState } from '@/features/practice/use-session-states';
 import { formatRelativeActivity } from '@/features/session/session-recovery-formatters';
 import { useContent } from '@/hooks/useContent';
@@ -36,12 +41,31 @@ type CatalogState =
   | { status: 'success'; catalog: ReviewCatalog }
   | { status: 'error'; message: string };
 
+type PracticeAccessState =
+  | {
+      readonly status:
+        'idle'
+        | 'checking';
+      readonly sessionIds:
+        ReadonlySet<string>;
+    }
+  | {
+      readonly status:
+        'success';
+      readonly sessionIds:
+        ReadonlySet<string>;
+    };
+
 const PRIMARY_ACTION = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
 const SECONDARY_ACTION = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-background/40 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary/30 hover:bg-primary/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
 const PANEL = 'min-w-0 rounded-xl border border-primary/15 bg-card shadow-sm';
 const REVIEW_REFERENCE_TIME = Date.now();
 
 function ReviewHubPage() {
+  const {
+    accessToken,
+  } = useAuth();
+
   const {
     technologies,
     getTopics,
@@ -61,7 +85,24 @@ function ReviewHubPage() {
   } = useHistory();
   const { progress, isLoading: progressLoading, error: progressError } = useProgress();
   const recovery = useSessionRecoveryState(useContext(SessionRecoveryContext));
-  const [catalogState, setCatalogState] = useState<CatalogState>({ status: 'loading' });
+
+  const [
+    catalogState,
+    setCatalogState,
+  ] = useState<CatalogState>({
+    status:
+      'loading',
+  });
+
+  const [
+    practiceAccess,
+    setPracticeAccess,
+  ] = useState<PracticeAccessState>({
+    status:
+      'idle',
+    sessionIds:
+      new Set(),
+  });
 
   useEffect(() => {
     void refreshDashboard();
@@ -113,8 +154,210 @@ function ReviewHubPage() {
     });
   }, [catalogState, progress, recentCompletedSessions, recovery]);
 
-  const loading = contentLoading || progressLoading || completedSessionsLoading || catalogState.status === 'loading';
-  const fatalError = progressError ?? (catalogState.status === 'error' ? catalogState.message : null);
+  // REVIEW_CANONICAL_PRACTICE_GATE
+  useEffect(
+    () => {
+      if (
+        model === null
+      ) {
+        setPracticeAccess({
+          status:
+            'idle',
+          sessionIds:
+            new Set(),
+        });
+
+        return;
+      }
+
+      let active =
+        true;
+
+      const sessions =
+        model.recommendedSessions;
+
+      setPracticeAccess({
+        status:
+          'checking',
+        sessionIds:
+          new Set(),
+      });
+
+      const verify =
+        async () => {
+          const levelRequests =
+            new Map<
+              string,
+              ReturnType<
+                typeof browserLearningApi.getLevelState
+              >
+            >();
+
+          const results =
+            await Promise.all(
+              sessions.map(
+                async item => {
+                  const session =
+                    item.session;
+
+                  /*
+                   * Legacy conserva compatibilidad.
+                   */
+                  if (
+                    session.levelId
+                    === undefined
+                  ) {
+                    return {
+                      id:
+                        session.id,
+                      allowed:
+                        true,
+                    };
+                  }
+
+                  /*
+                   * Staged falla cerrado si no existe
+                   * token o la autoridad no responde.
+                   */
+                  if (
+                    accessToken
+                    === null
+                  ) {
+                    return {
+                      id:
+                        session.id,
+                      allowed:
+                        false,
+                    };
+                  }
+
+                  const key =
+                    `${session.conceptId}:${session.levelId}`;
+
+                  try {
+                    let request =
+                      levelRequests.get(
+                        key,
+                      );
+
+                    if (
+                      request
+                      === undefined
+                    ) {
+                      request =
+                        browserLearningApi
+                          .getLevelState(
+                            session.conceptId,
+                            session.levelId,
+                            accessToken,
+                          );
+
+                      levelRequests.set(
+                        key,
+                        request,
+                      );
+                    }
+
+                    const levelState =
+                      await request;
+
+                    return {
+                      id:
+                        session.id,
+                      allowed:
+                        canEnterLearningSession(
+                          session,
+                          levelState,
+                        ),
+                    };
+                  } catch {
+                    return {
+                      id:
+                        session.id,
+                      allowed:
+                        false,
+                    };
+                  }
+                },
+              ),
+            );
+
+          if (!active) {
+            return;
+          }
+
+          setPracticeAccess({
+            status:
+              'success',
+            sessionIds:
+              new Set(
+                results
+                  .filter(
+                    result =>
+                      result.allowed,
+                  )
+                  .map(
+                    result =>
+                      result.id,
+                  ),
+              ),
+          });
+        };
+
+      void verify();
+
+      return () => {
+        active =
+          false;
+      };
+    },
+    [
+      accessToken,
+      model,
+    ],
+  );
+
+  const practiceSessions =
+    useMemo(
+      () => {
+        if (
+          model === null
+          || practiceAccess.status
+            !== 'success'
+        ) {
+          return [];
+        }
+
+        return model
+          .recommendedSessions
+          .filter(
+            item =>
+              practiceAccess
+                .sessionIds
+                .has(
+                  item.session.id,
+                ),
+          );
+      },
+      [
+        model,
+        practiceAccess,
+      ],
+    );
+
+  const loading =
+    contentLoading
+    || progressLoading
+    || completedSessionsLoading
+    || catalogState.status === 'loading';
+
+  const fatalError =
+    progressError
+    ?? (
+      catalogState.status === 'error'
+        ? catalogState.message
+        : null
+    );
 
   return (
     <section
@@ -184,7 +427,7 @@ function ReviewHubPage() {
             >
               <ConceptReviewSection
                 concepts={model.reviewConcepts}
-                sessions={model.recommendedSessions}
+                sessions={practiceSessions}
               />
             </div>
 

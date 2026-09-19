@@ -1,21 +1,172 @@
 import { expect, test, type Page } from './fixtures';
 
+
+test.use({
+  authScenario:
+    'topic-recovery',
+});
+
 const SESSION_ID = 'js-arrays-map-vs-foreach-01';
+const REQUESTED_SESSION_ID = 'js-arrays-filter-mutation-01';
 const BREAKPOINTS = [320, 390, 768, 1024, 1280, 1440] as const;
 
 async function startPartialSession(page: Page) {
-  await page.goto('/tech/javascript/js-arrays');
-  const sessionCard = page.locator('article', {
-    has: page.getByRole('heading', { name: 'forEach no devuelve lo que crees' }),
+  await page.goto(
+    `/practice/${SESSION_ID}`,
+  );
+
+  await expect(
+    page.getByRole(
+      'heading',
+      {
+        name:
+          'forEach no devuelve lo que crees',
+      },
+    ),
+  ).toBeVisible();
+
+  await expect
+    .poll(
+      async () =>
+        page.evaluate(() => {
+          const raw =
+            sessionStorage.getItem(
+              'codegym:session',
+            );
+
+          if (raw === null) {
+            return false;
+          }
+
+          const snapshot =
+            JSON.parse(raw) as {
+              trainingRunId?: unknown;
+            };
+
+          return (
+            typeof snapshot.trainingRunId
+              === 'string'
+            && snapshot.trainingRunId.length
+              > 0
+          );
+        }),
+      {
+        timeout:
+          15_000,
+      },
+    )
+    .toBe(true);
+
+  const canonical =
+    await page.evaluate(() => {
+      const raw =
+        sessionStorage.getItem(
+          'codegym:session',
+        );
+
+      if (raw === null) {
+        throw new Error(
+          'Missing canonical recovery snapshot',
+        );
+      }
+
+      return JSON.parse(raw) as {
+        sessionId:
+          string;
+        trainingRunId:
+          string;
+        elapsedMs:
+          number;
+        startTime:
+          number;
+      };
+    });
+
+  expect(
+    canonical.sessionId,
+  ).toBe(
+    SESSION_ID,
+  );
+
+  expect(
+    canonical.trainingRunId,
+  ).not.toHaveLength(0);
+
+  await page.addInitScript(
+    ({
+      snapshot,
+      sessionId,
+    }) => {
+      const now =
+        Date.now();
+
+      sessionStorage.setItem(
+        'codegym:session',
+        JSON.stringify({
+          ...snapshot,
+          sessionId,
+          currentStep:
+            1,
+          answers: [
+            {
+              stepId:
+                'step-1',
+              stepType:
+                'code-reading',
+              answer:
+                'b',
+              isCorrect:
+                true,
+              timeSpentMs:
+                1_000,
+              hintsUsed:
+                0,
+            },
+          ],
+          elapsedMs:
+            Math.max(
+              snapshot.elapsedMs,
+              1_000,
+            ),
+          revealedHints:
+            [],
+          startTime:
+            snapshot.startTime,
+          lastActivityAt:
+            now,
+        }),
+      );
+    },
+    {
+      snapshot:
+        canonical,
+      sessionId:
+        SESSION_ID,
+    },
+  );
+
+  await page.goto(
+    `/practice/${REQUESTED_SESSION_ID}`,
+  );
+
+  await expect(
+    page,
+  ).toHaveURL(
+    `/practice/${REQUESTED_SESSION_ID}`,
+  );
+
+  await expect(
+    page.getByRole(
+      'dialog',
+      {
+        name:
+          'Tienes una sesión incompleta',
+      },
+    ),
+  ).toBeVisible({
+    timeout:
+      15_000,
   });
-  await sessionCard.getByRole('link', { name: 'Empezar práctica' }).click();
-  await expect(page).toHaveURL(`/practice/${SESSION_ID}`);
-  await page.getByRole('radio', { name: 'undefined' }).check();
-  await page.getByRole('button', { name: 'Comprobar' }).click();
-  await page.getByRole('button', { name: 'Siguiente paso' }).click();
-  await expect(page.getByText('Paso 2 de 4')).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole('dialog', { name: 'Tienes una sesión incompleta' })).toBeVisible();
 }
 
 test('muestra recovery real, responde en seis breakpoints y continúa donde se dejó', async ({ page }) => {
@@ -57,7 +208,18 @@ test('muestra recovery real, responde en seis breakpoints y continúa donde se d
   }
 
   await dialog.getByRole('button', { name: 'Continuar' }).click();
-  await expect(page.getByText('Paso 2 de 4')).toBeVisible();
+
+  await expect(
+    page,
+  ).toHaveURL(
+    `/practice/${SESSION_ID}`,
+  );
+
+  await expect(
+    page.getByText(
+      'Paso 2 de 4',
+    ),
+  ).toBeVisible();
   const restored = await page.evaluate(() => JSON.parse(sessionStorage.getItem('codegym:session') ?? 'null'));
   expect(restored).toMatchObject({ sessionId: SESSION_ID, currentStep: 1 });
   expect(restored.answers).toHaveLength(1);
@@ -70,12 +232,28 @@ test('Empezar de nuevo descarta el recovery y crea una sesión limpia', async ({
   const dialog = page.getByRole('dialog', { name: 'Tienes una sesión incompleta' });
   await dialog.getByRole('button', { name: 'Empezar de nuevo' }).click();
 
-  await expect(page.getByRole('heading', { name: 'forEach no devuelve lo que crees' })).toBeVisible();
-  await expect(page.getByText('Paso 1 de 4')).toBeVisible();
+  await expect(
+    page,
+  ).toHaveURL(
+    `/practice/${REQUESTED_SESSION_ID}`,
+  );
+
+  await expect(
+    page.getByText(
+      'Paso 1 de 4',
+    ),
+  ).toBeVisible();
   await expect.poll(() => page.evaluate(
     () => JSON.parse(sessionStorage.getItem('codegym:session') ?? 'null'),
   )).not.toBeNull();
   const snapshot = await page.evaluate(() => JSON.parse(sessionStorage.getItem('codegym:session') ?? 'null'));
-  expect(snapshot).toMatchObject({ sessionId: SESSION_ID, currentStep: 0, answers: [] });
+  expect(snapshot).toMatchObject({
+    sessionId:
+      REQUESTED_SESSION_ID,
+    currentStep:
+      0,
+    answers:
+      [],
+  });
   expect(typeof snapshot.lastActivityAt).toBe('number');
 });

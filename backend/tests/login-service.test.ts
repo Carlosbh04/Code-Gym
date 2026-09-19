@@ -55,6 +55,8 @@ const storedUser = {
 
 const storedSession:
   AuthSessionRecord = {
+  lastActivityAt:
+    now,
     id:
       'session-1',
 
@@ -176,6 +178,9 @@ function createAuthSessionRepository(
         .mockResolvedValue(
           null,
         ),
+
+    touchSessionActivity:
+      async () => true,
 
     revokeSessionByRefreshTokenDigest:
       vi
@@ -467,6 +472,8 @@ describe(
 
       await expect(
         service.login({
+          remember:
+            false,
           email:
             'person@example.test',
 
@@ -553,6 +560,8 @@ describe(
 
       await expect(
         service.login({
+          remember:
+            false,
           email:
             'person@example.test',
           password:
@@ -652,6 +661,8 @@ describe(
 
       await expect(
         service.login({
+          remember:
+            false,
           email:
             'missing@example.test',
 
@@ -758,6 +769,8 @@ describe(
 
       await expect(
         service.login({
+          remember:
+            false,
           email:
             'missing@example.test',
 
@@ -825,6 +838,8 @@ describe(
 
       const result =
         await service.login({
+          remember:
+            false,
           email:
             'person@example.test',
 
@@ -922,6 +937,12 @@ describe(
               .mockResolvedValue(
                 'FAILED' as const,
               ),
+
+          getActiveLoginCooldownUntilByEmail:
+            vi.fn()
+              .mockResolvedValue(
+                null,
+              ),
         };
 
         const service =
@@ -973,11 +994,143 @@ describe(
     );
 
     it(
+      'surfaces the authoritative cooldown immediately when the failed attempt reaches the threshold',
+      async () => {
+        const cooldownUntil =
+          new Date(
+            now.getTime()
+            + 15 * 60 * 1_000,
+          );
+
+        const securityRepository = {
+          recordFailedPasswordAttempt:
+            vi.fn()
+              .mockResolvedValue(
+                'COOLDOWN' as const,
+              ),
+
+          getActiveLoginCooldownUntilByEmail:
+            vi.fn()
+              .mockResolvedValue(
+                cooldownUntil,
+              ),
+        };
+
+        const service =
+          new LoginService(
+            createSecurityAwareUserRepository(),
+            createAuthSessionRepository(
+              vi.fn(),
+            ),
+            new AccessTokenService(
+              authConfig,
+              () => now,
+            ),
+            authConfig,
+            vi.fn()
+              .mockResolvedValue(
+                false,
+              ),
+            () => now,
+            securityRepository,
+          );
+
+        await expect(
+          service.login({
+            email:
+              storedUser.email,
+            password:
+              'wrong-password',
+            remember:
+              false,
+          }),
+        ).rejects.toMatchObject({
+          name:
+            'AccountCooldownError',
+          cooldownUntil,
+        });
+
+        expect(
+          securityRepository
+            .getActiveLoginCooldownUntilByEmail,
+        ).toHaveBeenCalledWith(
+          storedUser.email,
+          now,
+        );
+      },
+    );
+
+    it(
+      'surfaces a persistent account lock immediately when the failed attempt locks the account',
+      async () => {
+        const securityRepository = {
+          recordFailedPasswordAttempt:
+            vi.fn()
+              .mockResolvedValue(
+                'LOCKED' as const,
+              ),
+
+          getActiveLoginCooldownUntilByEmail:
+            vi.fn()
+              .mockResolvedValue(
+                null,
+              ),
+        };
+
+        const service =
+          new LoginService(
+            createSecurityAwareUserRepository(),
+            createAuthSessionRepository(
+              vi.fn(),
+            ),
+            new AccessTokenService(
+              authConfig,
+              () => now,
+            ),
+            authConfig,
+            vi.fn()
+              .mockResolvedValue(
+                false,
+              ),
+            () => now,
+            securityRepository,
+          );
+
+        await expect(
+          service.login({
+            email:
+              storedUser.email,
+            password:
+              'wrong-password',
+            remember:
+              false,
+          }),
+        ).rejects.toMatchObject({
+          name:
+            'AccountLockedError',
+        });
+
+        expect(
+          securityRepository
+            .recordFailedPasswordAttempt,
+        ).toHaveBeenCalledTimes(
+          1,
+        );
+      },
+    );
+
+    it(
       'does not create persistent failure state for an unknown email',
       async () => {
         const securityRepository = {
           recordFailedPasswordAttempt:
             vi.fn(),
+
+          getActiveLoginCooldownUntilByEmail:
+            vi.fn()
+              .mockResolvedValue(
+                null,
+              ),
         };
 
         const userRepository =
@@ -1034,6 +1187,12 @@ describe(
         const securityRepository = {
           recordFailedPasswordAttempt:
             vi.fn(),
+
+          getActiveLoginCooldownUntilByEmail:
+            vi.fn()
+              .mockResolvedValue(
+                null,
+              ),
         };
 
         const service =

@@ -18,6 +18,31 @@ import type {
   PublicTopic,
 } from './content-model.js';
 
+export interface CanonicalTrainingSessionMetadata {
+  readonly id: string;
+  readonly conceptId: string;
+  readonly technologyId: string;
+  readonly kind:
+    | 'QUIZ'
+    | 'PRACTICE'
+    | 'CHECKPOINT';
+  readonly levelId:
+    | 'FOUNDATION'
+    | 'DEEPENING'
+    | 'MASTERY';
+  readonly passingPercentage:
+    number | null;
+  readonly requiredForProgression:
+    boolean;
+  readonly position:
+    number;
+  readonly progressionEnabled:
+    boolean;
+  readonly status:
+    | 'PUBLISHED'
+    | 'UPDATED';
+}
+
 export interface ContentRepository {
   getTechnologies(): Promise<readonly PublicTechnology[]>;
 
@@ -40,6 +65,10 @@ export interface ContentRepository {
   getSessionById(
     sessionId: string,
   ): Promise<PublicExerciseSession | null>;
+
+  getCanonicalTrainingSessionMetadata(
+    sessionId: string,
+  ): Promise<CanonicalTrainingSessionMetadata | null>;
 }
 
 export class PrismaContentRepository
@@ -116,6 +145,17 @@ implements ContentRepository {
               },
             ],
           },
+
+          learningLevels: {
+            orderBy: [
+              {
+                position: 'asc',
+              },
+              {
+                id: 'asc',
+              },
+            ],
+          },
         },
         orderBy: [
           {
@@ -144,6 +184,17 @@ implements ContentRepository {
         },
         include: {
           learningSections: {
+            orderBy: [
+              {
+                position: 'asc',
+              },
+              {
+                id: 'asc',
+              },
+            ],
+          },
+
+          learningLevels: {
             orderBy: [
               {
                 position: 'asc',
@@ -201,6 +252,156 @@ implements ContentRepository {
       });
 
     return sessions.map(mapSessionWithSteps);
+  }
+
+  public async getCanonicalTrainingSessionMetadata(
+    sessionId: string,
+  ): Promise<CanonicalTrainingSessionMetadata | null> {
+    const session =
+      await this.prisma.exerciseSession.findFirst({
+        where: {
+          id:
+            sessionId,
+
+          status: {
+            in: [
+              'PUBLISHED',
+              'UPDATED',
+            ],
+          },
+
+          concept: {
+            isPublished:
+              true,
+
+            topic: {
+              isPublished:
+                true,
+
+              technology: {
+                isPublished:
+                  true,
+              },
+            },
+          },
+        },
+
+        select: {
+          id:
+            true,
+
+          conceptId:
+            true,
+
+          technologyId:
+            true,
+
+          kind:
+            true,
+
+          levelId:
+            true,
+
+          passingPercentage:
+            true,
+
+          requiredForProgression:
+            true,
+          position:
+            true,
+
+          status:
+            true,
+        },
+      });
+
+    if (session === null) {
+      return null;
+    }
+
+
+    const requiredQuiz =
+      await this.prisma.exerciseSession
+        .findFirst({
+          where: {
+            conceptId:
+              session.conceptId,
+
+            levelId:
+              session.levelId,
+
+            kind:
+              'QUIZ',
+
+            requiredForProgression:
+              true,
+
+            status: {
+              in: [
+                'PUBLISHED',
+                'UPDATED',
+              ],
+            },
+
+            concept: {
+              isPublished:
+                true,
+
+              topic: {
+                isPublished:
+                  true,
+
+                technology: {
+                  isPublished:
+                    true,
+                },
+              },
+            },
+          },
+
+          select: {
+            id:
+              true,
+          },
+        });
+
+    if (
+      session.status !== 'PUBLISHED'
+      && session.status !== 'UPDATED'
+    ) {
+      return null;
+    }
+
+    return Object.freeze({
+      id:
+        session.id,
+
+      conceptId:
+        session.conceptId,
+
+      technologyId:
+        session.technologyId,
+
+      kind:
+        session.kind,
+
+      levelId:
+        session.levelId,
+
+      passingPercentage:
+        session.passingPercentage,
+
+      requiredForProgression:
+        session.requiredForProgression,
+      position:
+        session.position,
+
+      progressionEnabled:
+        requiredQuiz !== null,
+
+      status:
+        session.status,
+    });
   }
 
   public async getSessionById(
@@ -269,6 +470,21 @@ type ConceptWithSections =
   Concept & {
     readonly learningSections:
       readonly LearningSection[];
+
+    readonly learningLevels:
+      readonly {
+        readonly levelId:
+          LearningSection['levelId'];
+
+        readonly name:
+          string;
+
+        readonly description:
+          string;
+
+        readonly position:
+          number;
+      }[];
   };
 
 function mapConceptWithSections(
@@ -282,6 +498,29 @@ function mapConceptWithSections(
       concept.technologyId,
     contentMarkdown:
       concept.contentMarkdown ?? '',
+
+    levels:
+      Object.freeze(
+        concept.learningLevels.map(
+          level =>
+            Object.freeze({
+              id:
+                mapPublicLearningLevel(
+                  level.levelId,
+                ),
+
+              name:
+                level.name,
+
+              description:
+                level.description,
+
+              position:
+                level.position,
+            }),
+        ),
+      ),
+
     content: Object.freeze({
       sections:
         concept.learningSections.map(
@@ -289,6 +528,25 @@ function mapConceptWithSections(
         ),
     }),
   });
+}
+
+function mapPublicLearningLevel(
+  levelId:
+    LearningSection['levelId'],
+):
+  | 'foundation'
+  | 'deepening'
+  | 'mastery' {
+  switch (levelId) {
+    case 'FOUNDATION':
+      return 'foundation';
+
+    case 'DEEPENING':
+      return 'deepening';
+
+    case 'MASTERY':
+      return 'mastery';
+  }
 }
 
 function mapLearningSection(
@@ -311,6 +569,10 @@ function mapLearningSection(
               : section.type === 'KEY_POINT'
                 ? 'key-point'
                 : 'warning',
+        levelId:
+          mapPublicLearningLevel(
+            section.levelId,
+          ),
         title:
           requireTitle(section),
         body:
@@ -323,6 +585,10 @@ function mapLearningSection(
     case 'OBJECTIVES':
       return Object.freeze({
         type: 'objectives',
+        levelId:
+          mapPublicLearningLevel(
+            section.levelId,
+          ),
         title:
           requireTitle(section),
         items:
@@ -341,6 +607,10 @@ function mapLearningSection(
 
       return Object.freeze({
         type: 'code',
+        levelId:
+          mapPublicLearningLevel(
+            section.levelId,
+          ),
         title:
           requireTitle(section),
         code:
@@ -364,6 +634,10 @@ function mapLearningSection(
     case 'COMPARISON':
       return Object.freeze({
         type: 'comparison',
+        levelId:
+          mapPublicLearningLevel(
+            section.levelId,
+          ),
         title:
           requireTitle(section),
         left:
@@ -381,6 +655,10 @@ function mapLearningSection(
     case 'QUICK_CHECK':
       return Object.freeze({
         type: 'quick-check',
+        levelId:
+          mapPublicLearningLevel(
+            section.levelId,
+          ),
         question:
           requireString(
             content,
@@ -416,6 +694,22 @@ function mapSessionWithSteps(
         : session.difficulty === 'INTERMEDIATE'
           ? 'intermediate'
           : 'advanced',
+    kind:
+      session.kind === 'QUIZ'
+        ? 'quiz'
+        : session.kind === 'CHECKPOINT'
+          ? 'checkpoint'
+          : 'practice',
+    levelId:
+      session.levelId === 'FOUNDATION'
+        ? 'foundation'
+        : session.levelId === 'DEEPENING'
+          ? 'deepening'
+          : 'mastery',
+    passingPercentage:
+      session.passingPercentage,
+    requiredForProgression:
+      session.requiredForProgression,
     version: session.version,
     status:
       session.status === 'DRAFT'

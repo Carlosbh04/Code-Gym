@@ -102,6 +102,12 @@ export function AuthPanel({
     useState(false);
 
   const [
+    accountAccessLocked,
+    setAccountAccessLocked,
+  ] =
+    useState(false);
+
+  const [
     cooldownEndsAt,
     setCooldownEndsAt,
   ] =
@@ -346,6 +352,10 @@ export function AuthPanel({
               true,
             );
 
+            setAccountAccessLocked(
+              true,
+            );
+
             setLoginLocked(
               false,
             );
@@ -354,7 +364,9 @@ export function AuthPanel({
               null,
             );
 
-            setNotice('');
+            setNotice(
+              'Tu cuenta está bloqueada por seguridad. Recupera el acceso para continuar.',
+            );
 
             return;
           }
@@ -368,19 +380,47 @@ export function AuthPanel({
                 === 'RATE_LIMITED'
             )
           ) {
-            setLoginLocked(
-              true,
-            );
+            const backendCooldownEndsAt =
+              error.code === 'ACCOUNT_COOLDOWN'
+              && error.cooldownUntil !== null
+                ? Date.parse(
+                    error.cooldownUntil,
+                  )
+                : Number.NaN;
+
+            const rateLimitEndsAt =
+              error.code === 'RATE_LIMITED'
+              && error.retryAfterSeconds !== null
+                ? Date.now()
+                  + error.retryAfterSeconds
+                  * 1_000
+                : Number.NaN;
+
+            const nextCooldownEndsAt =
+              Number.isFinite(
+                backendCooldownEndsAt,
+              )
+                ? backendCooldownEndsAt
+                : rateLimitEndsAt;
+
+            if (
+              !Number.isFinite(
+                nextCooldownEndsAt,
+              )
+            ) {
+              setLoginLocked(false);
+              setCooldownEndsAt(null);
+              setNotice(
+                'No se pudo determinar el tiempo restante. Inténtalo de nuevo en unos minutos.',
+              );
+
+              return;
+            }
+
+            setLoginLocked(true);
 
             setCooldownEndsAt(
-              Date.now()
-              + 15
-              * 60
-              * 1_000,
-            );
-
-            setNotice(
-              'Demasiados intentos fallidos. Inténtalo de nuevo en 15 minutos. Tiempo restante: 15:00.',
+              nextCooldownEndsAt,
             );
 
             return;
@@ -468,6 +508,10 @@ export function AuthPanel({
               true,
             );
 
+            setAccountAccessLocked(
+              true,
+            );
+
             setLoginLocked(
               false,
             );
@@ -476,7 +520,9 @@ export function AuthPanel({
               null,
             );
 
-            setNotice('');
+            setNotice(
+              'Tu cuenta está bloqueada por seguridad. Recupera el acceso para continuar.',
+            );
 
             return;
           }
@@ -490,19 +536,47 @@ export function AuthPanel({
                 === 'RATE_LIMITED'
             )
           ) {
-            setLoginLocked(
-              true,
-            );
+            const backendCooldownEndsAt =
+              error.code === 'ACCOUNT_COOLDOWN'
+              && error.cooldownUntil !== null
+                ? Date.parse(
+                    error.cooldownUntil,
+                  )
+                : Number.NaN;
+
+            const rateLimitEndsAt =
+              error.code === 'RATE_LIMITED'
+              && error.retryAfterSeconds !== null
+                ? Date.now()
+                  + error.retryAfterSeconds
+                  * 1_000
+                : Number.NaN;
+
+            const nextCooldownEndsAt =
+              Number.isFinite(
+                backendCooldownEndsAt,
+              )
+                ? backendCooldownEndsAt
+                : rateLimitEndsAt;
+
+            if (
+              !Number.isFinite(
+                nextCooldownEndsAt,
+              )
+            ) {
+              setLoginLocked(false);
+              setCooldownEndsAt(null);
+              setNotice(
+                'No se pudo determinar el tiempo restante. Inténtalo de nuevo en unos minutos.',
+              );
+
+              return;
+            }
+
+            setLoginLocked(true);
 
             setCooldownEndsAt(
-              Date.now()
-              + 15
-              * 60
-              * 1_000,
-            );
-
-            setNotice(
-              'Demasiados intentos fallidos. Inténtalo de nuevo en 15 minutos. Tiempo restante: 15:00.',
+              nextCooldownEndsAt,
             );
 
             return;
@@ -739,11 +813,14 @@ export function AuthPanel({
               }
               isLocked={
                 loginLocked
+                || accountAccessLocked
               }
               lockedMessage={
-                loginLocked
-                  ? notice
-                  : ''
+                accountAccessLocked
+                  ? 'Tu cuenta está bloqueada por seguridad. Recupera el acceso para continuar.'
+                  : loginLocked
+                    ? notice
+                    : ''
               }
               onEmailChange={() => {
                 if (
@@ -752,8 +829,21 @@ export function AuthPanel({
                   setLoginLocked(
                     false,
                   );
-                  setNotice('');
+
+                  setCooldownEndsAt(
+                    null,
+                  );
                 }
+
+                if (
+                  accountAccessLocked
+                ) {
+                  setAccountAccessLocked(
+                    false,
+                  );
+                }
+
+                setNotice('');
               }}
             />
           ) : (
@@ -797,6 +887,7 @@ export function AuthPanel({
             isSubmitting
               ? 'Procesando…'
               : loginLocked
+                || accountAccessLocked
                 ? ''
                 : notice
           }
@@ -805,9 +896,21 @@ export function AuthPanel({
       <AccountLockDialog
         open={accountLocked}
         onClose={() => {
+          /*
+           * This only clears client-side presentation state.
+           * The persistent account lock remains authoritative
+           * in the backend and will be returned again if the
+           * same locked account retries.
+           */
           setAccountLocked(
             false,
           );
+
+          setAccountAccessLocked(
+            false,
+          );
+
+          setNotice('');
         }}
         onRecover={() => {
           setAccountLocked(

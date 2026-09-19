@@ -4,6 +4,27 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
 import { HistoryContext } from '@/contexts/history-context';
+import { browserLearningApi } from '@/features/learning/learning-api';
+
+const authMockState =
+  vi.hoisted(
+    () => ({
+      accessToken:
+        'review-page-test-token' as string | null,
+    }),
+  );
+
+// REVIEW_PAGE_REPEAT_TEST_AUTH
+vi.mock(
+  '@/features/auth/AuthContext',
+  () => ({
+    useAuth:
+      () => ({
+        accessToken:
+          authMockState.accessToken,
+      }),
+  }),
+);
 import type { Concept, ContentContextValue, Topic } from '@/types/content';
 import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
 import type { HistoryContextValue } from '@/types/history';
@@ -14,6 +35,24 @@ const step = (id: string, prompt: string, type: ExerciseStep['type'] = 'code-rea
 const FIRST = step('step-first', 'Primer prompt');
 const SECOND = step('step-second', 'Segundo prompt', 'predict-output');
 const SESSION: ExerciseSession = { id: 'session-1', title: 'map frente a forEach', conceptId: 'js-array-iteration', technologyId: 'javascript', difficulty: 'beginner', version: '1', status: 'published', createdAt: '2026-09-01T10:00:00.000Z', updatedAt: null, steps: [FIRST, SECOND] };
+
+
+// REVIEW_PAGE_STAGED_SESSION
+const STAGED_SESSION: ExerciseSession = {
+  ...SESSION,
+
+  id:
+    'session-staged',
+
+  levelId:
+    'foundation',
+
+  kind:
+    'practice',
+
+  requiredForProgression:
+    true,
+};
 const CONCEPT: Concept = { id: 'js-array-iteration', name: 'Iteración', technologyId: 'javascript', topicId: 'arrays', contentMarkdown: '' };
 const TOPIC: Topic = { id: 'arrays', name: 'Arrays', technologyId: 'javascript', description: '' };
 const attempt = (stepId: string, answer: unknown, isCorrect: boolean): Attempt => ({ id: `attempt-${stepId}`, sessionId: SESSION.id, stepId, stepType: 'code-reading', answer, isCorrect, timeSpentMs: 1_000, hintsUsed: 0, createdAt: '2026-09-03T10:00:00.000Z' });
@@ -73,6 +112,304 @@ describe('ReviewPage', () => {
     expect(screen.getByRole('link', { name: 'Volver a resultados' })).toHaveAttribute('href', '/results/session-1');
     expect(screen.getByRole('link', { name: 'Repetir práctica' })).toHaveAttribute('href', '/practice/session-1');
   });
+
+  it(
+    'mantiene visible la revisión pero oculta Repetir práctica si la sesión staged está bloqueada',
+    async () => {
+      // REVIEW_PAGE_REPEAT_CANONICAL_REGRESSION
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockResolvedValue({
+          conceptId:
+            STAGED_SESSION.conceptId,
+          levelId:
+            'foundation',
+          previousLevelId:
+            null,
+          nextLevelId:
+            null,
+          locked:
+            true,
+          lockReason:
+            'previous-concept-incomplete',
+          stages: {
+            theory: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+            quiz: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+            practice: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+            checkpoint: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+          },
+          completed:
+            false,
+          completedAt:
+            null,
+        });
+
+      const rendered =
+        renderReviewPage({
+          sessionId:
+            STAGED_SESSION.id,
+          getSession:
+            vi.fn()
+              .mockResolvedValue(
+                STAGED_SESSION,
+              ),
+        });
+
+      try {
+        expect(
+          await screen.findByRole(
+            'heading',
+            {
+              level:
+                1,
+              name:
+                'Revisión de respuestas',
+            },
+          ),
+        ).toBeInTheDocument();
+
+        await vi.waitFor(
+          () => {
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledWith(
+              STAGED_SESSION.conceptId,
+              'foundation',
+              'review-page-test-token',
+            );
+          },
+        );
+
+        /*
+         * La revisión histórica permanece accesible.
+         */
+        expect(
+          screen.getByRole(
+            'heading',
+            {
+              level:
+                2,
+              name:
+                'Primer prompt',
+            },
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          screen.getByRole(
+            'link',
+            {
+              name:
+                'Volver a resultados',
+            },
+          ),
+        ).toHaveAttribute(
+          'href',
+          `/results/${STAGED_SESSION.id}`,
+        );
+
+        /*
+         * Solo se elimina la acción que inicia ejecución.
+         */
+        expect(
+          screen.queryByRole(
+            'link',
+            {
+              name:
+                'Repetir práctica',
+            },
+          ),
+        ).not.toBeInTheDocument();
+      } finally {
+        rendered.unmount();
+        getLevelState.mockRestore();
+      }
+    },
+  );
+
+  it(
+    'permite Repetir práctica cuando backend confirma acceso staged',
+    async () => {
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockResolvedValue({
+          conceptId:
+            STAGED_SESSION.conceptId,
+          levelId:
+            'foundation',
+          previousLevelId:
+            null,
+          nextLevelId:
+            null,
+          locked:
+            false,
+          lockReason:
+            null,
+          stages: {
+            theory: {
+              status:
+                'completed',
+              completedAt:
+                null,
+            },
+            quiz: {
+              status:
+                'completed',
+              completedAt:
+                null,
+            },
+            practice: {
+              status:
+                'available',
+              completedAt:
+                null,
+            },
+            checkpoint: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+          },
+          completed:
+            false,
+          completedAt:
+            null,
+        });
+
+      const rendered =
+        renderReviewPage({
+          sessionId:
+            STAGED_SESSION.id,
+          getSession:
+            vi.fn()
+              .mockResolvedValue(
+                STAGED_SESSION,
+              ),
+        });
+
+      try {
+        expect(
+          await screen.findByRole(
+            'link',
+            {
+              name:
+                'Repetir práctica',
+            },
+          ),
+        ).toHaveAttribute(
+          'href',
+          `/practice/${STAGED_SESSION.id}`,
+        );
+
+        expect(
+          getLevelState,
+        ).toHaveBeenCalledWith(
+          STAGED_SESSION.conceptId,
+          'foundation',
+          'review-page-test-token',
+        );
+      } finally {
+        rendered.unmount();
+        getLevelState.mockRestore();
+      }
+    },
+  );
+
+  it(
+    'falla cerrado en el CTA staged si la autoridad canónica no responde',
+    async () => {
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockRejectedValue(
+          new Error(
+            'learning unavailable',
+          ),
+        );
+
+      const rendered =
+        renderReviewPage({
+          sessionId:
+            STAGED_SESSION.id,
+          getSession:
+            vi.fn()
+              .mockResolvedValue(
+                STAGED_SESSION,
+              ),
+        });
+
+      try {
+        expect(
+          await screen.findByRole(
+            'heading',
+            {
+              level:
+                1,
+              name:
+                'Revisión de respuestas',
+            },
+          ),
+        ).toBeInTheDocument();
+
+        await vi.waitFor(
+          () => {
+            expect(
+              getLevelState,
+            ).toHaveBeenCalled();
+          },
+        );
+
+        expect(
+          screen.queryByRole(
+            'link',
+            {
+              name:
+                'Repetir práctica',
+            },
+          ),
+        ).not.toBeInTheDocument();
+
+        expect(
+          screen.getByRole(
+            'link',
+            {
+              name:
+                'Volver a resultados',
+            },
+          ),
+        ).toBeInTheDocument();
+      } finally {
+        rendered.unmount();
+        getLevelState.mockRestore();
+      }
+    },
+  );
 
   it('distingue sesión inexistente y no carga attempts', async () => {
     const getAttemptsBySession = vi.fn();

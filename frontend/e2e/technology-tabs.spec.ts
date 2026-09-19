@@ -2,6 +2,12 @@ import { expect, test } from './fixtures';
 
 const SESSION_ID = 'js-arrays-map-vs-foreach-01';
 
+// TECHNOLOGY_CANONICAL_PRACTICE_SCENARIO
+test.use({
+  authScenario:
+    'main-flow',
+});
+
 test('navega, filtra y abre una sesión desde Ejercicios conservando back/forward', async ({ page }) => {
   await page.goto('/tech/javascript');
 
@@ -58,49 +64,107 @@ test('abre un resultado persistido y su revisión desde Resultados', async ({ pa
 });
 });
 
-test('pagina Ejercicios de ocho en ocho y conserva la página en la URL', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/tech/javascript?tab=exercises');
+test('muestra solo los ejercicios canónicamente accesibles sin paginación innecesaria', async ({ page }) => {
+  await page.setViewportSize({
+    width: 1440,
+    height: 900,
+  });
 
-  const exercises = page.getByRole('region', { name: 'Ejercicios de JavaScript' });
-  const pagination = exercises.getByRole('navigation', { name: 'Paginación de ejercicios' });
-  await expect(exercises.locator('article')).toHaveCount(
-    8,
-    { timeout: 15_000 },
-  );
-  await expect(pagination).toContainText('Mostrando 1–8 de 28 ejercicios');
-  await expect(pagination.getByRole('button', { name: 'Página anterior' })).toBeDisabled();
-
-  await pagination.getByRole('button', { name: 'Ir a la página 2' }).click();
-  await expect(page).toHaveURL('/tech/javascript?tab=exercises&page=2');
-  await expect(exercises.locator('article')).toHaveCount(
-    8,
-    { timeout: 15_000 },
-  );
-  await expect(pagination).toContainText('Mostrando 9–16 de 28 ejercicios');
-
-  await pagination.getByRole('button', { name: 'Ir a la página 4' }).click();
-  await expect(page).toHaveURL('/tech/javascript?tab=exercises&page=4');
-  await expect(exercises.locator('article')).toHaveCount(
-    4,
-    { timeout: 15_000 },
-  );
-  await expect(pagination).toContainText('Mostrando 25–28 de 28 ejercicios');
-  await expect(pagination.getByRole('button', { name: 'Página siguiente' })).toBeDisabled();
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(pagination.getByText('4 / 4')).toBeVisible();
-  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-
-  await page.goBack();
-  await expect(page).toHaveURL('/tech/javascript?tab=exercises&page=2');
-  await expect(exercises.locator('article')).toHaveCount(
-    8,
-    { timeout: 15_000 },
+  await page.goto(
+    '/tech/javascript?tab=exercises',
   );
 
-  const tabs = page.getByRole('navigation', { name: 'Secciones de tecnología' });
-  await tabs.getByRole('link', { name: 'Temas' }).click();
-  await expect(page).toHaveURL('/tech/javascript?tab=topics');
-  await expect(page.getByRole('region', { name: 'Temas de JavaScript' })).toBeVisible();
+  const exercises =
+    page.getByRole(
+      'region',
+      {
+        name:
+          'Ejercicios de JavaScript',
+      },
+    );
+
+  await expect(
+    exercises,
+  ).toBeVisible({
+    timeout:
+      15_000,
+  });
+
+  // TECHNOLOGY_CANONICAL_SINGLE_PAGE_CONTRACT
+  await expect(
+    exercises.locator(
+      'article',
+    ),
+  ).toHaveCount(
+    5,
+    {
+      timeout:
+        15_000,
+    },
+  );
+
+  await expect(
+    exercises.getByRole(
+      'navigation',
+      {
+        name:
+          'Paginación de ejercicios',
+      },
+    ),
+  ).toHaveCount(
+    0,
+  );
+
+  await page.setViewportSize({
+    width: 390,
+    height: 844,
+  });
+
+  await expect.poll(
+    () =>
+      page.evaluate(
+        () =>
+          document
+            .documentElement
+            .scrollWidth
+          <= window.innerWidth,
+      ),
+  ).toBe(
+    true,
+  );
+
+  const tabs =
+    page.getByRole(
+      'navigation',
+      {
+        name:
+          'Secciones de tecnología',
+      },
+    );
+
+  await tabs
+    .getByRole(
+      'link',
+      {
+        name:
+          'Temas',
+      },
+    )
+    .click();
+
+  await expect(
+    page,
+  ).toHaveURL(
+    '/tech/javascript?tab=topics',
+  );
+
+  await expect(
+    page.getByRole(
+      'region',
+      {
+        name:
+          'Temas de JavaScript',
+      },
+    ),
+  ).toBeVisible();
 });

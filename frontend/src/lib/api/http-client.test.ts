@@ -31,6 +31,56 @@ describe('HTTP retry metadata', () => {
     expect(parseRetryAfterHeader('12.5')).toBeNull();
   });
 
+  it('preserves backend cooldownUntil on ApiError', async () => {
+    vi.spyOn(
+      globalThis,
+      'fetch',
+    ).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: {
+            code: 'ACCOUNT_COOLDOWN',
+            message:
+              'Account login is temporarily unavailable',
+            cooldownUntil:
+              '2026-09-17T14:30:00.000Z',
+          },
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type':
+              'application/json',
+          },
+        },
+      ),
+    );
+
+    const error =
+      await apiRequest(
+        '/auth/login',
+        {
+          method: 'POST',
+        },
+      ).catch(
+        (
+          failure: unknown,
+        ) => failure,
+      );
+
+    expect(error)
+      .toBeInstanceOf(ApiError);
+
+    expect(error)
+      .toMatchObject({
+        status: 429,
+        code:
+          'ACCOUNT_COOLDOWN',
+        cooldownUntil:
+          '2026-09-17T14:30:00.000Z',
+      });
+  });
+
   it('preserves Retry-After on ApiError without exposing extra headers', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(
       JSON.stringify({ error: { code: 'RATE_LIMITED', message: 'Too many requests' } }),

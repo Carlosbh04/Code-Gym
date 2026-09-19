@@ -84,6 +84,8 @@ const requireAuth =
   createRequireAuth({
     accessTokenService,
     authSessionRepository,
+    idleSessionTimeoutSeconds:
+      config.auth.idleSessionTimeoutSeconds,
   });
 const app =
   createApp({
@@ -95,6 +97,8 @@ const app =
       database.healthCheck(),
     registrationService,
     loginService,
+  loginFailureKeySecret:
+    config.rateLimitKeySecret,
     refreshService,
     logoutService,
     currentUserService,
@@ -289,6 +293,7 @@ describe(
           .send({
             email,
             password,
+            remember: false,
           });
       expect(
         loginResponse.status,
@@ -408,6 +413,7 @@ describe(
           .send({
             email,
             password,
+            remember: false,
           });
       expect(
         loginResponse.status,

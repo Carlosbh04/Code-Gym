@@ -1,0 +1,54 @@
+{
+  "id": "js-functions-foundation-checkpoint-01",
+  "title": "Checkpoint: fundamentos",
+  "difficulty": "beginner",
+  "position": 3,
+  "kind": "checkpoint",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-18",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "fix-code",
+      "prompt": "Corrige calcular para que use un impuesto por defecto de 0 y siempre devuelva el total.",
+      "code": "function calcular(precio, impuesto) {\n  impuesto = impuesto || 0;\n  precio + impuesto;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            10,
+            2
+          ],
+          "expected": 12,
+          "call": "calcular(...input)",
+          "description": "suma impuesto explícito"
+        },
+        {
+          "input": [
+            10
+          ],
+          "expected": 10,
+          "call": "calcular(...input)",
+          "description": "usa impuesto 0 por defecto"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Aplica conjuntamente las reglas aprendidas en este nivel.",
+      "hints": [
+        "Revisa entradas, ámbito y retorno.",
+        "Comprueba los casos límite incluidos en los tests."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

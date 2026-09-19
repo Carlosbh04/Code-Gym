@@ -1,3 +1,23 @@
+const authMockState =
+  vi.hoisted(
+    () => ({
+      accessToken:
+        'session-integration-token' as string | null,
+    }),
+  );
+
+// SESSION_INTEGRATION_AUTH_MOCK
+vi.mock(
+  '@/features/auth/AuthContext',
+  () => ({
+    useAuth:
+      () => ({
+        accessToken:
+          authMockState.accessToken,
+      }),
+  }),
+);
+
 import {
   afterEach,
   beforeEach,
@@ -25,6 +45,8 @@ import { TrainingContext } from '@/contexts/training-context';
 
 import { StaticContentRepository } from '@/lib/repositories/StaticContentRepository';
 import { SessionStorageRecoveryStore } from '@/lib/recovery/SessionStorageRecoveryStore';
+
+import { browserLearningApi } from '@/features/learning/learning-api';
 
 import { FakeTraining } from '@/test/fake-training';
 
@@ -169,6 +191,77 @@ describe(
           );
         }
 
+        if (
+          session.levelId === undefined
+        ) {
+          throw new Error(
+            'La sesión de integración debe ser staged',
+          );
+        }
+
+        // SESSION_INTEGRATION_CANONICAL_ACCESS
+        const getLevelState =
+          vi.spyOn(
+            browserLearningApi,
+            'getLevelState',
+          ).mockResolvedValue({
+            conceptId:
+              session.conceptId,
+
+            levelId:
+              session.levelId,
+
+            previousLevelId:
+              null,
+
+            nextLevelId:
+              session.levelId === 'foundation'
+                ? 'deepening'
+                : null,
+
+            locked:
+              false,
+
+            lockReason:
+              null,
+
+            stages: {
+              theory: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-19T10:00:00.000Z',
+              },
+
+              quiz: {
+                status:
+                  'completed',
+                completedAt:
+                  '2026-09-19T10:01:00.000Z',
+              },
+
+              practice: {
+                status:
+                  'available',
+                completedAt:
+                  null,
+              },
+
+              checkpoint: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+            },
+
+            completed:
+              false,
+
+            completedAt:
+              null,
+          });
+
         renderIntegratedSession(
           training,
         );
@@ -178,6 +271,20 @@ describe(
           {
             name:
               /forEach no devuelve/i,
+          },
+        );
+
+
+        // SESSION_INTEGRATION_CANONICAL_ASSERT
+        await waitFor(
+          () => {
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledWith(
+              session.conceptId,
+              session.levelId,
+              'session-integration-token',
+            );
           },
         );
 
@@ -424,14 +531,64 @@ describe(
           ),
         );
 
-        await screen.findByRole(
-          'heading',
-          {
-            name:
-              '¡Sesión completada!',
+        expect(
+          await screen.findByRole(
+            'heading',
+            {
+              name:
+                'Progreso guardado',
+            },
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          screen.getByText(
+            'Práctica completada',
+          ),
+        ).toBeInTheDocument();
+
+        await waitFor(
+          () => {
+            expect(
+              screen.getByRole(
+                'link',
+                {
+                  name:
+                    'Continuar recorrido',
+                },
+              ),
+            ).toHaveAttribute(
+              'href',
+              '/tech/javascript/js-arrays',
+            );
           },
         );
 
+        expect(
+          screen.queryByRole(
+            'heading',
+            {
+              name:
+                '¡Sesión completada!',
+            },
+          ),
+        ).toBeNull();
+
+        expect(
+          screen.queryByRole(
+            'link',
+            {
+              name:
+                'Ver resultados',
+            },
+          ),
+        ).toBeNull();
+
+        expect(
+          document.querySelector(
+            '[data-confetti-event]',
+          ),
+        ).toBeNull();
 
         await waitFor(() =>
           expect(

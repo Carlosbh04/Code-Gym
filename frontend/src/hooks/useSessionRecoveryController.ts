@@ -168,6 +168,14 @@ export function useSessionRecoveryController({
       try {
         const stored = store.load();
         if (stored !== null) {
+          if (stored.sessionId === requestedSessionId) {
+            setLoadPlan({
+              sessionId: stored.sessionId,
+              recovery: stored,
+            });
+            return;
+          }
+
           setPending(stored);
           setStatus('available');
           return;
@@ -347,20 +355,15 @@ export function useSessionRecoveryController({
 
     completionCleanupAttempted.current = true;
     pendingOperation.current = 'clear';
-    let active = true;
-    void Promise.resolve().then(() => {
-      try {
-        store.clear();
-        pendingOperation.current = null;
-        persistencePaused.current = false;
-        if (active) setWarning(null);
-      } catch (reason: unknown) {
-        if (active) reportStorageFailure(reason, 'clear');
-      }
-    });
-    return () => {
-      active = false;
-    };
+
+    try {
+      store.clear();
+      pendingOperation.current = null;
+      persistencePaused.current = false;
+      setWarning(null);
+    } catch (reason: unknown) {
+      reportStorageFailure(reason, 'clear');
+    }
   }, [reportStorageFailure, state.isComplete, store]);
 
   const continueRecovery = useCallback(() => {

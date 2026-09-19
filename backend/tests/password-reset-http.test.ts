@@ -1,5 +1,8 @@
 import type { RequestHandler } from 'express';
 import pino from 'pino';
+import type {
+  Store,
+} from 'express-rate-limit';
 import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -19,16 +22,26 @@ import { testConfig } from './helpers.js';
 const unused = () => Promise.reject(new Error('Not exercised by password reset HTTP tests'));
 const requireAuth: RequestHandler = (_request, _response, next) => { next(); };
 
-function testApp(passwordResetService: Pick<
-  PasswordResetService,
-  'requestReset' | 'verifyCode' | 'confirmReset'
->) {
+function testApp(
+  passwordResetService: Pick<
+    PasswordResetService,
+    'requestReset' | 'verifyCode' | 'confirmReset'
+  >,
+  loginFailureStore?: Store,
+) {
   return createApp({
     config: testConfig(),
     logger: pino({ level: 'silent' }),
     databaseHealthCheck: () => Promise.resolve(true),
     registrationService: { register: unused },
     loginService: { login: unused } as unknown as AppDependencies['loginService'],
+    loginFailureKeySecret:
+      testConfig().rateLimitKeySecret,
+    ...(loginFailureStore === undefined
+      ? {}
+      : {
+          loginFailureStore,
+        }),
     refreshService: { refresh: unused } as unknown as AppDependencies['refreshService'],
     logoutService: { logout: unused } as unknown as AppDependencies['logoutService'],
     currentUserService: { getCurrentUser: unused },
@@ -49,7 +62,14 @@ function service(overrides: Partial<Pick<
   return {
     requestReset: vi.fn(() => Promise.resolve({ message: passwordResetRequestMessage })),
     verifyCode: vi.fn(() => Promise.resolve('A'.repeat(43))),
-    confirmReset: vi.fn(() => Promise.resolve()),
+    confirmReset:
+      vi.fn(
+        () =>
+          Promise.resolve({
+            email:
+              'person@example.test',
+          }),
+      ),
     ...overrides,
   };
 }
@@ -111,6 +131,80 @@ describe('password reset HTTP protocol', () => {
 
     expect(response.status).toBe(status);
     expect(readErrorCode(response.body)).toBe(code);
+  });
+
+  it('clears the stale login failure key after a successful password reset', async () => {
+    const dependency =
+      service();
+
+    const resetKey =
+      vi.fn(
+        (_key: string) =>
+          Promise.resolve(),
+      );
+
+    const store = {
+      increment:
+        vi.fn(
+          () =>
+            Promise.resolve({
+              totalHits: 1,
+              resetTime:
+                new Date(
+                  Date.now()
+                  + 60_000,
+                ),
+            }),
+        ),
+      decrement:
+        vi.fn(
+          () =>
+            Promise.resolve(),
+        ),
+      resetKey,
+    } as unknown as Store;
+
+    const response =
+      await request(
+        testApp(
+          dependency,
+          store,
+        ),
+      )
+        .post(
+          '/auth/password-reset/confirm',
+        )
+        .send({
+          resetToken:
+            'A'.repeat(43),
+          newPassword:
+            'a secure password of sufficient length',
+        });
+
+    expect(
+      response.status,
+    ).toBe(204);
+
+    expect(
+      resetKey,
+    ).toHaveBeenCalledTimes(
+      1,
+    );
+
+    const key =
+      resetKey.mock.calls[0]?.[0];
+
+    expect(
+      key,
+    ).toMatch(
+      /^[a-f0-9]{64}$/,
+    );
+
+    expect(
+      key,
+    ).not.toContain(
+      'person@example.test',
+    );
   });
 
   it('confirms with only a token and a policy-compliant new password', async () => {

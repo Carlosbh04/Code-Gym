@@ -7,6 +7,10 @@ import type {
   Store,
 } from 'express-rate-limit';
 
+import type {
+  AccountSecurityRepository,
+} from '../auth/account-security-repository.js';
+
 import {
   AccountCooldownError,
   AccountLockedError,
@@ -106,6 +110,7 @@ import type {
 } from '../config/env.js';
 import {
   createAuthRateLimiters,
+  createLoginFailureRateLimitKeyForRequest,
 } from '../middleware/auth-rate-limit.js';
 import {
   createRequireTrustedOrigin,
@@ -179,6 +184,14 @@ export interface AuthRouterDependencies {
     Store | undefined;
   readonly loginFailureKeySecret:
     string;
+
+  readonly accountSecurityRepository?:
+    | Pick<
+        AccountSecurityRepository,
+        | 'isAccountLockedByEmail'
+        | 'getActiveLoginCooldownUntilByEmail'
+      >
+    | undefined;
 }
 
 export function createAuthRouter({
@@ -198,6 +211,7 @@ export function createAuthRouter({
   config,
   loginFailureStore,
   loginFailureKeySecret,
+  accountSecurityRepository,
 }: AuthRouterDependencies): Router {
   const router =
     Router();
@@ -206,6 +220,26 @@ export function createAuthRouter({
     createAuthRateLimiters({
       loginFailureStore,
       loginFailureKeySecret,
+      isLoginAccountLocked:
+        accountSecurityRepository
+          === undefined
+          ? undefined
+          : (email) =>
+              accountSecurityRepository
+                .isAccountLockedByEmail(
+                  email,
+                ),
+
+      getLoginAccountCooldownUntil:
+        accountSecurityRepository
+          === undefined
+          ? undefined
+          : (email) =>
+              accountSecurityRepository
+                .getActiveLoginCooldownUntilByEmail(
+                  email,
+                  new Date(),
+                ),
     });
 
   const requireTrustedOrigin =
@@ -284,10 +318,45 @@ export function createAuthRouter({
       validateRequest({ body: passwordResetConfirmSchema }),
       async (request: Request<object, object, PasswordResetConfirmRequest>, response, next) => {
         try {
-          await passwordResetService.confirmReset(
-            request.body.resetToken,
-            request.body.newPassword,
-          );
+          const result =
+            await passwordResetService
+              .confirmReset(
+                request.body.resetToken,
+                request.body.newPassword,
+              );
+
+          if (
+            loginFailureStore
+            !== undefined
+          ) {
+            const key =
+              createLoginFailureRateLimitKeyForRequest({
+                request,
+                email:
+                  result.email,
+                keySecret:
+                  loginFailureKeySecret,
+              });
+
+            /*
+             * The password reset has already committed in MySQL.
+             * Redis cleanup is secondary state and must never turn
+             * a successful password reset into a misleading HTTP 500.
+             */
+            try {
+              await loginFailureStore
+                .resetKey(
+                  key,
+                );
+            } catch {
+              /*
+               * The stale entry remains bounded by its normal TTL.
+               * MySQL remains authoritative and the password reset
+               * itself is still successful.
+               */
+            }
+          }
+
           response.status(204).end();
         } catch (error) {
           if (error instanceof InvalidPasswordResetTokenError) {

@@ -1,0 +1,58 @@
+{
+  "id": "js-functions-mastery-checkpoint-01",
+  "title": "Checkpoint: funciones robustas",
+  "difficulty": "advanced",
+  "position": 3,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-18",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "fix-code",
+      "prompt": "Corrige crearPerfil para conservar edad 0, usar 'Invitado' solo cuando nombre sea undefined y devolver siempre un objeto completo.",
+      "code": "function crearPerfil(nombre, edad) {\n  nombre = nombre || 'Invitado';\n  edad = edad || 18;\n  return { nombre, edad };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            "Ana",
+            0
+          ],
+          "expected": {
+            "nombre": "Ana",
+            "edad": 0
+          },
+          "call": "crearPerfil(...input)",
+          "description": "conserva edad cero"
+        },
+        {
+          "input": [],
+          "expected": {
+            "nombre": "Invitado",
+            "edad": 18
+          },
+          "call": "crearPerfil(...input)",
+          "description": "usa defaults cuando faltan argumentos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Aplica conjuntamente las reglas aprendidas en este nivel.",
+      "hints": [
+        "Revisa entradas, ámbito y retorno.",
+        "Comprueba los casos límite incluidos en los tests."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

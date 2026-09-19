@@ -23,16 +23,19 @@ export type PublicLearningSection =
         | 'explanation'
         | 'key-point'
         | 'warning';
+      readonly levelId: PublicLearningLevelId;
       readonly title: string;
       readonly body: string;
     }
   | {
       readonly type: 'objectives';
+      readonly levelId: PublicLearningLevelId;
       readonly title: string;
       readonly items: readonly string[];
     }
   | {
       readonly type: 'code';
+      readonly levelId: PublicLearningLevelId;
       readonly title: string;
       readonly code: string;
       readonly language: string;
@@ -40,6 +43,7 @@ export type PublicLearningSection =
     }
   | {
       readonly type: 'comparison';
+      readonly levelId: PublicLearningLevelId;
       readonly title: string;
       readonly left: {
         readonly title: string;
@@ -52,6 +56,7 @@ export type PublicLearningSection =
     }
   | {
       readonly type: 'quick-check';
+      readonly levelId: PublicLearningLevelId;
       readonly question: string;
       readonly answer: string;
     };
@@ -70,12 +75,20 @@ export interface PublicTopic {
   readonly description: string;
 }
 
+export interface PublicLearningLevel {
+  readonly id: PublicLearningLevelId;
+  readonly name: string;
+  readonly description: string;
+  readonly position: number;
+}
+
 export interface PublicConcept {
   readonly id: string;
   readonly name: string;
   readonly topicId: string;
   readonly technologyId: string;
   readonly contentMarkdown: string;
+  readonly levels: readonly PublicLearningLevel[];
   readonly content: {
     readonly sections: readonly PublicLearningSection[];
   };
@@ -98,12 +111,26 @@ export interface PublicExerciseStep {
   readonly stepOrder: number;
 }
 
+export type PublicExerciseSessionKind =
+  | 'quiz'
+  | 'practice'
+  | 'checkpoint';
+
+export type PublicLearningLevelId =
+  | 'foundation'
+  | 'deepening'
+  | 'mastery';
+
 export interface PublicExerciseSession {
   readonly id: string;
   readonly title: string;
   readonly conceptId: string;
   readonly technologyId: string;
   readonly difficulty: PublicDifficulty;
+  readonly kind: PublicExerciseSessionKind;
+  readonly levelId: PublicLearningLevelId;
+  readonly passingPercentage: number | null;
+  readonly requiredForProgression: boolean;
   readonly version: string;
   readonly status: PublicContentStatus;
   readonly createdAt: string;

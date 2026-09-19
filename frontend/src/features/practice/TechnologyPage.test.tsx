@@ -2,7 +2,27 @@ import { type ReactNode } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
+
+const authMockState =
+  vi.hoisted(
+    () => ({
+      accessToken:
+        null as string | null,
+    }),
+  );
+
+vi.mock(
+  '@/features/auth/AuthContext',
+  () => ({
+    useAuth:
+      () => ({
+        accessToken:
+          authMockState.accessToken,
+      }),
+  }),
+);
 import { ContentContext } from '@/contexts/content-context';
+import { browserLearningApi } from '@/features/learning/learning-api';
 import { HistoryContext } from '@/contexts/history-context';
 import { ProgressContext } from '@/contexts/progress-context';
 import { SessionRecoveryContext } from '@/contexts/session-recovery-context';
@@ -87,6 +107,50 @@ function sessionFor(concept: Concept): ExerciseSession {
 }
 
 const STATUS_SESSIONS = STATUS_CONCEPTS.map(sessionFor);
+
+
+// TECHNOLOGY_STAGED_SESSION_FIXTURE
+const STAGED_ALLOWED_SESSION: ExerciseSession = {
+  ...sessionFor(
+    STATUS_CONCEPTS[0],
+  ),
+
+  id:
+    'technology-staged-allowed',
+
+  title:
+    'Práctica staged disponible',
+
+  levelId:
+    'foundation',
+
+  kind:
+    'practice',
+
+  requiredForProgression:
+    true,
+};
+
+const STAGED_BLOCKED_SESSION: ExerciseSession = {
+  ...sessionFor(
+    STATUS_CONCEPTS[1],
+  ),
+
+  id:
+    'technology-staged-blocked',
+
+  title:
+    'Práctica staged bloqueada',
+
+  levelId:
+    'foundation',
+
+  kind:
+    'practice',
+
+  requiredForProgression:
+    true,
+};
 
 function progressFor(conceptId: string): ConceptProgress {
   return {
@@ -343,6 +407,709 @@ describe('TechnologyPage (T056)', () => {
       '1 de 1 concepto completado',
     );
   });
+
+  it(
+    'usa el estado canónico del backend para declarar conceptos y topics completados',
+    async () => {
+      // CANONICAL_TOPIC_PROGRESS_REGRESSION
+      authMockState.accessToken =
+        'technology-progress-token';
+
+      const getConceptState =
+        vi.spyOn(
+          browserLearningApi,
+          'getConceptState',
+        ).mockImplementation(
+          async conceptId => {
+            const isArrays =
+              conceptId
+              === STATUS_CONCEPTS[0].id;
+
+            const isFunctions =
+              conceptId
+              === STATUS_CONCEPTS[1].id;
+
+            return {
+              conceptId,
+              previousConceptId:
+                null,
+              locked:
+                false,
+              lockReason:
+                null,
+
+              stages: {
+                theory: {
+                  status:
+                    isArrays
+                      || isFunctions
+                      ? 'completed'
+                      : 'available',
+                  completedAt:
+                    isArrays
+                      || isFunctions
+                      ? '2026-09-19T10:00:00.000Z'
+                      : null,
+                },
+
+                quiz: {
+                  status:
+                    isArrays
+                      ? 'completed'
+                      : 'locked',
+                  completedAt:
+                    isArrays
+                      ? '2026-09-19T10:01:00.000Z'
+                      : null,
+                },
+
+                practice: {
+                  status:
+                    isArrays
+                      ? 'completed'
+                      : 'locked',
+                  completedAt:
+                    isArrays
+                      ? '2026-09-19T10:02:00.000Z'
+                      : null,
+                },
+
+                checkpoint: {
+                  status:
+                    isArrays
+                      ? 'completed'
+                      : 'locked',
+                  completedAt:
+                    isArrays
+                      ? '2026-09-19T10:03:00.000Z'
+                      : null,
+                },
+              },
+
+              completed:
+                isArrays,
+
+              completedAt:
+                isArrays
+                  ? '2026-09-19T10:03:00.000Z'
+                  : null,
+            };
+          },
+        );
+
+      /*
+       * Contradicción intencional:
+       * Functions tiene una CompletedSession local,
+       * pero backend.completed === false.
+       *
+       * No debe declararse completado.
+       */
+      const misleadingCompletion:
+        CompletedSession = {
+          id:
+            'misleading-functions-completion',
+          sessionId:
+            STATUS_SESSIONS[1].id,
+          technologyId:
+            'javascript',
+          conceptId:
+            STATUS_CONCEPTS[1].id,
+          totalSteps:
+            1,
+          correctSteps:
+            1,
+          accuracy:
+            100,
+          timeSpentMs:
+            30_000,
+          completedAt:
+            '2026-09-19T09:00:00.000Z',
+        };
+
+      const rendered =
+        renderTechnologyPage({
+          getTopics:
+            vi.fn().mockResolvedValue(
+              STATUS_TOPICS,
+            ),
+
+          getConceptsByTopic:
+            vi.fn(
+              async topicId =>
+                STATUS_CONCEPTS.filter(
+                  concept =>
+                    concept.topicId
+                    === topicId,
+                ),
+            ),
+
+          getSessionsByConcept:
+            vi.fn(
+              async conceptId =>
+                STATUS_SESSIONS.filter(
+                  session =>
+                    session.conceptId
+                    === conceptId,
+                ),
+            ),
+
+          getCompletedSession:
+            vi.fn(
+              async sessionId =>
+                sessionId
+                  === STATUS_SESSIONS[1].id
+                  ? misleadingCompletion
+                  : null,
+            ),
+        });
+
+      try {
+        const topics =
+          await screen.findByRole(
+            'region',
+            {
+              name:
+                'Temas de JavaScript',
+            },
+          );
+
+        const arraysLink =
+          within(topics).getByRole(
+            'link',
+            {
+              name:
+                /Arrays/i,
+            },
+          );
+
+        const functionsLink =
+          within(topics).getByRole(
+            'link',
+            {
+              name:
+                /Functions/i,
+            },
+          );
+
+        const closuresLink =
+          within(topics).getByRole(
+            'link',
+            {
+              name:
+                /Closures/i,
+            },
+          );
+
+        expect(
+          arraysLink,
+        ).toHaveTextContent(
+          'Completado',
+        );
+
+        expect(
+          arraysLink,
+        ).toHaveTextContent(
+          '1 / 1',
+        );
+
+        expect(
+          functionsLink,
+        ).toHaveTextContent(
+          'En progreso',
+        );
+
+        expect(
+          functionsLink,
+        ).toHaveTextContent(
+          '0 / 1',
+        );
+
+        expect(
+          closuresLink,
+        ).toHaveTextContent(
+          'Pendiente',
+        );
+
+        expect(
+          closuresLink,
+        ).toHaveTextContent(
+          '0 / 1',
+        );
+
+        expect(
+          getConceptState,
+        ).toHaveBeenCalledTimes(
+          3,
+        );
+
+        for (
+          const concept
+          of STATUS_CONCEPTS
+        ) {
+          expect(
+            getConceptState,
+          ).toHaveBeenCalledWith(
+            concept.id,
+            'technology-progress-token',
+          );
+        }
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        vi.restoreAllMocks();
+      }
+    },
+  );
+
+  it(
+    'solo ofrece CTAs /practice para sesiones staged canónicamente permitidas',
+    async () => {
+      // TECHNOLOGY_PRACTICE_CANONICAL_REGRESSION
+      authMockState.accessToken =
+        'technology-practice-token';
+
+      const getConceptState =
+        vi.spyOn(
+          browserLearningApi,
+          'getConceptState',
+        ).mockImplementation(
+          async conceptId => ({
+            conceptId,
+            previousConceptId:
+              null,
+            locked:
+              false,
+            lockReason:
+              null,
+
+            stages: {
+              theory: {
+                status:
+                  'completed',
+                completedAt:
+                  null,
+              },
+
+              quiz: {
+                status:
+                  'completed',
+                completedAt:
+                  null,
+              },
+
+              practice: {
+                status:
+                  'available',
+                completedAt:
+                  null,
+              },
+
+              checkpoint: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+            },
+
+            completed:
+              false,
+
+            completedAt:
+              null,
+          }),
+        );
+
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockImplementation(
+          async (
+            conceptId,
+            levelId,
+          ) => {
+            const blocked =
+              conceptId
+              === STAGED_BLOCKED_SESSION.conceptId;
+
+            return {
+              conceptId,
+              levelId,
+
+              previousLevelId:
+                null,
+
+              nextLevelId:
+                null,
+
+              locked:
+                blocked,
+
+              lockReason:
+                blocked
+                  ? 'previous-concept-incomplete'
+                  : null,
+
+              stages: {
+                theory: {
+                  status:
+                    blocked
+                      ? 'locked'
+                      : 'completed',
+
+                  completedAt:
+                    null,
+                },
+
+                quiz: {
+                  status:
+                    blocked
+                      ? 'locked'
+                      : 'completed',
+
+                  completedAt:
+                    null,
+                },
+
+                practice: {
+                  status:
+                    blocked
+                      ? 'locked'
+                      : 'available',
+
+                  completedAt:
+                    null,
+                },
+
+                checkpoint: {
+                  status:
+                    'locked',
+
+                  completedAt:
+                    null,
+                },
+              },
+
+              completed:
+                false,
+
+              completedAt:
+                null,
+            };
+          },
+        );
+
+      const rendered =
+        renderTechnologyPage({
+          initialSearch:
+            '?tab=exercises',
+
+          getTopics:
+            vi.fn().mockResolvedValue([
+              STATUS_TOPICS[0],
+              STATUS_TOPICS[1],
+            ]),
+
+          getConceptsByTopic:
+            vi.fn(
+              async topicId =>
+                STATUS_CONCEPTS
+                  .slice(
+                    0,
+                    2,
+                  )
+                  .filter(
+                    concept =>
+                      concept.topicId
+                      === topicId,
+                  ),
+            ),
+
+          getSessionsByConcept:
+            vi.fn(
+              async conceptId => {
+                if (
+                  conceptId
+                  === STAGED_ALLOWED_SESSION.conceptId
+                ) {
+                  return [
+                    STAGED_ALLOWED_SESSION,
+
+                    {
+                      ...STAGED_ALLOWED_SESSION,
+
+                      // TECHNOLOGY_LEVEL_STATE_DEDUPE_REGRESSION
+                      id:
+                        'staged-allowed-same-level-2',
+
+                      title:
+                        'Segunda práctica Foundation',
+                    },
+                  ];
+                }
+
+                if (
+                  conceptId
+                  === STAGED_BLOCKED_SESSION.conceptId
+                ) {
+                  return [
+                    STAGED_BLOCKED_SESSION,
+                  ];
+                }
+
+                return [];
+              },
+            ),
+        });
+
+      try {
+        const exercises =
+          await screen.findByRole(
+            'region',
+            {
+              name:
+                'Ejercicios de JavaScript',
+            },
+          );
+
+        expect(
+          within(exercises)
+            .getByText(
+              STAGED_ALLOWED_SESSION.title,
+            ),
+        ).toBeInTheDocument();
+
+        expect(
+          within(exercises)
+            .getAllByRole(
+              'link',
+              {
+                name:
+                  /Empezar/i,
+              },
+            )[0],
+        ).toHaveAttribute(
+          'href',
+          `/practice/${STAGED_ALLOWED_SESSION.id}`,
+        );
+
+        expect(
+          within(exercises)
+            .queryByText(
+              STAGED_BLOCKED_SESSION.title,
+            ),
+        ).not.toBeInTheDocument();
+
+        const summary =
+          screen.getByRole(
+            'region',
+            {
+              name:
+                'Resumen de progreso en JavaScript',
+            },
+          );
+
+        expect(
+          within(summary)
+            .getByRole(
+              'link',
+              {
+                name:
+                  /Continuar/i,
+              },
+            ),
+        ).toHaveAttribute(
+          'href',
+          `/practice/${STAGED_ALLOWED_SESSION.id}`,
+        );
+
+        expect(
+          getLevelState,
+        ).toHaveBeenCalledWith(
+          STAGED_ALLOWED_SESSION.conceptId,
+          'foundation',
+          'technology-practice-token',
+        );
+
+        expect(
+          getLevelState,
+        ).toHaveBeenCalledWith(
+          STAGED_BLOCKED_SESSION.conceptId,
+          'foundation',
+          'technology-practice-token',
+        );
+
+
+        expect(
+          getLevelState.mock.calls.filter(
+            ([
+              conceptId,
+              levelId,
+            ]) =>
+              conceptId
+                === STAGED_ALLOWED_SESSION.conceptId
+              && levelId
+                === 'foundation',
+          ),
+        ).toHaveLength(
+          1,
+        );
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        getConceptState.mockRestore();
+        getLevelState.mockRestore();
+      }
+    },
+  );
+
+  it(
+    'falla cerrado para sesiones staged si getLevelState no responde',
+    async () => {
+      authMockState.accessToken =
+        'technology-practice-error-token';
+
+      const getConceptState =
+        vi.spyOn(
+          browserLearningApi,
+          'getConceptState',
+        ).mockResolvedValue({
+          conceptId:
+            STAGED_ALLOWED_SESSION.conceptId,
+
+          previousConceptId:
+            null,
+
+          locked:
+            false,
+
+          lockReason:
+            null,
+
+          stages: {
+            theory: {
+              status:
+                'completed',
+              completedAt:
+                null,
+            },
+
+            quiz: {
+              status:
+                'completed',
+              completedAt:
+                null,
+            },
+
+            practice: {
+              status:
+                'available',
+              completedAt:
+                null,
+            },
+
+            checkpoint: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+          },
+
+          completed:
+            false,
+
+          completedAt:
+            null,
+        });
+
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockRejectedValue(
+          new Error(
+            'learning unavailable',
+          ),
+        );
+
+      const rendered =
+        renderTechnologyPage({
+          initialSearch:
+            '?tab=exercises',
+
+          getTopics:
+            vi.fn().mockResolvedValue([
+              STATUS_TOPICS[0],
+            ]),
+
+          getConceptsByTopic:
+            vi.fn().mockResolvedValue([
+              STATUS_CONCEPTS[0],
+            ]),
+
+          getSessionsByConcept:
+            vi.fn().mockResolvedValue([
+              STAGED_ALLOWED_SESSION,
+            ]),
+        });
+
+      try {
+        const exercises =
+          await screen.findByRole(
+            'region',
+            {
+              name:
+                'Ejercicios de JavaScript',
+            },
+          );
+
+        expect(
+          within(exercises)
+            .queryByRole(
+              'link',
+              {
+                name:
+                  /Empezar|Continuar|Repetir/i,
+              },
+            ),
+        ).not.toBeInTheDocument();
+
+        expect(
+          screen.queryByRole(
+            'link',
+            {
+              name:
+                /Continuar|Repetir/i,
+            },
+          ),
+        ).not.toBeInTheDocument();
+
+        expect(
+          getLevelState,
+        ).toHaveBeenCalledWith(
+          STAGED_ALLOWED_SESSION.conceptId,
+          'foundation',
+          'technology-practice-error-token',
+        );
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        getConceptState.mockRestore();
+        getLevelState.mockRestore();
+      }
+    },
+  );
 
   it('expone las tres secciones como enlaces y activa Temas por defecto', async () => {
     renderTechnologyPage();

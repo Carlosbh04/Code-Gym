@@ -1,10 +1,11 @@
 {
   "id": "js-arrays-reduce-accumulator-01",
-  "title": "El acumulador de reduce hay que devolverlo",
-  "difficulty": "advanced",
+  "title": "Taller: acumular con reduce",
+  "difficulty": "beginner",
+  "levelId": "foundation",
   "conceptId": "js-array-iteration",
   "technologyId": "javascript",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "published",
   "createdAt": "2026-09-01",
   "updatedAt": null,
@@ -12,18 +13,18 @@
     {
       "id": "step-1",
       "type": "code-reading",
-      "prompt": "¿Qué valor tiene `total`?",
-      "code": "const carrito = [\n  { producto: 'teclado', precio: 45 },\n  { producto: 'raton', precio: 20 },\n];\n\nconst total = carrito.reduce((acc, item) => {\n  acc + item.precio;\n}, 0);\n\nconsole.log(total);",
+      "prompt": "¿Qué valor tiene total?",
+      "code": "const precios = [10, 20, 30];\n\nconst total = precios.reduce(\n  (acc, precio) => acc + precio,\n  0,\n);\n\nconsole.log(total);",
       "language": "javascript",
       "options": [
         {
           "id": "a",
-          "text": "65",
+          "text": "30",
           "correct": false
         },
         {
           "id": "b",
-          "text": "undefined",
+          "text": "60",
           "correct": true
         },
         {
@@ -33,7 +34,7 @@
         },
         {
           "id": "d",
-          "text": "NaN",
+          "text": "undefined",
           "correct": false
         }
       ],
@@ -41,100 +42,97 @@
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
-      "explanation": "El callback usa cuerpo de bloque `{ ... }` y no tiene `return`, así que devuelve `undefined`. Ese `undefined` se convierte en el acumulador de la siguiente vuelta, y el resultado final es `undefined`. Con cuerpo de expresión, `(acc, item) => acc + item.precio`, el valor se devuelve solo.",
+      "explanation": "El acumulador comienza en 0 y recibe sucesivamente 10, 30 y 60.",
       "hints": [
-        "Compara `(acc, item) => acc + item.precio` con lo que hay escrito aquí.",
-        "¿Qué devuelve una función de flecha con llaves y sin `return`?",
-        "Sigue el valor del acumulador vuelta a vuelta empezando por 0."
+        "Empieza por el valor inicial.",
+        "Suma cada precio al acumulador."
       ],
       "stepOrder": 1
     },
     {
       "id": "step-2",
       "type": "predict-output",
-      "prompt": "¿Qué ocurre al ejecutar este código?",
-      "code": "const precios = [];\n\nconst total = precios.reduce((acc, p) => acc + p);\n\nconsole.log(total);",
+      "prompt": "¿Qué valor devuelve reduce cuando el array está vacío y el valor inicial es 0?",
+      "code": "const numeros = [];\n\nconst total = numeros.reduce(\n  (acc, numero) => acc + numero,\n  0,\n);\n\nconsole.log(total);",
       "language": "javascript",
       "options": [
         {
           "id": "a",
-          "text": "Imprime 0",
-          "correct": false
+          "text": "0",
+          "correct": true
         },
         {
           "id": "b",
-          "text": "Imprime undefined",
+          "text": "undefined",
           "correct": false
         },
         {
           "id": "c",
-          "text": "Imprime NaN",
+          "text": "NaN",
           "correct": false
         },
         {
           "id": "d",
-          "text": "Lanza TypeError: Reduce of empty array with no initial value",
-          "correct": true
+          "text": "Lanza TypeError",
+          "correct": false
         }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
-      "explanation": "Sin valor inicial, `reduce` toma el primer elemento como acumulador de partida. Si el array está vacío no hay ninguno y lanza `TypeError`. Pasar `0` como segundo argumento habría devuelto `0`.",
+      "explanation": "Como no hay elementos, reduce devuelve directamente el valor inicial 0.",
       "hints": [
-        "¿De dónde saca `reduce` el acumulador de la primera vuelta si no le das valor inicial?",
-        "El array está vacío. ¿Hay un primer elemento del que partir?"
+        "El segundo argumento es el valor inicial."
       ],
       "stepOrder": 2
     },
     {
       "id": "step-3",
       "type": "find-error",
-      "prompt": "Esta función debería agrupar los nombres por tipo, pero devuelve otra cosa. Localiza la línea del error y clasifícalo.",
-      "code": "function agrupar(productos) {\n  return productos.reduce((acc, p) => {\n    acc[p.tipo] = acc[p.tipo] || [];\n    acc[p.tipo].push(p.nombre);\n    return p;\n  }, {});\n}",
+      "prompt": "Esta función debería sumar los números, pero el acumulador deja de funcionar. Localiza la línea del error.",
+      "code": "function sumar(numeros) {\n  return numeros.reduce((acc, numero) => {\n    acc + numero;\n  }, 0);\n}",
       "language": "javascript",
       "options": [
         {
-          "id": "logico",
-          "text": "Lógico: el callback devuelve el elemento en vez del acumulador",
+          "id": "flujo",
+          "text": "Flujo: falta devolver acc + numero desde el callback",
           "correct": true
         },
         {
-          "id": "mutacion",
-          "text": "Mutación: no se debe escribir dentro de `acc`",
-          "correct": false
-        },
-        {
           "id": "tipo",
-          "text": "Tipo: el valor inicial debería ser un array, no un objeto",
+          "text": "Tipo: reduce no puede trabajar con números",
           "correct": false
         },
         {
-          "id": "flujo",
-          "text": "Flujo: falta el `return` del `reduce`",
+          "id": "logico",
+          "text": "Lógico: el valor inicial debería ser 1",
+          "correct": false
+        },
+        {
+          "id": "scope",
+          "text": "Scope: acc no existe dentro del callback",
           "correct": false
         }
       ],
       "errorLines": [
-        5
+        3
       ],
-      "errorType": "logico",
+      "errorType": "flujo",
       "testCases": null,
       "expectedPatterns": null,
-      "explanation": "Las líneas 3 y 4 construyen el grupo correctamente, pero la línea 5 devuelve `p` en lugar de `acc`. A partir de la segunda vuelta el acumulador deja de ser el objeto de grupos y pasa a ser el producto anterior, así que el resultado final es el último producto. Escribir en `acc` sí es correcto aquí: el acumulador de `reduce` es nuestro, no un dato ajeno.",
+      "explanation": "Con llaves, el callback necesita un return explícito. Debe devolver acc + numero para que la siguiente vuelta reciba el nuevo acumulador.",
       "hints": [
-        "Las tres líneas del cuerpo hacen cosas distintas. Solo una está mal.",
-        "¿Qué tiene que valer `acc` en la segunda vuelta?",
-        "Mira qué devuelve el callback y compáralo con lo que recibe como primer parámetro."
+        "¿Qué devuelve actualmente el callback?",
+        "Con llaves no existe retorno implícito."
       ],
       "stepOrder": 3
     },
     {
       "id": "step-4",
       "type": "fix-code",
-      "prompt": "Corrige `agrupar` para que devuelva un objeto con los nombres agrupados por tipo.",
-      "code": "function agrupar(productos) {\n  return productos.reduce((acc, p) => {\n    acc[p.tipo] = acc[p.tipo] || [];\n    acc[p.tipo].push(p.nombre);\n    return p;\n  }, {});\n}",
+      "prompt": "Corrige sumar para que devuelva la suma de todos los números usando reduce con valor inicial 0.",
+      "code": "function sumar(numeros) {\n  return numeros.reduce((acc, numero) => {\n    acc + numero;\n  }, 0);\n}",
       "language": "javascript",
       "options": null,
       "errorLines": null,
@@ -142,61 +140,41 @@
       "testCases": [
         {
           "input": [
-            {
-              "nombre": "teclado",
-              "tipo": "perifericos"
-            },
-            {
-              "nombre": "raton",
-              "tipo": "perifericos"
-            },
-            {
-              "nombre": "monitor",
-              "tipo": "pantallas"
-            }
+            10,
+            20,
+            30
           ],
-          "expected": {
-            "perifericos": [
-              "teclado",
-              "raton"
-            ],
-            "pantallas": [
-              "monitor"
-            ]
-          },
-          "call": "agrupar(input)",
-          "description": "agrupa los nombres por tipo respetando el orden"
-        },
-        {
-          "input": [
-            {
-              "nombre": "monitor",
-              "tipo": "pantallas"
-            }
-          ],
-          "expected": {
-            "pantallas": [
-              "monitor"
-            ]
-          },
-          "call": "agrupar(input)",
-          "description": "un solo producto crea un solo grupo"
+          "expected": 60,
+          "call": "sumar(input)",
+          "description": "suma varios números"
         },
         {
           "input": [],
-          "expected": {},
-          "call": "agrupar(input)",
-          "description": "un array vacío devuelve un objeto vacío"
+          "expected": 0,
+          "call": "sumar(input)",
+          "description": "un array vacío devuelve el valor inicial"
+        },
+        {
+          "input": [
+            -5,
+            5
+          ],
+          "expected": 0,
+          "call": "sumar(input)",
+          "description": "funciona con números negativos"
         }
       ],
       "expectedPatterns": null,
-      "explanation": "El callback debe devolver el acumulador: cambiar `return p;` por `return acc;`. Así cada vuelta recibe el objeto de grupos que construyó la anterior y al final `reduce` devuelve ese objeto.",
+      "explanation": "Devuelve el nuevo acumulador en cada vuelta, por ejemplo return numeros.reduce((acc, numero) => acc + numero, 0);",
       "hints": [
-        "Solo hay que cambiar una línea.",
-        "El acumulador se llama `acc`.",
-        "Lo que devuelve el callback es lo que recibirá la siguiente vuelta como primer parámetro."
+        "El callback debe producir el acumulador siguiente.",
+        "Puedes usar retorno implícito o return explícito."
       ],
       "stepOrder": 4
     }
-  ]
+  ],
+  "position": 4,
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "kind": "practice"
 }

@@ -1,5 +1,11 @@
 import { type ReactNode } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentContext } from '@/contexts/content-context';
@@ -11,7 +17,27 @@ import type { ExerciseSession, ExerciseStep } from '@/types/exercise';
 import type { HistoryContextValue } from '@/types/history';
 import type { CompletedSession, ConceptProgress, ProgressContextValue } from '@/types/progress';
 import type { ISessionRecoveryStore, SessionRecoverySnapshot } from '@/lib/recovery/ISessionRecoveryStore';
+import { browserLearningApi } from '@/features/learning/learning-api';
 import TopicPage from './TopicPage';
+
+const authMockState =
+  vi.hoisted(
+    () => ({
+      accessToken:
+        null as string | null,
+    }),
+  );
+
+vi.mock(
+  '@/features/auth/AuthContext',
+  () => ({
+    useAuth:
+      () => ({
+        accessToken:
+          authMockState.accessToken,
+      }),
+  }),
+);
 
 const JAVASCRIPT: Technology = {
   id: 'javascript',
@@ -102,6 +128,7 @@ function renderTopicPage({
   progress = new Map<string, ConceptProgress>(),
   getCompletedSession = vi.fn().mockResolvedValue(null),
   recoveryStore = RECOVERY,
+  initialEntry = `/tech/${technologyId}/${topicId}`,
 }: {
   technologyId?: string;
   topicId?: string;
@@ -113,6 +140,7 @@ function renderTopicPage({
   progress?: Map<string, ConceptProgress>;
   getCompletedSession?: HistoryContextValue['getCompletedSession'];
   recoveryStore?: ISessionRecoveryStore;
+  initialEntry?: string;
 } = {}) {
   const content: ContentContextValue = {
     technologies,
@@ -145,7 +173,7 @@ function renderTopicPage({
       <HistoryContext.Provider value={historyValue}>
         <SessionRecoveryContext.Provider value={recoveryStore}>
           <ContentContext.Provider value={content}>
-            <MemoryRouter initialEntries={[`/tech/${technologyId}/${topicId}`]}>
+            <MemoryRouter initialEntries={[initialEntry]}>
               <main>
                 <Routes>
                   <Route path="/tech/:technologyId/:topicId" element={children} />
@@ -188,13 +216,696 @@ describe('TopicPage (T057)', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Arrays' })).toBeInTheDocument();
     await screen.findByRole('heading', { level: 3, name: 'Métodos de iteración de arrays' });
     expect(screen.getByText('Métodos de iteración y colecciones.')).toBeInTheDocument();
-    expect(screen.getByText('# Iteración')).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        '# Iteración',
+      ),
+    ).toBeInTheDocument();
     const concepts = screen.getByRole('region', { name: 'Teoría y conceptos' });
-    expect(within(concepts).getByRole('heading', { level: 2, name: 'Teoría y conceptos' })).toBeInTheDocument();
+    expect(within(concepts).getByRole('heading', { level: 2, name: 'Arrays' })).toBeInTheDocument();
     expect(within(concepts).getAllByRole('heading', { level: 3 }).map((item) => item.textContent)).toEqual([
       'Métodos de iteración de arrays', 'Mutación de arrays',
     ]);
   });
+
+  it(
+    'selecciona un concepto válido desde ?concept=',
+    async () => {
+      // CONCEPT_URL_SELECTION_REGRESSION
+      renderTopicPage({
+        initialEntry:
+          `/tech/javascript/arrays?concept=${CONCEPTS[1].id}`,
+      });
+
+      expect(
+        await screen.findByRole(
+          'heading',
+          {
+            level: 3,
+            name: 'Mutación de arrays',
+          },
+        ),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByRole(
+          'button',
+          {
+            name: /Mutación de arrays/i,
+          },
+        ),
+      ).toHaveAttribute(
+        'aria-current',
+        'step',
+      );
+    },
+  );
+
+  it(
+    'mantiene deshabilitado un concepto staged mientras su estado canónico está verificándose',
+    async () => {
+      // STAGED_CONCEPT_PENDING_CLICK_REGRESSION
+      authMockState.accessToken =
+        'pending-concept-token';
+
+      const firstConcept =
+        CONCEPTS[0];
+
+      const basePendingConcept =
+        CONCEPTS[1];
+
+      if (
+        firstConcept === undefined
+        || basePendingConcept === undefined
+      ) {
+        throw new Error(
+          'La fixture necesita al menos dos conceptos',
+        );
+      }
+
+      const pendingConcept: Concept = {
+        ...basePendingConcept,
+
+        levels: [
+          {
+            id:
+              'foundation',
+            name:
+              'Fundamentos',
+            description:
+              'Nivel inicial.',
+            position:
+              0,
+          },
+        ],
+
+        content: {
+          sections: [
+            {
+              type:
+                'intro',
+              levelId:
+                'foundation',
+              title:
+                'Fundamentos pendientes',
+              body:
+                'Contenido staged pendiente de verificación.',
+            },
+          ],
+        },
+      };
+
+      let resolveConceptState:
+        | ((
+            value:
+              Awaited<
+                ReturnType<
+                  typeof browserLearningApi.getConceptState
+                >
+              >,
+          ) => void)
+        | undefined;
+
+      const getConceptState =
+        vi.spyOn(
+          browserLearningApi,
+          'getConceptState',
+        ).mockImplementation(
+          conceptId => {
+            if (
+              conceptId
+              === pendingConcept.id
+            ) {
+              return new Promise(
+                resolve => {
+                  resolveConceptState =
+                    resolve;
+                },
+              );
+            }
+
+            return Promise.resolve({
+              conceptId,
+              previousConceptId:
+                null,
+              locked:
+                false,
+              lockReason:
+                null,
+              stages: {
+                theory: {
+                  status:
+                    'available',
+                  completedAt:
+                    null,
+                },
+                quiz: {
+                  status:
+                    'locked',
+                  completedAt:
+                    null,
+                },
+                practice: {
+                  status:
+                    'locked',
+                  completedAt:
+                    null,
+                },
+                checkpoint: {
+                  status:
+                    'locked',
+                  completedAt:
+                    null,
+                },
+              },
+              completed:
+                false,
+              completedAt:
+                null,
+            });
+          },
+        );
+
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockImplementation(
+          async (
+            conceptId,
+            levelId,
+          ) => ({
+            conceptId,
+            levelId,
+            previousLevelId:
+              null,
+            nextLevelId:
+              null,
+            locked:
+              false,
+            lockReason:
+              null,
+            stages: {
+              theory: {
+                status:
+                  'available',
+                completedAt:
+                  null,
+              },
+              quiz: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+              practice: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+              checkpoint: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+            },
+            completed:
+              false,
+            completedAt:
+              null,
+          }),
+        );
+
+      const rendered =
+        renderTopicPage({
+          getConceptsByTopic:
+            vi.fn().mockResolvedValue([
+              firstConcept,
+              pendingConcept,
+            ]),
+        });
+
+      try {
+        const workspace =
+          await screen.findByRole(
+            'region',
+            {
+              name:
+                'Teoría y conceptos',
+            },
+          );
+
+        await waitFor(
+          () => {
+            expect(
+              getConceptState,
+            ).toHaveBeenCalledWith(
+              pendingConcept.id,
+              'pending-concept-token',
+            );
+          },
+        );
+
+        const pendingButton =
+          within(workspace).getByRole(
+            'button',
+            {
+              name:
+                new RegExp(
+                  pendingConcept.name,
+                  'i',
+                ),
+            },
+          );
+
+        expect(
+          pendingButton,
+        ).toBeDisabled();
+
+        expect(
+          pendingButton,
+        ).toHaveTextContent(
+          'Verificando',
+        );
+
+        fireEvent.click(
+          pendingButton,
+        );
+
+        expect(
+          pendingButton,
+        ).not.toHaveAttribute(
+          'aria-current',
+          'step',
+        );
+
+        const firstButton =
+          within(workspace).getByRole(
+            'button',
+            {
+              name:
+                new RegExp(
+                  firstConcept.name,
+                  'i',
+                ),
+            },
+          );
+
+        expect(
+          firstButton,
+        ).toHaveAttribute(
+          'aria-current',
+          'step',
+        );
+
+        if (
+          resolveConceptState
+          === undefined
+        ) {
+          throw new Error(
+            'No se capturó el resolver del estado canónico',
+          );
+        }
+
+        resolveConceptState({
+          conceptId:
+            pendingConcept.id,
+          previousConceptId:
+            firstConcept.id,
+          locked:
+            false,
+          lockReason:
+            null,
+          stages: {
+            theory: {
+              status:
+                'available',
+              completedAt:
+                null,
+            },
+            quiz: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+            practice: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+            checkpoint: {
+              status:
+                'locked',
+              completedAt:
+                null,
+            },
+          },
+          completed:
+            false,
+          completedAt:
+            null,
+        });
+
+        await waitFor(
+          () => {
+            expect(
+              pendingButton,
+            ).not.toBeDisabled();
+          },
+        );
+
+        expect(
+          pendingButton,
+        ).toHaveTextContent(
+          'Pendiente',
+        );
+
+        expect(
+          getLevelState,
+        ).toHaveBeenCalled();
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        getConceptState.mockRestore();
+        getLevelState.mockRestore();
+      }
+    },
+  );
+
+  it(
+    'no permite seleccionar por ?concept= un concepto staged bloqueado por el backend',
+    async () => {
+      // LOCKED_CONCEPT_URL_INTEGRATION_REGRESSION
+      authMockState.accessToken =
+        'locked-concept-url-token';
+
+      const firstConcept =
+        CONCEPTS[0];
+
+      const baseLockedConcept =
+        CONCEPTS[1];
+
+      if (
+        firstConcept === undefined
+        || baseLockedConcept === undefined
+      ) {
+        throw new Error(
+          'La fixture necesita al menos dos conceptos',
+        );
+      }
+
+      /*
+       * El catálogo base de este test es legacy.
+       * Para probar el gate canónico necesitamos
+       * que el concepto solicitado por URL sea
+       * realmente staged.
+       */
+      const lockedConcept: Concept = {
+        ...baseLockedConcept,
+
+        levels: [
+          {
+            id:
+              'foundation',
+            name:
+              'Fundamentos',
+            description:
+              'Nivel inicial.',
+            position:
+              0,
+          },
+        ],
+
+        content: {
+          sections: [
+            {
+              type:
+                'intro',
+              levelId:
+                'foundation',
+              title:
+                'Fundamentos de mutación',
+              body:
+                'Contenido staged para probar el bloqueo canónico.',
+            },
+          ],
+        },
+      };
+
+      const getConceptState =
+        vi.spyOn(
+          browserLearningApi,
+          'getConceptState',
+        ).mockImplementation(
+          async conceptId => ({
+            conceptId,
+
+            previousConceptId:
+              conceptId === lockedConcept.id
+                ? firstConcept.id
+                : null,
+
+            locked:
+              conceptId === lockedConcept.id,
+
+            lockReason:
+              conceptId === lockedConcept.id
+                ? 'previous-concept-incomplete'
+                : null,
+
+            stages: {
+              theory: {
+                status:
+                  conceptId === lockedConcept.id
+                    ? 'locked'
+                    : 'available',
+                completedAt:
+                  null,
+              },
+
+              quiz: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+
+              practice: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+
+              checkpoint: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+            },
+
+            completed:
+              false,
+
+            completedAt:
+              null,
+          }),
+        );
+
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockImplementation(
+          async (
+            conceptId,
+            levelId,
+          ) => ({
+            conceptId,
+            levelId,
+
+            previousLevelId:
+              null,
+
+            nextLevelId:
+              null,
+
+            locked:
+              conceptId === lockedConcept.id,
+
+            lockReason:
+              conceptId === lockedConcept.id
+                ? 'previous-concept-incomplete'
+                : null,
+
+            stages: {
+              theory: {
+                status:
+                  conceptId === lockedConcept.id
+                    ? 'locked'
+                    : 'available',
+                completedAt:
+                  null,
+              },
+
+              quiz: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+
+              practice: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+
+              checkpoint: {
+                status:
+                  'locked',
+                completedAt:
+                  null,
+              },
+            },
+
+            completed:
+              false,
+
+            completedAt:
+              null,
+          }),
+        );
+
+      const rendered =
+        renderTopicPage({
+          getConceptsByTopic:
+            vi.fn().mockResolvedValue([
+              firstConcept,
+              lockedConcept,
+            ]),
+
+          initialEntry:
+            `/tech/javascript/arrays?concept=${lockedConcept.id}`,
+        });
+
+      try {
+        const workspace =
+          await screen.findByRole(
+            'region',
+            {
+              name:
+                'Teoría y conceptos',
+            },
+          );
+
+        await waitFor(
+          () => {
+            expect(
+              getConceptState,
+            ).toHaveBeenCalledWith(
+              lockedConcept.id,
+              'locked-concept-url-token',
+            );
+          },
+        );
+
+        const lockedButton =
+          within(workspace).getByRole(
+            'button',
+            {
+              name:
+                new RegExp(
+                  lockedConcept.name,
+                  'i',
+                ),
+            },
+          );
+
+        expect(
+          lockedButton,
+        ).toBeDisabled();
+
+        expect(
+          lockedButton,
+        ).not.toHaveAttribute(
+          'aria-current',
+          'step',
+        );
+
+        const firstButton =
+          within(workspace).getByRole(
+            'button',
+            {
+              name:
+                new RegExp(
+                  firstConcept.name,
+                  'i',
+                ),
+            },
+          );
+
+        expect(
+          firstButton,
+        ).toHaveAttribute(
+          'aria-current',
+          'step',
+        );
+
+        expect(
+          getLevelState,
+        ).toHaveBeenCalled();
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        vi.restoreAllMocks();
+      }
+    },
+  );
+
+  it(
+    'ignora un ?concept= inexistente y conserva el primer concepto',
+    async () => {
+      renderTopicPage({
+        initialEntry:
+          '/tech/javascript/arrays?concept=no-existe',
+      });
+
+      expect(
+        await screen.findByRole(
+          'heading',
+          {
+            level: 3,
+            name: 'Métodos de iteración de arrays',
+          },
+        ),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByRole(
+          'button',
+          {
+            name: /Métodos de iteración de arrays/i,
+          },
+        ),
+      ).toHaveAttribute(
+        'aria-current',
+        'step',
+      );
+    },
+  );
 
   it('renderiza el LearningContent estructurado real sin convertirlo en texto genérico', async () => {
     const structuredConcept: Concept = {
@@ -296,6 +1007,38 @@ describe('TopicPage (T057)', () => {
     expect(sessionTitle).not.toHaveClass('break-words');
     expect(screen.getByRole('heading', { level: 3, name: 'Principiante · 1 sesión' })).toBeInTheDocument();
     expect(screen.getByText('2 ejercicios')).toBeInTheDocument();
+    // PRACTICE_WORKSPACE_UI_REGRESSION
+    expect(
+      screen.getByRole(
+        'heading',
+        {
+          name:
+            'Prácticas del nivel',
+        },
+      ),
+    ).toBeInTheDocument();
+
+    // PRACTICE_PROGRESS_ASYNC_REGRESSION
+    expect(
+      await screen.findByRole(
+        'heading',
+        {
+          name:
+            'Progreso de práctica',
+        },
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      await screen.findByRole(
+        'progressbar',
+        {
+          name:
+            'Sesiones completadas',
+        },
+      ),
+    ).toBeInTheDocument();
+
     expect(await screen.findByRole('link', { name: 'Empezar práctica' })).toHaveAttribute(
       'href', '/practice/arrays-01',
     );
@@ -387,4 +1130,1404 @@ describe('TopicPage (T057)', () => {
     expect(within(concepts).getByRole('list')).toBeInTheDocument();
     expect(within(concepts).getAllByRole('listitem')).toHaveLength(2);
   });
+  it(
+    'carga y completa la teoría de foundation antes de desbloquear el test',
+    async () => {
+      authMockState.accessToken =
+        'access-token-test';
+
+      const stagedConcept:
+        Concept = {
+          ...CONCEPTS[0],
+
+          levels: [
+            {
+              id:
+                'foundation',
+              name:
+                'Fundamentos',
+              description:
+                'Base del concepto.',
+              position:
+                0,
+            },
+            {
+              id:
+                'deepening',
+              name:
+                'Profundización',
+              description:
+                'Contenido posterior.',
+              position:
+                1,
+            },
+          ],
+
+          content: {
+            sections: [
+              {
+                type:
+                  'intro',
+                levelId:
+                  'foundation',
+                title:
+                  'Teoría Fundamentos',
+                body:
+                  'Contenido exclusivo de Fundamentos.',
+              },
+              {
+                type:
+                  'intro',
+                levelId:
+                  'deepening',
+                title:
+                  'Teoría Profundización',
+                body:
+                  'No debe mostrarse todavía.',
+              },
+            ],
+          },
+        };
+
+      const quizSession:
+        ExerciseSession = {
+          ...ARRAY_SESSION,
+
+          id:
+            'arrays-foundation-quiz',
+
+          title:
+            'Test de Fundamentos',
+
+          kind:
+            'quiz',
+
+          levelId:
+            'foundation',
+
+          requiredForProgression:
+            true,
+        };
+
+      const conceptState = {
+        conceptId:
+          stagedConcept.id,
+
+        previousConceptId:
+          null,
+
+        locked:
+          false,
+
+        lockReason:
+          null,
+
+        stages: {
+          theory: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+
+          quiz: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          practice: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          checkpoint: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+        },
+
+        completed:
+          false,
+
+        completedAt:
+          null,
+      } as const;
+
+      const initialLevelState = {
+        conceptId:
+          stagedConcept.id,
+
+        levelId:
+          'foundation',
+
+        previousLevelId:
+          null,
+
+        nextLevelId:
+          'deepening',
+
+        locked:
+          false,
+
+        lockReason:
+          null,
+
+        stages: {
+          theory: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+
+          quiz: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          practice: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          checkpoint: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+        },
+
+        completed:
+          false,
+
+        completedAt:
+          null,
+      } as const;
+
+      const theoryCompletedLevelState = {
+        ...initialLevelState,
+
+        stages: {
+          ...initialLevelState.stages,
+
+          theory: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:00:00.000Z',
+          },
+
+          quiz: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+        },
+      } as const;
+
+      const deepeningLevelState = {
+        conceptId:
+          stagedConcept.id,
+
+        levelId:
+          'deepening',
+
+        previousLevelId:
+          'foundation',
+
+        nextLevelId:
+          null,
+
+        locked:
+          true,
+
+        lockReason:
+          'previous-level-incomplete',
+
+        stages: {
+          theory: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          quiz: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          practice: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          checkpoint: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+        },
+
+        completed:
+          false,
+
+        completedAt:
+          null,
+      } as const;
+
+      const getConceptState =
+        vi.spyOn(
+          browserLearningApi,
+          'getConceptState',
+        ).mockResolvedValue(
+          conceptState,
+        );
+
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockImplementation(
+          async (
+            _conceptId,
+            levelId,
+          ) => {
+            if (
+              levelId
+              === 'foundation'
+            ) {
+              return initialLevelState;
+            }
+
+            if (
+              levelId
+              === 'deepening'
+            ) {
+              return deepeningLevelState;
+            }
+
+            throw new Error(
+              `Nivel inesperado en test: ${levelId}`,
+            );
+          },
+        );
+
+      const completeLevelTheory =
+        vi.spyOn(
+          browserLearningApi,
+          'completeLevelTheory',
+        ).mockResolvedValue(
+          theoryCompletedLevelState,
+        );
+
+      const rendered =
+        renderTopicPage({
+          getConceptsByTopic:
+            vi.fn().mockResolvedValue([
+              stagedConcept,
+            ]),
+
+          getSessionsByConcept:
+            vi.fn().mockResolvedValue([
+              quizSession,
+            ]),
+        });
+
+      try {
+        expect(
+          await screen.findByText(
+            'Contenido exclusivo de Fundamentos.',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          screen.queryByText(
+            'No debe mostrarse todavía.',
+          ),
+        ).not.toBeInTheDocument();
+
+        const levelNavigation =
+          screen.getByRole(
+            'navigation',
+            {
+              name:
+                'Niveles del concepto',
+            },
+          );
+
+        const foundationLevel =
+          within(levelNavigation)
+            .getByText(
+              'Fundamentos',
+            )
+            .closest('li');
+
+        const deepeningLevel =
+          within(levelNavigation)
+            .getByText(
+              'Profundización',
+            )
+            .closest('li');
+
+        expect(
+          foundationLevel,
+        ).toHaveAttribute(
+          'aria-current',
+          'step',
+        );
+
+        expect(
+          within(
+            foundationLevel as HTMLElement,
+          ).getByText(
+            'En curso',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          within(
+            deepeningLevel as HTMLElement,
+          ).getByText(
+            'Bloqueado',
+          ),
+        ).toBeInTheDocument();
+
+        await waitFor(
+          () => {
+            expect(
+              getConceptState,
+            ).toHaveBeenCalledWith(
+              stagedConcept.id,
+              'access-token-test',
+            );
+
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledWith(
+              stagedConcept.id,
+              'foundation',
+              'access-token-test',
+            );
+
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledWith(
+              stagedConcept.id,
+              'deepening',
+              'access-token-test',
+            );
+
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledTimes(
+              2,
+            );
+          },
+        );
+
+        const testButtonBefore =
+          screen.getByRole(
+            'button',
+            {
+              name:
+                /Test/,
+            },
+          );
+
+        expect(
+          testButtonBefore,
+        ).toBeDisabled();
+
+        // STAGE_JOURNEY_VISUAL_STATUS
+        const theoryButtonBefore =
+          screen.getByRole(
+            'button',
+            {
+              name:
+                /Teoría/,
+            },
+          );
+
+        expect(
+          within(
+            theoryButtonBefore,
+          ).getByText(
+            'Actual',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          within(
+            testButtonBefore,
+          ).getByText(
+            'Bloqueado',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          theoryButtonBefore,
+        ).toHaveAttribute(
+          'data-learning-stage-status',
+          'available',
+        );
+
+        expect(
+          testButtonBefore,
+        ).toHaveAttribute(
+          'data-learning-stage-status',
+          'locked',
+        );
+
+        fireEvent.click(
+          screen.getByRole(
+            'button',
+            {
+              name:
+                'He entendido esto',
+            },
+          ),
+        );
+
+        await waitFor(
+          () => {
+            expect(
+              completeLevelTheory,
+            ).toHaveBeenCalledWith(
+              stagedConcept.id,
+              'foundation',
+              'access-token-test',
+            );
+          },
+        );
+
+        await waitFor(
+          () => {
+            expect(
+              screen.getByRole(
+                'button',
+                {
+                  name:
+                    /Test/,
+                },
+              ),
+            ).not.toBeDisabled();
+          },
+        );
+
+        const theoryButtonAfter =
+          screen.getByRole(
+            'button',
+            {
+              name:
+                /Teoría/,
+            },
+          );
+
+        const testButtonAfter =
+          screen.getByRole(
+            'button',
+            {
+              name:
+                /Test/,
+            },
+          );
+
+        expect(
+          within(
+            theoryButtonAfter,
+          ).getByText(
+            'Completado',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          within(
+            testButtonAfter,
+          ).getByText(
+            'Actual',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          theoryButtonAfter,
+        ).toHaveAttribute(
+          'data-learning-stage-status',
+          'completed',
+        );
+
+        expect(
+          testButtonAfter,
+        ).toHaveAttribute(
+          'data-learning-stage-status',
+          'available',
+        );
+
+        expect(
+          testButtonAfter,
+        ).toHaveAttribute(
+          'aria-current',
+          'step',
+        );
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        vi.restoreAllMocks();
+      }
+    },
+  );
+
+  it(
+    'avanza a deepening sin reutilizar la teoría de foundation cuando el nivel está vacío',
+    async () => {
+      authMockState.accessToken =
+        'active-level-access-token';
+
+      const stagedConcept:
+        Concept = {
+          ...CONCEPTS[0],
+
+          levels: [
+            {
+              id:
+                'foundation',
+              name:
+                'Fundamentos',
+              description:
+                'Base del concepto.',
+              position:
+                0,
+            },
+            {
+              id:
+                'deepening',
+              name:
+                'Profundización',
+              description:
+                'Nivel posterior.',
+              position:
+                1,
+            },
+          ],
+
+          content: {
+            sections: [
+              {
+                type:
+                  'intro',
+                levelId:
+                  'foundation',
+                title:
+                  'Teoría Fundamentos',
+                body:
+                  'Contenido exclusivo de Fundamentos.',
+              },
+            ],
+          },
+
+          contentMarkdown:
+            '# Markdown legacy de Foundation',
+        };
+
+      const foundationQuiz:
+        ExerciseSession = {
+          ...ARRAY_SESSION,
+
+          id:
+            'arrays-foundation-active-level-quiz',
+
+          title:
+            'Test de Fundamentos',
+
+          kind:
+            'quiz',
+
+          levelId:
+            'foundation',
+
+          requiredForProgression:
+            true,
+        };
+
+      const conceptState = {
+        conceptId:
+          stagedConcept.id,
+
+        previousConceptId:
+          null,
+
+        locked:
+          false,
+
+        lockReason:
+          null,
+
+        stages: {
+          theory: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:00:00.000Z',
+          },
+
+          quiz: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:01:00.000Z',
+          },
+
+          practice: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:02:00.000Z',
+          },
+
+          checkpoint: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+        },
+
+        completed:
+          false,
+
+        completedAt:
+          null,
+      } as const;
+
+      const foundationLevelState = {
+        conceptId:
+          stagedConcept.id,
+
+        levelId:
+          'foundation',
+
+        previousLevelId:
+          null,
+
+        nextLevelId:
+          'deepening',
+
+        locked:
+          false,
+
+        lockReason:
+          null,
+
+        stages: {
+          theory: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:00:00.000Z',
+          },
+
+          quiz: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:01:00.000Z',
+          },
+
+          practice: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:02:00.000Z',
+          },
+
+          checkpoint: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:03:00.000Z',
+          },
+        },
+
+        completed:
+          true,
+
+        completedAt:
+          '2026-09-17T20:03:00.000Z',
+      } as const;
+
+      const deepeningLevelState = {
+        conceptId:
+          stagedConcept.id,
+
+        levelId:
+          'deepening',
+
+        previousLevelId:
+          'foundation',
+
+        nextLevelId:
+          null,
+
+        locked:
+          false,
+
+        lockReason:
+          null,
+
+        stages: {
+          theory: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+
+          quiz: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          practice: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          checkpoint: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+        },
+
+        completed:
+          false,
+
+        completedAt:
+          null,
+      } as const;
+
+      const getConceptState =
+        vi.spyOn(
+          browserLearningApi,
+          'getConceptState',
+        ).mockResolvedValue(
+          conceptState,
+        );
+
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockImplementation(
+          async (
+            _conceptId,
+            levelId,
+          ) => {
+            if (
+              levelId
+              === 'foundation'
+            ) {
+              return foundationLevelState;
+            }
+
+            if (
+              levelId
+              === 'deepening'
+            ) {
+              return deepeningLevelState;
+            }
+
+            throw new Error(
+              `Nivel inesperado en test: ${levelId}`,
+            );
+          },
+        );
+
+      const rendered =
+        renderTopicPage({
+          getConceptsByTopic:
+            vi.fn().mockResolvedValue([
+              stagedConcept,
+            ]),
+
+          getSessionsByConcept:
+            vi.fn().mockResolvedValue([
+              foundationQuiz,
+            ]),
+        });
+
+      try {
+        expect(
+          await screen.findByRole(
+            'heading',
+            {
+              name:
+                'Contenido de nivel no disponible',
+            },
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          screen.getByText(
+            'El nivel Profundización todavía no tiene contenido publicado.',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          screen.queryByText(
+            'Contenido exclusivo de Fundamentos.',
+          ),
+        ).not.toBeInTheDocument();
+
+        expect(
+          screen.queryByText(
+            '# Markdown legacy de Foundation',
+          ),
+        ).not.toBeInTheDocument();
+
+        expect(
+          screen.queryByLabelText(
+            'Etapas del aprendizaje',
+          ),
+        ).not.toBeInTheDocument();
+
+        await waitFor(
+          () => {
+            expect(
+              getConceptState,
+            ).toHaveBeenCalledWith(
+              stagedConcept.id,
+              'active-level-access-token',
+            );
+
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledWith(
+              stagedConcept.id,
+              'foundation',
+              'active-level-access-token',
+            );
+
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledWith(
+              stagedConcept.id,
+              'deepening',
+              'active-level-access-token',
+            );
+
+            expect(
+              getLevelState,
+            ).toHaveBeenCalledTimes(
+              2,
+            );
+          },
+        );
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        vi.restoreAllMocks();
+      }
+    },
+  );
+
+  it(
+    'completa la teoría del nivel deepening cuando es el nivel activo',
+    async () => {
+      authMockState.accessToken =
+        'deepening-access-token';
+
+      const stagedConcept:
+        Concept = {
+          ...CONCEPTS[0],
+
+          levels: [
+            {
+              id:
+                'foundation',
+              name:
+                'Fundamentos',
+              description:
+                'Base del concepto.',
+              position:
+                0,
+            },
+            {
+              id:
+                'deepening',
+              name:
+                'Profundización',
+              description:
+                'Nivel posterior.',
+              position:
+                1,
+            },
+          ],
+
+          content: {
+            sections: [
+              {
+                type:
+                  'intro',
+                levelId:
+                  'foundation',
+                title:
+                  'Teoría Fundamentos',
+                body:
+                  'Contenido exclusivo de Fundamentos.',
+              },
+              {
+                type:
+                  'intro',
+                levelId:
+                  'deepening',
+                title:
+                  'Teoría Profundización',
+                body:
+                  'Contenido exclusivo de Profundización.',
+              },
+            ],
+          },
+        };
+
+      const foundationQuiz:
+        ExerciseSession = {
+          ...ARRAY_SESSION,
+
+          id:
+            'arrays-foundation-complete-quiz',
+
+          title:
+            'Test de Fundamentos',
+
+          kind:
+            'quiz',
+
+          levelId:
+            'foundation',
+
+          requiredForProgression:
+            true,
+        };
+
+      const deepeningQuiz:
+        ExerciseSession = {
+          ...ARRAY_SESSION,
+
+          id:
+            'arrays-deepening-quiz',
+
+          title:
+            'Test de Profundización',
+
+          kind:
+            'quiz',
+
+          levelId:
+            'deepening',
+
+          requiredForProgression:
+            true,
+        };
+
+      const conceptState = {
+        conceptId:
+          stagedConcept.id,
+
+        previousConceptId:
+          null,
+
+        locked:
+          false,
+
+        lockReason:
+          null,
+
+        stages: {
+          theory: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:00:00.000Z',
+          },
+
+          quiz: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:01:00.000Z',
+          },
+
+          practice: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:02:00.000Z',
+          },
+
+          checkpoint: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+        },
+
+        completed:
+          false,
+
+        completedAt:
+          null,
+      } as const;
+
+      const foundationLevelState = {
+        conceptId:
+          stagedConcept.id,
+
+        levelId:
+          'foundation',
+
+        previousLevelId:
+          null,
+
+        nextLevelId:
+          'deepening',
+
+        locked:
+          false,
+
+        lockReason:
+          null,
+
+        stages: {
+          theory: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:00:00.000Z',
+          },
+
+          quiz: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:01:00.000Z',
+          },
+
+          practice: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:02:00.000Z',
+          },
+
+          checkpoint: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T20:03:00.000Z',
+          },
+        },
+
+        completed:
+          true,
+
+        completedAt:
+          '2026-09-17T20:03:00.000Z',
+      } as const;
+
+      const deepeningLevelState = {
+        conceptId:
+          stagedConcept.id,
+
+        levelId:
+          'deepening',
+
+        previousLevelId:
+          'foundation',
+
+        nextLevelId:
+          null,
+
+        locked:
+          false,
+
+        lockReason:
+          null,
+
+        stages: {
+          theory: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+
+          quiz: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          practice: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+
+          checkpoint: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+        },
+
+        completed:
+          false,
+
+        completedAt:
+          null,
+      } as const;
+
+      const deepeningTheoryCompletedState = {
+        ...deepeningLevelState,
+
+        stages: {
+          ...deepeningLevelState.stages,
+
+          theory: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-17T21:00:00.000Z',
+          },
+
+          quiz: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+        },
+      } as const;
+
+      vi.spyOn(
+        browserLearningApi,
+        'getConceptState',
+      ).mockResolvedValue(
+        conceptState,
+      );
+
+      vi.spyOn(
+        browserLearningApi,
+        'getLevelState',
+      ).mockImplementation(
+        async (
+          _conceptId,
+          levelId,
+        ) => {
+          if (
+            levelId
+            === 'foundation'
+          ) {
+            return foundationLevelState;
+          }
+
+          if (
+            levelId
+            === 'deepening'
+          ) {
+            return deepeningLevelState;
+          }
+
+          throw new Error(
+            `Nivel inesperado en test: ${levelId}`,
+          );
+        },
+      );
+
+      const completeLevelTheory =
+        vi.spyOn(
+          browserLearningApi,
+          'completeLevelTheory',
+        ).mockResolvedValue(
+          deepeningTheoryCompletedState,
+        );
+
+      const rendered =
+        renderTopicPage({
+          getConceptsByTopic:
+            vi.fn().mockResolvedValue([
+              stagedConcept,
+            ]),
+
+          getSessionsByConcept:
+            vi.fn().mockResolvedValue([
+              foundationQuiz,
+              deepeningQuiz,
+            ]),
+        });
+
+      try {
+        expect(
+          await screen.findByText(
+            'Contenido exclusivo de Profundización.',
+          ),
+        ).toBeInTheDocument();
+
+        // UI_LEVEL_COMPLETED_ACTIVE_LOCKED
+        const levelNavigation =
+          screen.getByRole(
+            'navigation',
+            {
+              name:
+                'Niveles del concepto',
+            },
+          );
+
+        const foundationLevel =
+          within(levelNavigation)
+            .getByText(
+              'Fundamentos',
+            )
+            .closest('li');
+
+        const deepeningLevel =
+          within(levelNavigation)
+            .getByText(
+              'Profundización',
+            )
+            .closest('li');
+
+        expect(
+          foundationLevel,
+        ).not.toHaveAttribute(
+          'aria-current',
+        );
+
+        expect(
+          within(
+            foundationLevel as HTMLElement,
+          ).getByText(
+            'Completado',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          deepeningLevel,
+        ).toHaveAttribute(
+          'aria-current',
+          'step',
+        );
+
+        expect(
+          within(
+            deepeningLevel as HTMLElement,
+          ).getByText(
+            'En curso',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          screen.queryByText(
+            'Contenido exclusivo de Fundamentos.',
+          ),
+        ).not.toBeInTheDocument();
+
+        const testButtonBefore =
+          screen.getByRole(
+            'button',
+            {
+              name:
+                /Test/,
+            },
+          );
+
+        expect(
+          testButtonBefore,
+        ).toBeDisabled();
+
+        fireEvent.click(
+          screen.getByRole(
+            'button',
+            {
+              name:
+                'He entendido esto',
+            },
+          ),
+        );
+
+        await waitFor(
+          () => {
+            expect(
+              completeLevelTheory,
+            ).toHaveBeenCalledWith(
+              stagedConcept.id,
+              'deepening',
+              'deepening-access-token',
+            );
+
+            expect(
+              completeLevelTheory,
+            ).toHaveBeenCalledTimes(
+              1,
+            );
+          },
+        );
+
+        await waitFor(
+          () => {
+            expect(
+              screen.getByRole(
+                'button',
+                {
+                  name:
+                    /Test/,
+                },
+              ),
+            ).not.toBeDisabled();
+          },
+        );
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        vi.restoreAllMocks();
+      }
+    },
+  );
+
 });
