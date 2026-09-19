@@ -50,6 +50,177 @@ const registry =
   >([
     [
       verifierKey(
+        'js-objects-dynamic-properties-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    nombre: 'Ada',
+                    activo: true,
+                  }),
+                  'activo',
+                  false,
+                ]),
+
+              expected:
+                false,
+
+              call:
+                'actualizar(...input).activo',
+
+              description:
+                'actualiza una clave booleana elegida dinámicamente',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    nombre: 'Ada',
+                    edad: 30,
+                  }),
+                  'nombre',
+                  'Lin',
+                ]),
+
+              expected:
+                'Lin',
+
+              call:
+                'actualizar(...input).nombre',
+
+              description:
+                'usa el valor de campo y no la clave literal campo',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-shared-reference-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    perfil:
+                      Object.freeze({
+                        nombre: 'Ada',
+                        ciudad: 'Madrid',
+                      }),
+
+                    activo: true,
+                  }),
+                  'Lin',
+                ]),
+
+              expected:
+                'Lin|Ada|Madrid|true',
+
+              call:
+                "(() => { const original = input[0]; const copia = renombrar(original, input[1]); return copia.perfil.nombre + '|' + original.perfil.nombre + '|' + copia.perfil.ciudad + '|' + copia.activo; })()",
+
+              description:
+                'preserva propiedades del usuario y del perfil al copiar',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    perfil:
+                      Object.freeze({
+                        nombre: 'Eva',
+                      }),
+                  }),
+                  'Noa',
+                ]),
+
+              expected:
+                false,
+
+              call:
+                '(() => { const original = input[0]; const copia = renombrar(original, input[1]); return copia === original || copia.perfil === original.perfil; })()',
+
+              description:
+                'crea objetos nuevos para usuario y perfil',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-await-value-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                'Hola Ada',
+
+              call:
+                'mensaje()',
+
+              description:
+                'resuelve el nombre antes de construir el mensaje',
+            }),
+
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                true,
+
+              call:
+                "mensaje() instanceof Promise",
+
+              description:
+                'mensaje mantiene un contrato asíncrono',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
         'js-arrays-filter-mutation-01',
         'step-4',
       ),

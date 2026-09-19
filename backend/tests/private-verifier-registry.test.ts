@@ -64,6 +64,71 @@ describe(
     );
 
     it(
+      'resolves hidden cases for the three low-coverage exercises',
+      () => {
+        const dynamic =
+          resolvePrivateVerifierConfig(
+            'js-objects-dynamic-properties-01',
+            'step-4',
+          );
+
+        const shared =
+          resolvePrivateVerifierConfig(
+            'js-objects-shared-reference-01',
+            'step-4',
+          );
+
+        const promise =
+          resolvePrivateVerifierConfig(
+            'js-promises-await-value-01',
+            'step-4',
+          );
+
+        expect(
+          dynamic.hiddenTestCases,
+        ).toHaveLength(
+          2,
+        );
+
+        expect(
+          shared.hiddenTestCases,
+        ).toHaveLength(
+          2,
+        );
+
+        expect(
+          promise.hiddenTestCases,
+        ).toHaveLength(
+          2,
+        );
+
+        expect(
+          dynamic.pedagogicalRequirements,
+        ).toEqual([]);
+
+        expect(
+          shared.pedagogicalRequirements,
+        ).toEqual([]);
+
+        expect(
+          promise.pedagogicalRequirements,
+        ).toEqual([]);
+
+        expect(
+          dynamic.oracle,
+        ).toBeNull();
+
+        expect(
+          shared.oracle,
+        ).toBeNull();
+
+        expect(
+          promise.oracle,
+        ).toBeNull();
+      },
+    );
+
+    it(
       'does not allow another exercise to inherit the registered verifier config',
       () => {
         const config =
