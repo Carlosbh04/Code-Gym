@@ -11,9 +11,8 @@ import type {
   VerifierManifestRepository,
 } from './verifier-manifest-repository.js';
 import {
-  getPrivatePedagogicalRequirements,
-  getPrivateVerifierTestCases,
-} from './private-verifier-cases.js';
+  resolvePrivateVerifierConfig,
+} from './private-verifier-registry.js';
 import type {
   PedagogicalRequirement,
 } from './pedagogical-verifier.js';
@@ -301,6 +300,12 @@ function verifyFixCodeShape(
     throw new InvalidVerifierAnswerError();
   }
 
+  const privateConfig =
+    resolvePrivateVerifierConfig(
+      metadata.sessionId,
+      metadata.exerciseId,
+    );
+
   return Object.freeze({
     ...metadata,
     kind: 'requires-code-execution',
@@ -308,16 +313,11 @@ function verifyFixCodeShape(
     userCode: answer,
     testCases: Object.freeze([
       ...step.testCases,
-      ...getPrivateVerifierTestCases(
-        metadata.sessionId,
-        metadata.exerciseId,
-      ),
+      ...privateConfig.hiddenTestCases,
     ]),
+
     pedagogicalRequirements:
-      getPrivatePedagogicalRequirements(
-        metadata.sessionId,
-        metadata.exerciseId,
-      ),
+      privateConfig.pedagogicalRequirements,
   });
 }
 
