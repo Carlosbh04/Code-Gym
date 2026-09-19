@@ -659,6 +659,13 @@ describe('useSession · veredicto fix-code autoritativo', () => {
         false,
       );
 
+      expect(
+        view.result.current
+          .verificationFeedback,
+      ).toEqual([
+        'El resultado funcional es correcto, pero falta cumplir el objetivo pedagógico.',
+      ]);
+
       /*
        * Prueba explícita de la situación que causaba
        * la contradicción visual.
@@ -716,6 +723,11 @@ describe('useSession · veredicto fix-code autoritativo', () => {
       ).toBe(
         true,
       );
+
+      expect(
+        view.result.current
+          .verificationFeedback,
+      ).toEqual([]);
     },
   );
 });

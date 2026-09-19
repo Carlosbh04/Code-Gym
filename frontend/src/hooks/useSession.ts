@@ -62,6 +62,11 @@ export interface UseSessionResult {
    */
   executionError: string | null;
   executionStatus: 'idle' | 'running' | 'passed' | 'failed' | 'error';
+  /**
+   * Feedback pedagógico público devuelto por el backend.
+   * El cliente solo lo representa; no lo calcula.
+   */
+  verificationFeedback: readonly string[];
   /** true mientras se persiste la finalización completa (D018). */
   isCompleting: boolean;
   /** Fallo de persistencia de la finalización, separado del error de carga. */
@@ -109,6 +114,10 @@ export function useSession(sessionId: string): UseSessionResult {
   const [executionStatus, setExecutionStatus] = useState<
     'idle' | 'running' | 'passed' | 'failed' | 'error'
   >('idle');
+  const [
+    verificationFeedback,
+    setVerificationFeedback,
+  ] = useState<readonly string[]>([]);
   const [completionError, setCompletionError] = useState<string | null>(null);
   const [hintError, setHintError] = useState<string | null>(null);
   const [isRevealingHint, setIsRevealingHint] = useState(false);
@@ -156,6 +165,7 @@ export function useSession(sessionId: string): UseSessionResult {
     setFixCodeDraft(null);
     setExecutionError(null);
     setExecutionStatus('idle');
+    setVerificationFeedback([]);
     setCompletionError(null);
     setHintError(null);
     setIsRevealingHint(false);
@@ -465,6 +475,7 @@ export function useSession(sessionId: string): UseSessionResult {
     // del usuario y únicamente representa el veredicto devuelto por el servidor.
     // Un resultado previo de «Ejecutar tests» no se reutiliza como verdad.
     setExecutionStatus('running');
+    setVerificationFeedback([]);
 
     void submitToServer()
       .then((result) => {
@@ -482,6 +493,11 @@ export function useSession(sessionId: string): UseSessionResult {
          * vive en Attempt.isCorrect, que también incorpora
          * los requisitos pedagógicos del backend.
          */
+        setVerificationFeedback(
+          result.verification?.feedback
+          ?? [],
+        );
+
         setExecutionStatus(
           result.attempt.isCorrect
             ? 'passed'
@@ -495,6 +511,7 @@ export function useSession(sessionId: string): UseSessionResult {
             : String(error),
         );
 
+        setVerificationFeedback([]);
         setExecutionStatus('error');
       })
       .finally(() => {
@@ -554,6 +571,7 @@ export function useSession(sessionId: string): UseSessionResult {
     setFixCodeDraft(null);
     setExecutionError(null);
     setExecutionStatus('idle');
+    setVerificationFeedback([]);
     setHintError(null);
     stepStartedAt.current = Date.now();
   }, [isLastStep, startCompletion]);
@@ -580,6 +598,7 @@ export function useSession(sessionId: string): UseSessionResult {
     isLastStep,
     executionError,
     executionStatus,
+    verificationFeedback,
     isCompleting: false,
     completionError,
     hintError,

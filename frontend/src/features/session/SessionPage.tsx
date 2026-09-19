@@ -82,6 +82,7 @@ function SessionPage() {
     isLastStep,
     executionError,
     executionStatus,
+    verificationFeedback,
     isCompleting,
     completionError,
     hintError,
@@ -515,7 +516,10 @@ function SessionPage() {
               explanation={
                 answer.isCorrect
                   ? 'El servidor confirmó que tu respuesta es correcta.'
-                  : 'El servidor comprobó la respuesta y todavía necesita corrección.'
+                  : currentStep.type === 'fix-code'
+                    && verificationFeedback.length > 0
+                    ? verificationFeedback.join(' ')
+                    : 'El servidor comprobó la respuesta y todavía necesita corrección.'
               }
               successMessage={answer.isCorrect ? celebration?.message : undefined}
               successEventId={answer.isCorrect ? celebration?.eventId ?? null : null}
