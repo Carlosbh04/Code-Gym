@@ -1288,6 +1288,177 @@ const registry =
 
     [
       verifierKey(
+        'js-es6-coding-unique-tags-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  'web',
+                  'api',
+                  'web',
+                  'docs',
+                  'api',
+                  'cli',
+                ]),
+
+              expected:
+                Object.freeze([
+                  'web',
+                  'api',
+                  'docs',
+                  'cli',
+                ]),
+
+              call:
+                'etiquetasUnicas(input)',
+
+              description:
+                'elimina múltiples duplicados conservando el primer orden',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  'uno',
+                  'uno',
+                  'uno',
+                  'dos',
+                ]),
+
+              expected:
+                Object.freeze([
+                  'uno',
+                  'dos',
+                ]),
+
+              call:
+                'etiquetasUnicas(input)',
+
+              description:
+                'colapsa repeticiones consecutivas y conserva valores distintos',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-es6-destructuring-shapes-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  -8,
+                  3,
+                ]),
+
+              expected:
+                -5,
+
+              call:
+                'sumarCoordenadas(input)',
+
+              description:
+                'suma coordenadas negativas y positivas',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  1.5,
+                  2.5,
+                ]),
+
+              expected:
+                4,
+
+              call:
+                'sumarCoordenadas(input)',
+
+              description:
+                'suma coordenadas decimales',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-es6-rest-arguments-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  7,
+                ]),
+
+              expected:
+                7,
+
+              call:
+                'sumarTodos(...input)',
+
+              description:
+                'acepta un solo argumento',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  -4,
+                  1,
+                  3,
+                  10,
+                ]),
+
+              expected:
+                10,
+
+              call:
+                'sumarTodos(...input)',
+
+              description:
+                'acepta una cantidad distinta de argumentos y números negativos',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
         'js-arrays-filter-mutation-01',
         'step-4',
       ),

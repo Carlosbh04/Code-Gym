@@ -325,6 +325,57 @@ describe(
     );
 
     it(
+      'resolves hidden cases for the ES6+ hardening set',
+      () => {
+        const targets = [
+          [
+            'js-es6-coding-unique-tags-01',
+            'step-1',
+            2,
+          ],
+          [
+            'js-es6-destructuring-shapes-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-es6-rest-arguments-01',
+            'step-4',
+            2,
+          ],
+        ] as const;
+
+        for (
+          const [
+            sessionId,
+            exerciseId,
+            hiddenCaseCount,
+          ] of targets
+        ) {
+          const config =
+            resolvePrivateVerifierConfig(
+              sessionId,
+              exerciseId,
+            );
+
+          expect(
+            config.hiddenTestCases,
+          ).toHaveLength(
+            hiddenCaseCount,
+          );
+
+          expect(
+            config.pedagogicalRequirements,
+          ).toEqual([]);
+
+          expect(
+            config.oracle,
+          ).toBeNull();
+        }
+      },
+    );
+
+    it(
       'does not allow another exercise to inherit the registered verifier config',
       () => {
         const config =
