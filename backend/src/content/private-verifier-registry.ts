@@ -1459,6 +1459,121 @@ const registry =
 
     [
       verifierKey(
+        'js-es6-nullish-defaults-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                false,
+
+              expected:
+                false,
+
+              call:
+                'etiqueta(input)',
+
+              description:
+                'conserva false porque no es nullish',
+            }),
+
+            Object.freeze({
+              input:
+                0,
+
+              expected:
+                0,
+
+              call:
+                'etiqueta(input)',
+
+              description:
+                'conserva cero porque no es nullish',
+            }),
+
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                'sin etiqueta',
+
+              call:
+                'etiqueta(undefined)',
+
+              description:
+                'usa fallback también cuando el valor es undefined',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-default-parameters-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                Object.freeze({
+                  producto: 'mesa',
+                  cantidad: 1,
+                }),
+
+              call:
+                "crearPedido('mesa', undefined)",
+
+              description:
+                'usa el valor por defecto cuando cantidad es undefined',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  'silla',
+                  7,
+                ]),
+
+              expected:
+                Object.freeze({
+                  producto: 'silla',
+                  cantidad: 7,
+                }),
+
+              call:
+                'crearPedido(...input)',
+
+              description:
+                'conserva otra cantidad explícita',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
         'js-arrays-filter-mutation-01',
         'step-4',
       ),

@@ -376,6 +376,52 @@ describe(
     );
 
     it(
+      'resolves hidden cases for nullish and default-parameter contracts',
+      () => {
+        const targets = [
+          [
+            'js-es6-nullish-defaults-01',
+            'step-4',
+            3,
+          ],
+          [
+            'js-functions-default-parameters-01',
+            'step-4',
+            2,
+          ],
+        ] as const;
+
+        for (
+          const [
+            sessionId,
+            exerciseId,
+            hiddenCaseCount,
+          ] of targets
+        ) {
+          const config =
+            resolvePrivateVerifierConfig(
+              sessionId,
+              exerciseId,
+            );
+
+          expect(
+            config.hiddenTestCases,
+          ).toHaveLength(
+            hiddenCaseCount,
+          );
+
+          expect(
+            config.pedagogicalRequirements,
+          ).toEqual([]);
+
+          expect(
+            config.oracle,
+          ).toBeNull();
+        }
+      },
+    );
+
+    it(
       'does not allow another exercise to inherit the registered verifier config',
       () => {
         const config =
