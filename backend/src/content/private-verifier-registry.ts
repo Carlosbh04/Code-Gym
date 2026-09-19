@@ -939,6 +939,355 @@ const registry =
 
     [
       verifierKey(
+        'js-functions-coding-format-name-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  '  Grace',
+                  'Hopper  ',
+                ]),
+
+              expected:
+                'Grace Hopper',
+
+              call:
+                'nombreCompleto(...input)',
+
+              description:
+                'limpia espacios externos con otros nombres',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  'Lin',
+                  'Torvalds',
+                ]),
+
+              expected:
+                'Lin Torvalds',
+
+              call:
+                'nombreCompleto(...input)',
+
+              description:
+                'une otros valores sin depender del ejemplo público',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-deepening-checkpoint-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                100,
+
+              expected:
+                'avanzado',
+
+              call:
+                'clasificar(input)',
+
+              description:
+                'clasifica correctamente el límite avanzado',
+            }),
+
+            Object.freeze({
+              input:
+                99,
+
+              expected:
+                'inicial',
+
+              call:
+                'clasificar(input)',
+
+              description:
+                'clasifica correctamente justo debajo del límite',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-foundation-checkpoint-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  35,
+                  7,
+                ]),
+
+              expected:
+                42,
+
+              call:
+                'calcular(...input)',
+
+              description:
+                'suma otros valores explícitos',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  25,
+                  0,
+                ]),
+
+              expected:
+                25,
+
+              call:
+                'calcular(...input)',
+
+              description:
+                'conserva impuesto cero explícito',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-mastery-checkpoint-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  '',
+                  25,
+                ]),
+
+              expected:
+                Object.freeze({
+                  nombre: '',
+                  edad: 25,
+                }),
+
+              call:
+                'crearPerfil(...input)',
+
+              description:
+                'conserva un nombre vacío porque no es undefined',
+            }),
+
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                Object.freeze({
+                  nombre: 'Invitado',
+                  edad: 40,
+                }),
+
+              call:
+                'crearPerfil(undefined, 40)',
+
+              description:
+                'aplica el default de nombre solo cuando falta',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-mastery-consistent-return-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze([
+                    Object.freeze({
+                      id: 1,
+                      nombre: 'Ana',
+                    }),
+                    Object.freeze({
+                      id: 2,
+                      nombre: 'Lin',
+                    }),
+                  ]),
+                  2,
+                ]),
+
+              expected:
+                Object.freeze({
+                  id: 2,
+                  nombre: 'Lin',
+                }),
+
+              call:
+                'buscarUsuario(...input)',
+
+              description:
+                'encuentra una coincidencia fuera de la primera posición',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze([
+                    Object.freeze({
+                      id: 1,
+                      nombre: 'Ana',
+                    }),
+                  ]),
+                  9,
+                ]),
+
+              expected:
+                null,
+
+              call:
+                'buscarUsuario(...input)',
+
+              description:
+                'devuelve null cuando falta el id en un array no vacío',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-mastery-contracts-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  5,
+                  false,
+                ]),
+
+              expected:
+                Object.freeze({
+                  reintentos: 5,
+                  silencioso: false,
+                }),
+
+              call:
+                'configurar(...input)',
+
+              description:
+                'conserva false junto a un número no cero',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  0,
+                  true,
+                ]),
+
+              expected:
+                Object.freeze({
+                  reintentos: 0,
+                  silencioso: true,
+                }),
+
+              call:
+                'configurar(...input)',
+
+              description:
+                'conserva cero junto a true',
+            }),
+
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                Object.freeze({
+                  reintentos: 3,
+                  silencioso: false,
+                }),
+
+              call:
+                'configurar(undefined, false)',
+
+              description:
+                'aplica default solo al argumento realmente ausente',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
         'js-arrays-filter-mutation-01',
         'step-4',
       ),

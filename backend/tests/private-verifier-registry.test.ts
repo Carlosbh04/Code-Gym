@@ -259,6 +259,72 @@ describe(
     );
 
     it(
+      'resolves hidden cases for the functions hardening set',
+      () => {
+        const targets = [
+          [
+            'js-functions-coding-format-name-01',
+            'step-1',
+            2,
+          ],
+          [
+            'js-functions-deepening-checkpoint-01',
+            'step-1',
+            2,
+          ],
+          [
+            'js-functions-foundation-checkpoint-01',
+            'step-1',
+            2,
+          ],
+          [
+            'js-functions-mastery-checkpoint-01',
+            'step-1',
+            2,
+          ],
+          [
+            'js-functions-mastery-consistent-return-01',
+            'step-1',
+            2,
+          ],
+          [
+            'js-functions-mastery-contracts-01',
+            'step-1',
+            3,
+          ],
+        ] as const;
+
+        for (
+          const [
+            sessionId,
+            exerciseId,
+            hiddenCaseCount,
+          ] of targets
+        ) {
+          const config =
+            resolvePrivateVerifierConfig(
+              sessionId,
+              exerciseId,
+            );
+
+          expect(
+            config.hiddenTestCases,
+          ).toHaveLength(
+            hiddenCaseCount,
+          );
+
+          expect(
+            config.pedagogicalRequirements,
+          ).toEqual([]);
+
+          expect(
+            config.oracle,
+          ).toBeNull();
+        }
+      },
+    );
+
+    it(
       'does not allow another exercise to inherit the registered verifier config',
       () => {
         const config =
