@@ -95,7 +95,9 @@
       "stepOrder": 3
     }
   ],
-  "position": 0,
+  "position": 1,
   "passingPercentage": null,
-  "requiredForProgression": true
+  "requiredForProgression": true,
+  "kind": "practice",
+  "levelId": "foundation"
 }

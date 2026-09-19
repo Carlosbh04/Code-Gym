@@ -16,10 +16,26 @@
       "code": "const [primero, , tercero] = ['rojo', 'verde', 'azul'];\nconsole.log(primero, tercero);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "rojo azul", "correct": true },
-        { "id": "b", "text": "rojo verde", "correct": false },
-        { "id": "c", "text": "verde azul", "correct": false },
-        { "id": "d", "text": "Error", "correct": false }
+        {
+          "id": "a",
+          "text": "rojo azul",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "rojo verde",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "verde azul",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
@@ -39,10 +55,26 @@
       "code": "const { nombre = 'anónimo', rol = 'lector' } = { nombre: 'Ada' };\nconsole.log(`${nombre}: ${rol}`);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "Ada: lector", "correct": true },
-        { "id": "b", "text": "anónimo: lector", "correct": false },
-        { "id": "c", "text": "Ada: undefined", "correct": false },
-        { "id": "d", "text": "Error", "correct": false }
+        {
+          "id": "a",
+          "text": "Ada: lector",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "anónimo: lector",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Ada: undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
@@ -62,12 +94,30 @@
       "code": "function presentar(datos) {\n  const { nombre } = datos;\n  return nombre.toUpperCase();\n}\nconsole.log(presentar(['ada']));",
       "language": "javascript",
       "options": [
-        { "id": "conceptual", "text": "Conceptual: un array debe desestructurarse con corchetes", "correct": true },
-        { "id": "scope", "text": "Scope: nombre debe declararse fuera de la función", "correct": false },
-        { "id": "flujo", "text": "Flujo: sobra el return", "correct": false },
-        { "id": "mutacion", "text": "Mutación: toUpperCase altera el array", "correct": false }
+        {
+          "id": "conceptual",
+          "text": "Conceptual: un array debe desestructurarse con corchetes",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: nombre debe declararse fuera de la función",
+          "correct": false
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: sobra el return",
+          "correct": false
+        },
+        {
+          "id": "mutacion",
+          "text": "Mutación: toUpperCase altera el array",
+          "correct": false
+        }
       ],
-      "errorLines": [2],
+      "errorLines": [
+        2
+      ],
       "errorType": "conceptual",
       "testCases": null,
       "expectedPatterns": null,
@@ -88,8 +138,24 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": [3, 4], "expected": 7, "call": "sumarCoordenadas(input)", "description": "suma dos coordenadas" },
-        { "input": [0, 5], "expected": 5, "call": "sumarCoordenadas(input)", "description": "conserva el cero" }
+        {
+          "input": [
+            3,
+            4
+          ],
+          "expected": 7,
+          "call": "sumarCoordenadas(input)",
+          "description": "suma dos coordenadas"
+        },
+        {
+          "input": [
+            0,
+            5
+          ],
+          "expected": 5,
+          "call": "sumarCoordenadas(input)",
+          "description": "conserva el cero"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Como coordenadas es un array, usa const [x, y] = coordenadas para extraer sus posiciones.",
@@ -99,5 +165,10 @@
       ],
       "stepOrder": 4
     }
-  ]
+  ],
+  "position": 2,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
 }

@@ -1,0 +1,94 @@
+{
+  "id": "js-errors-foundation-checkpoint-01",
+  "title": "Checkpoint: lanzar, capturar y limpiar",
+  "difficulty": "beginner",
+  "position": 5,
+  "kind": "checkpoint",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué orden se imprime?",
+      "code": "try {\n  console.log('inicio');\n  throw new Error('x');\n} catch {\n  console.log('catch');\n} finally {\n  console.log('finally');\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "inicio, catch, finally",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "inicio, finally, catch",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "catch, finally",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "inicio solamente",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El error salta a catch y después se ejecuta finally.",
+      "hints": [
+        "Sigue el flujo try → catch → finally."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "Un recurso debe cerrarse incluso si una operación falla. ¿Dónde debe colocarse la limpieza?",
+      "code": "try {\n  guardar();\n} catch (error) {\n  throw error;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Antes de try",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Dentro de finally",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "Después de throw dentro de catch",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Dentro de Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "finally garantiza la limpieza tanto en éxito como en error.",
+      "hints": [
+        "La limpieza no debe depender del camino tomado."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "js-variables-foundation-checkpoint-01",
+  "title": "Checkpoint: variables con let y const",
+  "difficulty": "beginner",
+  "position": 2,
+  "kind": "checkpoint",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-variables-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Quieres guardar un total que irá cambiando. ¿Qué declaración representa mejor esa intención?",
+      "code": "/* El total cambiará durante el programa. */",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "const total = 0",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "let total = 0",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "const let total = 0",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "total const = 0",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "let es apropiado cuando el binding necesita reasignarse.",
+      "hints": [
+        "La clave es que el valor cambiará."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime el programa?",
+      "code": "const nombre = 'Ada';\nlet puntos = 2;\npuntos = puntos + 3;\nconsole.log(nombre, puntos);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ada 2",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Ada 3",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Ada 5",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "nombre conserva su binding y puntos se reasigna de 2 a 5.",
+      "hints": [
+        "Calcula primero el nuevo valor de puntos."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

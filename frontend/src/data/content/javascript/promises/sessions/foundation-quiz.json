@@ -1,0 +1,132 @@
+{
+  "id": "js-promises-foundation-quiz-01",
+  "title": "Test: promesas y flujo asíncrono",
+  "difficulty": "beginner",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "foundation",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué recibe el segundo then?",
+      "code": "Promise.resolve(2)\n  .then((n) => n * 3)\n  .then((valor) => console.log(valor));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "2",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "3",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "6",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada then recibe el valor retornado por el anterior.",
+      "hints": [
+        "Sigue la cadena de izquierda a derecha."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "Promise.reject(new Error('x'))\n  .catch(() => 5)\n  .then((valor) => console.log(valor));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "x",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "5",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Nada",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "catch puede recuperar la cadena devolviendo un nuevo valor.",
+      "hints": [
+        "Después del catch la promesa vuelve a estar resuelta."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "Dentro de una función async, ¿qué hace await?",
+      "code": "const valor = await obtenerValor();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Convierte siempre el resultado en error",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Espera el valor resuelto antes de continuar",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "Bloquea todo JavaScript permanentemente",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Cancela la promesa",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "await suspende esa función async hasta que la promesa se resuelva o rechace.",
+      "hints": [
+        "La espera afecta al flujo de esa función async."
+      ],
+      "stepOrder": 3
+    }
+  ]
+}

@@ -140,7 +140,11 @@
       "testCases": [
         {
           "input": null,
-          "expected": [0, 1, 2],
+          "expected": [
+            0,
+            1,
+            2
+          ],
           "call": "crearMarcadores().map((f) => f())",
           "description": "cada función devuelve su propia vuelta del bucle"
         },
@@ -171,5 +175,10 @@
       ],
       "stepOrder": 4
     }
-  ]
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
 }

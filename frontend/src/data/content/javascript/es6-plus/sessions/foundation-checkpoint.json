@@ -1,0 +1,94 @@
+{
+  "id": "js-es6-foundation-checkpoint-01",
+  "title": "Checkpoint: sintaxis moderna",
+  "difficulty": "beginner",
+  "position": 5,
+  "kind": "checkpoint",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const datos = { nombre: 'Lin', edad: 30 };\nconst { nombre, ...resto } = datos;\nconsole.log(nombre, resto.edad);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Lin 30",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Lin undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined 30",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La destructuración extrae nombre y rest conserva las propiedades restantes.",
+      "hints": [
+        "resto contiene edad."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "Quieres conservar false, 0 y ''. ¿Qué operador debes usar para un valor por defecto solo cuando falte el dato?",
+      "code": "const salida = valor /* operador */ 'por defecto';",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "||",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "&&",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "??",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "===",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Nullish coalescing distingue ausencia de otros valores falsy válidos.",
+      "hints": [
+        "La sustitución solo debe ocurrir con null o undefined."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

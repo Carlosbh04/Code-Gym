@@ -1,0 +1,94 @@
+{
+  "id": "js-closures-foundation-checkpoint-01",
+  "title": "Checkpoint: closures y estado",
+  "difficulty": "beginner",
+  "position": 5,
+  "kind": "checkpoint",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué valor devuelve leer después de dos incrementos?",
+      "code": "function crearEstado() {\n  let valor = 0;\n  return {\n    subir() { valor += 1; },\n    leer() { return valor; }\n  };\n}\nconst estado = crearEstado();\nestado.subir();\nestado.subir();\nconsole.log(estado.leer());",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "1",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "2",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Ambos métodos cierran sobre el mismo binding valor.",
+      "hints": [
+        "subir y leer comparten el mismo entorno."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Qué cambio evita que varios contadores compartan accidentalmente el mismo estado?",
+      "code": "let total = 0;\nfunction crearContador() {\n  return () => ++total;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Mover total dentro de crearContador",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Cambiar let por var global",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Eliminar el return",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Usar console.log",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El estado privado debe crearse dentro de cada invocación de la fábrica.",
+      "hints": [
+        "Busca dónde nace el binding compartido."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

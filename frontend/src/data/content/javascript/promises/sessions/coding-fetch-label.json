@@ -1,1 +1,53 @@
-{"id":"js-promises-coding-fetch-label-01","title":"Taller: resolver una etiqueta","difficulty":"intermediate","conceptId":"js-promise-flow","technologyId":"javascript","version":"1.1.0","status":"published","createdAt":"2026-09-04","updatedAt":null,"steps":[{"id":"step-1","type":"fix-code","prompt":"Implementa etiquetaUsuario. Debe esperar una Promise de usuario y devolver el saludo Hola, seguido de su nombre.","code":"async function etiquetaUsuario(usuarioPromise) {\n  // Espera el usuario y devuelve su etiqueta\n}\n","language":"javascript","options":null,"errorLines":null,"errorType":null,"testCases":[{"input":{"nombre":"Ada"},"expected":"Hola, Ada","call":"etiquetaUsuario(Promise.resolve(input))","description":"espera el usuario resuelto"},{"input":{"nombre":"Lin"},"expected":"Hola, Lin","call":"etiquetaUsuario(Promise.resolve(input))","description":"usa el nombre recibido"}],"expectedPatterns":null,"explanation":"await obtiene el objeto resuelto antes de interpolar su nombre. El Worker espera el resultado Promise real.","hints":["La función ya es async.","Usa await antes de leer nombre."],"stepOrder":1}]}
+{
+  "id": "js-promises-coding-fetch-label-01",
+  "title": "Taller: resolver una etiqueta",
+  "difficulty": "intermediate",
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-04",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "fix-code",
+      "prompt": "Implementa etiquetaUsuario. Debe esperar una Promise de usuario y devolver el saludo Hola, seguido de su nombre.",
+      "code": "async function etiquetaUsuario(usuarioPromise) {\n  // Espera el usuario y devuelve su etiqueta\n}\n",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "nombre": "Ada"
+          },
+          "expected": "Hola, Ada",
+          "call": "etiquetaUsuario(Promise.resolve(input))",
+          "description": "espera el usuario resuelto"
+        },
+        {
+          "input": {
+            "nombre": "Lin"
+          },
+          "expected": "Hola, Lin",
+          "call": "etiquetaUsuario(Promise.resolve(input))",
+          "description": "usa el nombre recibido"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "await obtiene el objeto resuelto antes de interpolar su nombre. El Worker espera el resultado Promise real.",
+      "hints": [
+        "La función ya es async.",
+        "Usa await antes de leer nombre."
+      ],
+      "stepOrder": 1
+    }
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

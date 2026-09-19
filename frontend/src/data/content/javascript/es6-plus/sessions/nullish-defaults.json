@@ -16,10 +16,26 @@
       "code": "const configuracion = { reintentos: 0 };\nconst maximo = configuracion.reintentos || 3;\nconsole.log(maximo);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "3", "correct": true },
-        { "id": "b", "text": "0", "correct": false },
-        { "id": "c", "text": "undefined", "correct": false },
-        { "id": "d", "text": "Error", "correct": false }
+        {
+          "id": "a",
+          "text": "3",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
@@ -39,10 +55,26 @@
       "code": "const usuario = {};\nconsole.log(usuario.perfil?.nombre ?? 'Invitado');",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "Invitado", "correct": true },
-        { "id": "b", "text": "undefined", "correct": false },
-        { "id": "c", "text": "Error", "correct": false },
-        { "id": "d", "text": "null", "correct": false }
+        {
+          "id": "a",
+          "text": "Invitado",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "null",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
@@ -62,12 +94,30 @@
       "code": "function ciudadDe(usuario) {\n  return usuario.direccion.ciudad ?? 'sin ciudad';\n}\nconsole.log(ciudadDe({}));",
       "language": "javascript",
       "options": [
-        { "id": "conceptual", "text": "Conceptual: falta optional chaining antes de ciudad", "correct": true },
-        { "id": "scope", "text": "Scope: usuario debe declararse global", "correct": false },
-        { "id": "flujo", "text": "Flujo: el fallback debe ir antes del return", "correct": false },
-        { "id": "mutacion", "text": "Mutación: ?? modifica al usuario", "correct": false }
+        {
+          "id": "conceptual",
+          "text": "Conceptual: falta optional chaining antes de ciudad",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: usuario debe declararse global",
+          "correct": false
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: el fallback debe ir antes del return",
+          "correct": false
+        },
+        {
+          "id": "mutacion",
+          "text": "Mutación: ?? modifica al usuario",
+          "correct": false
+        }
       ],
-      "errorLines": [2],
+      "errorLines": [
+        2
+      ],
       "errorType": "conceptual",
       "testCases": null,
       "expectedPatterns": null,
@@ -88,9 +138,24 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": "", "expected": "", "call": "etiqueta(input)", "description": "conserva una cadena vacía" },
-        { "input": null, "expected": "sin etiqueta", "call": "etiqueta(input)", "description": "cubre un valor ausente" },
-        { "input": "personal", "expected": "personal", "call": "etiqueta(input)", "description": "conserva un valor definido" }
+        {
+          "input": "",
+          "expected": "",
+          "call": "etiqueta(input)",
+          "description": "conserva una cadena vacía"
+        },
+        {
+          "input": null,
+          "expected": "sin etiqueta",
+          "call": "etiqueta(input)",
+          "description": "cubre un valor ausente"
+        },
+        {
+          "input": "personal",
+          "expected": "personal",
+          "call": "etiqueta(input)",
+          "description": "conserva un valor definido"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Usa valor ?? 'sin etiqueta': ?? solo reemplaza null y undefined, no una cadena vacía válida.",
@@ -100,5 +165,10 @@
       ],
       "stepOrder": 4
     }
-  ]
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
 }

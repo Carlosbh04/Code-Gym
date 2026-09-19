@@ -1,0 +1,132 @@
+{
+  "id": "js-objects-foundation-quiz-01",
+  "title": "Test: objetos y referencias",
+  "difficulty": "beginner",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "foundation",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const a = { activo: false };\nconst b = a;\nb.activo = true;\nconsole.log(a.activo);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "true",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "a y b apuntan al mismo objeto.",
+      "hints": [
+        "No se creó una copia."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "La clave está almacenada en una variable. ¿Qué acceso es correcto?",
+      "code": "const clave = 'nombre';\nconst usuario = { nombre: 'Ada' };",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "usuario.clave",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "usuario[clave]",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "usuario->clave",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "usuario::clave",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los corchetes evalúan el valor de la variable clave.",
+      "hints": [
+        "El punto buscaría literalmente la propiedad clave."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué devuelve Object.entries(objeto)?",
+      "code": "const usuario = { nombre: 'Ada', edad: 30 };",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Solo las claves",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Solo los valores",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Pares [clave, valor]",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "Una copia profunda",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Object.entries produce un array de pares clave-valor.",
+      "hints": [
+        "Cada elemento contiene dos posiciones."
+      ],
+      "stepOrder": 3
+    }
+  ]
+}

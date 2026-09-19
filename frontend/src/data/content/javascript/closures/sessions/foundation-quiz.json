@@ -1,0 +1,132 @@
+{
+  "id": "js-closures-foundation-quiz-01",
+  "title": "Test: fundamentos de closures",
+  "difficulty": "beginner",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "foundation",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime este código?",
+      "code": "function crear() {\n  let total = 0;\n  return () => ++total;\n}\nconst contar = crear();\nconsole.log(contar(), contar());",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "1 1",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "1 2",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "2 2",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La función retornada conserva acceso al mismo binding total.",
+      "hints": [
+        "total no desaparece cuando crear termina."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Qué describe mejor un closure?",
+      "code": "function exterior() {\n  const valor = 10;\n  return () => valor;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una copia del código exterior",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Una función que conserva acceso a bindings de su entorno",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "Una variable global",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Una función que solo puede ejecutarse una vez",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Un closure mantiene acceso léxico a los bindings del entorno donde nació.",
+      "hints": [
+        "Piensa en alcance léxico."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "Dos closures independientes se crean con la misma fábrica. ¿Qué imprime?",
+      "code": "function crear() {\n  let n = 0;\n  return () => ++n;\n}\nconst a = crear();\nconst b = crear();\nconsole.log(a(), b());",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "1 2",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "1 1",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "2 2",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "0 0",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada llamada a crear produce un entorno independiente.",
+      "hints": [
+        "Cada closure tiene su propio n."
+      ],
+      "stepOrder": 3
+    }
+  ]
+}

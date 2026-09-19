@@ -1,0 +1,132 @@
+{
+  "id": "js-variables-foundation-quiz-01",
+  "title": "Test: variables con let y const",
+  "difficulty": "beginner",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "foundation",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-variables-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué declaración debes preferir cuando el valor no necesita reasignarse?",
+      "code": "const nombre = 'Ana';",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "var",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "let",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "const",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "Ninguna",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "const expresa que el binding no será reasignado.",
+      "hints": [
+        "Piensa en la intención que comunica cada declaración."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué valor termina teniendo contador?",
+      "code": "let contador = 1;\ncontador = 3;\nconsole.log(contador);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "1",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "3",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "let permite reasignar el valor de la variable.",
+      "hints": [
+        "Observa la última asignación."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué ocurre al ejecutar este código?",
+      "code": "const edad = 25;\nedad = 26;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "edad pasa a valer 26",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "edad pasa a valer undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Se produce un error al reasignar const",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "const se convierte en let",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Una variable declarada con const no puede recibir otra asignación.",
+      "hints": [
+        "Fíjate en cómo se declaró edad."
+      ],
+      "stepOrder": 3
+    }
+  ]
+}

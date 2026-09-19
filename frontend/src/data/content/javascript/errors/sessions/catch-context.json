@@ -1,1 +1,168 @@
-{"id":"js-errors-catch-context-01","title":"Capturar sin perder el fallo","difficulty":"intermediate","conceptId":"js-error-handling","technologyId":"javascript","version":"1.0.0","status":"published","createdAt":"2026-09-03","updatedAt":null,"steps":[{"id":"step-1","type":"code-reading","prompt":"¿Qué imprime?","code":"try {\n  JSON.parse('{ roto }');\n} catch (error) {\n  console.log(error instanceof SyntaxError);\n}","language":"javascript","options":[{"id":"a","text":"true","correct":true},{"id":"b","text":"false","correct":false},{"id":"c","text":"undefined","correct":false},{"id":"d","text":"Error sin capturar","correct":false}],"errorLines":null,"errorType":null,"testCases":null,"expectedPatterns":null,"explanation":"JSON.parse lanza SyntaxError ante JSON inválido y catch lo recibe.","hints":["El texto no es JSON válido.","El catch permite inspeccionar el error."],"stepOrder":1},{"id":"step-2","type":"predict-output","prompt":"¿Qué imprime?","code":"function cargar() {\n  try { throw new Error('archivo ausente'); }\n  catch (error) { return `No se pudo cargar: ${error.message}`; }\n}\nconsole.log(cargar());","language":"javascript","options":[{"id":"a","text":"No se pudo cargar: archivo ausente","correct":true},{"id":"b","text":"archivo ausente","correct":false},{"id":"c","text":"undefined","correct":false},{"id":"d","text":"Error sin capturar","correct":false}],"errorLines":null,"errorType":null,"testCases":null,"expectedPatterns":null,"explanation":"catch transforma el mensaje del Error en un resultado con contexto para esta frontera concreta.","hints":["El return está dentro de catch.","error.message conserva el texto lanzado."],"stepOrder":2},{"id":"step-3","type":"find-error","prompt":"procesar añade contexto, pero está ocultando el error al llamador. Localiza el error.","code":"function procesar() {\n  try { return JSON.parse('{ rota }'); }\n  catch (error) { return null; }\n}","language":"javascript","options":[{"id":"flujo","text":"Flujo: catch debe propagar el error si el llamador necesita saber que falló","correct":true},{"id":"scope","text":"Scope: error debe declararse fuera","correct":false},{"id":"mutacion","text":"Mutación: JSON.parse altera el texto","correct":false},{"id":"conceptual","text":"Conceptual: try no puede contener return","correct":false}],"errorLines":[3],"errorType":"flujo","testCases":null,"expectedPatterns":null,"explanation":"Devolver null borra la causa del fallo. Si procesar no puede recuperarlo, debe volver a lanzar un error con contexto.","hints":["¿Puede null ser también un resultado esperado?","Si no hay recuperación, vuelve a lanzar el fallo."],"stepOrder":3},{"id":"step-4","type":"fix-code","prompt":"Corrige analizar para convertir errores de JSON en un Error con contexto.","code":"function analizar(texto) {\n  try { return JSON.parse(texto); }\n  catch (error) { return {}; }\n}","language":"javascript","options":null,"errorLines":null,"errorType":null,"testCases":[{"input":"{\"ok\":true}","expected":true,"call":"analizar(input).ok","description":"parsea JSON válido"},{"input":"{ roto }","expected":"Error","call":"(() => { try { analizar(input); return 'sin error'; } catch (error) { return error.name; } })()","description":"propaga JSON inválido"}],"expectedPatterns":null,"explanation":"En catch lanza un Error (por ejemplo, new Error('JSON inválido')) en vez de inventar un objeto vacío.","hints":["Un objeto vacío parece una respuesta correcta.","Sustituye el return de catch por throw new Error(...)."],"stepOrder":4}]}
+{
+  "id": "js-errors-catch-context-01",
+  "title": "Capturar sin perder el fallo",
+  "difficulty": "intermediate",
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué imprime?",
+      "code": "try {\n  JSON.parse('{ roto }');\n} catch (error) {\n  console.log(error instanceof SyntaxError);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "true",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error sin capturar",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "JSON.parse lanza SyntaxError ante JSON inválido y catch lo recibe.",
+      "hints": [
+        "El texto no es JSON válido.",
+        "El catch permite inspeccionar el error."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "function cargar() {\n  try { throw new Error('archivo ausente'); }\n  catch (error) { return `No se pudo cargar: ${error.message}`; }\n}\nconsole.log(cargar());",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "No se pudo cargar: archivo ausente",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "archivo ausente",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error sin capturar",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "catch transforma el mensaje del Error en un resultado con contexto para esta frontera concreta.",
+      "hints": [
+        "El return está dentro de catch.",
+        "error.message conserva el texto lanzado."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "procesar añade contexto, pero está ocultando el error al llamador. Localiza el error.",
+      "code": "function procesar() {\n  try { return JSON.parse('{ rota }'); }\n  catch (error) { return null; }\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "flujo",
+          "text": "Flujo: catch debe propagar el error si el llamador necesita saber que falló",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: error debe declararse fuera",
+          "correct": false
+        },
+        {
+          "id": "mutacion",
+          "text": "Mutación: JSON.parse altera el texto",
+          "correct": false
+        },
+        {
+          "id": "conceptual",
+          "text": "Conceptual: try no puede contener return",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Devolver null borra la causa del fallo. Si procesar no puede recuperarlo, debe volver a lanzar un error con contexto.",
+      "hints": [
+        "¿Puede null ser también un resultado esperado?",
+        "Si no hay recuperación, vuelve a lanzar el fallo."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige analizar para convertir errores de JSON en un Error con contexto.",
+      "code": "function analizar(texto) {\n  try { return JSON.parse(texto); }\n  catch (error) { return {}; }\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": "{\"ok\":true}",
+          "expected": true,
+          "call": "analizar(input).ok",
+          "description": "parsea JSON válido"
+        },
+        {
+          "input": "{ roto }",
+          "expected": "Error",
+          "call": "(() => { try { analizar(input); return 'sin error'; } catch (error) { return error.name; } })()",
+          "description": "propaga JSON inválido"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "En catch lanza un Error (por ejemplo, new Error('JSON inválido')) en vez de inventar un objeto vacío.",
+      "hints": [
+        "Un objeto vacío parece una respuesta correcta.",
+        "Sustituye el return de catch por throw new Error(...)."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

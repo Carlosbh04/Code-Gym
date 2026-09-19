@@ -1,1 +1,56 @@
-{"id":"js-closures-coding-counter-01","title":"Taller: contador privado","difficulty":"intermediate","conceptId":"js-closure-basics","technologyId":"javascript","version":"1.1.0","status":"published","createdAt":"2026-09-04","updatedAt":null,"steps":[{"id":"step-1","type":"fix-code","prompt":"Implementa crearContador. Debe devolver una función que incremente un contador privado cada vez que se llama.","code":"function crearContador() {\n  // Guarda aquí el estado privado\n  return function () {\n    // Incrementa y devuelve el contador\n  };\n}\n","language":"javascript","options":null,"errorLines":null,"errorType":null,"testCases":[{"input":null,"expected":[1,2,3],"call":"(() => { const contar = crearContador(); return [contar(), contar(), contar()]; })()","description":"conserva el estado entre llamadas"},{"input":null,"expected":[1,1],"call":"(() => { const a = crearContador(); const b = crearContador(); return [a(), b()]; })()","description":"cada closure conserva su estado privado"}],"expectedPatterns":null,"explanation":"Declara una variable dentro de crearContador y devuélvela tras incrementarla desde la función interna.","hints":["La variable debe vivir fuera de la función devuelta.","El closure conserva ese ámbito."],"stepOrder":1}]}
+{
+  "id": "js-closures-coding-counter-01",
+  "title": "Taller: contador privado",
+  "difficulty": "intermediate",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-04",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "fix-code",
+      "prompt": "Implementa crearContador. Debe devolver una función que incremente un contador privado cada vez que se llama.",
+      "code": "function crearContador() {\n  // Guarda aquí el estado privado\n  return function () {\n    // Incrementa y devuelve el contador\n  };\n}\n",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": [
+            1,
+            2,
+            3
+          ],
+          "call": "(() => { const contar = crearContador(); return [contar(), contar(), contar()]; })()",
+          "description": "conserva el estado entre llamadas"
+        },
+        {
+          "input": null,
+          "expected": [
+            1,
+            1
+          ],
+          "call": "(() => { const a = crearContador(); const b = crearContador(); return [a(), b()]; })()",
+          "description": "cada closure conserva su estado privado"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Declara una variable dentro de crearContador y devuélvela tras incrementarla desde la función interna.",
+      "hints": [
+        "La variable debe vivir fuera de la función devuelta.",
+        "El closure conserva ese ámbito."
+      ],
+      "stepOrder": 1
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

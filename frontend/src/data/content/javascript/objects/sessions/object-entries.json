@@ -1,1 +1,171 @@
-{"id":"js-objects-object-entries-01","title":"Recorrer claves y valores","difficulty":"advanced","conceptId":"js-object-references","technologyId":"javascript","version":"1.0.0","status":"published","createdAt":"2026-09-03","updatedAt":null,"steps":[{"id":"step-1","type":"code-reading","prompt":"¿Qué devuelve Object.keys?","code":"const estado = { listo: true, intentos: 2 };\nconsole.log(Object.keys(estado));","language":"javascript","options":[{"id":"a","text":"['listo', 'intentos']","correct":true},{"id":"b","text":"[true, 2]","correct":false},{"id":"c","text":"Un objeto nuevo","correct":false},{"id":"d","text":"undefined","correct":false}],"errorLines":null,"errorType":null,"testCases":null,"expectedPatterns":null,"explanation":"Object.keys devuelve un array de nombres de propiedades propias.","hints":["keys significa claves.","No devuelve valores."],"stepOrder":1},{"id":"step-2","type":"predict-output","prompt":"¿Qué imprime?","code":"const notas = { ana: 8, leo: 9 };\nconsole.log(Object.values(notas).reduce((suma, n) => suma + n, 0));","language":"javascript","options":[{"id":"a","text":"17","correct":true},{"id":"b","text":"8","correct":false},{"id":"c","text":"2","correct":false},{"id":"d","text":"'ana leo'","correct":false}],"errorLines":null,"errorType":null,"testCases":null,"expectedPatterns":null,"explanation":"Object.values entrega [8, 9] y reduce los suma.","hints":["Primero identifica el array.","El acumulador empieza en cero."],"stepOrder":2},{"id":"step-3","type":"find-error","prompt":"El resultado contiene claves en vez de valores. Localiza el error.","code":"function sumar(notas) {\n  return Object.keys(notas).reduce((total, nota) => total + nota, 0);\n}","language":"javascript","options":[{"id":"logico","text":"Lógico: Object.keys devuelve strings; se necesitan valores","correct":true},{"id":"tipo","text":"Tipo: reduce no admite arrays","correct":false},{"id":"scope","text":"Scope: total no está declarado","correct":false},{"id":"mutacion","text":"Mutación: reduce altera notas","correct":false}],"errorLines":[2],"errorType":"logico","testCases":null,"expectedPatterns":null,"explanation":"Las claves son nombres; para sumar notas hay que usar Object.values.","hints":["¿Qué contiene el array?","Se quieren números, no nombres."],"stepOrder":3},{"id":"step-4","type":"fix-code","prompt":"Corrige sumar para devolver la suma de las notas.","code":"function sumar(notas) {\n  return Object.keys(notas).reduce((total, nota) => total + nota, 0);\n}","language":"javascript","options":null,"errorLines":null,"errorType":null,"testCases":[{"input":{"ana":8,"leo":9},"expected":17,"call":"sumar(input)","description":"suma valores"},{"input":{},"expected":0,"call":"sumar(input)","description":"objeto vacío"}],"expectedPatterns":null,"explanation":"Object.values entrega las notas numéricas antes de reducirlas.","hints":["Cambia la fuente del array.","Usa los valores del objeto."],"stepOrder":4}]}
+{
+  "id": "js-objects-object-entries-01",
+  "title": "Recorrer claves y valores",
+  "difficulty": "advanced",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué devuelve Object.keys?",
+      "code": "const estado = { listo: true, intentos: 2 };\nconsole.log(Object.keys(estado));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "['listo', 'intentos']",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "[true, 2]",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Un objeto nuevo",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Object.keys devuelve un array de nombres de propiedades propias.",
+      "hints": [
+        "keys significa claves.",
+        "No devuelve valores."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const notas = { ana: 8, leo: 9 };\nconsole.log(Object.values(notas).reduce((suma, n) => suma + n, 0));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "17",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "8",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "2",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "'ana leo'",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Object.values entrega [8, 9] y reduce los suma.",
+      "hints": [
+        "Primero identifica el array.",
+        "El acumulador empieza en cero."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El resultado contiene claves en vez de valores. Localiza el error.",
+      "code": "function sumar(notas) {\n  return Object.keys(notas).reduce((total, nota) => total + nota, 0);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "logico",
+          "text": "Lógico: Object.keys devuelve strings; se necesitan valores",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: reduce no admite arrays",
+          "correct": false
+        },
+        {
+          "id": "scope",
+          "text": "Scope: total no está declarado",
+          "correct": false
+        },
+        {
+          "id": "mutacion",
+          "text": "Mutación: reduce altera notas",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "logico",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las claves son nombres; para sumar notas hay que usar Object.values.",
+      "hints": [
+        "¿Qué contiene el array?",
+        "Se quieren números, no nombres."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige sumar para devolver la suma de las notas.",
+      "code": "function sumar(notas) {\n  return Object.keys(notas).reduce((total, nota) => total + nota, 0);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "ana": 8,
+            "leo": 9
+          },
+          "expected": 17,
+          "call": "sumar(input)",
+          "description": "suma valores"
+        },
+        {
+          "input": {},
+          "expected": 0,
+          "call": "sumar(input)",
+          "description": "objeto vacío"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Object.values entrega las notas numéricas antes de reducirlas.",
+      "hints": [
+        "Cambia la fuente del array.",
+        "Usa los valores del objeto."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

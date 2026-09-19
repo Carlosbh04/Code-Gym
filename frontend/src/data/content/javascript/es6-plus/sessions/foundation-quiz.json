@@ -1,0 +1,132 @@
+{
+  "id": "js-es6-foundation-quiz-01",
+  "title": "Test: sintaxis moderna",
+  "difficulty": "beginner",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "foundation",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const usuario = { nombre: 'Ada' };\nconst { nombre } = usuario;\nconsole.log(nombre);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "usuario",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Ada",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "{ nombre: 'Ada' }",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La destructuración extrae la propiedad nombre.",
+      "hints": [
+        "Observa la propiedad incluida entre llaves."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Qué operador reúne argumentos restantes en un array?",
+      "code": "function sumar(/* completar */ numeros) {}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "...",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "??",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "?.",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "=>",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El parámetro rest utiliza tres puntos.",
+      "hints": [
+        "Es la misma sintaxis de tres puntos usada según contexto."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué valor obtiene resultado?",
+      "code": "const valor = 0;\nconst resultado = valor ?? 10;\nconsole.log(resultado);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "10",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "0",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "null",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "?? solo usa el valor alternativo para null o undefined.",
+      "hints": [
+        "0 es falsy, pero no es nullish."
+      ],
+      "stepOrder": 3
+    }
+  ]
+}

@@ -292,12 +292,14 @@ describe('StaticContentRepository (T019)', () => {
       },
     );
 
-    it('devuelve las 4 sesiones de Closures', async () => {
+    it('devuelve las 6 sesiones de Closures', async () => {
       const sessions = await repo.getSessionsByConcept(CLOSURES_CONCEPT);
 
-      expect(sessions).toHaveLength(4);
+      expect(sessions).toHaveLength(6);
       expect(sessions.map((s) => s.difficulty).sort()).toEqual([
         'advanced',
+        'beginner',
+        'beginner',
         'beginner',
         'intermediate',
         'intermediate',
@@ -305,41 +307,57 @@ describe('StaticContentRepository (T019)', () => {
       expect(sessions.every((s) => s.conceptId === CLOSURES_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 4 sesiones de Promises', async () => {
+    it('devuelve las 6 sesiones de Promises', async () => {
       const sessions = await repo.getSessionsByConcept(PROMISES_CONCEPT);
 
       expect(sessions.map((s) => s.id).sort()).toEqual([
-        'js-promises-await-value-01', 'js-promises-chain-transform-01', 'js-promises-coding-fetch-label-01',
+        'js-promises-await-value-01',
+        'js-promises-chain-transform-01',
+        'js-promises-coding-fetch-label-01',
         'js-promises-error-recovery-01',
+        'js-promises-foundation-checkpoint-01',
+        'js-promises-foundation-quiz-01',
       ]);
       expect(sessions.every((session) => session.conceptId === PROMISES_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 4 sesiones de Objects', async () => {
+    it('devuelve las 6 sesiones de Objects', async () => {
       const sessions = await repo.getSessionsByConcept(OBJECTS_CONCEPT);
 
-      expect(sessions).toHaveLength(4);
+      expect(sessions).toHaveLength(6);
+      expect(sessions.map((session) => session.id).sort()).toEqual([
+        'js-objects-coding-pick-01',
+        'js-objects-dynamic-properties-01',
+        'js-objects-foundation-checkpoint-01',
+        'js-objects-foundation-quiz-01',
+        'js-objects-object-entries-01',
+        'js-objects-shared-reference-01',
+      ]);
       expect(sessions.every((session) => session.conceptId === OBJECTS_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 4 sesiones de ES6+', async () => {
+    it('devuelve las 6 sesiones de ES6+', async () => {
       const sessions = await repo.getSessionsByConcept(ES6_PLUS_CONCEPT);
 
       expect(sessions.map((session) => session.id).sort()).toEqual([
         'js-es6-coding-unique-tags-01',
         'js-es6-destructuring-shapes-01',
+        'js-es6-foundation-checkpoint-01',
+        'js-es6-foundation-quiz-01',
         'js-es6-nullish-defaults-01',
         'js-es6-rest-arguments-01',
       ]);
       expect(sessions.every((session) => session.conceptId === ES6_PLUS_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 4 sesiones de Errors', async () => {
+    it('devuelve las 6 sesiones de Errors', async () => {
       const sessions = await repo.getSessionsByConcept(ERRORS_CONCEPT);
       expect(sessions.map((session) => session.id).sort()).toEqual([
         'js-errors-catch-context-01',
         'js-errors-coding-parse-number-01',
         'js-errors-finally-cleanup-01',
+        'js-errors-foundation-checkpoint-01',
+        'js-errors-foundation-quiz-01',
         'js-errors-throw-validation-01',
       ]);
     });
@@ -610,7 +628,7 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 50 sesiones de JavaScript conservan su contrato', async () => {
+    it('las 60 sesiones de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
@@ -621,8 +639,8 @@ describe('StaticContentRepository (T019)', () => {
         ...(await repo.getSessionsByConcept(ERRORS_CONCEPT)),
       ];
 
-      expect(all).toHaveLength(50);
-      expect(new Set(all.map((s) => s.id)).size).toBe(50);
+      expect(all).toHaveLength(60);
+      expect(new Set(all.map((s) => s.id)).size).toBe(60);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length >= 1)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);

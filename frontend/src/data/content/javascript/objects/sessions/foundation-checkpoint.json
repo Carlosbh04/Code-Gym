@@ -1,0 +1,94 @@
+{
+  "id": "js-objects-foundation-checkpoint-01",
+  "title": "Checkpoint: objetos, referencias y copias",
+  "difficulty": "beginner",
+  "position": 5,
+  "kind": "checkpoint",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const original = { total: 1 };\nconst copia = { ...original };\ncopia.total = 2;\nconsole.log(original.total, copia.total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "2 2",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "1 2",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "1 1",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El spread crea un nuevo objeto para propiedades de primer nivel.",
+      "hints": [
+        "original y copia ya no son el mismo contenedor."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Por qué esta copia sigue compartiendo perfil?",
+      "code": "const original = { perfil: { nombre: 'Ada' } };\nconst copia = { ...original };",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Porque spread solo copia superficialmente",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Porque const impide copiar",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Porque perfil es una variable global",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Porque Object.entries muta el objeto",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El spread es superficial: el objeto anidado conserva la misma referencia.",
+      "hints": [
+        "Distingue el contenedor externo del objeto anidado."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

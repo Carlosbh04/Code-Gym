@@ -1,0 +1,132 @@
+{
+  "id": "js-errors-foundation-quiz-01",
+  "title": "Test: manejo de errores",
+  "difficulty": "beginner",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "foundation",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué palabra clave se utiliza para lanzar explícitamente un error?",
+      "code": "if (!valor) {\n  /* completar */ new Error('Dato inválido');\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "catch",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "throw",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "finally",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "return",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "throw interrumpe el flujo normal y propaga el error.",
+      "hints": [
+        "No estás capturando el error: lo estás originando."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "try {\n  throw new Error('fallo');\n} catch {\n  console.log('capturado');\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "fallo",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "capturado",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Nada",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "catch recibe el control cuando try lanza una excepción.",
+      "hints": [
+        "El throw ocurre dentro del try."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Cuándo se ejecuta finally?",
+      "code": "try {\n  trabajar();\n} finally {\n  limpiar();\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Solo si trabajar tiene éxito",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Solo si trabajar falla",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Tanto si try termina bien como si falla",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "Nunca si existe return",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "finally se utiliza para limpieza que debe ejecutarse en ambos caminos.",
+      "hints": [
+        "Piensa en liberar recursos."
+      ],
+      "stepOrder": 3
+    }
+  ]
+}

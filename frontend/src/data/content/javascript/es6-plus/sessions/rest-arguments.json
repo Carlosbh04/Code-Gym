@@ -16,10 +16,26 @@
       "code": "function unir(separador, ...palabras) {\n  return palabras.join(separador);\n}\nconsole.log(unir('-', 'api', 'v1', 'users'));",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "api-v1-users", "correct": true },
-        { "id": "b", "text": "-api-v1-users", "correct": false },
-        { "id": "c", "text": "api, v1, users", "correct": false },
-        { "id": "d", "text": "Error", "correct": false }
+        {
+          "id": "a",
+          "text": "api-v1-users",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "-api-v1-users",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "api, v1, users",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
@@ -39,10 +55,26 @@
       "code": "const etiquetas = [...new Set(['api', 'api', 'web'])];\nconsole.log(etiquetas.join(', '));",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "api, web", "correct": true },
-        { "id": "b", "text": "api, api, web", "correct": false },
-        { "id": "c", "text": "[api, web]", "correct": false },
-        { "id": "d", "text": "Error", "correct": false }
+        {
+          "id": "a",
+          "text": "api, web",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "api, api, web",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "[api, web]",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
@@ -62,12 +94,30 @@
       "code": "function registrar(...eventos, nivel) {\n  return `${nivel}: ${eventos.length}`;\n}",
       "language": "javascript",
       "options": [
-        { "id": "conceptual", "text": "Conceptual: el parámetro rest debe ser el último", "correct": true },
-        { "id": "scope", "text": "Scope: nivel debe ser una variable global", "correct": false },
-        { "id": "flujo", "text": "Flujo: falta un else", "correct": false },
-        { "id": "estado", "text": "Estado: eventos no conserva su longitud", "correct": false }
+        {
+          "id": "conceptual",
+          "text": "Conceptual: el parámetro rest debe ser el último",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: nivel debe ser una variable global",
+          "correct": false
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: falta un else",
+          "correct": false
+        },
+        {
+          "id": "estado",
+          "text": "Estado: eventos no conserva su longitud",
+          "correct": false
+        }
       ],
-      "errorLines": [1],
+      "errorLines": [
+        1
+      ],
       "errorType": "conceptual",
       "testCases": null,
       "expectedPatterns": null,
@@ -88,8 +138,22 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": [2, 3, 5], "expected": 10, "call": "sumarTodos(...input)", "description": "suma varios argumentos" },
-        { "input": [], "expected": 0, "call": "sumarTodos(...input)", "description": "acepta cero argumentos" }
+        {
+          "input": [
+            2,
+            3,
+            5
+          ],
+          "expected": 10,
+          "call": "sumarTodos(...input)",
+          "description": "suma varios argumentos"
+        },
+        {
+          "input": [],
+          "expected": 0,
+          "call": "sumarTodos(...input)",
+          "description": "acepta cero argumentos"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Declara ...numeros para reunir los argumentos sueltos en el array que reduce necesita.",
@@ -99,5 +163,10 @@
       ],
       "stepOrder": 4
     }
-  ]
+  ],
+  "position": 4,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
 }

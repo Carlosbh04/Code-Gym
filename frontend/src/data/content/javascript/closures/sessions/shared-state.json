@@ -171,5 +171,10 @@
       ],
       "stepOrder": 4
     }
-  ]
+  ],
+  "position": 4,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
 }

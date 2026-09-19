@@ -1,0 +1,94 @@
+{
+  "id": "js-promises-foundation-checkpoint-01",
+  "title": "Checkpoint: flujo de promesas",
+  "difficulty": "beginner",
+  "position": 5,
+  "kind": "checkpoint",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime la cadena?",
+      "code": "Promise.resolve(3)\n  .then((n) => n + 1)\n  .then((n) => n * 2)\n  .then((n) => console.log(n));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "6",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "7",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "8",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La cadena transforma 3 → 4 → 8.",
+      "hints": [
+        "Cada then recibe el retorno anterior."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "Quieres convertir un rechazo en un valor de respaldo para continuar la cadena. ¿Dónde debes devolver ese valor?",
+      "code": "obtenerDatos()\n  .catch((error) => {\n    /* completar */\n  })\n  .then((datos) => usar(datos));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Dentro de catch",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Antes de obtenerDatos",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Dentro de new Error exclusivamente",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "No es posible recuperar una promesa",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Retornar un valor desde catch convierte la continuación en una resolución normal.",
+      "hints": [
+        "catch también puede producir el valor siguiente."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

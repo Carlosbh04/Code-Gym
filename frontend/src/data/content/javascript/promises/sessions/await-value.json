@@ -1,9 +1,162 @@
 {
-  "id":"js-promises-await-value-01","title":"Esperar antes de usar el valor","difficulty":"advanced","conceptId":"js-promise-flow","technologyId":"javascript","version":"1.0.0","status":"published","createdAt":"2026-09-03","updatedAt":null,
-  "steps":[
-    {"id":"step-1","type":"code-reading","prompt":"¿Qué devuelve leer?","code":"async function leer() {\n  const valor = await Promise.resolve(7);\n  return valor * 2;\n}\n\nconsole.log(leer());","language":"javascript","options":[{"id":"a","text":"Una Promise resuelta con 14","correct":true},{"id":"b","text":"14","correct":false},{"id":"c","text":"7","correct":false},{"id":"d","text":"undefined","correct":false}],"errorLines":null,"errorType":null,"testCases":null,"expectedPatterns":null,"explanation":"Una función async siempre devuelve Promise, incluso al retornar un número.","hints":["Observa la palabra async.","El 14 es el valor de resolución, no el retorno síncrono."],"stepOrder":1},
-    {"id":"step-2","type":"predict-output","prompt":"¿Qué imprime?","code":"async function etiqueta() {\n  const nombre = await Promise.resolve('Ada');\n  return `Hola ${nombre}`;\n}\n\netiqueta().then(console.log);","language":"javascript","options":[{"id":"a","text":"Hola Ada","correct":true},{"id":"b","text":"Promise { Hola Ada }","correct":false},{"id":"c","text":"Hola undefined","correct":false},{"id":"d","text":"Nada","correct":false}],"errorLines":null,"errorType":null,"testCases":null,"expectedPatterns":null,"explanation":"then recibe el valor con el que se resolvió la Promise devuelta por etiqueta.","hints":["await obtiene el nombre dentro de etiqueta.","then recibe el return de una async."],"stepOrder":2},
-    {"id":"step-3","type":"find-error","prompt":"La plantilla muestra [object Promise]. Localiza el error.","code":"async function mensaje() {\n  const nombre = Promise.resolve('Ada');\n  return `Hola ${nombre}`;\n}","language":"javascript","options":[{"id":"async","text":"Async: falta await antes de Promise.resolve","correct":true},{"id":"tipo","text":"Tipo: Ada debe ser número","correct":false},{"id":"scope","text":"Scope: nombre debe declararse fuera","correct":false},{"id":"flujo","text":"Flujo: sobra return","correct":false}],"errorLines":[2],"errorType":"async","testCases":null,"expectedPatterns":null,"explanation":"Sin await, nombre contiene la Promise, no la cadena resuelta.","hints":["¿Qué valor se asigna realmente a nombre?","async permite esperar la Promise con await."],"stepOrder":3},
-    {"id":"step-4","type":"fix-code","prompt":"Corrige mensaje para que resuelva con Hola Ada.","code":"async function mensaje() {\n  const nombre = Promise.resolve('Ada');\n  return `Hola ${nombre}`;\n}","language":"javascript","options":null,"errorLines":null,"errorType":null,"testCases":[{"input":null,"expected":"Hola Ada","call":"mensaje()","description":"espera el nombre"}],"expectedPatterns":null,"explanation":"Añade await: `const nombre = await Promise.resolve('Ada')`.","hints":["mensaje ya es async.","Espera la Promise antes de interpolarla."],"stepOrder":4}
-  ]
+  "id": "js-promises-await-value-01",
+  "title": "Esperar antes de usar el valor",
+  "difficulty": "advanced",
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué devuelve leer?",
+      "code": "async function leer() {\n  const valor = await Promise.resolve(7);\n  return valor * 2;\n}\n\nconsole.log(leer());",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una Promise resuelta con 14",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "14",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "7",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Una función async siempre devuelve Promise, incluso al retornar un número.",
+      "hints": [
+        "Observa la palabra async.",
+        "El 14 es el valor de resolución, no el retorno síncrono."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "async function etiqueta() {\n  const nombre = await Promise.resolve('Ada');\n  return `Hola ${nombre}`;\n}\n\netiqueta().then(console.log);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Hola Ada",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Promise { Hola Ada }",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Hola undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Nada",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "then recibe el valor con el que se resolvió la Promise devuelta por etiqueta.",
+      "hints": [
+        "await obtiene el nombre dentro de etiqueta.",
+        "then recibe el return de una async."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La plantilla muestra [object Promise]. Localiza el error.",
+      "code": "async function mensaje() {\n  const nombre = Promise.resolve('Ada');\n  return `Hola ${nombre}`;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "async",
+          "text": "Async: falta await antes de Promise.resolve",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: Ada debe ser número",
+          "correct": false
+        },
+        {
+          "id": "scope",
+          "text": "Scope: nombre debe declararse fuera",
+          "correct": false
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: sobra return",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "async",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Sin await, nombre contiene la Promise, no la cadena resuelta.",
+      "hints": [
+        "¿Qué valor se asigna realmente a nombre?",
+        "async permite esperar la Promise con await."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige mensaje para que resuelva con Hola Ada.",
+      "code": "async function mensaje() {\n  const nombre = Promise.resolve('Ada');\n  return `Hola ${nombre}`;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": "Hola Ada",
+          "call": "mensaje()",
+          "description": "espera el nombre"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Añade await: `const nombre = await Promise.resolve('Ada')`.",
+      "hints": [
+        "mensaje ya es async.",
+        "Espera la Promise antes de interpolarla."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
 }

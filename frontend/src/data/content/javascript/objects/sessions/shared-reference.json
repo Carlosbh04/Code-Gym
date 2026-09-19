@@ -1,1 +1,169 @@
-{"id":"js-objects-shared-reference-01","title":"Dos nombres, un mismo objeto","difficulty":"intermediate","conceptId":"js-object-references","technologyId":"javascript","version":"1.0.0","status":"published","createdAt":"2026-09-03","updatedAt":null,"steps":[{"id":"step-1","type":"code-reading","prompt":"¿Qué imprime?","code":"const a = { activo: false };\nconst b = a;\nb.activo = true;\nconsole.log(a.activo);","language":"javascript","options":[{"id":"a","text":"true","correct":true},{"id":"b","text":"false","correct":false},{"id":"c","text":"undefined","correct":false},{"id":"d","text":"Error","correct":false}],"errorLines":null,"errorType":null,"testCases":null,"expectedPatterns":null,"explanation":"a y b contienen la misma referencia, no dos objetos independientes.","hints":["No se creó ningún objeto nuevo.","Ambas variables apuntan al mismo valor."],"stepOrder":1},{"id":"step-2","type":"predict-output","prompt":"¿Qué imprime?","code":"const a = { total: 1 };\nconst b = { ...a };\nb.total = 2;\nconsole.log(a.total, b.total);","language":"javascript","options":[{"id":"a","text":"1 2","correct":true},{"id":"b","text":"2 2","correct":false},{"id":"c","text":"1 1","correct":false},{"id":"d","text":"Error","correct":false}],"errorLines":null,"errorType":null,"testCases":null,"expectedPatterns":null,"explanation":"El spread crea otro objeto para propiedades de primer nivel.","hints":["Spread crea un contenedor nuevo.","total no es anidado."],"stepOrder":2},{"id":"step-3","type":"find-error","prompt":"Se quería conservar el perfil original, pero cambiar la copia también lo altera. Localiza el error.","code":"const original = { perfil: { nombre: 'Ada' } };\nconst copia = { ...original };\ncopia.perfil.nombre = 'Lin';","language":"javascript","options":[{"id":"mutacion","text":"Mutación: spread no copia el objeto anidado perfil","correct":true},{"id":"tipo","text":"Tipo: nombre debe ser número","correct":false},{"id":"scope","text":"Scope: copia no existe","correct":false},{"id":"flujo","text":"Flujo: falta return","correct":false}],"errorLines":[3],"errorType":"mutacion","testCases":null,"expectedPatterns":null,"explanation":"perfil sigue siendo la misma referencia en ambos objetos.","hints":["¿Qué nivel copia el spread?","perfil también necesita una copia."],"stepOrder":3},{"id":"step-4","type":"fix-code","prompt":"Actualiza el nombre sin mutar el perfil original.","code":"function renombrar(usuario, nombre) {\n  usuario.perfil.nombre = nombre;\n  return usuario;\n}","language":"javascript","options":null,"errorLines":null,"errorType":null,"testCases":[{"input":[{"perfil":{"nombre":"Ada"}},"Lin"],"expected":"Lin|Ada","call":"(() => { const original = input[0]; const copia = renombrar(original, input[1]); return copia.perfil.nombre + '|' + original.perfil.nombre; })()","description":"crea copia sin mutar el original"}],"expectedPatterns":null,"explanation":"Copia usuario y perfil antes de cambiar nombre.","hints":["No escribas sobre usuario directamente.","Copia también perfil."],"stepOrder":4}]}
+{
+  "id": "js-objects-shared-reference-01",
+  "title": "Dos nombres, un mismo objeto",
+  "difficulty": "intermediate",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué imprime?",
+      "code": "const a = { activo: false };\nconst b = a;\nb.activo = true;\nconsole.log(a.activo);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "true",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "a y b contienen la misma referencia, no dos objetos independientes.",
+      "hints": [
+        "No se creó ningún objeto nuevo.",
+        "Ambas variables apuntan al mismo valor."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const a = { total: 1 };\nconst b = { ...a };\nb.total = 2;\nconsole.log(a.total, b.total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "1 2",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "2 2",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "1 1",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El spread crea otro objeto para propiedades de primer nivel.",
+      "hints": [
+        "Spread crea un contenedor nuevo.",
+        "total no es anidado."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Se quería conservar el perfil original, pero cambiar la copia también lo altera. Localiza el error.",
+      "code": "const original = { perfil: { nombre: 'Ada' } };\nconst copia = { ...original };\ncopia.perfil.nombre = 'Lin';",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "mutacion",
+          "text": "Mutación: spread no copia el objeto anidado perfil",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: nombre debe ser número",
+          "correct": false
+        },
+        {
+          "id": "scope",
+          "text": "Scope: copia no existe",
+          "correct": false
+        },
+        {
+          "id": "flujo",
+          "text": "Flujo: falta return",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "mutacion",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "perfil sigue siendo la misma referencia en ambos objetos.",
+      "hints": [
+        "¿Qué nivel copia el spread?",
+        "perfil también necesita una copia."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Actualiza el nombre sin mutar el perfil original.",
+      "code": "function renombrar(usuario, nombre) {\n  usuario.perfil.nombre = nombre;\n  return usuario;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            {
+              "perfil": {
+                "nombre": "Ada"
+              }
+            },
+            "Lin"
+          ],
+          "expected": "Lin|Ada",
+          "call": "(() => { const original = input[0]; const copia = renombrar(original, input[1]); return copia.perfil.nombre + '|' + original.perfil.nombre; })()",
+          "description": "crea copia sin mutar el original"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Copia usuario y perfil antes de cambiar nombre.",
+      "hints": [
+        "No escribas sobre usuario directamente.",
+        "Copia también perfil."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 4,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

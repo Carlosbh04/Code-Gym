@@ -1,1 +1,58 @@
-{"id":"js-es6-coding-unique-tags-01","title":"Taller: etiquetas únicas","difficulty":"beginner","conceptId":"js-es6-modern-syntax","technologyId":"javascript","version":"1.1.0","status":"published","createdAt":"2026-09-04","updatedAt":null,"steps":[{"id":"step-1","type":"fix-code","prompt":"Implementa etiquetasUnicas. Debe devolver las etiquetas sin repetidos, conservando el primer orden de aparición.","code":"function etiquetasUnicas(etiquetas) {\n  // Usa sintaxis moderna para quitar duplicados\n}\n","language":"javascript","options":null,"errorLines":null,"errorType":null,"testCases":[{"input":["api","web","api","docs"],"expected":["api","web","docs"],"call":"etiquetasUnicas(input)","description":"elimina etiquetas repetidas"},{"input":[],"expected":[],"call":"etiquetasUnicas(input)","description":"acepta un array vacío"}],"expectedPatterns":null,"explanation":"Set conserva un valor por elemento y el spread lo convierte de nuevo en array.","hints":["Set elimina duplicados.","El spread devuelve sus valores a un array."],"stepOrder":1}]}
+{
+  "id": "js-es6-coding-unique-tags-01",
+  "title": "Taller: etiquetas únicas",
+  "difficulty": "beginner",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-04",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "fix-code",
+      "prompt": "Implementa etiquetasUnicas. Debe devolver las etiquetas sin repetidos, conservando el primer orden de aparición.",
+      "code": "function etiquetasUnicas(etiquetas) {\n  // Usa sintaxis moderna para quitar duplicados\n}\n",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            "api",
+            "web",
+            "api",
+            "docs"
+          ],
+          "expected": [
+            "api",
+            "web",
+            "docs"
+          ],
+          "call": "etiquetasUnicas(input)",
+          "description": "elimina etiquetas repetidas"
+        },
+        {
+          "input": [],
+          "expected": [],
+          "call": "etiquetasUnicas(input)",
+          "description": "acepta un array vacío"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Set conserva un valor por elemento y el spread lo convierte de nuevo en array.",
+      "hints": [
+        "Set elimina duplicados.",
+        "El spread devuelve sus valores a un array."
+      ],
+      "stepOrder": 1
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}
