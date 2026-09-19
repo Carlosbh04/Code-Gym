@@ -22,6 +22,10 @@ import {
   type CodeExecutionResult,
   type CodeExecutionService,
 } from '../code-execution/code-execution-service.js';
+import {
+  combineVerificationResult,
+  evaluatePedagogicalRequirements,
+} from '../content/pedagogical-verifier.js';
 import type {
   TrainingRepository,
   TrainingRunRecord,
@@ -77,6 +81,12 @@ export interface TrainingRunView {
 }
 
 export interface TrainingAnswerResultView {
+  readonly verification: {
+    readonly functionalCorrect: boolean;
+    readonly pedagogicalRequirementsMet: boolean;
+    readonly overallPassed: boolean;
+    readonly feedback: readonly string[];
+  } | null;
   readonly attempt: {
     readonly id: string;
     readonly exerciseId: string;
@@ -386,6 +396,13 @@ export class TrainingService {
     let isCorrect: boolean;
     let executionResult:
       CodeExecutionResult | null = null;
+    let verificationResult:
+      {
+        readonly functionalCorrect: boolean;
+        readonly pedagogicalRequirementsMet: boolean;
+        readonly overallPassed: boolean;
+        readonly feedback: readonly string[];
+      } | null = null;
 
     if (
       verification.kind
@@ -407,8 +424,23 @@ export class TrainingService {
             reason: execution.reason,
           });
 
+        const pedagogicalResult =
+          evaluatePedagogicalRequirements(
+            verification.userCode,
+            verification.pedagogicalRequirements,
+          );
+
+        const combinedVerification =
+          combineVerificationResult(
+            executionResult.passed,
+            pedagogicalResult,
+          );
+
+        verificationResult =
+          combinedVerification;
+
         isCorrect =
-          executionResult.passed;
+          combinedVerification.overallPassed;
       } catch (error) {
         if (error instanceof CodeExecutionUnavailableError) {
           throw new TrainingCodeExecutionUnavailableError();
@@ -511,6 +543,26 @@ export class TrainingService {
     }
 
     return Object.freeze({
+      verification:
+        verificationResult === null
+          ? null
+          : Object.freeze({
+              functionalCorrect:
+                verificationResult.functionalCorrect,
+
+              pedagogicalRequirementsMet:
+                verificationResult
+                  .pedagogicalRequirementsMet,
+
+              overallPassed:
+                verificationResult.overallPassed,
+
+              feedback:
+                Object.freeze([
+                  ...verificationResult.feedback,
+                ]),
+            }),
+
       attempt: Object.freeze({
         id: recorded.attempt.id,
         exerciseId:

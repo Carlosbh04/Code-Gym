@@ -564,6 +564,163 @@ describe('useSession · pistas autoritativas', () => {
 });
 
 
+describe('useSession · veredicto fix-code autoritativo', () => {
+  it(
+    'no muestra passed cuando la ejecución funcional pasa pero el backend rechaza el ejercicio',
+    async () => {
+      const training =
+        new FakeTraining();
+
+      const view =
+        await hastaFixCode(
+          undefined,
+          undefined,
+          undefined,
+          training,
+        );
+
+      const originalSubmit =
+        training.value.submitAnswer;
+
+      training.value.submitAnswer =
+        async (
+          runId,
+          input,
+        ) => {
+          const result =
+            await originalSubmit(
+              runId,
+              input,
+            );
+
+          return {
+            ...result,
+
+            verification: {
+              functionalCorrect:
+                true,
+
+              pedagogicalRequirementsMet:
+                false,
+
+              overallPassed:
+                false,
+
+              feedback: [
+                'El resultado funcional es correcto, pero falta cumplir el objetivo pedagógico.',
+              ],
+            },
+
+            attempt: {
+              ...result.attempt,
+
+              isCorrect:
+                false,
+            },
+
+            execution: {
+              passed:
+                true,
+
+              reason:
+                'passed' as const,
+            },
+          };
+        };
+
+      act(() => {
+        view.result.current.editCode(
+          SOLUCION,
+        );
+      });
+
+      await waitFor(() =>
+        expect(
+          view.result.current.canSubmit,
+        ).toBe(true),
+      );
+
+      act(() => {
+        view.result.current.submit();
+      });
+
+      await waitFor(() =>
+        expect(
+          view.result.current.executionStatus,
+        ).toBe(
+          'failed',
+        ),
+      );
+
+      expect(
+        view.result.current.state
+          .answers.at(-1)?.isCorrect,
+      ).toBe(
+        false,
+      );
+
+      /*
+       * Prueba explícita de la situación que causaba
+       * la contradicción visual.
+       */
+      const lastCall =
+        training.submitCalls.at(-1);
+
+      expect(
+        lastCall,
+      ).toBeDefined();
+    },
+  );
+
+  it(
+    'muestra passed cuando el veredicto persistido del backend es correcto',
+    async () => {
+      const training =
+        new FakeTraining();
+
+      const view =
+        await hastaFixCode(
+          undefined,
+          undefined,
+          undefined,
+          training,
+        );
+
+      act(() => {
+        view.result.current.editCode(
+          SOLUCION,
+        );
+      });
+
+      await waitFor(() =>
+        expect(
+          view.result.current.canSubmit,
+        ).toBe(true),
+      );
+
+      act(() => {
+        view.result.current.submit();
+      });
+
+      await waitFor(() =>
+        expect(
+          view.result.current.executionStatus,
+        ).toBe(
+          'passed',
+        ),
+      );
+
+      expect(
+        view.result.current.state
+          .answers.at(-1)?.isCorrect,
+      ).toBe(
+        true,
+      );
+    },
+  );
+});
+
+
 describe('useSession · finalización autoritativa backend (T229.6B.5)', () => {
   it('completa la UI después de que la última respuesta haya sido confirmada por backend', async () => {
     const completion = { calls: [] as unknown[] };

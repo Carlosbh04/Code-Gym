@@ -474,8 +474,16 @@ export function useSession(sessionId: string): UseSessionResult {
           );
         }
 
+        /*
+         * execution.passed describe únicamente si el código
+         * superó los tests funcionales.
+         *
+         * El veredicto autorizado y persistido del ejercicio
+         * vive en Attempt.isCorrect, que también incorpora
+         * los requisitos pedagógicos del backend.
+         */
         setExecutionStatus(
-          result.execution.passed
+          result.attempt.isCorrect
             ? 'passed'
             : 'failed',
         );

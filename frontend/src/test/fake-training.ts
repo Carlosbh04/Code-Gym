@@ -147,7 +147,29 @@ export class FakeTraining {
           authoritativeHintsUsed,
       },
 
-      execution: null,
+      verification: {
+        functionalCorrect:
+          this.answerIsCorrect,
+
+        pedagogicalRequirementsMet:
+          this.answerIsCorrect,
+
+        overallPassed:
+          this.answerIsCorrect,
+
+        feedback:
+          [],
+      },
+
+      execution: {
+        passed:
+          this.answerIsCorrect,
+
+        reason:
+          this.answerIsCorrect
+            ? 'passed'
+            : 'failed',
+      },
 
       completion:
         this.submitCalls.length === 4

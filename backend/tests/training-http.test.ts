@@ -59,6 +59,7 @@ const run: TrainingRunView = {
 };
 
 const result: TrainingAnswerResultView = {
+  verification: null,
   attempt: {
     id: 'attempt-1',
     exerciseId: 'step-1',

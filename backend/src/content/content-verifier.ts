@@ -10,6 +10,13 @@ import {
 import type {
   VerifierManifestRepository,
 } from './verifier-manifest-repository.js';
+import {
+  getPrivatePedagogicalRequirements,
+  getPrivateVerifierTestCases,
+} from './private-verifier-cases.js';
+import type {
+  PedagogicalRequirement,
+} from './pedagogical-verifier.js';
 import type {
   VerifierFixCodeStep,
   VerifierSession,
@@ -50,6 +57,8 @@ extends VerificationMetadata {
   readonly userCode: string;
   readonly testCases:
     readonly VerifierTestCase[];
+  readonly pedagogicalRequirements:
+    readonly PedagogicalRequirement[];
 }
 
 export type AnswerVerification =
@@ -297,7 +306,18 @@ function verifyFixCodeShape(
     kind: 'requires-code-execution',
     exerciseType: 'fix-code',
     userCode: answer,
-    testCases: step.testCases,
+    testCases: Object.freeze([
+      ...step.testCases,
+      ...getPrivateVerifierTestCases(
+        metadata.sessionId,
+        metadata.exerciseId,
+      ),
+    ]),
+    pedagogicalRequirements:
+      getPrivatePedagogicalRequirements(
+        metadata.sessionId,
+        metadata.exerciseId,
+      ),
   });
 }
 
