@@ -1,5 +1,6 @@
 import type {
   TrainingAnswerResult,
+  TrainingExecutionFeedback,
   TrainingRun,
 } from '@/features/training/training-api';
 
@@ -21,6 +22,12 @@ export class FakeTraining {
     exerciseId: string;
   }> = [];
 
+  readonly executeCalls: Array<{
+    runId: string;
+    exerciseId: string;
+    code: string;
+  }> = [];
+
   runId = 'training-run-test-1';
 
   answerIsCorrect = true;
@@ -28,6 +35,13 @@ export class FakeTraining {
   startError: Error | null = null;
   submitError: Error | null = null;
   revealError: Error | null = null;
+  executeError: Error | null = null;
+
+  executionResult:
+    TrainingExecutionFeedback = {
+      passed: true,
+      reason: 'passed',
+    };
   readonly hintTexts = [
     'Pista autorizada 1',
     'Pista autorizada 2',
@@ -68,6 +82,26 @@ export class FakeTraining {
         runId,
         input,
       );
+    },
+
+    executeCodePreview: async (
+      runId,
+      exerciseId,
+      code,
+    ) => {
+      this.executeCalls.push({
+        runId,
+        exerciseId,
+        code,
+      });
+
+      if (this.executeError !== null) {
+        throw this.executeError;
+      }
+
+      return {
+        ...this.executionResult,
+      };
     },
 
     revealHint: async (runId, exerciseId) => {

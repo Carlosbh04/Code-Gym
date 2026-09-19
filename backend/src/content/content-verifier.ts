@@ -29,6 +29,21 @@ export interface VerifyAnswerInput {
   readonly answer: unknown;
 }
 
+export interface PrepareCodePreviewInput {
+  readonly sessionId: string;
+  readonly exerciseId: string;
+  readonly code: unknown;
+}
+
+export interface CodePreviewVerification
+extends VerificationMetadata {
+  readonly kind: 'code-preview';
+  readonly exerciseType: 'fix-code';
+  readonly userCode: string;
+  readonly testCases:
+    readonly VerifierTestCase[];
+}
+
 interface VerificationMetadata {
   readonly sessionId: ContentSessionId;
   readonly exerciseId: ExerciseId;
@@ -137,6 +152,69 @@ export class ContentVerifier {
               }),
           ),
         ),
+    });
+  }
+
+  public prepareCodePreview(
+    input: PrepareCodePreviewInput,
+  ): CodePreviewVerification {
+    const sessionId =
+      contentSessionIdSchema.parse(
+        input.sessionId,
+      );
+
+    const exerciseId =
+      exerciseIdSchema.parse(
+        input.exerciseId,
+      );
+
+    const session =
+      this.repository.getSessionById(
+        sessionId,
+      );
+
+    if (session === null) {
+      throw new VerifierSessionNotFoundError();
+    }
+
+    const step =
+      session.steps.find(
+        (candidate) =>
+          candidate.id === exerciseId,
+      );
+
+    if (
+      step === undefined
+      || step.type !== 'fix-code'
+    ) {
+      throw new VerifierExerciseNotFoundError();
+    }
+
+    if (
+      typeof input.code !== 'string'
+      || input.code.trim() === ''
+    ) {
+      throw new InvalidVerifierAnswerError();
+    }
+
+    return Object.freeze({
+      ...verificationMetadata(
+        session,
+        exerciseId,
+      ),
+      kind: 'code-preview',
+      exerciseType: 'fix-code',
+      userCode: input.code,
+      /*
+       * Preview deliberately receives only the public functional
+       * cases declared by the manifest step.
+       *
+       * Hidden test cases and pedagogical requirements are resolved
+       * only by verifyAnswer() during authoritative submission.
+       */
+      testCases: Object.freeze([
+        ...step.testCases,
+      ]),
     });
   }
 

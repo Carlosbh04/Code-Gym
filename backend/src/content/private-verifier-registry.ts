@@ -50,6 +50,73 @@ const registry =
   >([
     [
       verifierKey(
+        'js-variables-basics-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                -3,
+
+              expected:
+                -2,
+
+              call:
+                'incrementarContador(input)',
+
+              description:
+                'incrementa también valores negativos',
+            }),
+
+            Object.freeze({
+              input:
+                41,
+
+              expected:
+                42,
+
+              call:
+                'incrementarContador(input)',
+
+              description:
+                'no depende de los valores públicos conocidos',
+            }),
+
+            Object.freeze({
+              input:
+                1.5,
+
+              expected:
+                2.5,
+
+              call:
+                'incrementarContador(input)',
+
+              description:
+                'respeta el comportamiento con valores decimales',
+            }),
+          ]),
+
+        /*
+         * Este ejercicio evalúa comportamiento.
+         *
+         * No exigimos literalmente `let`, `const` ni una forma
+         * concreta de implementación. Una solución como
+         * `return inicial + 1` también es correcta.
+         */
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
         'js-objects-dynamic-properties-01',
         'step-4',
       ),

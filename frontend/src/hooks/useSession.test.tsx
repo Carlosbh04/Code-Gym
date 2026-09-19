@@ -1212,3 +1212,485 @@ describe('useSession · sessionStorage recovery (T052)', () => {
     expect(recovery.snapshot).toBeNull();
   });
 });
+
+
+describe(
+  'useSession · preview fix-code no autoritativo',
+  () => {
+    it(
+      'Ejecutar no registra Attempt ni marca el step como respondido',
+      async () => {
+        const training =
+          new FakeTraining();
+
+        const view =
+          await hastaFixCode(
+            undefined,
+            undefined,
+            undefined,
+            training,
+          );
+
+        const answersBefore =
+          view.result.current
+            .state.answers.length;
+
+        const submitsBefore =
+          training.submitCalls.length;
+
+        act(() => {
+          view.result.current.editCode(
+            SOLUCION,
+          );
+        });
+
+        act(() => {
+          view.result.current
+            .executePreview();
+        });
+
+        await waitFor(() =>
+          expect(
+            view.result.current
+              .previewStatus,
+          ).toBe('passed'),
+        );
+
+        expect(
+          training.executeCalls,
+        ).toEqual([
+          {
+            runId:
+              training.runId,
+            exerciseId:
+              view.result.current
+                .currentStep!.id,
+            code:
+              SOLUCION,
+          },
+        ]);
+
+        expect(
+          training.submitCalls,
+        ).toHaveLength(
+          submitsBefore,
+        );
+
+        expect(
+          view.result.current
+            .state.answers,
+        ).toHaveLength(
+          answersBefore,
+        );
+
+        expect(
+          view.result.current
+            .isAnswered,
+        ).toBe(false);
+
+        expect(
+          view.result.current
+            .executionStatus,
+        ).toBe('idle');
+
+        expect(
+          view.result.current
+            .verificationFeedback,
+        ).toEqual([]);
+      },
+    );
+
+    it(
+      'fallar los tests públicos no convierte el ejercicio en respuesta incorrecta',
+      async () => {
+        const training =
+          new FakeTraining();
+
+        training.executionResult = {
+          passed: false,
+          reason: 'failed',
+        };
+
+        const view =
+          await hastaFixCode(
+            undefined,
+            undefined,
+            undefined,
+            training,
+          );
+
+        const answersBefore =
+          view.result.current
+            .state.answers.length;
+
+        act(() => {
+          view.result.current.editCode(
+            SOLUCION,
+          );
+        });
+
+        await waitFor(() =>
+          expect(
+            view.result.current
+              .canSubmit,
+          ).toBe(true),
+        );
+
+        act(() => {
+          view.result.current
+            .executePreview();
+        });
+
+        await waitFor(() =>
+          expect(
+            view.result.current
+              .previewStatus,
+          ).toBe('failed'),
+        );
+
+        expect(
+          view.result.current
+            .state.answers,
+        ).toHaveLength(
+          answersBefore,
+        );
+
+        expect(
+          view.result.current
+            .isAnswered,
+        ).toBe(false);
+
+        expect(
+          view.result.current
+            .executionStatus,
+        ).toBe('idle');
+      },
+    );
+
+    it(
+      'un error de preview es recuperable y tampoco registra respuesta',
+      async () => {
+        const training =
+          new FakeTraining();
+
+        training.executeError =
+          new Error(
+            'Preview unavailable',
+          );
+
+        const view =
+          await hastaFixCode(
+            undefined,
+            undefined,
+            undefined,
+            training,
+          );
+
+        const answersBefore =
+          view.result.current
+            .state.answers.length;
+
+        act(() => {
+          view.result.current.editCode(
+            SOLUCION,
+          );
+        });
+
+        act(() => {
+          view.result.current
+            .executePreview();
+        });
+
+        await waitFor(() =>
+          expect(
+            view.result.current
+              .previewStatus,
+          ).toBe('error'),
+        );
+
+        expect(
+          view.result.current
+            .previewError,
+        ).toBe(
+          'Preview unavailable',
+        );
+
+        expect(
+          view.result.current
+            .state.answers,
+        ).toHaveLength(
+          answersBefore,
+        );
+
+        expect(
+          view.result.current
+            .isAnswered,
+        ).toBe(false);
+      },
+    );
+
+    it(
+      'doble Ejecutar mientras la misma request sigue activa hace una sola llamada',
+      async () => {
+        const training =
+          new FakeTraining();
+
+        let resolvePreview:
+          | ((
+              value: {
+                passed: boolean;
+                reason: 'passed';
+              },
+            ) => void)
+          | null = null;
+
+        const pending =
+          new Promise<{
+            passed: boolean;
+            reason: 'passed';
+          }>((resolve) => {
+            resolvePreview = resolve;
+          });
+
+        const executeSpy =
+          vi.spyOn(
+            training.value,
+            'executeCodePreview',
+          ).mockReturnValue(
+            pending,
+          );
+
+        const view =
+          await hastaFixCode(
+            undefined,
+            undefined,
+            undefined,
+            training,
+          );
+
+        act(() => {
+          view.result.current.editCode(
+            SOLUCION,
+          );
+        });
+
+        act(() => {
+          view.result.current
+            .executePreview();
+
+          view.result.current
+            .executePreview();
+        });
+
+        await waitFor(() =>
+          expect(
+            view.result.current
+              .previewStatus,
+          ).toBe('running'),
+        );
+
+        expect(
+          executeSpy,
+        ).toHaveBeenCalledTimes(1);
+
+        await act(async () => {
+          if (
+            resolvePreview === null
+          ) {
+            throw new Error(
+              'Preview resolver was not initialized',
+            );
+          }
+
+          resolvePreview({
+            passed: true,
+            reason: 'passed',
+          });
+
+          await pending;
+        });
+
+        await waitFor(() =>
+          expect(
+            view.result.current
+              .previewStatus,
+          ).toBe('passed'),
+        );
+      },
+    );
+
+    it(
+      'ignora el resultado de una request antigua si el código cambia',
+      async () => {
+        const training =
+          new FakeTraining();
+
+        let resolvePreview:
+          | ((
+              value: {
+                passed: boolean;
+                reason: 'passed';
+              },
+            ) => void)
+          | null = null;
+
+        const pending =
+          new Promise<{
+            passed: boolean;
+            reason: 'passed';
+          }>((resolve) => {
+            resolvePreview = resolve;
+          });
+
+        vi.spyOn(
+          training.value,
+          'executeCodePreview',
+        ).mockReturnValue(
+          pending,
+        );
+
+        const view =
+          await hastaFixCode(
+            undefined,
+            undefined,
+            undefined,
+            training,
+          );
+
+        act(() => {
+          view.result.current.editCode(
+            SOLUCION,
+          );
+        });
+
+        act(() => {
+          view.result.current
+            .executePreview();
+        });
+
+        await waitFor(() =>
+          expect(
+            view.result.current
+              .previewStatus,
+          ).toBe('running'),
+        );
+
+        act(() => {
+          view.result.current.editCode(
+            `${SOLUCION}\n// código nuevo`,
+          );
+        });
+
+        expect(
+          view.result.current
+            .previewStatus,
+        ).toBe('idle');
+
+        await act(async () => {
+          if (
+            resolvePreview === null
+          ) {
+            throw new Error(
+              'Preview resolver was not initialized',
+            );
+          }
+
+          resolvePreview({
+            passed: true,
+            reason: 'passed',
+          });
+
+          await pending;
+        });
+
+        expect(
+          view.result.current
+            .previewStatus,
+        ).toBe('idle');
+
+        expect(
+          view.result.current
+            .previewError,
+        ).toBeNull();
+      },
+    );
+
+    it(
+      'Comprobar continúa siendo el único camino que registra la respuesta',
+      async () => {
+        const training =
+          new FakeTraining();
+
+        const view =
+          await hastaFixCode(
+            undefined,
+            undefined,
+            undefined,
+            training,
+          );
+
+        const answersBefore =
+          view.result.current
+            .state.answers.length;
+
+        const submitsBefore =
+          training.submitCalls.length;
+
+        act(() => {
+          view.result.current.editCode(
+            SOLUCION,
+          );
+        });
+
+        act(() => {
+          view.result.current
+            .executePreview();
+        });
+
+        await waitFor(() =>
+          expect(
+            view.result.current
+              .previewStatus,
+          ).toBe('passed'),
+        );
+
+        expect(
+          view.result.current
+            .state.answers,
+        ).toHaveLength(
+          answersBefore,
+        );
+
+        expect(
+          training.submitCalls,
+        ).toHaveLength(
+          submitsBefore,
+        );
+
+        act(() => {
+          view.result.current.submit();
+        });
+
+        await waitFor(() =>
+          expect(
+            view.result.current
+              .state.answers,
+          ).toHaveLength(
+            answersBefore + 1,
+          ),
+        );
+
+        expect(
+          training.submitCalls,
+        ).toHaveLength(
+          submitsBefore + 1,
+        );
+
+        expect(
+          view.result.current
+            .executionStatus,
+        ).toBe('passed');
+      },
+    );
+  },
+);

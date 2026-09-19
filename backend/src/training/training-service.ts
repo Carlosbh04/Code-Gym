@@ -54,6 +54,17 @@ export interface RevealTrainingHintInput {
   readonly exerciseId: string;
 }
 
+export interface ExecuteTrainingCodePreviewInput {
+  readonly userId: string;
+  readonly runId: string;
+  readonly exerciseId: string;
+  readonly code: unknown;
+}
+
+export interface TrainingCodePreviewResultView {
+  readonly execution: CodeExecutionResult;
+}
+
 export interface TrainingHintResultView {
   readonly hint: {
     readonly index: number;
@@ -314,6 +325,108 @@ export class TrainingService {
       throw new TrainingSessionLockedError(
         metadata.kind,
       );
+    }
+  }
+
+  public async executeCodePreview(
+    input: ExecuteTrainingCodePreviewInput,
+  ): Promise<TrainingCodePreviewResultView> {
+    const run =
+      await this.repository
+        .findOwnedRun(
+          input.userId,
+          input.runId,
+        );
+
+    if (run === null) {
+      throw new TrainingRunNotFoundPublicError();
+    }
+
+    if (run.status !== 'ACTIVE') {
+      throw new TrainingRunClosedPublicError();
+    }
+
+    const exerciseId =
+      exerciseIdSchema.parse(
+        input.exerciseId,
+      );
+
+    const definition =
+      this.contentVerifier
+        .getSessionDefinition(
+          run.sessionId,
+        );
+
+    if (definition === null) {
+      throw new TrainingContentMismatchError();
+    }
+
+    assertVerificationMatchesRun(
+      run,
+      definition,
+    );
+
+    const expectedExerciseId =
+      definition.exerciseIds[
+        run.answeredExercises
+      ];
+
+    if (expectedExerciseId === undefined) {
+      throw new TrainingContentMismatchError();
+    }
+
+    if (
+      exerciseId !== expectedExerciseId
+    ) {
+      throw new TrainingExerciseOutOfOrderError();
+    }
+
+    if (this.codeExecutionService === undefined) {
+      throw new TrainingCodeExecutionUnavailableError();
+    }
+
+    const preview =
+      this.contentVerifier
+        .prepareCodePreview({
+          sessionId:
+            run.sessionId,
+          exerciseId,
+          code:
+            input.code,
+        });
+
+    assertVerificationMatchesRun(
+      run,
+      preview,
+    );
+
+    try {
+      const execution =
+        await this.codeExecutionService.execute({
+          code:
+            preview.userCode,
+          testCases:
+            preview.testCases,
+        });
+
+      return Object.freeze({
+        execution:
+          Object.freeze({
+            passed:
+              execution.passed,
+            reason:
+              execution.reason,
+          }),
+      });
+    } catch (error) {
+      if (
+        error instanceof
+          CodeExecutionUnavailableError
+      ) {
+        throw new TrainingCodeExecutionUnavailableError();
+      }
+
+      throw error;
     }
   }
 

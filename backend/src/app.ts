@@ -199,6 +199,7 @@ export interface AppDependencies {
         TrainingService,
         | 'startRun'
         | 'revealHint'
+        | 'executeCodePreview'
         | 'submitAnswer'
       >
     | undefined;

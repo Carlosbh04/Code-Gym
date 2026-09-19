@@ -7,6 +7,7 @@ import {
 } from 'vitest';
 
 import {
+  executeTrainingCodePreview,
   revealTrainingHint,
   startTrainingRun,
   submitTrainingAnswer,
@@ -274,6 +275,109 @@ describe('training-api', () => {
       code:
         'ANSWER_ALREADY_SUBMITTED',
     });
+  });
+
+  it('executes only the public code preview contract', async () => {
+    const fetchMock =
+      vi.spyOn(
+        globalThis,
+        'fetch',
+      ).mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            result: {
+              execution: {
+                passed: true,
+                reason: 'passed',
+              },
+            },
+          }),
+          {
+            status: 200,
+            headers: {
+              'Content-Type':
+                'application/json',
+            },
+          },
+        ),
+      );
+
+    await expect(
+      executeTrainingCodePreview(
+        'access-token',
+        'run/one',
+        {
+          exerciseId: 'step-4',
+          code:
+            'function solution() { return true; }',
+        },
+      ),
+    ).resolves.toEqual({
+      result: {
+        execution: {
+          passed: true,
+          reason: 'passed',
+        },
+      },
+    });
+
+    const [
+      url,
+      init,
+    ] = fetchMock.mock.calls[0];
+
+    expect(String(url)).toContain(
+      '/training/runs/run%2Fone/execute',
+    );
+
+    expect(init).toMatchObject({
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    const headers =
+      new Headers(
+        init?.headers,
+      );
+
+    expect(
+      headers.get(
+        'Authorization',
+      ),
+    ).toBe(
+      'Bearer access-token',
+    );
+
+    const body =
+      JSON.parse(
+        String(init?.body),
+      );
+
+    expect(body).toEqual({
+      exerciseId:
+        'step-4',
+      code:
+        'function solution() { return true; }',
+    });
+
+    for (
+      const forbidden of [
+        'userId',
+        'sessionId',
+        'technologyId',
+        'topicId',
+        'conceptId',
+        'durationMs',
+        'isCorrect',
+        'pedagogicalRequirements',
+        'testCases',
+      ]
+    ) {
+      expect(body)
+        .not.toHaveProperty(
+          forbidden,
+        );
+    }
   });
 
   it('requests only the next hint for the selected exercise', async () => {

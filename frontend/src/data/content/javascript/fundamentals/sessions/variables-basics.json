@@ -4,10 +4,10 @@
   "difficulty": "beginner",
   "conceptId": "js-variables-basics",
   "technologyId": "javascript",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "published",
   "createdAt": "2026-09-15",
-  "updatedAt": null,
+  "updatedAt": "2026-09-19",
   "steps": [
     {
       "id": "step-1",
@@ -81,7 +81,28 @@
       "prompt": "Selecciona la línea donde ocurre el error y clasifícalo.",
       "code": "const edad = 25;\nedad = 26;",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "const-reassignment",
+          "text": "Asignación: se intenta reasignar una variable declarada con const",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: edad deja de existir después de la primera línea",
+          "correct": false
+        },
+        {
+          "id": "type",
+          "text": "Tipo: edad debe ser una cadena antes de poder cambiar",
+          "correct": false
+        },
+        {
+          "id": "syntax",
+          "text": "Sintaxis: const no puede utilizarse con números",
+          "correct": false
+        }
+      ],
       "errorLines": [
         2
       ],
@@ -93,6 +114,37 @@
         "Comprueba cómo fue declarada edad antes de intentar cambiarla."
       ],
       "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Completa incrementarContador para que reciba un valor inicial, lo incremente en 1 y devuelva el nuevo valor.",
+      "code": "function incrementarContador(inicial) {\n  // Escribe tu solución aquí\n}\n",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": 0,
+          "expected": 1,
+          "call": "incrementarContador(input)",
+          "description": "incrementa un contador que empieza en cero"
+        },
+        {
+          "input": 5,
+          "expected": 6,
+          "call": "incrementarContador(input)",
+          "description": "incrementa un contador positivo"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "El valor inicial puede utilizarse para calcular el siguiente valor del contador. Una implementación puede reasignar una variable con let, aunque cualquier solución que respete el comportamiento pedido es válida.",
+      "hints": [
+        "Empieza a partir del valor recibido en inicial.",
+        "El resultado debe ser exactamente una unidad mayor."
+      ],
+      "stepOrder": 4
     }
   ],
   "position": 1,

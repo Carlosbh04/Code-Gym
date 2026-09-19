@@ -99,6 +99,24 @@ function createApp(
       readonly exerciseId: string;
     }) => Promise<TrainingHintResultView> =
       vi.fn(),
+  executeCodePreview:
+    (input: {
+      readonly userId: string;
+      readonly runId: string;
+      readonly exerciseId: string;
+      readonly code: unknown;
+    }) => Promise<{
+      readonly execution: {
+        readonly passed: boolean;
+        readonly reason:
+          | 'passed'
+          | 'failed'
+          | 'syntax-error'
+          | 'runtime-error'
+          | 'timeout';
+      };
+    }> =
+      vi.fn(),
 ) {
   const app = express();
   app.use(express.json());
@@ -108,6 +126,7 @@ function createApp(
         startRun,
         submitAnswer,
         revealHint,
+        executeCodePreview,
       },
       requireAuth:
         authenticatedRequireAuth,
@@ -353,4 +372,61 @@ describe('training HTTP (T229.4C)', () => {
   });
 
 
+});
+
+describe('POST /training/runs/:runId/execute', () => {
+  it('executes code preview without using the answer submission contract', async () => {
+    const executeCodePreview =
+      vi.fn().mockResolvedValue({
+        execution: {
+          passed: true,
+          reason: 'passed',
+        },
+      });
+
+    const app =
+      createApp(
+        vi.fn(),
+        vi.fn(),
+        vi.fn(),
+        executeCodePreview,
+      );
+
+    const response =
+      await request(app)
+        .post(
+          '/training/runs/run-1/execute',
+        )
+        .set(
+          'Authorization',
+          'Bearer test-token',
+        )
+        .send({
+          exerciseId: 'step-1',
+          code:
+            'function solution() { return true; }',
+        });
+
+    expect(response.status).toBe(200);
+
+    expect(response.body).toEqual({
+      result: {
+        execution: {
+          passed: true,
+          reason: 'passed',
+        },
+      },
+    });
+
+    expect(
+      executeCodePreview,
+    ).toHaveBeenCalledWith({
+      userId:
+        expect.any(String),
+      runId: 'run-1',
+      exerciseId: 'step-1',
+      code:
+        'function solution() { return true; }',
+    });
+  });
 });

@@ -67,12 +67,23 @@ const revealHintBodySchema =
       exerciseIdSchema,
   }).strict();
 
+const executeCodeBodySchema =
+  z.object({
+    exerciseId:
+      exerciseIdSchema,
+    code:
+      z.string()
+        .trim()
+        .min(1),
+  }).strict();
+
 export interface TrainingRouterDependencies {
   readonly trainingService:
     Pick<
       TrainingService,
       | 'startRun'
       | 'revealHint'
+      | 'executeCodePreview'
       | 'submitAnswer'
     >;
   readonly requireAuth:
@@ -299,6 +310,151 @@ export function createTrainingRouter({
             409,
             'TRAINING_HINTS_EXHAUSTED',
             'No training hints remain',
+          );
+          return;
+        }
+
+        if (
+          error instanceof
+            TrainingContentMismatchError
+        ) {
+          next(error);
+          return;
+        }
+
+        next(error);
+      }
+    },
+  );
+
+  router.post(
+    '/training/runs/:runId/execute',
+    requireAuth,
+    validateRequest({
+      params: answerParamsSchema,
+      body: executeCodeBodySchema,
+    }),
+    async (
+      request,
+      response,
+      next,
+    ) => {
+      const auth = request.auth;
+
+      if (auth === undefined) {
+        respondUnauthorized(response);
+        return;
+      }
+
+      const params =
+        answerParamsSchema.parse(
+          request.params,
+        );
+
+      const body =
+        executeCodeBodySchema.parse(
+          request.body,
+        );
+
+      try {
+        const result =
+          await trainingService.executeCodePreview({
+            userId:
+              auth.userId,
+            runId:
+              params.runId,
+            exerciseId:
+              body.exerciseId,
+            code:
+              body.code,
+          });
+
+        response
+          .status(200)
+          .json({
+            result,
+          });
+      } catch (error) {
+        if (
+          error instanceof
+            TrainingRunNotFoundPublicError
+          || error instanceof
+            TrainingRunNotFoundError
+        ) {
+          respondError(
+            response,
+            404,
+            'TRAINING_RUN_NOT_FOUND',
+            'Training run was not found',
+          );
+          return;
+        }
+
+        if (
+          error instanceof
+            TrainingRunClosedPublicError
+          || error instanceof
+            TrainingRunClosedError
+        ) {
+          respondError(
+            response,
+            409,
+            'TRAINING_RUN_CLOSED',
+            'Training run is closed',
+          );
+          return;
+        }
+
+        if (
+          error instanceof
+            TrainingExerciseOutOfOrderError
+        ) {
+          respondError(
+            response,
+            409,
+            'TRAINING_EXERCISE_OUT_OF_ORDER',
+            'Training exercise is out of order',
+          );
+          return;
+        }
+
+        if (
+          error instanceof
+            VerifierExerciseNotFoundError
+        ) {
+          respondError(
+            response,
+            404,
+            'TRAINING_EXERCISE_NOT_FOUND',
+            'Training exercise was not found',
+          );
+          return;
+        }
+
+        if (
+          error instanceof
+            InvalidVerifierAnswerError
+          || error instanceof
+            InvalidTrainingAnswerMetadataError
+        ) {
+          respondError(
+            response,
+            400,
+            'INVALID_TRAINING_CODE',
+            'Training code is invalid',
+          );
+          return;
+        }
+
+        if (
+          error instanceof
+            TrainingCodeExecutionUnavailableError
+        ) {
+          respondError(
+            response,
+            409,
+            'CODE_EXECUTION_UNAVAILABLE',
+            'Code execution is not available yet',
           );
           return;
         }

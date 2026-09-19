@@ -33,9 +33,8 @@ import { Skeleton } from '@/components/codegym/Skeleton';
  *
  * Tipos de paso disponibles: los cuatro de §7. Los tres que se resuelven
  * eligiendo —code-reading (T026), predict-output (T031) y find-error (T032)—
- * se comprueban aquí mismo; fix-code (T041) se puede editar, pero comprobarlo
- * exige ejecutar en el Worker y esa integración es T042, así que su botón
- * sigue deshabilitado.
+ * se comprueban aquí mismo; fix-code usa un preview funcional público mediante
+ * «Ejecutar» y conserva «Comprobar» como verificación autoritativa del backend.
  *
  * Quién decide que una respuesta está completa es `useSession` con
  * `canSubmit`: find-error necesita sus dos mitades (D014) y esa regla es de
@@ -82,6 +81,8 @@ function SessionPage() {
     isLastStep,
     executionError,
     executionStatus,
+    previewStatus,
+    previewError,
     verificationFeedback,
     isCompleting,
     completionError,
@@ -94,6 +95,7 @@ function SessionPage() {
     select,
     selectError,
     editCode,
+    executePreview,
     revealHint,
     submit,
     next,
@@ -463,12 +465,16 @@ function SessionPage() {
               value={fixCodeDraft}
               onChange={editCode}
               disabled={isAnswered}
-              isRunning={isValidating}
-              canRun={canSubmit}
-              status={executionStatus}
-              error={executionError}
+              isChecking={isValidating}
+              canExecute={canSubmit}
+              canCheck={canSubmit}
+              previewStatus={previewStatus}
+              previewError={previewError}
+              checkStatus={executionStatus}
+              checkError={executionError}
               revealedHints={state.revealedHints}
               isRevealingHint={isRevealingHint}
+              onExecute={executePreview}
               onCheck={submit}
               onRevealHint={revealHint}
             />

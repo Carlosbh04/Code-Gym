@@ -89,6 +89,18 @@ export interface SubmitTrainingAnswerInput {
   readonly durationMs: number;
 }
 
+export interface ExecuteTrainingCodePreviewInput {
+  readonly exerciseId: string;
+  readonly code: string;
+}
+
+export interface ExecuteTrainingCodePreviewResponse {
+  readonly result: {
+    readonly execution:
+      TrainingExecutionFeedback;
+  };
+}
+
 export interface RevealTrainingHintResponse {
   readonly hint: RevealedHint & {
     readonly totalHints: number;
@@ -128,6 +140,26 @@ export async function submitTrainingAnswer(
           input.answer,
         durationMs:
           input.durationMs,
+      },
+    },
+  );
+}
+
+export async function executeTrainingCodePreview(
+  accessToken: string,
+  runId: string,
+  input: ExecuteTrainingCodePreviewInput,
+): Promise<ExecuteTrainingCodePreviewResponse> {
+  return apiRequest<ExecuteTrainingCodePreviewResponse>(
+    `/training/runs/${encodeURIComponent(runId)}/execute`,
+    {
+      method: 'POST',
+      accessToken,
+      body: {
+        exerciseId:
+          input.exerciseId,
+        code:
+          input.code,
       },
     },
   );

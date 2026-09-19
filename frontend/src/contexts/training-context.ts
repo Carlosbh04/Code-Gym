@@ -5,6 +5,7 @@ import {
 import type {
   RevealTrainingHintResponse,
   TrainingAnswerResult,
+  TrainingExecutionFeedback,
   TrainingRun,
 } from '@/features/training/training-api';
 
@@ -23,6 +24,12 @@ export interface TrainingContextValue {
     runId: string,
     input: SubmitTrainingAnswerInput,
   ): Promise<TrainingAnswerResult>;
+
+  executeCodePreview(
+    runId: string,
+    exerciseId: string,
+    code: string,
+  ): Promise<TrainingExecutionFeedback>;
 
   revealHint(
     runId: string,

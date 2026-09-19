@@ -10,6 +10,7 @@ import {
 } from '@/contexts/training-context';
 
 import {
+  executeTrainingCodePreview,
   revealTrainingHint,
   startTrainingRun,
   submitTrainingAnswer,
@@ -106,6 +107,32 @@ export function TrainingProvider({
       ],
     );
 
+  const executeCodePreview =
+    useCallback<
+      TrainingContextValue['executeCodePreview']
+    >(
+      async (
+        runId,
+        exerciseId,
+        code,
+      ) => {
+        const response =
+          await executeTrainingCodePreview(
+            requireAccessToken(),
+            runId,
+            {
+              exerciseId,
+              code,
+            },
+          );
+
+        return response.result.execution;
+      },
+      [
+        requireAccessToken,
+      ],
+    );
+
   const revealHint =
     useCallback<
       TrainingContextValue['revealHint']
@@ -131,11 +158,13 @@ export function TrainingProvider({
       () => ({
         startRun,
         revealHint,
+        executeCodePreview,
         submitAnswer,
       }),
       [
         startRun,
         revealHint,
+        executeCodePreview,
         submitAnswer,
       ],
     );

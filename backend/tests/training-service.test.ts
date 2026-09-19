@@ -970,3 +970,193 @@ describe('TrainingService (T229.4C)', () => {
 
 
 });
+
+describe('TrainingService · code preview', () => {
+  it('executes the current fix-code step without recording an attempt', async () => {
+    const repository = {
+      findOwnedRun: vi.fn().mockResolvedValue({
+        id: 'run-preview',
+        userId: 'user-1',
+        sessionId: 'session-preview',
+        technologyId: 'javascript',
+        topicId: 'topic-preview',
+        conceptId: 'concept-preview',
+        status: 'ACTIVE',
+        totalExercises: 1,
+        answeredExercises: 0,
+        correctExercises: 0,
+        durationMs: 0,
+        hintsUsed: 0,
+        startedAt: new Date('2026-09-19T12:00:00.000Z'),
+        completedAt: null,
+      }),
+      recordScoredAnswerAndMaybeComplete: vi.fn(),
+    };
+
+    const publicTestCases = Object.freeze([
+      Object.freeze({
+        args: [[1, 2, 3, 4]],
+        expected: [2, 4],
+      }),
+    ]);
+
+    const contentVerifier = {
+      getSessionDefinition: vi.fn().mockReturnValue({
+        sessionId: 'session-preview',
+        technologyId: 'javascript',
+        topicId: 'topic-preview',
+        conceptId: 'concept-preview',
+        status: 'published',
+        totalExercises: 1,
+        requiresCodeExecution: true,
+        exerciseIds: ['step-preview'],
+        exercises: [
+          {
+            id: 'step-preview',
+            hints: [],
+          },
+        ],
+      }),
+      prepareCodePreview: vi.fn().mockReturnValue({
+        sessionId: 'session-preview',
+        exerciseId: 'step-preview',
+        technologyId: 'javascript',
+        topicId: 'topic-preview',
+        conceptId: 'concept-preview',
+        status: 'published',
+        totalExercises: 1,
+        kind: 'code-preview',
+        exerciseType: 'fix-code',
+        userCode:
+          'function obtenerPares(numeros) { return numeros.filter((n) => n % 2 === 0); }',
+        testCases: publicTestCases,
+      }),
+      verifyAnswer: vi.fn(),
+    };
+
+    const codeExecutionService = {
+      execute: vi.fn().mockResolvedValue({
+        passed: true,
+        reason: 'passed',
+      }),
+    };
+
+    const service =
+      new TrainingService(
+        repository as never,
+        contentVerifier as never,
+        () =>
+          new Date(
+            '2026-09-19T12:00:00.000Z',
+          ),
+        codeExecutionService,
+      );
+
+    const result =
+      await service.executeCodePreview({
+        userId: 'user-1',
+        runId: 'run-preview',
+        exerciseId: 'step-preview',
+        code:
+          'function obtenerPares(numeros) { return numeros.filter((n) => n % 2 === 0); }',
+      });
+
+    expect(result).toEqual({
+      execution: {
+        passed: true,
+        reason: 'passed',
+      },
+    });
+
+    expect(
+      codeExecutionService.execute,
+    ).toHaveBeenCalledWith({
+      code:
+        'function obtenerPares(numeros) { return numeros.filter((n) => n % 2 === 0); }',
+      testCases:
+        publicTestCases,
+    });
+
+    expect(
+      repository
+        .recordScoredAnswerAndMaybeComplete,
+    ).not.toHaveBeenCalled();
+
+    expect(
+      contentVerifier.verifyAnswer,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('rejects previewing a step that is not the current exercise', async () => {
+    const repository = {
+      findOwnedRun: vi.fn().mockResolvedValue({
+        id: 'run-preview',
+        userId: 'user-1',
+        sessionId: 'session-preview',
+        technologyId: 'javascript',
+        topicId: 'topic-preview',
+        conceptId: 'concept-preview',
+        status: 'ACTIVE',
+        totalExercises: 2,
+        answeredExercises: 0,
+        correctExercises: 0,
+        durationMs: 0,
+        hintsUsed: 0,
+        startedAt: new Date('2026-09-19T12:00:00.000Z'),
+        completedAt: null,
+      }),
+      recordScoredAnswerAndMaybeComplete: vi.fn(),
+    };
+
+    const contentVerifier = {
+      getSessionDefinition: vi.fn().mockReturnValue({
+        sessionId: 'session-preview',
+        technologyId: 'javascript',
+        topicId: 'topic-preview',
+        conceptId: 'concept-preview',
+        status: 'published',
+        totalExercises: 2,
+        requiresCodeExecution: true,
+        exerciseIds: [
+          'step-current',
+          'step-later',
+        ],
+        exercises: [],
+      }),
+      prepareCodePreview: vi.fn(),
+      verifyAnswer: vi.fn(),
+    };
+
+    const codeExecutionService = {
+      execute: vi.fn(),
+    };
+
+    const service =
+      new TrainingService(
+        repository as never,
+        contentVerifier as never,
+        undefined,
+        codeExecutionService as never,
+      );
+
+    await expect(
+      service.executeCodePreview({
+        userId: 'user-1',
+        runId: 'run-preview',
+        exerciseId: 'step-later',
+        code: 'const value = 1;',
+      }),
+    ).rejects.toBeInstanceOf(
+      TrainingExerciseOutOfOrderError,
+    );
+
+    expect(
+      codeExecutionService.execute,
+    ).not.toHaveBeenCalled();
+
+    expect(
+      repository
+        .recordScoredAnswerAndMaybeComplete,
+    ).not.toHaveBeenCalled();
+  });
+});

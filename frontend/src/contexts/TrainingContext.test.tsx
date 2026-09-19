@@ -138,6 +138,78 @@ describe('TrainingProvider', () => {
     );
   });
 
+  it('ejecuta preview sin refrescar el dashboard ni persistir desde el contexto', async () => {
+    useAuthMock.mockReturnValue({
+      accessToken: 'access-token',
+      isAuthenticated: true,
+    } as ReturnType<typeof useAuth>);
+
+    vi.spyOn(
+      globalThis,
+      'fetch',
+    ).mockResolvedValue(
+      jsonResponse({
+        result: {
+          execution: {
+            passed: true,
+            reason: 'passed',
+          },
+        },
+      }),
+    );
+
+    const {
+      result,
+    } = renderHook(
+      () => useTraining(),
+      {
+        wrapper,
+      },
+    );
+
+    await expect(
+      act(async () =>
+        result.current.executeCodePreview(
+          'run-1',
+          'step-4',
+          'function solution() { return true; }',
+        ),
+      ),
+    ).resolves.toEqual({
+      passed: true,
+      reason: 'passed',
+    });
+
+    expect(
+      refreshDashboard,
+    ).not.toHaveBeenCalled();
+
+    const fetchMock =
+      vi.mocked(
+        globalThis.fetch,
+      );
+
+    const [
+      url,
+      init,
+    ] = fetchMock.mock.calls[0];
+
+    expect(String(url)).toContain(
+      '/training/runs/run-1/execute',
+    );
+
+    expect(
+      JSON.parse(
+        String(init?.body),
+      ),
+    ).toEqual({
+      exerciseId:
+        'step-4',
+      code:
+        'function solution() { return true; }',
+    });
+  });
+
   it('refresca el dashboard al confirmar la finalización backend', async () => {
     useAuthMock.mockReturnValue({
       accessToken: 'access-token',

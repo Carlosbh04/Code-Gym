@@ -62,6 +62,16 @@ export interface UseSessionResult {
    */
   executionError: string | null;
   executionStatus: 'idle' | 'running' | 'passed' | 'failed' | 'error';
+
+  /**
+   * Estado informativo de «Ejecutar».
+   *
+   * No representa el veredicto autoritativo,
+   * no crea Attempt y no modifica progreso.
+   */
+  previewStatus: 'idle' | 'running' | 'passed' | 'failed' | 'error';
+  previewError: string | null;
+
   /**
    * Feedback pedagógico público devuelto por el backend.
    * El cliente solo lo representa; no lo calcula.
@@ -86,6 +96,13 @@ export interface UseSessionResult {
   select: (optionId: string) => void;
   /** Guarda el código del paso fix-code en curso. No lo valida. */
   editCode: (code: string) => void;
+
+  /**
+   * Ejecuta únicamente los tests funcionales públicos
+   * mediante el endpoint de preview.
+   */
+  executePreview: () => void;
+
   /** Pide al backend la siguiente pista canónica del paso actual. */
   revealHint: () => void;
   selectError: (next: FindErrorSelection) => void;
@@ -114,6 +131,16 @@ export function useSession(sessionId: string): UseSessionResult {
   const [executionStatus, setExecutionStatus] = useState<
     'idle' | 'running' | 'passed' | 'failed' | 'error'
   >('idle');
+
+  const [previewStatus, setPreviewStatus] = useState<
+    'idle' | 'running' | 'passed' | 'failed' | 'error'
+  >('idle');
+
+  const [
+    previewError,
+    setPreviewError,
+  ] = useState<string | null>(null);
+
   const [
     verificationFeedback,
     setVerificationFeedback,
@@ -133,6 +160,8 @@ export function useSession(sessionId: string): UseSessionResult {
   // cierra el hueco entre el primer clic y ese render, donde dos submit seguidos
   // podrían llamar al executor antes de que `isValidating` se hiciera visible.
   const validationInFlight = useRef(false);
+  const previewInFlight = useRef(false);
+  const previewRequestId = useRef(0);
   const hintRevealInFlight = useRef(false);
   /**
    * La última respuesta del TrainingRun debe traer `completion`.
@@ -165,6 +194,12 @@ export function useSession(sessionId: string): UseSessionResult {
     setFixCodeDraft(null);
     setExecutionError(null);
     setExecutionStatus('idle');
+
+    previewRequestId.current += 1;
+    previewInFlight.current = false;
+    setPreviewError(null);
+    setPreviewStatus('idle');
+
     setVerificationFeedback([]);
     setCompletionError(null);
     setHintError(null);
@@ -284,7 +319,111 @@ export function useSession(sessionId: string): UseSessionResult {
 
   const editCode = useCallback((code: string) => {
     setFixCodeDraft(code);
+
+    /*
+     * El resultado de Ejecutar pertenece al código exacto
+     * que se envió al backend.
+     *
+     * Al editar invalidamos cualquier preview anterior,
+     * incluso si su request todavía sigue en vuelo.
+     */
+    previewRequestId.current += 1;
+    previewInFlight.current = false;
+    setPreviewError(null);
+    setPreviewStatus('idle');
   }, []);
+
+  const executePreview = useCallback(() => {
+    if (
+      currentStep === null
+      || currentStep.type !== 'fix-code'
+      || isAnswered
+      || fixCodeDraft === null
+      || fixCodeDraft.trim() === ''
+      || state.isValidating
+      || validationInFlight.current
+      || previewInFlight.current
+      || hintRevealInFlight.current
+    ) {
+      return;
+    }
+
+    previewRequestId.current += 1;
+
+    const requestId =
+      previewRequestId.current;
+
+    const exerciseId =
+      currentStep.id;
+
+    const code =
+      fixCodeDraft;
+
+    previewInFlight.current = true;
+
+    setPreviewError(null);
+    setPreviewStatus('running');
+
+    void ensureTrainingRun()
+      .then((runId) =>
+        training.executeCodePreview(
+          runId,
+          exerciseId,
+          code,
+        ),
+      )
+      .then((execution) => {
+        /*
+         * Si el usuario editó, cambió de paso o lanzó
+         * otro preview, esta respuesta ya no describe
+         * el código actual y se descarta.
+         */
+        if (
+          previewRequestId.current
+          !== requestId
+        ) {
+          return;
+        }
+
+        setPreviewStatus(
+          execution.passed
+            ? 'passed'
+            : 'failed',
+        );
+      })
+      .catch((error: unknown) => {
+        if (
+          previewRequestId.current
+          !== requestId
+        ) {
+          return;
+        }
+
+        setPreviewError(
+          error instanceof Error
+            ? error.message
+            : String(error),
+        );
+
+        setPreviewStatus('error');
+      })
+      .finally(() => {
+        if (
+          previewRequestId.current
+          === requestId
+        ) {
+          previewInFlight.current =
+            false;
+        }
+      });
+  }, [
+    currentStep,
+    ensureTrainingRun,
+    fixCodeDraft,
+    isAnswered,
+    state.isValidating,
+    training,
+  ]);
 
   /**
    * Solicita la siguiente pista al backend. El cliente nunca conoce el texto
@@ -384,6 +523,7 @@ export function useSession(sessionId: string): UseSessionResult {
       pendingAnswer === null ||
       state.isValidating ||
       hintRevealInFlight.current ||
+      previewInFlight.current ||
       validationInFlight.current
     ) {
       return;
@@ -571,6 +711,12 @@ export function useSession(sessionId: string): UseSessionResult {
     setFixCodeDraft(null);
     setExecutionError(null);
     setExecutionStatus('idle');
+
+    previewRequestId.current += 1;
+    previewInFlight.current = false;
+    setPreviewError(null);
+    setPreviewStatus('idle');
+
     setVerificationFeedback([]);
     setHintError(null);
     stepStartedAt.current = Date.now();
@@ -598,6 +744,8 @@ export function useSession(sessionId: string): UseSessionResult {
     isLastStep,
     executionError,
     executionStatus,
+    previewStatus,
+    previewError,
     verificationFeedback,
     isCompleting: false,
     completionError,
@@ -610,6 +758,7 @@ export function useSession(sessionId: string): UseSessionResult {
     select,
     selectError,
     editCode,
+    executePreview,
     revealHint,
     submit,
     next,

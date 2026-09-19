@@ -3140,7 +3140,7 @@ export const verifierManifest = {
       "topicId": "js-fundamentals",
       "conceptId": "js-variables-basics",
       "status": "published",
-      "totalExercises": 3,
+      "totalExercises": 4,
       "steps": [
         {
           "id": "step-1",
@@ -3171,6 +3171,28 @@ export const verifierManifest = {
           "errorType": "assignment-to-constant",
           "hints": [
             "Comprueba cómo fue declarada edad antes de intentar cambiarla."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": 0,
+              "expected": 1,
+              "call": "incrementarContador(input)",
+              "description": "incrementa un contador que empieza en cero"
+            },
+            {
+              "input": 5,
+              "expected": 6,
+              "call": "incrementarContador(input)",
+              "description": "incrementa un contador positivo"
+            }
+          ],
+          "hints": [
+            "Empieza a partir del valor recibido en inicial.",
+            "El resultado debe ser exactamente una unidad mayor."
           ]
         }
       ]
