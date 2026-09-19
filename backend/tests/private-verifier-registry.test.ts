@@ -190,6 +190,75 @@ describe(
     );
 
     it(
+      'resolves hidden cases for observable error-handling contracts',
+      () => {
+        const targets = [
+          [
+            'js-errors-catch-context-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-errors-coding-parse-number-01',
+            'step-1',
+            2,
+          ],
+          [
+            'js-errors-throw-validation-01',
+            'step-4',
+            3,
+          ],
+        ] as const;
+
+        for (
+          const [
+            sessionId,
+            exerciseId,
+            hiddenCaseCount,
+          ] of targets
+        ) {
+          const config =
+            resolvePrivateVerifierConfig(
+              sessionId,
+              exerciseId,
+            );
+
+          expect(
+            config.hiddenTestCases,
+          ).toHaveLength(
+            hiddenCaseCount,
+          );
+
+          expect(
+            config.pedagogicalRequirements,
+          ).toEqual([]);
+
+          expect(
+            config.oracle,
+          ).toBeNull();
+        }
+
+        const finallyCleanup =
+          resolvePrivateVerifierConfig(
+            'js-errors-finally-cleanup-01',
+            'step-4',
+          );
+
+        expect(
+          finallyCleanup.hiddenTestCases,
+        ).toEqual([]);
+
+        expect(
+          finallyCleanup.pedagogicalRequirements,
+        ).toEqual([]);
+
+        expect(
+          finallyCleanup.oracle,
+        ).toBeNull();
+      },
+    );
+
+    it(
       'does not allow another exercise to inherit the registered verifier config',
       () => {
         const config =

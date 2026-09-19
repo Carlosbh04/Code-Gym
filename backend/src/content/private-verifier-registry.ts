@@ -787,6 +787,158 @@ const registry =
 
     [
       verifierKey(
+        'js-errors-catch-context-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                '{"nombre":"Ada","activo":false}',
+
+              expected:
+                'Ada|false',
+
+              call:
+                "(() => { const value = analizar(input); return value.nombre + '|' + value.activo; })()",
+
+              description:
+                'conserva datos de otro JSON válido',
+            }),
+
+            Object.freeze({
+              input:
+                '{"nombre": }',
+
+              expected:
+                'Error',
+
+              call:
+                "(() => { try { analizar(input); return 'sin error'; } catch (error) { return error.name; } })()",
+
+              description:
+                'propaga otro JSON malformado como Error',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-coding-parse-number-01',
+        'step-1',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                '-3.5',
+
+              expected:
+                -3.5,
+
+              call:
+                'leerNumero(input)',
+
+              description:
+                'convierte correctamente un decimal negativo finito',
+            }),
+
+            Object.freeze({
+              input:
+                'Infinity',
+
+              expected:
+                'Número inválido',
+
+              call:
+                "(() => { try { leerNumero(input); return 'sin error'; } catch (error) { return error.message; } })()",
+
+              description:
+                'rechaza valores numéricos no finitos',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-throw-validation-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                -6,
+
+              expected:
+                -12,
+
+              call:
+                'duplicar(input)',
+
+              description:
+                'acepta otro número válido',
+            }),
+
+            Object.freeze({
+              input:
+                false,
+
+              expected:
+                'TypeError',
+
+              call:
+                "(() => { try { duplicar(input); return 'sin error'; } catch (error) { return error.name; } })()",
+
+              description:
+                'rechaza booleanos con TypeError',
+            }),
+
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                'TypeError',
+
+              call:
+                "(() => { try { duplicar(input); return 'sin error'; } catch (error) { return error.name; } })()",
+
+              description:
+                'rechaza null con TypeError',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
         'js-arrays-filter-mutation-01',
         'step-4',
       ),
