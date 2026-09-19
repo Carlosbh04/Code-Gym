@@ -40,6 +40,26 @@ describe(
               'El resultado es correcto, pero este ejercicio requiere practicar Array.filter().',
           },
         ]);
+
+        expect(
+          config.oracle,
+        ).toEqual({
+          outputCases: [
+            {
+              input:
+                [12, -3, 5, 0, 12],
+
+              expected:
+                [12, 5, 12],
+
+              call:
+                'positivos(input)',
+
+              description:
+                'oracle conductual: compara únicamente el output canónico',
+            },
+          ],
+        });
       },
     );
 
@@ -59,6 +79,10 @@ describe(
         expect(
           config.pedagogicalRequirements,
         ).toEqual([]);
+
+        expect(
+          config.oracle,
+        ).toBeNull();
       },
     );
 
@@ -76,6 +100,7 @@ describe(
         ).toEqual({
           hiddenTestCases: [],
           pedagogicalRequirements: [],
+          oracle: null,
         });
       },
     );
@@ -102,6 +127,18 @@ describe(
         expect(
           Object.isFrozen(
             config.pedagogicalRequirements,
+          ),
+        ).toBe(true);
+
+        expect(
+          Object.isFrozen(
+            config.oracle,
+          ),
+        ).toBe(true);
+
+        expect(
+          Object.isFrozen(
+            config.oracle?.outputCases,
           ),
         ).toBe(true);
       },

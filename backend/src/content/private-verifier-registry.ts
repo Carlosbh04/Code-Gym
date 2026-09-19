@@ -6,12 +6,28 @@ import type {
   VerifierTestCase,
 } from './verifier-manifest.js';
 
+export interface BehavioralOracle {
+  /**
+   * Canonical server-owned input/output examples.
+   *
+   * The oracle contains no learner-source matcher and no
+   * reference implementation. The existing isolated executor
+   * evaluates learner code and compares only its observable
+   * output with these expected values.
+   */
+  readonly outputCases:
+    readonly VerifierTestCase[];
+}
+
 export interface PrivateVerifierConfig {
   readonly hiddenTestCases:
     readonly VerifierTestCase[];
 
   readonly pedagogicalRequirements:
     readonly PedagogicalRequirement[];
+
+  readonly oracle:
+    BehavioralOracle | null;
 }
 
 const EMPTY_CONFIG:
@@ -22,6 +38,9 @@ PrivateVerifierConfig =
 
     pedagogicalRequirements:
       Object.freeze([]),
+
+    oracle:
+      null,
   });
 
 const registry =
@@ -101,6 +120,36 @@ const registry =
                 'El resultado es correcto, pero este ejercicio requiere practicar Array.filter().',
             }),
           ]),
+
+        oracle:
+          Object.freeze({
+            outputCases:
+              Object.freeze([
+                Object.freeze({
+                  input:
+                    Object.freeze([
+                      12,
+                      -3,
+                      5,
+                      0,
+                      12,
+                    ]),
+
+                  expected:
+                    Object.freeze([
+                      12,
+                      5,
+                      12,
+                    ]),
+
+                  call:
+                    'positivos(input)',
+
+                  description:
+                    'oracle conductual: compara únicamente el output canónico',
+                }),
+              ]),
+          }),
       }),
     ],
   ]);

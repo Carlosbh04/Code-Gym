@@ -112,11 +112,25 @@ describe(
           );
         }
 
+        /*
+         * 3 public manifest cases
+         * + 2 hidden server cases
+         * + 1 output-only behavioral oracle case.
+         */
         expect(
           verification.testCases,
         ).toHaveLength(
-          5,
+          6,
         );
+
+        expect(
+          verification.testCases.some(
+            (testCase) =>
+              testCase.description
+              ===
+              'oracle conductual: compara únicamente el output canónico',
+          ),
+        ).toBe(true);
       },
     );
 

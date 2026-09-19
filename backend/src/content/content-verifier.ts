@@ -314,6 +314,11 @@ function verifyFixCodeShape(
     testCases: Object.freeze([
       ...step.testCases,
       ...privateConfig.hiddenTestCases,
+      ...(
+        privateConfig.oracle
+          ?.outputCases
+        ?? []
+      ),
     ]),
 
     pedagogicalRequirements:
