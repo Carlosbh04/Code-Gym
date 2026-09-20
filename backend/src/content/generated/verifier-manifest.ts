@@ -2678,6 +2678,429 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-es6-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "cambios aparece después de base.",
+            "rol se escribe explícitamente al final."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Compara ?? con ||.",
+            "false no es null ni undefined."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Cada salto potencialmente ausente debe ser seguro.",
+            "Revisa direccion antes de ciudad."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "perfil": {
+                  "nombre": "Lia",
+                  "direccion": {
+                    "ciudad": "Sevilla"
+                  }
+                },
+                "activo": false
+              },
+              "expected": {
+                "nombre": "Lia",
+                "ciudad": "Sevilla",
+                "activo": false
+              },
+              "call": "crearResumen(input)",
+              "description": "conserva valores completos y false"
+            },
+            {
+              "input": {
+                "perfil": {
+                  "nombre": ""
+                }
+              },
+              "expected": {
+                "nombre": "",
+                "ciudad": "Sin ciudad",
+                "activo": true
+              },
+              "call": "crearResumen(input)",
+              "description": "conserva nombre vacío y aplica defaults solo a ausencias"
+            },
+            {
+              "input": {},
+              "expected": {
+                "nombre": "Sin nombre",
+                "ciudad": "Sin ciudad",
+                "activo": true
+              },
+              "call": "crearResumen(input)",
+              "description": "tolera un objeto completamente parcial"
+            }
+          ],
+          "hints": [
+            "perfil y direccion pueden faltar.",
+            "false y '' deben conservarse."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-deepening-nested-destructuring-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La propiedad sigue llamándose nombre.",
+            "alias es el binding local."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "direccion sí existe.",
+            "Solo falta ciudad."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "¿Qué valor tiene usuario.perfil?",
+            "Puedes usar perfil: { ... } = {}."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "perfil": {
+                  "nombre": "Mara",
+                  "contacto": {
+                    "email": "mara@example.com"
+                  }
+                }
+              },
+              "expected": "Mara|mara@example.com",
+              "call": "leerContacto(input)",
+              "description": "conserva un perfil completo"
+            },
+            {
+              "input": {
+                "perfil": {
+                  "nombre": "Leo"
+                }
+              },
+              "expected": "Leo|sin-email",
+              "call": "leerContacto(input)",
+              "description": "aplica fallback cuando falta contacto"
+            },
+            {
+              "input": {},
+              "expected": "Sin nombre|sin-email",
+              "call": "leerContacto(input)",
+              "description": "tolera que falte la rama perfil completa"
+            }
+          ],
+          "hints": [
+            "perfil puede necesitar = {}.",
+            "contacto también puede necesitar = {}."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-deepening-object-rest-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El rest aparece después de id.",
+            "No modifica el objeto original."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Falsy no significa ausente.",
+            "Solo nombre fue extraído."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "¿Qué propiedad sensible no aparece a la izquierda?",
+            "Extrae password y token antes de ...publico."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "id": 1,
+                "nombre": "Ana",
+                "password": "abc",
+                "token": "xyz"
+              },
+              "expected": {
+                "id": 1,
+                "nombre": "Ana"
+              },
+              "call": "quitarCredenciales(input)",
+              "description": "elimina ambas credenciales"
+            },
+            {
+              "input": {
+                "id": 2,
+                "token": "solo-token",
+                "activo": false
+              },
+              "expected": {
+                "id": 2,
+                "activo": false
+              },
+              "call": "quitarCredenciales(input)",
+              "description": "tolera que password no exista"
+            },
+            {
+              "input": {
+                "id": 3,
+                "nombre": "",
+                "puntos": 0
+              },
+              "expected": {
+                "id": 3,
+                "nombre": "",
+                "puntos": 0
+              },
+              "call": "quitarCredenciales(input)",
+              "description": "preserva propiedades falsy no sensibles"
+            }
+          ],
+          "hints": [
+            "Puedes extraer varias propiedades antes de ...publico.",
+            "No borres propiedades del objeto recibido."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "nombre sí está definido.",
+            "El default se usa cuando la propiedad extraída es undefined."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Primero se evalúa optional chaining.",
+            "undefined activa el lado derecho de ??."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "token se extrae antes del rest.",
+            "publico es un objeto nuevo."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Observa el orden de los spreads.",
+            "Solo limite aparece en ambos objetos."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "null es un valor explícito.",
+            "Llamar con undefined sí activa el default."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-deepening-safe-access-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No se accede a tema si falta preferencias.",
+            "undefined activa ??."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "?? no funciona igual que ||.",
+            "Solo null y undefined activan el fallback."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Busca el primer acceso que puede recibir undefined.",
+            "La cadena segura puede comenzar antes."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "usuario": {
+                  "preferencias": {
+                    "tema": "oscuro"
+                  }
+                }
+              },
+              "expected": "oscuro",
+              "call": "temaActivo(input)",
+              "description": "conserva un tema definido"
+            },
+            {
+              "input": {
+                "usuario": {
+                  "preferencias": {
+                    "tema": ""
+                  }
+                }
+              },
+              "expected": "",
+              "call": "temaActivo(input)",
+              "description": "conserva una cadena vacía válida"
+            },
+            {
+              "input": {},
+              "expected": "claro",
+              "call": "temaActivo(input)",
+              "description": "tolera toda la rama ausente"
+            }
+          ],
+          "hints": [
+            "No uses || si una cadena vacía es válida.",
+            "usuario y preferencias pueden faltar."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-es6-destructuring-shapes-01",
       "technologyId": "javascript",
       "topicId": "js-es6-plus",
@@ -2815,6 +3238,526 @@ export const verifierManifest = {
           ],
           "hints": [
             "0 es falsy, pero no es nullish."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Los dos campos siguen reglas diferentes.",
+            "false no se reemplaza."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "cliente no existe.",
+            "No se evalúan accesos posteriores de la cadena."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Lee el literal de izquierda a derecha.",
+            "¿Cuántas veces se escribe nombre?"
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "id": 1,
+                "nombre": "Sara",
+                "perfil": {
+                  "direccion": {
+                    "ciudad": "Madrid"
+                  },
+                  "preferencias": {
+                    "tema": "oscuro"
+                  }
+                },
+                "rol": "admin"
+              },
+              "expected": {
+                "id": 1,
+                "nombre": "Sara",
+                "ciudad": "Madrid",
+                "tema": "oscuro",
+                "extras": {
+                  "rol": "admin"
+                }
+              },
+              "call": "prepararVista(input)",
+              "description": "normaliza un objeto completo y conserva extras"
+            },
+            {
+              "input": {
+                "id": 2,
+                "nombre": "",
+                "perfil": {
+                  "preferencias": {
+                    "tema": ""
+                  }
+                },
+                "activo": false
+              },
+              "expected": {
+                "id": 2,
+                "nombre": "",
+                "ciudad": "Sin ciudad",
+                "tema": "",
+                "extras": {
+                  "activo": false
+                }
+              },
+              "call": "prepararVista(input)",
+              "description": "conserva cadenas vacías y false"
+            },
+            {
+              "input": {
+                "id": 3
+              },
+              "expected": {
+                "id": 3,
+                "nombre": "Anónimo",
+                "ciudad": "Sin ciudad",
+                "tema": "claro",
+                "extras": {}
+              },
+              "call": "prepararVista(input)",
+              "description": "tolera todas las ramas opcionales ausentes"
+            }
+          ],
+          "hints": [
+            "perfil, direccion y preferencias pueden faltar.",
+            "No uses || si '' debe conservarse."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-mastery-config-composition-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Spread no ignora valores falsy.",
+            "modo solo existe en defaults."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Hay dos defaults distintos.",
+            "Primero se resuelve el argumento de la función."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "El spread no hace deep merge.",
+            "Si quieres fusionar limites debes crear esa rama explícitamente."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "base": {
+                  "tema": "claro",
+                  "limites": {
+                    "min": 1,
+                    "max": 10
+                  }
+                },
+                "cambios": {
+                  "limites": {
+                    "min": 3
+                  }
+                }
+              },
+              "expected": {
+                "tema": "claro",
+                "limites": {
+                  "min": 3,
+                  "max": 10
+                }
+              },
+              "call": "combinarConfig(input.base, input.cambios)",
+              "description": "fusiona cambios parciales dentro de limites"
+            },
+            {
+              "input": {
+                "base": {
+                  "idioma": "es",
+                  "limites": {
+                    "min": 0,
+                    "max": 5
+                  }
+                },
+                "cambios": {
+                  "idioma": "en",
+                  "limites": {
+                    "max": 20
+                  }
+                }
+              },
+              "expected": {
+                "idioma": "en",
+                "limites": {
+                  "min": 0,
+                  "max": 20
+                }
+              },
+              "call": "combinarConfig(input.base, input.cambios)",
+              "description": "respeta la precedencia en ambos niveles"
+            },
+            {
+              "input": {
+                "base": {
+                  "activo": false,
+                  "limites": {
+                    "min": 2,
+                    "max": 8
+                  }
+                },
+                "cambios": {}
+              },
+              "expected": {
+                "activo": false,
+                "limites": {
+                  "min": 2,
+                  "max": 8
+                }
+              },
+              "call": "combinarConfig(input.base, input.cambios)",
+              "description": "conserva configuración cuando no hay cambios"
+            }
+          ],
+          "hints": [
+            "Necesitas un spread para cada nivel que quieras fusionar.",
+            "La rama limites debe combinar base.limites y cambios.limites."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-mastery-immutable-update-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Observa qué objetos tienen un nuevo literal.",
+            "perfil solo se copia como referencia."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La propiedad no se llama literalmente clave.",
+            "clave contiene idioma."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "preferencias recibe un objeto completamente nuevo.",
+            "Necesitas copiar también la rama antes de cambiar tema."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "estado": {
+                  "preferencias": {
+                    "tema": "claro",
+                    "idioma": "es"
+                  },
+                  "perfil": {
+                    "nombre": "Ana"
+                  }
+                },
+                "clave": "tema",
+                "valor": "oscuro"
+              },
+              "expected": {
+                "preferencias": {
+                  "tema": "oscuro",
+                  "idioma": "es"
+                },
+                "perfil": {
+                  "nombre": "Ana"
+                }
+              },
+              "call": "actualizarPreferencia(input.estado, input.clave, input.valor)",
+              "description": "actualiza una preferencia preservando las demás ramas"
+            },
+            {
+              "input": {
+                "estado": {
+                  "preferencias": {
+                    "sonido": true
+                  },
+                  "contador": 0
+                },
+                "clave": "sonido",
+                "valor": false
+              },
+              "expected": {
+                "preferencias": {
+                  "sonido": false
+                },
+                "contador": 0
+              },
+              "call": "actualizarPreferencia(input.estado, input.clave, input.valor)",
+              "description": "permite escribir false"
+            },
+            {
+              "input": {
+                "estado": {
+                  "preferencias": {},
+                  "activo": false
+                },
+                "clave": "idioma",
+                "valor": "en"
+              },
+              "expected": {
+                "preferencias": {
+                  "idioma": "en"
+                },
+                "activo": false
+              },
+              "call": "actualizarPreferencia(input.estado, input.clave, input.valor)",
+              "description": "crea una clave nueva conservando el resto"
+            }
+          ],
+          "hints": [
+            "No escribas sobre estado.preferencias.",
+            "Copia estado y también estado.preferencias."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-mastery-normalize-profile-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "false está presente.",
+            "No confundir default con ||."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "nombre no estaba en el objeto.",
+            "Rest toma las propiedades restantes."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "¿Qué hace || con ''?",
+            "Compara ese comportamiento con ??."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "nombre": "Ada",
+                "email": "ada@example.com",
+                "rol": "admin"
+              },
+              "expected": {
+                "nombre": "Ada",
+                "email": "ada@example.com",
+                "rol": "admin"
+              },
+              "call": "normalizarPerfil(input)",
+              "description": "conserva un perfil completo"
+            },
+            {
+              "input": {
+                "nombre": "",
+                "email": "",
+                "activo": false
+              },
+              "expected": {
+                "nombre": "",
+                "email": "",
+                "activo": false
+              },
+              "call": "normalizarPerfil(input)",
+              "description": "conserva cadenas vacías y false"
+            },
+            {
+              "input": {
+                "puntos": 0
+              },
+              "expected": {
+                "nombre": "Sin nombre",
+                "email": "sin-email",
+                "puntos": 0
+              },
+              "call": "normalizarPerfil(input)",
+              "description": "aplica defaults a ausencias y preserva extras"
+            }
+          ],
+          "hints": [
+            "No sustituyas '' por un fallback.",
+            "Las propiedades extra deben sobrevivir."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El alias cambia el nombre local.",
+            "La propiedad original no existe."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Rest recoge únicamente los argumentos sobrantes.",
+            "El primer parámetro ya consumió un argumento."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "0 es falsy.",
+            "Pero no es nullish."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Spread copia propiedades de primer nivel.",
+            "perfil sigue apuntando al mismo objeto."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue el objeto de izquierda a derecha.",
+            "modo aparece cuatro veces."
           ]
         }
       ]

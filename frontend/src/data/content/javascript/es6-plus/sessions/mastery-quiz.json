@@ -1,0 +1,188 @@
+{
+  "id": "js-es6-mastery-quiz-01",
+  "title": "Quiz: composición avanzada de ES6+",
+  "difficulty": "advanced",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "mastery",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué obtiene nombre con alias y default?",
+      "code": "const usuario = { perfil: {} };\nconst { perfil: { nombre: displayName = 'Anónimo' } = {} } = usuario;\nconsole.log(displayName);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Anónimo",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "displayName",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "nombre está undefined y el binding displayName recibe el default.",
+      "hints": [
+        "El alias cambia el nombre local.",
+        "La propiedad original no existe."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué ocurre con rest en parámetros?",
+      "code": "function primeroYresto(primero, ...resto) {\n  return `${primero}|${resto.length}`;\n}\nconsole.log(primeroYresto('a', 'b', 'c', 'd'));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "a|3",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "a|4",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "b|3",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El primer argumento va a primero y los tres restantes forman el array resto.",
+      "hints": [
+        "Rest recoge únicamente los argumentos sobrantes.",
+        "El primer parámetro ya consumió un argumento."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve esta combinación de ?. y ?? con cero?",
+      "code": "const datos = { metricas: { total: 0 } };\nconsole.log(datos.metricas?.total ?? 10);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "0",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "10",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "0 existe y ?? lo conserva.",
+      "hints": [
+        "0 es falsy.",
+        "Pero no es nullish."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "code-reading",
+      "prompt": "¿Qué referencia se conserva con un spread superficial?",
+      "code": "const base = { perfil: { nombre: 'Ada' }, activo: true };\nconst copia = { ...base };\nconsole.log(copia.perfil === base.perfil);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "true",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El objeto exterior es nuevo, pero perfil no se clonó.",
+      "hints": [
+        "Spread copia propiedades de primer nivel.",
+        "perfil sigue apuntando al mismo objeto."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué valor final tiene modo?",
+      "code": "const base = { modo: 'base' };\nconst cambios = { modo: 'cambio' };\nconst final = { modo: 'inicial', ...base, ...cambios, modo: 'final' };\nconsole.log(final.modo);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "final",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "cambio",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "base",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La última escritura de una propiedad es la que permanece.",
+      "hints": [
+        "Sigue el objeto de izquierda a derecha.",
+        "modo aparece cuatro veces."
+      ],
+      "stepOrder": 5
+    }
+  ]
+}

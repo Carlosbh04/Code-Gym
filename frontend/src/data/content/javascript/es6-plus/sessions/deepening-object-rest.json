@@ -1,0 +1,182 @@
+{
+  "id": "js-es6-deepening-object-rest-01",
+  "title": "Object rest y datos públicos",
+  "difficulty": "intermediate",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-04",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué contiene resto?",
+      "code": "const { id, ...resto } = { id: 3, nombre: 'Ana', activo: false };\nconsole.log(JSON.stringify(resto));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "{\"nombre\":\"Ana\",\"activo\":false}",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "{\"id\":3}",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "{\"id\":3,\"nombre\":\"Ana\",\"activo\":false}",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "id se extrae y rest conserva las demás propiedades.",
+      "hints": [
+        "El rest aparece después de id.",
+        "No modifica el objeto original."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué valor mantiene extras.activo?",
+      "code": "const { nombre, ...extras } = { nombre: 'Sol', activo: false, puntos: 0 };\nconsole.log(`${extras.activo}|${extras.puntos}`);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "false|0",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "true|0",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined|undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Rest copia los valores tal como existen, incluidos false y 0.",
+      "hints": [
+        "Falsy no significa ausente.",
+        "Solo nombre fue extraído."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "¿Por qué secreto continúa apareciendo en publico?",
+      "code": "const usuario = { id: 1, password: 'x', token: 'y' };\nconst { password, ...publico } = usuario;\nconsole.log(publico);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "rest",
+          "correct": "token también debe extraerse antes de ...publico"
+        },
+        {
+          "id": "b",
+          "text": "password",
+          "correct": "password debería quedarse dentro de publico"
+        },
+        {
+          "id": "c",
+          "text": "objeto",
+          "correct": "rest solo funciona con arrays"
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El rest excluye únicamente las propiedades que ya fueron extraídas. token sigue formando parte de las restantes.",
+      "hints": [
+        "¿Qué propiedad sensible no aparece a la izquierda?",
+        "Extrae password y token antes de ...publico."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige quitarCredenciales para devolver un objeto nuevo sin password ni token.",
+      "code": "function quitarCredenciales(usuario) {\n  const { password, ...publico } = usuario;\n  return publico;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "id": 1,
+            "nombre": "Ana",
+            "password": "abc",
+            "token": "xyz"
+          },
+          "expected": {
+            "id": 1,
+            "nombre": "Ana"
+          },
+          "call": "quitarCredenciales(input)",
+          "description": "elimina ambas credenciales"
+        },
+        {
+          "input": {
+            "id": 2,
+            "token": "solo-token",
+            "activo": false
+          },
+          "expected": {
+            "id": 2,
+            "activo": false
+          },
+          "call": "quitarCredenciales(input)",
+          "description": "tolera que password no exista"
+        },
+        {
+          "input": {
+            "id": 3,
+            "nombre": "",
+            "puntos": 0
+          },
+          "expected": {
+            "id": 3,
+            "nombre": "",
+            "puntos": 0
+          },
+          "call": "quitarCredenciales(input)",
+          "description": "preserva propiedades falsy no sensibles"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Extrae password y token en el destructuring y devuelve únicamente el rest.",
+      "hints": [
+        "Puedes extraer varias propiedades antes de ...publico.",
+        "No borres propiedades del objeto recibido."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 2,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

@@ -1,0 +1,188 @@
+{
+  "id": "js-es6-deepening-quiz-01",
+  "title": "Quiz: composición de sintaxis moderna",
+  "difficulty": "intermediate",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "deepening",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué imprime este destructuring anidado?",
+      "code": "const usuario = { perfil: { nombre: 'Luna' } };\nconst { perfil: { nombre, ciudad = 'Madrid' } } = usuario;\nconsole.log(`${nombre}|${ciudad}`);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Luna|Madrid",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Luna|undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined|Madrid",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "ciudad no existe y por eso el default de destructuring usa Madrid.",
+      "hints": [
+        "nombre sí está definido.",
+        "El default se usa cuando la propiedad extraída es undefined."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué valor produce optional chaining con nullish coalescing?",
+      "code": "const config = { usuario: null };\nconsole.log(config.usuario?.preferencias?.tema ?? 'claro');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "claro",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "null",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Lanza TypeError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "?. detiene el acceso al encontrar null y produce undefined; después ?? usa el fallback.",
+      "hints": [
+        "Primero se evalúa optional chaining.",
+        "undefined activa el lado derecho de ??."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué propiedades quedan dentro de publico?",
+      "code": "const { token, ...publico } = { id: 7, token: 'abc', activo: false };\nconsole.log(Object.keys(publico).join('|'));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "id|activo",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "id|token|activo",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "token",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Object rest recoge todas las propiedades salvo las extraídas explícitamente.",
+      "hints": [
+        "token se extrae antes del rest.",
+        "publico es un objeto nuevo."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "code-reading",
+      "prompt": "¿Cuál es el resultado después de aplicar ambos spreads?",
+      "code": "const base = { modo: 'normal', limite: 10 };\nconst cambios = { limite: 25 };\nconst final = { ...base, ...cambios };\nconsole.log(`${final.modo}|${final.limite}`);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "normal|25",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "normal|10",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined|25",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El segundo spread sobrescribe limite y las demás propiedades de base permanecen.",
+      "hints": [
+        "Observa el orden de los spreads.",
+        "Solo limite aparece en ambos objetos."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Cuándo actúa el default parameter?",
+      "code": "function etiqueta(valor = 'sin valor') {\n  return String(valor);\n}\nconsole.log(etiqueta(null) + '|' + etiqueta(undefined));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "null|sin valor",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "sin valor|sin valor",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "null|undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El default parameter se aplica a undefined, no a null.",
+      "hints": [
+        "null es un valor explícito.",
+        "Llamar con undefined sí activa el default."
+      ],
+      "stepOrder": 5
+    }
+  ]
+}

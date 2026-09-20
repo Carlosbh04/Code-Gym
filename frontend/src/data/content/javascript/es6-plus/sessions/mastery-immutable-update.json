@@ -1,0 +1,205 @@
+{
+  "id": "js-es6-mastery-immutable-update-01",
+  "title": "Actualizaciones inmutables con spread",
+  "difficulty": "advanced",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-04",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué ramas cambian de referencia?",
+      "code": "const estado = { preferencias: { tema: 'claro' }, perfil: { nombre: 'Ana' } };\nconst siguiente = { ...estado, preferencias: { ...estado.preferencias, tema: 'oscuro' } };\nconsole.log(`${siguiente !== estado}|${siguiente.preferencias !== estado.preferencias}|${siguiente.perfil === estado.perfil}`);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "true|true|true",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "true|false|false",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "false|false|true",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Se recrean el contenedor exterior y preferencias. perfil se conserva porque no cambia.",
+      "hints": [
+        "Observa qué objetos tienen un nuevo literal.",
+        "perfil solo se copia como referencia."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué propiedad crea una computed property?",
+      "code": "const clave = 'idioma';\nconst preferencias = { [clave]: 'es' };\nconsole.log(preferencias.idioma);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "es",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "clave",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los corchetes evalúan clave y usan su valor como nombre de propiedad.",
+      "hints": [
+        "La propiedad no se llama literalmente clave.",
+        "clave contiene idioma."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "¿Por qué esta actualización pierde idioma?",
+      "code": "const estado = { preferencias: { tema: 'claro', idioma: 'es' } };\nconst siguiente = { ...estado, preferencias: { tema: 'oscuro' } };\nconsole.log(siguiente);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "rama",
+          "correct": "preferencias se reemplaza completa sin copiar sus propiedades existentes"
+        },
+        {
+          "id": "b",
+          "text": "exterior",
+          "correct": "el spread de estado debe eliminarse"
+        },
+        {
+          "id": "c",
+          "text": "tema",
+          "correct": "no se puede sobrescribir una propiedad con spread"
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Copiar el objeto exterior no fusiona automáticamente objetos anidados.",
+      "hints": [
+        "preferencias recibe un objeto completamente nuevo.",
+        "Necesitas copiar también la rama antes de cambiar tema."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige actualizarPreferencia para cambiar una clave dentro de preferencias sin perder el resto ni mutar el estado.",
+      "code": "function actualizarPreferencia(estado, clave, valor) {\n  estado.preferencias[clave] = valor;\n  return estado;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "estado": {
+              "preferencias": {
+                "tema": "claro",
+                "idioma": "es"
+              },
+              "perfil": {
+                "nombre": "Ana"
+              }
+            },
+            "clave": "tema",
+            "valor": "oscuro"
+          },
+          "expected": {
+            "preferencias": {
+              "tema": "oscuro",
+              "idioma": "es"
+            },
+            "perfil": {
+              "nombre": "Ana"
+            }
+          },
+          "call": "actualizarPreferencia(input.estado, input.clave, input.valor)",
+          "description": "actualiza una preferencia preservando las demás ramas"
+        },
+        {
+          "input": {
+            "estado": {
+              "preferencias": {
+                "sonido": true
+              },
+              "contador": 0
+            },
+            "clave": "sonido",
+            "valor": false
+          },
+          "expected": {
+            "preferencias": {
+              "sonido": false
+            },
+            "contador": 0
+          },
+          "call": "actualizarPreferencia(input.estado, input.clave, input.valor)",
+          "description": "permite escribir false"
+        },
+        {
+          "input": {
+            "estado": {
+              "preferencias": {},
+              "activo": false
+            },
+            "clave": "idioma",
+            "valor": "en"
+          },
+          "expected": {
+            "preferencias": {
+              "idioma": "en"
+            },
+            "activo": false
+          },
+          "call": "actualizarPreferencia(input.estado, input.clave, input.valor)",
+          "description": "crea una clave nueva conservando el resto"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Devuelve un objeto exterior nuevo y una nueva rama preferencias utilizando spread y la clave calculada.",
+      "hints": [
+        "No escribas sobre estado.preferencias.",
+        "Copia estado y también estado.preferencias."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

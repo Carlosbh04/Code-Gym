@@ -1,1 +1,217 @@
-{"id":"js-es6-modern-syntax","name":"Destructuring, rest y valores opcionales","topicId":"js-es6-plus","technologyId":"javascript","position":0,"content":{"sections":[{"type":"intro","title":"Introducción","body":"La sintaxis moderna hace explícita la extracción de valores, los parámetros restantes y los defaults."},{"type":"objectives","title":"Qué vas a aprender","items":["Desestructurar datos","Aplicar valores por defecto"]},{"type":"code","title":"Ejemplo","language":"javascript","code":"const { name = 'Invitado' } = profile;"},{"type":"key-point","title":"Punto clave","body":"El default se usa cuando la propiedad es undefined, no cuando es una cadena vacía."},{"type":"quick-check","question":"¿Cuándo se usa Invitado?","answer":"Cuando profile.name es undefined."}]}}
+{
+  "id": "js-es6-modern-syntax",
+  "name": "Destructuring, rest y valores opcionales",
+  "topicId": "js-es6-plus",
+  "technologyId": "javascript",
+  "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Nivel base del concepto.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Combina destructuring, rest, spread, optional chaining y defaults en estructuras reales.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Compone sintaxis moderna en transformaciones robustas, seguras y sin mutaciones accidentales.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Introducción",
+        "body": "La sintaxis moderna hace explícita la extracción de valores, los parámetros restantes y los defaults.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Desestructurar datos",
+          "Aplicar valores por defecto"
+        ],
+        "levelId": "foundation"
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const { name = 'Invitado' } = profile;",
+        "levelId": "foundation"
+      },
+      {
+        "type": "key-point",
+        "title": "Punto clave",
+        "body": "El default se usa cuando la propiedad es undefined, no cuando es una cadena vacía.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Cuándo se usa Invitado?",
+        "answer": "Cuando profile.name es undefined.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "intro",
+        "title": "Componer sintaxis moderna",
+        "body": "En código real, destructuring, rest, spread, optional chaining y nullish coalescing suelen aparecer juntos. El objetivo ya no es reconocer cada operador por separado, sino combinarlos sin perder información ni provocar accesos inseguros.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a profundizar",
+        "items": [
+          "Desestructurar estructuras anidadas con defaults",
+          "Separar propiedades con object rest",
+          "Acceder de forma segura con optional chaining",
+          "Distinguir nullish de otros valores falsy",
+          "Entender la precedencia al combinar objetos con spread"
+        ],
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Destructuring anidado",
+        "language": "javascript",
+        "code": "const usuario = { perfil: { nombre: 'Mara' } };\nconst { perfil: { nombre, ciudad = 'Madrid' } } = usuario;",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Un default no significa valor falsy",
+        "body": "Un valor por defecto de destructuring se aplica cuando el valor es undefined. Cero, false, una cadena vacía y null no se sustituyen automáticamente.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Separar propiedades con rest",
+        "language": "javascript",
+        "code": "const { password, token, ...publico } = usuario;",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Rest no elimina propiedades del original",
+        "body": "Object rest construye un objeto nuevo con las propiedades restantes. El objeto de entrada continúa teniendo sus claves originales.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Acceso seguro y fallback preciso",
+        "language": "javascript",
+        "code": "const tema = config.usuario?.preferencias?.tema ?? 'claro';",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Optional chaining y nullish resuelven problemas distintos",
+        "body": "?. evita continuar un acceso cuando aparece null o undefined. ?? decide el fallback después y conserva valores válidos como false, 0 y ''.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "La posición del spread determina la precedencia",
+        "language": "javascript",
+        "code": "const final = { ...base, ...cambios, modo: 'seguro' };",
+        "levelId": "deepening"
+      },
+      {
+        "type": "quick-check",
+        "question": "Si base tiene limite: 10 y cambios tiene limite: 25, ¿qué valor tendrá { ...base, ...cambios }.limite?",
+        "answer": "25, porque el spread que aparece después sobrescribe la misma propiedad.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Spread es superficial",
+        "body": "Copiar un objeto con spread crea un contenedor nuevo, pero los objetos anidados que no reemplazas continúan compartiendo referencia.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "intro",
+        "title": "Sintaxis moderna como contrato de datos",
+        "body": "En dominio avanzado, la sintaxis moderna sirve para normalizar entradas parciales, preservar información y producir nuevas estructuras sin depender de rutas que puedan faltar.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a dominar",
+        "items": [
+          "Combinar aliases y defaults anidados",
+          "Actualizar ramas concretas sin perder las demás",
+          "Normalizar objetos parciales",
+          "Preservar valores falsy válidos",
+          "Diseñar transformaciones previsibles con rest y spread"
+        ],
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Alias y defaults en la misma extracción",
+        "language": "javascript",
+        "code": "const { perfil: { nombre: displayName = 'Anónimo' } = {} } = usuario;",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "El default del contenedor importa",
+        "body": "Dar un default únicamente a una propiedad interior no protege si el objeto padre es undefined. En estructuras anidadas debes decidir también qué ocurre cuando falta la rama completa.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Actualizar una rama con computed property",
+        "language": "javascript",
+        "code": "const siguiente = {\n  ...estado,\n  preferencias: {\n    ...estado.preferencias,\n    [clave]: valor,\n  },\n};",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "Copia únicamente las ramas que cambian",
+        "body": "Una actualización inmutable no exige reconstruir todo el árbol. Se crean nuevos objetos en el camino modificado y se pueden conservar las referencias de ramas no afectadas.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Normalizar y conservar extras",
+        "language": "javascript",
+        "code": "const { nombre = 'Sin nombre', email, ...extras } = entrada;\nconst salida = { nombre, email: email ?? 'sin-email', ...extras };",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "Orden de evaluación",
+        "body": "Destructuring extrae primero. Después, cada spread se aplica en el orden escrito. Las propiedades explícitas posteriores siguen teniendo la última palabra.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Parámetros con destructuring seguro",
+        "language": "javascript",
+        "code": "function mostrar({ nombre = 'Anónimo', activo = true } = {}) {\n  return `${nombre}:${activo}`;\n}",
+        "levelId": "mastery"
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Qué valor conserva mejor ?? que || cuando la aplicación considera 0 un dato válido?",
+        "answer": "0. ?? solo usa fallback con null o undefined, mientras que || también sustituye 0 por ser falsy.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "La sintaxis debe expresar la intención",
+        "body": "Rest, spread, destructuring, ?. y ?? son herramientas. La solución correcta es la que mantiene el contrato observable de datos, incluso si existe otra implementación válida con una técnica diferente.",
+        "levelId": "mastery"
+      }
+    ]
+  }
+}

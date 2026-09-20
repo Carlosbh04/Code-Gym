@@ -1,0 +1,181 @@
+{
+  "id": "js-es6-mastery-normalize-profile-01",
+  "title": "Normalización de perfiles parciales",
+  "difficulty": "advanced",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-04",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué valor conserva activo con destructuring?",
+      "code": "const { activo = true } = { activo: false };\nconsole.log(activo);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "false",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "true",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El default de destructuring solo sustituye undefined.",
+      "hints": [
+        "false está presente.",
+        "No confundir default con ||."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué claves conserva extras?",
+      "code": "const { nombre = 'Anónimo', ...extras } = { id: 4, activo: false };\nconsole.log(`${nombre}|${Object.keys(extras).join(',')}`);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Anónimo|id,activo",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined|id",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Anónimo|nombre,id,activo",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "nombre falta y usa el default; rest conserva id y activo.",
+      "hints": [
+        "nombre no estaba en el objeto.",
+        "Rest toma las propiedades restantes."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "¿Por qué email vacío se reemplaza incorrectamente?",
+      "code": "function normalizar(usuario) {\n  const { email } = usuario;\n  return { ...usuario, email: email || 'sin-email' };\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "fallback",
+          "correct": "|| trata la cadena vacía como ausencia aunque puede ser un valor válido"
+        },
+        {
+          "id": "b",
+          "text": "spread",
+          "correct": "spread siempre elimina email"
+        },
+        {
+          "id": "c",
+          "text": "destructuring",
+          "correct": "email no puede extraerse antes del return"
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Si el contrato solo considera ausentes null y undefined, debe utilizarse ?? en lugar de ||.",
+      "hints": [
+        "¿Qué hace || con ''?",
+        "Compara ese comportamiento con ??."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige normalizarPerfil para aplicar defaults solo a valores ausentes y conservar propiedades extra.",
+      "code": "function normalizarPerfil(perfil) {\n  const { nombre, email, ...extras } = perfil;\n  return {\n    nombre: nombre || 'Sin nombre',\n    email: email || 'sin-email',\n    ...extras,\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "nombre": "Ada",
+            "email": "ada@example.com",
+            "rol": "admin"
+          },
+          "expected": {
+            "nombre": "Ada",
+            "email": "ada@example.com",
+            "rol": "admin"
+          },
+          "call": "normalizarPerfil(input)",
+          "description": "conserva un perfil completo"
+        },
+        {
+          "input": {
+            "nombre": "",
+            "email": "",
+            "activo": false
+          },
+          "expected": {
+            "nombre": "",
+            "email": "",
+            "activo": false
+          },
+          "call": "normalizarPerfil(input)",
+          "description": "conserva cadenas vacías y false"
+        },
+        {
+          "input": {
+            "puntos": 0
+          },
+          "expected": {
+            "nombre": "Sin nombre",
+            "email": "sin-email",
+            "puntos": 0
+          },
+          "call": "normalizarPerfil(input)",
+          "description": "aplica defaults a ausencias y preserva extras"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Usa ?? para nombre y email y conserva ...extras en la salida.",
+      "hints": [
+        "No sustituyas '' por un fallback.",
+        "Las propiedades extra deben sobrevivir."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 2,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

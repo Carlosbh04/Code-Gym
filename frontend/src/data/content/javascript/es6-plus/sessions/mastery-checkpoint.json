@@ -1,0 +1,204 @@
+{
+  "id": "js-es6-mastery-checkpoint-01",
+  "title": "Checkpoint: dominio de sintaxis moderna",
+  "difficulty": "advanced",
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué resultado deja la normalización?",
+      "code": "const entrada = { nombre: undefined, activo: false };\nconst { nombre = 'Anónimo', ...extras } = entrada;\nconst salida = { nombre, ...extras };\nconsole.log(`${salida.nombre}|${salida.activo}`);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Anónimo|false",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined|true",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Anónimo|true",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "nombre usa default por ser undefined y rest conserva activo:false.",
+      "hints": [
+        "Los dos campos siguen reglas diferentes.",
+        "false no se reemplaza."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve un acceso seguro a una rama inexistente?",
+      "code": "const pedido = {};\nconst ciudad = pedido.cliente?.direccion?.ciudad ?? 'Sin ciudad';\nconsole.log(ciudad);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Sin ciudad",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "TypeError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Optional chaining produce undefined y el fallback resuelve el valor final.",
+      "hints": [
+        "cliente no existe.",
+        "No se evalúan accesos posteriores de la cadena."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "¿Qué provoca que extras sobrescriba el valor normalizado?",
+      "code": "function preparar(datos) {\n  const { nombre, ...extras } = datos;\n  return { nombre: nombre ?? 'Anónimo', ...extras, nombre };\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "ultima-propiedad",
+          "correct": "nombre se vuelve a escribir al final y puede restaurar undefined"
+        },
+        {
+          "id": "b",
+          "text": "rest",
+          "correct": "extras siempre contiene nombre"
+        },
+        {
+          "id": "c",
+          "text": "nullish",
+          "correct": "?? no puede utilizarse dentro de un objeto"
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las propiedades explícitas posteriores tienen precedencia. El nombre final vuelve a ser el binding original.",
+      "hints": [
+        "Lee el literal de izquierda a derecha.",
+        "¿Cuántas veces se escribe nombre?"
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige prepararVista para aceptar datos parciales y devolver { id, nombre, ciudad, tema, extras } preservando valores válidos.",
+      "code": "function prepararVista(datos) {\n  const { id, nombre, perfil, ...extras } = datos;\n  return {\n    id,\n    nombre: nombre || 'Anónimo',\n    ciudad: perfil.direccion.ciudad || 'Sin ciudad',\n    tema: perfil.preferencias.tema || 'claro',\n    extras,\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "id": 1,
+            "nombre": "Sara",
+            "perfil": {
+              "direccion": {
+                "ciudad": "Madrid"
+              },
+              "preferencias": {
+                "tema": "oscuro"
+              }
+            },
+            "rol": "admin"
+          },
+          "expected": {
+            "id": 1,
+            "nombre": "Sara",
+            "ciudad": "Madrid",
+            "tema": "oscuro",
+            "extras": {
+              "rol": "admin"
+            }
+          },
+          "call": "prepararVista(input)",
+          "description": "normaliza un objeto completo y conserva extras"
+        },
+        {
+          "input": {
+            "id": 2,
+            "nombre": "",
+            "perfil": {
+              "preferencias": {
+                "tema": ""
+              }
+            },
+            "activo": false
+          },
+          "expected": {
+            "id": 2,
+            "nombre": "",
+            "ciudad": "Sin ciudad",
+            "tema": "",
+            "extras": {
+              "activo": false
+            }
+          },
+          "call": "prepararVista(input)",
+          "description": "conserva cadenas vacías y false"
+        },
+        {
+          "input": {
+            "id": 3
+          },
+          "expected": {
+            "id": 3,
+            "nombre": "Anónimo",
+            "ciudad": "Sin ciudad",
+            "tema": "claro",
+            "extras": {}
+          },
+          "call": "prepararVista(input)",
+          "description": "tolera todas las ramas opcionales ausentes"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Combina rest para extras, optional chaining para ramas anidadas y ?? para defaults precisos.",
+      "hints": [
+        "perfil, direccion y preferencias pueden faltar.",
+        "No uses || si '' debe conservarse."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

@@ -2628,6 +2628,554 @@ const registry =
 
     [
       verifierKey(
+        'js-es6-deepening-nested-destructuring-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze({
+              perfil:
+                Object.freeze({
+                  nombre:
+                    'Eva',
+                  contacto:
+                    Object.freeze({
+                      email:
+                        'eva@demo.test',
+                    }),
+                }),
+            }),
+          expected:
+            'Eva|eva@demo.test',
+          call:
+            'leerContacto(input)',
+          description:
+            'resuelve un contacto anidado completo',
+        }),
+
+        Object.freeze({
+          input:
+            Object.freeze({
+              perfil:
+                Object.freeze({}),
+            }),
+          expected:
+            'Sin nombre|sin-email',
+          call:
+            'leerContacto(input)',
+          description:
+            'aplica defaults cuando faltan propiedades interiores',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-es6-deepening-object-rest-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze({
+              id:
+                11,
+              nombre:
+                'Luis',
+              password:
+                'secret',
+              token:
+                'token',
+              activo:
+                true,
+            }),
+          expected:
+            Object.freeze({
+              id:
+                11,
+              nombre:
+                'Luis',
+              activo:
+                true,
+            }),
+          call:
+            'quitarCredenciales(input)',
+          description:
+            'elimina password y token conservando el resto',
+        }),
+
+        Object.freeze({
+          input:
+            Object.freeze({
+              id:
+                12,
+              nombre:
+                '',
+              activo:
+                false,
+              puntos:
+                0,
+            }),
+          expected:
+            Object.freeze({
+              id:
+                12,
+              nombre:
+                '',
+              activo:
+                false,
+              puntos:
+                0,
+            }),
+          call:
+            'quitarCredenciales(input)',
+          description:
+            'preserva valores falsy no sensibles',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-es6-deepening-safe-access-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze({
+              usuario:
+                Object.freeze({
+                  preferencias:
+                    Object.freeze({
+                      tema:
+                        false,
+                    }),
+                }),
+            }),
+          expected:
+            false,
+          call:
+            'temaActivo(input)',
+          description:
+            'conserva false porque no es nullish',
+        }),
+
+        Object.freeze({
+          input:
+            Object.freeze({
+              usuario:
+                Object.freeze({}),
+            }),
+          expected:
+            'claro',
+          call:
+            'temaActivo(input)',
+          description:
+            'tolera preferencias ausentes',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-es6-deepening-checkpoint-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze({
+              perfil:
+                Object.freeze({
+                  nombre:
+                    'Nora',
+                  direccion:
+                    Object.freeze({}),
+                }),
+              activo:
+                false,
+            }),
+          expected:
+            Object.freeze({
+              nombre:
+                'Nora',
+              ciudad:
+                'Sin ciudad',
+              activo:
+                false,
+            }),
+          call:
+            'crearResumen(input)',
+          description:
+            'conserva false y aplica fallback solo a ciudad',
+        }),
+
+        Object.freeze({
+          input:
+            Object.freeze({
+              activo:
+                0,
+            }),
+          expected:
+            Object.freeze({
+              nombre:
+                'Sin nombre',
+              ciudad:
+                'Sin ciudad',
+              activo:
+                0,
+            }),
+          call:
+            'crearResumen(input)',
+          description:
+            'conserva cero como valor definido',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-es6-mastery-immutable-update-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze({
+              estado:
+                Object.freeze({
+                  preferencias:
+                    Object.freeze({
+                      tema:
+                        'claro',
+                      idioma:
+                        'es',
+                      sonido:
+                        true,
+                    }),
+                  perfil:
+                    Object.freeze({
+                      nombre:
+                        'Mario',
+                    }),
+                }),
+              clave:
+                'idioma',
+              valor:
+                'fr',
+            }),
+          expected:
+            Object.freeze({
+              preferencias:
+                Object.freeze({
+                  tema:
+                    'claro',
+                  idioma:
+                    'fr',
+                  sonido:
+                    true,
+                }),
+              perfil:
+                Object.freeze({
+                  nombre:
+                    'Mario',
+                }),
+            }),
+          call:
+            'actualizarPreferencia(input.estado, input.clave, input.valor)',
+          description:
+            'actualiza una única preferencia preservando las demás',
+        }),
+
+        Object.freeze({
+          input:
+            Object.freeze({
+              estado:
+                Object.freeze({
+                  preferencias:
+                    Object.freeze({
+                      contador:
+                        4,
+                    }),
+                  activo:
+                    false,
+                }),
+              clave:
+                'contador',
+              valor:
+                0,
+            }),
+          expected:
+            Object.freeze({
+              preferencias:
+                Object.freeze({
+                  contador:
+                    0,
+                }),
+              activo:
+                false,
+            }),
+          call:
+            'actualizarPreferencia(input.estado, input.clave, input.valor)',
+          description:
+            'acepta cero como nuevo valor',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-es6-mastery-normalize-profile-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze({
+              nombre:
+                null,
+              email:
+                undefined,
+              puntos:
+                10,
+            }),
+          expected:
+            Object.freeze({
+              nombre:
+                'Sin nombre',
+              email:
+                'sin-email',
+              puntos:
+                10,
+            }),
+          call:
+            'normalizarPerfil(input)',
+          description:
+            'normaliza null y undefined conservando extras',
+        }),
+
+        Object.freeze({
+          input:
+            Object.freeze({
+              nombre:
+                false,
+              email:
+                0,
+              activo:
+                false,
+            }),
+          expected:
+            Object.freeze({
+              nombre:
+                false,
+              email:
+                0,
+              activo:
+                false,
+            }),
+          call:
+            'normalizarPerfil(input)',
+          description:
+            'conserva valores definidos aunque sean falsy',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-es6-mastery-config-composition-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze({
+              base:
+                Object.freeze({
+                  tema:
+                    'claro',
+                  limites:
+                    Object.freeze({
+                      min:
+                        1,
+                      max:
+                        100,
+                    }),
+                  activo:
+                    false,
+                }),
+              cambios:
+                Object.freeze({
+                  limites:
+                    Object.freeze({
+                      max:
+                        50,
+                    }),
+                }),
+            }),
+          expected:
+            Object.freeze({
+              tema:
+                'claro',
+              limites:
+                Object.freeze({
+                  min:
+                    1,
+                  max:
+                    50,
+                }),
+              activo:
+                false,
+            }),
+          call:
+            'combinarConfig(input.base, input.cambios)',
+          description:
+            'fusiona parcialmente la rama limites',
+        }),
+
+        Object.freeze({
+          input:
+            Object.freeze({
+              base:
+                Object.freeze({
+                  limites:
+                    Object.freeze({
+                      min:
+                        0,
+                      max:
+                        0,
+                    }),
+                  modo:
+                    'base',
+                }),
+              cambios:
+                Object.freeze({
+                  limites:
+                    Object.freeze({
+                      min:
+                        -5,
+                    }),
+                  modo:
+                    '',
+                }),
+            }),
+          expected:
+            Object.freeze({
+              limites:
+                Object.freeze({
+                  min:
+                    -5,
+                  max:
+                    0,
+                }),
+              modo:
+                '',
+            }),
+          call:
+            'combinarConfig(input.base, input.cambios)',
+          description:
+            'respeta precedencia y valores falsy',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-es6-mastery-checkpoint-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze({
+              id:
+                20,
+              nombre:
+                null,
+              perfil:
+                Object.freeze({
+                  direccion:
+                    Object.freeze({
+                      ciudad:
+                        '',
+                    }),
+                  preferencias:
+                    Object.freeze({
+                      tema:
+                        false,
+                    }),
+                }),
+              puntos:
+                0,
+            }),
+          expected:
+            Object.freeze({
+              id:
+                20,
+              nombre:
+                'Anónimo',
+              ciudad:
+                '',
+              tema:
+                false,
+              extras:
+                Object.freeze({
+                  puntos:
+                    0,
+                }),
+            }),
+          call:
+            'prepararVista(input)',
+          description:
+            'normaliza null sin perder falsy válidos ni extras',
+        }),
+
+        Object.freeze({
+          input:
+            Object.freeze({
+              id:
+                21,
+              perfil:
+                null,
+              activo:
+                false,
+            }),
+          expected:
+            Object.freeze({
+              id:
+                21,
+              nombre:
+                'Anónimo',
+              ciudad:
+                'Sin ciudad',
+              tema:
+                'claro',
+              extras:
+                Object.freeze({
+                  activo:
+                    false,
+                }),
+            }),
+          call:
+            'prepararVista(input)',
+          description:
+            'tolera perfil null y conserva propiedades extra',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
         'js-closures-deepening-configured-factory-01',
         'step-4',
       ),

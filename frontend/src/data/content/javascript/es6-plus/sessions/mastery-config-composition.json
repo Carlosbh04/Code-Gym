@@ -1,0 +1,213 @@
+{
+  "id": "js-es6-mastery-config-composition-01",
+  "title": "Composición de configuraciones",
+  "difficulty": "advanced",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-04",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué valor gana al final?",
+      "code": "const defaults = { limite: 10, modo: 'normal' };\nconst usuario = { limite: 0 };\nconst config = { ...defaults, ...usuario };\nconsole.log(`${config.limite}|${config.modo}`);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "0|normal",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "10|normal",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "0|undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El spread de usuario aparece después y puede sobrescribir limite incluso con 0.",
+      "hints": [
+        "Spread no ignora valores falsy.",
+        "modo solo existe en defaults."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve el parámetro destructurado cuando no se pasa argumento?",
+      "code": "function idioma({ locale = 'es' } = {}) {\n  return locale;\n}\nconsole.log(idioma());",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "es",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "TypeError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El parámetro completo usa {} como default y después locale usa es.",
+      "hints": [
+        "Hay dos defaults distintos.",
+        "Primero se resuelve el argumento de la función."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "¿Por qué limites.max desaparece?",
+      "code": "const base = { limites: { min: 1, max: 10 }, tema: 'claro' };\nconst cambios = { limites: { min: 3 } };\nconst final = { ...base, ...cambios };\nconsole.log(final);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "shallow",
+          "correct": "el spread exterior reemplaza limites completo en lugar de fusionar sus propiedades"
+        },
+        {
+          "id": "b",
+          "text": "orden",
+          "correct": "base siempre debería ir después de cambios"
+        },
+        {
+          "id": "c",
+          "text": "max",
+          "correct": "max no puede almacenarse junto a min"
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Object spread es superficial. La propiedad limites de cambios reemplaza la referencia completa de base.",
+      "hints": [
+        "El spread no hace deep merge.",
+        "Si quieres fusionar limites debes crear esa rama explícitamente."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige combinarConfig para fusionar el nivel superior y también la rama limites, sin mutar las entradas.",
+      "code": "function combinarConfig(base, cambios) {\n  return { ...base, ...cambios };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "base": {
+              "tema": "claro",
+              "limites": {
+                "min": 1,
+                "max": 10
+              }
+            },
+            "cambios": {
+              "limites": {
+                "min": 3
+              }
+            }
+          },
+          "expected": {
+            "tema": "claro",
+            "limites": {
+              "min": 3,
+              "max": 10
+            }
+          },
+          "call": "combinarConfig(input.base, input.cambios)",
+          "description": "fusiona cambios parciales dentro de limites"
+        },
+        {
+          "input": {
+            "base": {
+              "idioma": "es",
+              "limites": {
+                "min": 0,
+                "max": 5
+              }
+            },
+            "cambios": {
+              "idioma": "en",
+              "limites": {
+                "max": 20
+              }
+            }
+          },
+          "expected": {
+            "idioma": "en",
+            "limites": {
+              "min": 0,
+              "max": 20
+            }
+          },
+          "call": "combinarConfig(input.base, input.cambios)",
+          "description": "respeta la precedencia en ambos niveles"
+        },
+        {
+          "input": {
+            "base": {
+              "activo": false,
+              "limites": {
+                "min": 2,
+                "max": 8
+              }
+            },
+            "cambios": {}
+          },
+          "expected": {
+            "activo": false,
+            "limites": {
+              "min": 2,
+              "max": 8
+            }
+          },
+          "call": "combinarConfig(input.base, input.cambios)",
+          "description": "conserva configuración cuando no hay cambios"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Copia base y cambios en el exterior y construye limites con su propio spread.",
+      "hints": [
+        "Necesitas un spread para cada nivel que quieras fusionar.",
+        "La rama limites debe combinar base.limites y cambios.limites."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

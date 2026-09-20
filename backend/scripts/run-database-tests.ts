@@ -62,6 +62,7 @@ runNodeCli(
     'tests/integration/closures-levels.integration.test.ts',
     'tests/integration/objects-levels.integration.test.ts',
       'tests/integration/arrays-levels.integration.test.ts',
+    'tests/integration/es6-plus-levels.integration.test.ts',
     'tests/integration/isolation.integration.test.ts',
   ],
 );

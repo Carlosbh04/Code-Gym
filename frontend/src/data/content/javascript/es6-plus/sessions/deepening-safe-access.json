@@ -1,0 +1,171 @@
+{
+  "id": "js-es6-deepening-safe-access-01",
+  "title": "Optional chaining y nullish",
+  "difficulty": "intermediate",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-04",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué produce la cadena cuando preferencias no existe?",
+      "code": "const config = { usuario: {} };\nconst tema = config.usuario?.preferencias?.tema ?? 'claro';\nconsole.log(tema);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "claro",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "TypeError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Optional chaining devuelve undefined y ?? aplica el fallback.",
+      "hints": [
+        "No se accede a tema si falta preferencias.",
+        "undefined activa ??."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué ocurre con una cadena vacía?",
+      "code": "const config = { tema: '' };\nconsole.log(config.tema ?? 'claro');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "claro",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Una cadena vacía es falsy, pero no nullish.",
+      "hints": [
+        "?? no funciona igual que ||.",
+        "Solo null y undefined activan el fallback."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "¿Por qué este acceso todavía puede lanzar TypeError?",
+      "code": "function ciudad(usuario) {\n  return usuario.perfil.direccion?.ciudad ?? 'Sin ciudad';\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "perfil",
+          "correct": "perfil también debe protegerse antes de acceder a direccion"
+        },
+        {
+          "id": "b",
+          "text": "ciudad",
+          "correct": "?? debe cambiarse por ||"
+        },
+        {
+          "id": "c",
+          "text": "return",
+          "correct": "optional chaining no funciona dentro de return"
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El acceso a perfil.direccion ocurre antes del ?. colocado sobre direccion. Si perfil falta, el error sucede primero.",
+      "hints": [
+        "Busca el primer acceso que puede recibir undefined.",
+        "La cadena segura puede comenzar antes."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige temaActivo para devolver el tema anidado o 'claro' sin sustituir valores falsy válidos.",
+      "code": "function temaActivo(config) {\n  return config.usuario.preferencias.tema || 'claro';\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "usuario": {
+              "preferencias": {
+                "tema": "oscuro"
+              }
+            }
+          },
+          "expected": "oscuro",
+          "call": "temaActivo(input)",
+          "description": "conserva un tema definido"
+        },
+        {
+          "input": {
+            "usuario": {
+              "preferencias": {
+                "tema": ""
+              }
+            }
+          },
+          "expected": "",
+          "call": "temaActivo(input)",
+          "description": "conserva una cadena vacía válida"
+        },
+        {
+          "input": {},
+          "expected": "claro",
+          "call": "temaActivo(input)",
+          "description": "tolera toda la rama ausente"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Protege cada acceso potencialmente ausente con ?. y usa ?? para el fallback.",
+      "hints": [
+        "No uses || si una cadena vacía es válida.",
+        "usuario y preferencias pueden faltar."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

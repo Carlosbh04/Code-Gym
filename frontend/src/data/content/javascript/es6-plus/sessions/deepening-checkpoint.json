@@ -1,0 +1,183 @@
+{
+  "id": "js-es6-deepening-checkpoint-01",
+  "title": "Checkpoint: sintaxis moderna segura",
+  "difficulty": "intermediate",
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué propiedad gana en resumen?",
+      "code": "const base = { activo: true, rol: 'user' };\nconst cambios = { activo: false };\nconst resumen = { ...base, ...cambios, rol: 'viewer' };\nconsole.log(`${resumen.activo}|${resumen.rol}`);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "false|viewer",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "true|viewer",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "false|user",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada escritura posterior tiene precedencia sobre la misma clave.",
+      "hints": [
+        "cambios aparece después de base.",
+        "rol se escribe explícitamente al final."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué conserva ?? para activo?",
+      "code": "const usuario = { activo: false };\nconsole.log(usuario.activo ?? true);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "false",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "true",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "false es un valor válido y no activa nullish coalescing.",
+      "hints": [
+        "Compara ?? con ||.",
+        "false no es null ni undefined."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "¿Qué parte hace inseguro este resumen?",
+      "code": "function resumen(usuario) {\n  const ciudad = usuario.perfil?.direccion.ciudad ?? 'Sin ciudad';\n  return ciudad;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "direccion",
+          "correct": "si direccion falta, el acceso posterior a ciudad no está protegido"
+        },
+        {
+          "id": "b",
+          "text": "perfil",
+          "correct": "optional chaining nunca puede usarse sobre perfil"
+        },
+        {
+          "id": "c",
+          "text": "fallback",
+          "correct": "?? debe ejecutarse antes de acceder a ciudad"
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El ?. sobre perfil no protege automáticamente todos los accesos que vienen después.",
+      "hints": [
+        "Cada salto potencialmente ausente debe ser seguro.",
+        "Revisa direccion antes de ciudad."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige crearResumen para tolerar datos parciales, conservar false y producir { nombre, ciudad, activo }.",
+      "code": "function crearResumen(usuario) {\n  return {\n    nombre: usuario.perfil.nombre || 'Sin nombre',\n    ciudad: usuario.perfil.direccion.ciudad || 'Sin ciudad',\n    activo: usuario.activo || true,\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "perfil": {
+              "nombre": "Lia",
+              "direccion": {
+                "ciudad": "Sevilla"
+              }
+            },
+            "activo": false
+          },
+          "expected": {
+            "nombre": "Lia",
+            "ciudad": "Sevilla",
+            "activo": false
+          },
+          "call": "crearResumen(input)",
+          "description": "conserva valores completos y false"
+        },
+        {
+          "input": {
+            "perfil": {
+              "nombre": ""
+            }
+          },
+          "expected": {
+            "nombre": "",
+            "ciudad": "Sin ciudad",
+            "activo": true
+          },
+          "call": "crearResumen(input)",
+          "description": "conserva nombre vacío y aplica defaults solo a ausencias"
+        },
+        {
+          "input": {},
+          "expected": {
+            "nombre": "Sin nombre",
+            "ciudad": "Sin ciudad",
+            "activo": true
+          },
+          "call": "crearResumen(input)",
+          "description": "tolera un objeto completamente parcial"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Usa acceso seguro y ?? para distinguir ausencia de valores falsy válidos.",
+      "hints": [
+        "perfil y direccion pueden faltar.",
+        "false y '' deben conservarse."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

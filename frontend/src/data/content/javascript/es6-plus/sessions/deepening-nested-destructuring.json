@@ -1,0 +1,170 @@
+{
+  "id": "js-es6-deepening-nested-destructuring-01",
+  "title": "Destructuring anidado y defaults",
+  "difficulty": "intermediate",
+  "conceptId": "js-es6-modern-syntax",
+  "technologyId": "javascript",
+  "version": "1.1.0",
+  "status": "published",
+  "createdAt": "2026-09-04",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué nombre recibe alias?",
+      "code": "const usuario = { perfil: { nombre: 'Nora' } };\nconst { perfil: { nombre: alias } } = usuario;\nconsole.log(alias);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Nora",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "nombre",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El nombre situado después de : es la variable local creada por destructuring.",
+      "hints": [
+        "La propiedad sigue llamándose nombre.",
+        "alias es el binding local."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime cuando falta ciudad?",
+      "code": "const datos = { direccion: {} };\nconst { direccion: { ciudad = 'Sin ciudad' } } = datos;\nconsole.log(ciudad);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Sin ciudad",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "null",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La propiedad ciudad vale undefined y activa su default.",
+      "hints": [
+        "direccion sí existe.",
+        "Solo falta ciudad."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "¿Cuál es el problema si perfil puede faltar?",
+      "code": "const usuario = {};\nconst { perfil: { nombre = 'Sin nombre' } } = usuario;\nconsole.log(nombre);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "acceso",
+          "correct": "perfil necesita un objeto por defecto antes de extraer nombre"
+        },
+        {
+          "id": "b",
+          "text": "nombre",
+          "correct": "el default de nombre debe eliminarse"
+        },
+        {
+          "id": "c",
+          "text": "const",
+          "correct": "destructuring exige let"
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El default interior no evita intentar desestructurar undefined como objeto. La rama perfil también necesita un fallback.",
+      "hints": [
+        "¿Qué valor tiene usuario.perfil?",
+        "Puedes usar perfil: { ... } = {}."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige leerContacto para tolerar perfil o contacto ausentes y devolver 'nombre|email'.",
+      "code": "function leerContacto(usuario) {\n  const { perfil: { nombre, contacto: { email } } } = usuario;\n  return `${nombre}|${email}`;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "perfil": {
+              "nombre": "Mara",
+              "contacto": {
+                "email": "mara@example.com"
+              }
+            }
+          },
+          "expected": "Mara|mara@example.com",
+          "call": "leerContacto(input)",
+          "description": "conserva un perfil completo"
+        },
+        {
+          "input": {
+            "perfil": {
+              "nombre": "Leo"
+            }
+          },
+          "expected": "Leo|sin-email",
+          "call": "leerContacto(input)",
+          "description": "aplica fallback cuando falta contacto"
+        },
+        {
+          "input": {},
+          "expected": "Sin nombre|sin-email",
+          "call": "leerContacto(input)",
+          "description": "tolera que falte la rama perfil completa"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Protege los contenedores anidados y usa defaults para nombre y email.",
+      "hints": [
+        "perfil puede necesitar = {}.",
+        "contacto también puede necesitar = {}."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

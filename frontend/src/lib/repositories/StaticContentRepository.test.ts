@@ -362,14 +362,25 @@ describe('StaticContentRepository (T019)', () => {
       expect(sessions.every((session) => session.conceptId === OBJECTS_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 6 sesiones de ES6+', async () => {
+    it('devuelve las 16 sesiones de ES6+', async () => {
       const sessions = await repo.getSessionsByConcept(ES6_PLUS_CONCEPT);
 
+      expect(sessions).toHaveLength(16);
       expect(sessions.map((session) => session.id).sort()).toEqual([
         'js-es6-coding-unique-tags-01',
+        'js-es6-deepening-checkpoint-01',
+        'js-es6-deepening-nested-destructuring-01',
+        'js-es6-deepening-object-rest-01',
+        'js-es6-deepening-quiz-01',
+        'js-es6-deepening-safe-access-01',
         'js-es6-destructuring-shapes-01',
         'js-es6-foundation-checkpoint-01',
         'js-es6-foundation-quiz-01',
+        'js-es6-mastery-checkpoint-01',
+        'js-es6-mastery-config-composition-01',
+        'js-es6-mastery-immutable-update-01',
+        'js-es6-mastery-normalize-profile-01',
+        'js-es6-mastery-quiz-01',
         'js-es6-nullish-defaults-01',
         'js-es6-rest-arguments-01',
       ]);
@@ -654,7 +665,7 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 83 sesiones de JavaScript conservan su contrato', async () => {
+    it('las 93 sesiones de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
@@ -665,8 +676,8 @@ describe('StaticContentRepository (T019)', () => {
         ...(await repo.getSessionsByConcept(ERRORS_CONCEPT)),
       ];
 
-      expect(all).toHaveLength(83);
-      expect(new Set(all.map((s) => s.id)).size).toBe(83);
+      expect(all).toHaveLength(93);
+      expect(new Set(all.map((s) => s.id)).size).toBe(93);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length >= 1)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);
