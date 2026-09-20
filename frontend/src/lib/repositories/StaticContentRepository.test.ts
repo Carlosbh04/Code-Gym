@@ -337,18 +337,28 @@ describe('StaticContentRepository (T019)', () => {
       expect(sessions.every((session) => session.conceptId === PROMISES_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 6 sesiones de Objects', async () => {
+    it('devuelve las 16 sesiones de Objects', async () => {
       const sessions = await repo.getSessionsByConcept(OBJECTS_CONCEPT);
 
-      expect(sessions).toHaveLength(6);
+      expect(sessions).toHaveLength(16);
       expect(sessions.map((session) => session.id).sort()).toEqual([
-        'js-objects-coding-pick-01',
-        'js-objects-dynamic-properties-01',
-        'js-objects-foundation-checkpoint-01',
-        'js-objects-foundation-quiz-01',
-        'js-objects-object-entries-01',
-        'js-objects-shared-reference-01',
-      ]);
+          'js-objects-coding-pick-01',
+          'js-objects-deepening-checkpoint-01',
+          'js-objects-deepening-entry-transform-01',
+          'js-objects-deepening-merge-precedence-01',
+          'js-objects-deepening-nested-copy-01',
+          'js-objects-deepening-quiz-01',
+          'js-objects-dynamic-properties-01',
+          'js-objects-foundation-checkpoint-01',
+          'js-objects-foundation-quiz-01',
+          'js-objects-mastery-aliasing-01',
+          'js-objects-mastery-checkpoint-01',
+          'js-objects-mastery-nested-config-01',
+          'js-objects-mastery-normalize-01',
+          'js-objects-mastery-quiz-01',
+          'js-objects-object-entries-01',
+          'js-objects-shared-reference-01',
+        ]);
       expect(sessions.every((session) => session.conceptId === OBJECTS_CONCEPT)).toBe(true);
     });
 
@@ -644,7 +654,7 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 73 sesiones de JavaScript conservan su contrato', async () => {
+    it('las 83 sesiones de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
@@ -655,8 +665,8 @@ describe('StaticContentRepository (T019)', () => {
         ...(await repo.getSessionsByConcept(ERRORS_CONCEPT)),
       ];
 
-      expect(all).toHaveLength(73);
-      expect(new Set(all.map((s) => s.id)).size).toBe(73);
+      expect(all).toHaveLength(83);
+      expect(new Set(all.map((s) => s.id)).size).toBe(83);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length >= 1)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);

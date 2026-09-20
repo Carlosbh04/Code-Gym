@@ -60,6 +60,7 @@ runNodeCli(
     'tests/integration/variables-levels.integration.test.ts',
     'tests/integration/functions-levels.integration.test.ts',
     'tests/integration/closures-levels.integration.test.ts',
+    'tests/integration/objects-levels.integration.test.ts',
     'tests/integration/isolation.integration.test.ts',
   ],
 );

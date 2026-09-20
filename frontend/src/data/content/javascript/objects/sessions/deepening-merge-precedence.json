@@ -1,0 +1,174 @@
+{
+  "id": "js-objects-deepening-merge-precedence-01",
+  "title": "Componer objetos con precedencia",
+  "difficulty": "intermediate",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Cuál de estas expresiones hace que cambios tenga prioridad?",
+      "code": "const base = { limite: 10 };\nconst cambios = { limite: 20 };",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "{ ...base, ...cambios }",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "{ ...cambios, ...base }",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "{ base, cambios }",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Object.keys(base)",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La última aparición de una propiedad sustituye a las anteriores.",
+      "hints": [
+        "El orden del spread determina la precedencia."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve config.tema + ':' + config.limite?",
+      "code": "const base = { tema: 'claro', limite: 10 };\nconst cambios = { limite: 30 };\nconst config = { ...base, ...cambios };\nconfig.tema + ':' + config.limite;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "claro:30",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "claro:10",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined:30",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "oscuro:30",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las propiedades no sobrescritas se conservan y limite toma el valor posterior.",
+      "hints": [
+        "tema solo existe en base."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Los cambios del usuario deberían tener prioridad, pero base los está sobrescribiendo. Localiza el orden incorrecto.",
+      "code": "function combinar(base, cambios) {\n  return {\n    ...cambios,\n    ...base,\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        4
+      ],
+      "errorType": "precedencia",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "base aparece al final y recupera sus valores sobre cambios.",
+      "hints": [
+        "El objeto con mayor prioridad debe expandirse después."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige combinarConfig para devolver una configuración nueva donde cambios sobrescriba las claves de base sin mutar ninguno.",
+      "code": "function combinarConfig(base, cambios) {\n  Object.assign(base, cambios);\n  return base;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            {
+              "tema": "claro",
+              "limite": 10
+            },
+            {
+              "limite": 25
+            }
+          ],
+          "expected": "claro|25|10",
+          "call": "(() => { const base = input[0]; const cambios = input[1]; const config = combinarConfig(base, cambios); return config.tema + '|' + config.limite + '|' + base.limite; })()",
+          "description": "aplica cambios sin alterar base"
+        },
+        {
+          "input": [
+            {
+              "a": 1,
+              "b": 2
+            },
+            {
+              "b": 9,
+              "c": 3
+            }
+          ],
+          "expected": "1|9|3",
+          "call": "(() => { const r = combinarConfig(input[0], input[1]); return r.a + '|' + r.b + '|' + r.c; })()",
+          "description": "combina claves distintas y repetidas"
+        },
+        {
+          "input": [
+            {
+              "activo": true
+            },
+            {
+              "activo": false
+            }
+          ],
+          "expected": "false|true|false",
+          "call": "(() => { const base = input[0]; const cambios = input[1]; const r = combinarConfig(base, cambios); return r.activo + '|' + base.activo + '|' + (r === base); })()",
+          "description": "respeta false como sobrescritura y crea otro objeto"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La combinación debe producir un objeto nuevo con cambios a la derecha.",
+      "hints": [
+        "No modifiques base.",
+        "La prioridad depende del orden."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

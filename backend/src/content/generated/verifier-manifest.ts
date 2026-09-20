@@ -4099,6 +4099,429 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-objects-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El valor de la propiedad no determina su existencia."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No confundas existencia con truthiness."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "existencia",
+          "hints": [
+            "Comprueba la presencia de la propiedad, no su valor."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                {
+                  "a": 0,
+                  "b": false,
+                  "c": "",
+                  "d": 4
+                },
+                [
+                  "a",
+                  "b",
+                  "d"
+                ]
+              ],
+              "expected": "{\"a\":0,\"b\":false,\"d\":4}",
+              "call": "JSON.stringify(seleccionarPropias(...input))",
+              "description": "conserva propiedades falsy existentes"
+            },
+            {
+              "input": [
+                {
+                  "nombre": "Ada",
+                  "edad": 30
+                },
+                [
+                  "edad",
+                  "faltante"
+                ]
+              ],
+              "expected": "{\"edad\":30}",
+              "call": "JSON.stringify(seleccionarPropias(...input))",
+              "description": "omite una clave inexistente"
+            },
+            {
+              "input": [
+                {
+                  "x": 1
+                },
+                []
+              ],
+              "expected": "0|false",
+              "call": "(() => { const original = input[0]; const r = seleccionarPropias(...input); return Object.keys(r).length + '|' + (r === original); })()",
+              "description": "devuelve objeto nuevo también con selección vacía"
+            }
+          ],
+          "hints": [
+            "0, false y '' pueden ser datos válidos."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-deepening-entry-transform-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Ambas APIs trabajan con pares clave-valor."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "valor != null elimina null y undefined, no todos los falsy."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "condicion",
+          "hints": [
+            "Compara explícitamente con null/undefined."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "a": 1,
+                "b": null,
+                "c": 0,
+                "d": false
+              },
+              "expected": "{\"a\":1,\"c\":0,\"d\":false}",
+              "call": "JSON.stringify(limpiarNulos(input))",
+              "description": "elimina null pero conserva cero y false"
+            },
+            {
+              "input": {
+                "nombre": "",
+                "edad": null,
+                "activo": true
+              },
+              "expected": "{\"nombre\":\"\",\"activo\":true}",
+              "call": "JSON.stringify(limpiarNulos(input))",
+              "description": "conserva cadena vacía como valor válido"
+            },
+            {
+              "input": {
+                "x": 3,
+                "y": "ok"
+              },
+              "expected": "3|ok|false",
+              "call": "(() => { const original = input; const copia = limpiarNulos(original); return copia.x + '|' + copia.y + '|' + (copia === original); })()",
+              "description": "devuelve otro objeto aunque no haya valores nulos"
+            }
+          ],
+          "hints": [
+            "No uses la verdad del valor como criterio.",
+            "Devuelve un objeto nuevo."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-deepening-merge-precedence-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El orden del spread determina la precedencia."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "tema solo existe en base."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "precedencia",
+          "hints": [
+            "El objeto con mayor prioridad debe expandirse después."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                {
+                  "tema": "claro",
+                  "limite": 10
+                },
+                {
+                  "limite": 25
+                }
+              ],
+              "expected": "claro|25|10",
+              "call": "(() => { const base = input[0]; const cambios = input[1]; const config = combinarConfig(base, cambios); return config.tema + '|' + config.limite + '|' + base.limite; })()",
+              "description": "aplica cambios sin alterar base"
+            },
+            {
+              "input": [
+                {
+                  "a": 1,
+                  "b": 2
+                },
+                {
+                  "b": 9,
+                  "c": 3
+                }
+              ],
+              "expected": "1|9|3",
+              "call": "(() => { const r = combinarConfig(input[0], input[1]); return r.a + '|' + r.b + '|' + r.c; })()",
+              "description": "combina claves distintas y repetidas"
+            },
+            {
+              "input": [
+                {
+                  "activo": true
+                },
+                {
+                  "activo": false
+                }
+              ],
+              "expected": "false|true|false",
+              "call": "(() => { const base = input[0]; const cambios = input[1]; const r = combinarConfig(base, cambios); return r.activo + '|' + base.activo + '|' + (r === base); })()",
+              "description": "respeta false como sobrescritura y crea otro objeto"
+            }
+          ],
+          "hints": [
+            "No modifiques base.",
+            "La prioridad depende del orden."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-deepening-nested-copy-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Cuenta los literales de objeto nuevos."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "usuario.perfil y copia.perfil ya no son el mismo objeto."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "mutacion",
+          "hints": [
+            "También necesitas copiar perfil."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                {
+                  "nombre": "Ada",
+                  "perfil": {
+                    "ciudad": "Madrid",
+                    "idioma": "es"
+                  }
+                },
+                "Bilbao"
+              ],
+              "expected": "Bilbao|Madrid|es",
+              "call": "(() => { const original = input[0]; const copia = actualizarCiudad(original, input[1]); return copia.perfil.ciudad + '|' + original.perfil.ciudad + '|' + copia.perfil.idioma; })()",
+              "description": "cambia ciudad conservando el perfil original"
+            },
+            {
+              "input": [
+                {
+                  "id": 7,
+                  "perfil": {
+                    "ciudad": "Lima",
+                    "zona": "sur"
+                  }
+                },
+                "Quito"
+              ],
+              "expected": "Quito|Lima|7",
+              "call": "(() => { const original = input[0]; const copia = actualizarCiudad(original, input[1]); return copia.perfil.ciudad + '|' + original.perfil.ciudad + '|' + copia.id; })()",
+              "description": "preserva propiedades externas y anidadas"
+            },
+            {
+              "input": [
+                {
+                  "perfil": {
+                    "ciudad": "",
+                    "activo": false
+                  }
+                },
+                "Roma"
+              ],
+              "expected": false,
+              "call": "(() => { const original = input[0]; const copia = actualizarCiudad(original, input[1]); return copia === original || copia.perfil === original.perfil; })()",
+              "description": "crea objetos independientes en ambos niveles"
+            }
+          ],
+          "hints": [
+            "No escribas sobre usuario.",
+            "Copia también usuario.perfil."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Observa qué valor de original se copia directamente."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "cambios se aplica después de base."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Es la operación complementaria de Object.entries."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Hay dos spreads en niveles distintos."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Existencia y truthiness no son lo mismo."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-objects-dynamic-properties-01",
       "technologyId": "javascript",
       "topicId": "js-objects",
@@ -4230,6 +4653,420 @@ export const verifierManifest = {
           ],
           "hints": [
             "Cada elemento contiene dos posiciones."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-mastery-aliasing-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Compara las referencias, no los nombres de las propiedades."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Se reconstruye una sola de las dos ramas."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "aliasing",
+          "hints": [
+            "Copia principal antes de modificarla."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": null,
+              "expected": "Lin|Ada|Ada",
+              "call": "(() => { const perfil = { nombre: 'Ada' }; const estado = { principal: perfil, respaldo: perfil }; const r = actualizarPrincipal(estado, 'Lin'); return r.principal.nombre + '|' + r.respaldo.nombre + '|' + estado.principal.nombre; })()",
+              "description": "rompe el alias solo para principal"
+            },
+            {
+              "input": null,
+              "expected": "Noa|Eva|true",
+              "call": "(() => { const perfil = { nombre: 'Eva', activo: true }; const estado = { principal: perfil, respaldo: perfil }; const r = actualizarPrincipal(estado, 'Noa'); return r.principal.nombre + '|' + r.respaldo.nombre + '|' + r.principal.activo; })()",
+              "description": "preserva otras propiedades de principal"
+            },
+            {
+              "input": null,
+              "expected": "false|false|true",
+              "call": "(() => { const perfil = { nombre: 'A' }; const estado = { principal: perfil, respaldo: perfil }; const r = actualizarPrincipal(estado, 'B'); return (r === estado) + '|' + (r.principal === estado.principal) + '|' + (r.respaldo === estado.respaldo); })()",
+              "description": "crea contenedor y principal nuevos preservando respaldo"
+            }
+          ],
+          "hints": [
+            "Copia estado y copia también principal."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Copia cada nivel de la ruta que cambia."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El objeto original no recibe ninguna asignación."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "mutacion",
+          "hints": [
+            "También debes copiar preferencias."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                {
+                  "id": 1,
+                  "preferencias": {
+                    "tema": "claro",
+                    "idioma": "es"
+                  }
+                },
+                "tema",
+                "oscuro"
+              ],
+              "expected": "oscuro|claro|es|1",
+              "call": "(() => { const estado = input[0]; const r = actualizarPreferencia(...input); return r.preferencias.tema + '|' + estado.preferencias.tema + '|' + r.preferencias.idioma + '|' + r.id; })()",
+              "description": "actualiza una preferencia preservando el resto"
+            },
+            {
+              "input": [
+                {
+                  "preferencias": {
+                    "tema": "claro"
+                  }
+                },
+                "notificaciones",
+                false
+              ],
+              "expected": "false|undefined",
+              "call": "(() => { const estado = input[0]; const r = actualizarPreferencia(...input); return r.preferencias.notificaciones + '|' + estado.preferencias.notificaciones; })()",
+              "description": "permite añadir una propiedad con valor false"
+            },
+            {
+              "input": [
+                {
+                  "preferencias": {
+                    "volumen": 10
+                  },
+                  "sesion": {
+                    "activa": true
+                  }
+                },
+                "volumen",
+                0
+              ],
+              "expected": "0|10|true|false|false",
+              "call": "(() => { const estado = input[0]; const r = actualizarPreferencia(...input); return r.preferencias.volumen + '|' + estado.preferencias.volumen + '|' + r.sesion.activa + '|' + (r === estado) + '|' + (r.preferencias === estado.preferencias); })()",
+              "description": "conserva otras ramas y separa la rama modificada"
+            }
+          ],
+          "hints": [
+            "La clave puede ser dinámica.",
+            "Preserva las ramas no modificadas."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-mastery-nested-config-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La rama anidada tiene su propio contrato de combinación."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La rama limites también se mezcla."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "copia-superficial",
+          "hints": [
+            "Reconstruye limites explícitamente."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                {
+                  "tema": "claro",
+                  "limites": {
+                    "min": 1,
+                    "max": 10
+                  }
+                },
+                {
+                  "limites": {
+                    "max": 25
+                  }
+                }
+              ],
+              "expected": "claro|1|25",
+              "call": "(() => { const r = combinarConfigProfunda(...input); return r.tema + '|' + r.limites.min + '|' + r.limites.max; })()",
+              "description": "conserva propiedades anidadas de base"
+            },
+            {
+              "input": [
+                {
+                  "activo": true,
+                  "limites": {
+                    "min": 0,
+                    "max": 100
+                  }
+                },
+                {
+                  "activo": false,
+                  "limites": {
+                    "min": 5
+                  }
+                }
+              ],
+              "expected": "false|5|100",
+              "call": "(() => { const r = combinarConfigProfunda(...input); return r.activo + '|' + r.limites.min + '|' + r.limites.max; })()",
+              "description": "mezcla nivel superior y rama limites"
+            },
+            {
+              "input": [
+                {
+                  "limites": {
+                    "min": 1,
+                    "max": 9
+                  }
+                },
+                {
+                  "limites": {
+                    "max": 20
+                  }
+                }
+              ],
+              "expected": "1|9|false|false",
+              "call": "(() => { const base = input[0]; const cambios = input[1]; const r = combinarConfigProfunda(base, cambios); return base.limites.min + '|' + base.limites.max + '|' + (r === base) + '|' + (r.limites === base.limites); })()",
+              "description": "no muta base y crea una rama limites nueva"
+            }
+          ],
+          "hints": [
+            "Mezcla primero el exterior y después reconstruye limites."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-mastery-normalize-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La transformación usa usuario como fuente."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Observa trim y toLowerCase."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2,
+            3
+          ],
+          "errorType": "mutacion",
+          "hints": [
+            "Construye otro objeto a partir del original."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "nombre": "  Ada  ",
+                "email": "ADA@EXAMPLE.COM",
+                "activo": true
+              },
+              "expected": "Ada|ada@example.com|true",
+              "call": "(() => { const r = normalizarUsuario(input); return r.nombre + '|' + r.email + '|' + r.activo; })()",
+              "description": "normaliza nombre y email conservando propiedades"
+            },
+            {
+              "input": {
+                "nombre": " Lin ",
+                "email": "Lin@X.IO",
+                "rol": "admin"
+              },
+              "expected": " Lin |Lin@X.IO|false",
+              "call": "(() => { const original = input; normalizarUsuario(original); return original.nombre + '|' + original.email + '|' + (normalizarUsuario(original) === original); })()",
+              "description": "no muta la entrada y devuelve otra referencia"
+            },
+            {
+              "input": {
+                "nombre": "Noa",
+                "email": "NOA@TEST.ES",
+                "puntos": 0
+              },
+              "expected": "Noa|noa@test.es|0",
+              "call": "(() => { const r = normalizarUsuario(input); return r.nombre + '|' + r.email + '|' + r.puntos; })()",
+              "description": "preserva valores falsy válidos"
+            }
+          ],
+          "hints": [
+            "Usa usuario como fuente, no como destino."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "perfil se evalúa dos veces, pero representa el mismo objeto."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La mutación se observa desde cualquier alias."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Busca el objeto anidado reconstruido."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Combina primero la rama limites."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "trim se aplica para construir normalizado, no sobre original."
           ]
         }
       ]

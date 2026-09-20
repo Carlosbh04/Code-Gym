@@ -31,6 +31,10 @@ import {
 } from '../../src/config/load-config.js';
 
 import {
+  conceptIdSchema,
+} from '../../src/content/content-id.js';
+
+import {
   ContentVerifier,
 } from '../../src/content/content-verifier.js';
 
@@ -540,6 +544,29 @@ describe(
                 `Bearer ${accessToken}`,
               );
 
+
+        const variablesConceptId =
+          conceptIdSchema.parse(
+            'js-variables-basics',
+          );
+
+        const progressionAt =
+          new Date();
+
+        await learningProgressService
+          .completeLevelTheory(
+            user.id,
+            variablesConceptId,
+            'FOUNDATION',
+          );
+
+        await learningProgressService
+          .markLevelQuizPassed(
+            user.id,
+            variablesConceptId,
+            'FOUNDATION',
+            progressionAt,
+          );
 
         const start =
           await post(

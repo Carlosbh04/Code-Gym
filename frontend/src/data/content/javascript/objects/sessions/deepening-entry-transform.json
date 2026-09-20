@@ -1,0 +1,162 @@
+{
+  "id": "js-objects-deepening-entry-transform-01",
+  "title": "Transformar propiedades sin mutar",
+  "difficulty": "intermediate",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué estructura recibe Object.fromEntries en este patrón?",
+      "code": "Object.fromEntries(\n  Object.entries(datos)\n);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Pares [clave, valor]",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Un string JSON",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Solo valores",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Solo claves",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Object.entries genera precisamente los pares que fromEntries consume.",
+      "hints": [
+        "Ambas APIs trabajan con pares clave-valor."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué claves conserva limpio?",
+      "code": "const datos = { a: 1, b: null, c: 0 };\nconst limpio = Object.fromEntries(\n  Object.entries(datos)\n    .filter(([, valor]) => valor != null)\n);\nObject.keys(limpio).join(',');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "a,c",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "a",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "a,b,c",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "b",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "0 no es null ni undefined y debe conservarse.",
+      "hints": [
+        "valor != null elimina null y undefined, no todos los falsy."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Se quieren eliminar solo null y undefined, pero también desaparecen 0, false y ''. Localiza el filtro incorrecto.",
+      "code": "function limpiar(datos) {\n  return Object.fromEntries(\n    Object.entries(datos)\n      .filter(([, valor]) => valor)\n  );\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        4
+      ],
+      "errorType": "condicion",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Filtrar por truthiness elimina valores válidos como 0, false y cadena vacía.",
+      "hints": [
+        "Compara explícitamente con null/undefined."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige limpiarNulos para devolver un objeto nuevo sin propiedades cuyo valor sea null o undefined, conservando los demás valores.",
+      "code": "function limpiarNulos(datos) {\n  const resultado = {};\n  for (const [clave, valor] of Object.entries(datos)) {\n    if (valor) {\n      resultado[clave] = valor;\n    }\n  }\n  return resultado;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "a": 1,
+            "b": null,
+            "c": 0,
+            "d": false
+          },
+          "expected": "{\"a\":1,\"c\":0,\"d\":false}",
+          "call": "JSON.stringify(limpiarNulos(input))",
+          "description": "elimina null pero conserva cero y false"
+        },
+        {
+          "input": {
+            "nombre": "",
+            "edad": null,
+            "activo": true
+          },
+          "expected": "{\"nombre\":\"\",\"activo\":true}",
+          "call": "JSON.stringify(limpiarNulos(input))",
+          "description": "conserva cadena vacía como valor válido"
+        },
+        {
+          "input": {
+            "x": 3,
+            "y": "ok"
+          },
+          "expected": "3|ok|false",
+          "call": "(() => { const original = input; const copia = limpiarNulos(original); return copia.x + '|' + copia.y + '|' + (copia === original); })()",
+          "description": "devuelve otro objeto aunque no haya valores nulos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Solo null y undefined deben desaparecer.",
+      "hints": [
+        "No uses la verdad del valor como criterio.",
+        "Devuelve un objeto nuevo."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 2,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

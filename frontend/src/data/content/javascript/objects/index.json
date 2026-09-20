@@ -1,1 +1,226 @@
-{"id":"js-object-references","name":"Propiedades, referencias y copias","topicId":"js-objects","technologyId":"javascript","position":0,"content":{"sections":[{"type":"intro","title":"Introducción","body":"Los objetos guardan propiedades y se comparten por referencia."},{"type":"objectives","title":"Qué vas a aprender","items":["Acceder a propiedades","Copiar sin mutar el original"]},{"type":"code","title":"Ejemplo","language":"javascript","code":"const updated = { ...user, role: 'admin' };"},{"type":"comparison","title":"Comparación","left":{"title":"Asignación","body":"Comparte la misma referencia."},"right":{"title":"Spread","body":"Crea una copia superficial."}},{"type":"quick-check","question":"¿Qué crea { ...user }?","answer":"Una copia superficial del objeto."}]}}
+{
+  "id": "js-object-references",
+  "name": "Propiedades, referencias y copias",
+  "topicId": "js-objects",
+  "technologyId": "javascript",
+  "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Nivel base del concepto.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Profundiza en copias anidadas, transformación de propiedades y composición de objetos sin mutar el estado original.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Diseña transformaciones de objetos complejos controlando referencias, aliasing y composición segura de estructuras.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Introducción",
+        "body": "Los objetos guardan propiedades y se comparten por referencia.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Acceder a propiedades",
+          "Copiar sin mutar el original"
+        ],
+        "levelId": "foundation"
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const updated = { ...user, role: 'admin' };",
+        "levelId": "foundation"
+      },
+      {
+        "type": "comparison",
+        "title": "Comparación",
+        "left": {
+          "title": "Asignación",
+          "body": "Comparte la misma referencia."
+        },
+        "right": {
+          "title": "Spread",
+          "body": "Crea una copia superficial."
+        },
+        "levelId": "foundation"
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Qué crea { ...user }?",
+        "answer": "Una copia superficial del objeto.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "intro",
+        "title": "Copias más allá del primer nivel",
+        "body": "El spread crea un contenedor nuevo, pero las referencias anidadas siguen compartiéndose si no se copian explícitamente.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Actualizar una rama anidada",
+        "language": "javascript",
+        "code": "const actualizado = {\n  ...usuario,\n  perfil: {\n    ...usuario.perfil,\n    nombre: 'Lin',\n  },\n};",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Copia cada nivel que cambie",
+        "body": "Para mantener independiente una rama modificada debes crear un objeto nuevo en cada nivel de esa ruta.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Transformar pares clave-valor",
+        "language": "javascript",
+        "code": "const limpio = Object.fromEntries(\n  Object.entries(datos)\n    .filter(([, valor]) => valor != null)\n);",
+        "levelId": "deepening"
+      },
+      {
+        "type": "comparison",
+        "title": "Mutar o transformar",
+        "left": {
+          "title": "Mutación",
+          "body": "Cambia el mismo objeto y puede afectar a cualquier otro alias que comparta esa referencia."
+        },
+        "right": {
+          "title": "Transformación",
+          "body": "Devuelve un objeto nuevo y mantiene intacta la entrada recibida."
+        },
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "La última propiedad prevalece",
+        "body": "Al combinar objetos mediante spread, una propiedad situada más a la derecha sustituye a otra con la misma clave.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Componer configuración",
+        "language": "javascript",
+        "code": "const config = {\n  ...defaults,\n  ...preferencias,\n};",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Comprobar una propiedad propia",
+        "body": "Object.hasOwn(objeto, clave) permite comprobar si una clave pertenece directamente al objeto antes de copiarla o usarla.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Copiar solo claves existentes",
+        "language": "javascript",
+        "code": "if (Object.hasOwn(origen, clave)) {\n  resultado[clave] = origen[clave];\n}",
+        "levelId": "deepening"
+      },
+      {
+        "type": "quick-check",
+        "question": "Si haces { ...usuario } y usuario.perfil es otro objeto, ¿perfil queda automáticamente aislado?",
+        "answer": "No. El contenedor exterior es nuevo, pero perfil sigue siendo la misma referencia.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "quick-check",
+        "question": "En { ...base, ...cambios }, ¿qué valor prevalece si ambos objetos tienen la misma propiedad?",
+        "answer": "El valor de cambios, porque aparece después.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "intro",
+        "title": "Identidad y aliasing",
+        "body": "Dos propiedades o variables distintas pueden terminar apuntando al mismo objeto interno. Esa relación se conoce como aliasing.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Dos caminos hacia la misma referencia",
+        "language": "javascript",
+        "code": "const perfil = { nombre: 'Ada' };\n\nconst estado = {\n  principal: perfil,\n  respaldo: perfil,\n};",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "Copiar el exterior no rompe todos los alias",
+        "body": "Un nuevo objeto superior puede seguir conteniendo exactamente las mismas referencias internas que el objeto original.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Normalizar sin mutar",
+        "language": "javascript",
+        "code": "function normalizar(usuario) {\n  return {\n    ...usuario,\n    nombre: usuario.nombre.trim(),\n  };\n}",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "Transformaciones independientes de los ejemplos",
+        "body": "Una transformación robusta debe funcionar con claves y valores arbitrarios, no solo con los datos publicados en un ejemplo.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Reconstruir un objeto desde sus entradas",
+        "language": "javascript",
+        "code": "const resultado = Object.fromEntries(\n  Object.entries(origen)\n    .map(([clave, valor]) => [clave, valor])\n);",
+        "levelId": "mastery"
+      },
+      {
+        "type": "comparison",
+        "title": "Copia superficial y separación de ramas",
+        "left": {
+          "title": "Copia superficial",
+          "body": "Cambia la identidad del objeto exterior, pero conserva las referencias internas."
+        },
+        "right": {
+          "title": "Separación de rama",
+          "body": "Crea también un objeto nuevo en la parte de la estructura que debe evolucionar de forma independiente."
+        },
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Componer configuración anidada",
+        "language": "javascript",
+        "code": "const config = {\n  ...base,\n  ...personalizada,\n  limites: {\n    ...base.limites,\n    ...personalizada.limites,\n  },\n};",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "Preserva las ramas que no cambian",
+        "body": "No es necesario copiar indiscriminadamente todo el grafo. Las ramas que no se modifican pueden conservar su referencia cuando el contrato lo permite.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "quick-check",
+        "question": "Si dos propiedades apuntan al mismo objeto y modificas ese objeto desde una de ellas, ¿qué observa la otra?",
+        "answer": "Observa también el cambio porque ambas conservan la misma identidad de objeto.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Crear un objeto exterior nuevo garantiza por sí solo que toda la estructura interna sea independiente?",
+        "answer": "No. La independencia depende de qué referencias internas también hayan sido reemplazadas.",
+        "levelId": "mastery"
+      }
+    ]
+  }
+}

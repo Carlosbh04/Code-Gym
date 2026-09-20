@@ -1,0 +1,176 @@
+{
+  "id": "js-objects-deepening-nested-copy-01",
+  "title": "Copiar la rama que cambia",
+  "difficulty": "intermediate",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué objetos son nuevos en actualizado?",
+      "code": "const actualizado = {\n  ...usuario,\n  perfil: {\n    ...usuario.perfil,\n    ciudad: 'Sevilla',\n  },\n};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Solo actualizado",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "actualizado y actualizado.perfil",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "Solo perfil",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Ninguno",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Se crean objetos nuevos en los dos niveles que aparecen con spread.",
+      "hints": [
+        "Cuenta los literales de objeto nuevos."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "const usuario = {\n  perfil: { nombre: 'Ada', ciudad: 'Madrid' },\n};\nconst copia = {\n  ...usuario,\n  perfil: { ...usuario.perfil, ciudad: 'Bilbao' },\n};\nusuario.perfil.ciudad + '|' + copia.perfil.ciudad;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Madrid|Bilbao",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Bilbao|Bilbao",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Madrid|Madrid",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined|Bilbao",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La copia de perfil mantiene intacta la rama original.",
+      "hints": [
+        "usuario.perfil y copia.perfil ya no son el mismo objeto."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Se quiere cambiar ciudad sin alterar el original. Localiza la mutación accidental.",
+      "code": "function cambiarCiudad(usuario, ciudad) {\n  const copia = { ...usuario };\n  copia.perfil.ciudad = ciudad;\n  return copia;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        3
+      ],
+      "errorType": "mutacion",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "perfil sigue compartido porque solo se copió el objeto exterior.",
+      "hints": [
+        "También necesitas copiar perfil."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige actualizarCiudad para devolver una copia con la nueva ciudad sin mutar usuario ni usuario.perfil.",
+      "code": "function actualizarCiudad(usuario, ciudad) {\n  usuario.perfil.ciudad = ciudad;\n  return usuario;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            {
+              "nombre": "Ada",
+              "perfil": {
+                "ciudad": "Madrid",
+                "idioma": "es"
+              }
+            },
+            "Bilbao"
+          ],
+          "expected": "Bilbao|Madrid|es",
+          "call": "(() => { const original = input[0]; const copia = actualizarCiudad(original, input[1]); return copia.perfil.ciudad + '|' + original.perfil.ciudad + '|' + copia.perfil.idioma; })()",
+          "description": "cambia ciudad conservando el perfil original"
+        },
+        {
+          "input": [
+            {
+              "id": 7,
+              "perfil": {
+                "ciudad": "Lima",
+                "zona": "sur"
+              }
+            },
+            "Quito"
+          ],
+          "expected": "Quito|Lima|7",
+          "call": "(() => { const original = input[0]; const copia = actualizarCiudad(original, input[1]); return copia.perfil.ciudad + '|' + original.perfil.ciudad + '|' + copia.id; })()",
+          "description": "preserva propiedades externas y anidadas"
+        },
+        {
+          "input": [
+            {
+              "perfil": {
+                "ciudad": "",
+                "activo": false
+              }
+            },
+            "Roma"
+          ],
+          "expected": false,
+          "call": "(() => { const original = input[0]; const copia = actualizarCiudad(original, input[1]); return copia === original || copia.perfil === original.perfil; })()",
+          "description": "crea objetos independientes en ambos niveles"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La solución necesita un objeto nuevo para usuario y otro para perfil.",
+      "hints": [
+        "No escribas sobre usuario.",
+        "Copia también usuario.perfil."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

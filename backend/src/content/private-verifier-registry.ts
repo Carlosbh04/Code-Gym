@@ -2822,6 +2822,510 @@ const registry =
         }),
       ),
     ],
+    [
+      verifierKey(
+        'js-objects-deepening-nested-copy-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    nombre: 'Eva',
+                    perfil:
+                      Object.freeze({
+                        ciudad: 'Lisboa',
+                        idioma: 'pt',
+                        activo: false,
+                      }),
+                    rol: 'editor',
+                  }),
+                  'Porto',
+                ]),
+
+              expected:
+                'Porto|Lisboa|pt|editor',
+
+              call:
+                "(() => { const original = input[0]; const copia = actualizarCiudad(original, input[1]); return copia.perfil.ciudad + '|' + original.perfil.ciudad + '|' + copia.perfil.idioma + '|' + copia.rol; })()",
+
+              description:
+                'copia la rama perfil conservando propiedades arbitrarias',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    perfil:
+                      Object.freeze({
+                        ciudad: 'A',
+                        puntos: 0,
+                      }),
+                  }),
+                  'B',
+                ]),
+
+              expected:
+                'false|false|0',
+
+              call:
+                "(() => { const original = input[0]; const copia = actualizarCiudad(original, input[1]); return (copia === original) + '|' + (copia.perfil === original.perfil) + '|' + copia.perfil.puntos; })()",
+
+              description:
+                'crea objetos independientes y conserva valores falsy',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-deepening-entry-transform-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  cero: 0,
+                  falso: false,
+                  vacio: '',
+                  nulo: null,
+                  texto: 'ok',
+                }),
+
+              expected:
+                '{"cero":0,"falso":false,"vacio":"","texto":"ok"}',
+
+              call:
+                'JSON.stringify(limpiarNulos(input))',
+
+              description:
+                'elimina solo null conservando valores falsy válidos',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  a: 1,
+                  b: 2,
+                  c: 3,
+                }),
+
+              expected:
+                '1|2|3|false',
+
+              call:
+                "(() => { const original = input; const copia = limpiarNulos(original); return copia.a + '|' + copia.b + '|' + copia.c + '|' + (copia === original); })()",
+
+              description:
+                'devuelve un objeto nuevo incluso cuando no elimina propiedades',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-deepening-merge-precedence-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    a: 1,
+                    b: 2,
+                    c: 3,
+                  }),
+                  Object.freeze({
+                    b: 20,
+                    d: 4,
+                  }),
+                ]),
+
+              expected:
+                '1|20|3|4',
+
+              call:
+                "(() => { const r = combinarConfig(...input); return r.a + '|' + r.b + '|' + r.c + '|' + r.d; })()",
+
+              description:
+                'aplica precedencia sin perder propiedades no sobrescritas',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    activo: true,
+                    limite: 0,
+                  }),
+                  Object.freeze({
+                    activo: false,
+                  }),
+                ]),
+
+              expected:
+                'false|0|true|false',
+
+              call:
+                "(() => { const base = input[0]; const cambios = input[1]; const r = combinarConfig(base, cambios); return r.activo + '|' + r.limite + '|' + base.activo + '|' + (r === base); })()",
+
+              description:
+                'respeta false como sobrescritura sin mutar base',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-deepening-checkpoint-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    cero: 0,
+                    falso: false,
+                    vacio: '',
+                    nulo: null,
+                  }),
+                  Object.freeze([
+                    'cero',
+                    'falso',
+                    'vacio',
+                    'faltante',
+                  ]),
+                ]),
+
+              expected:
+                '{"cero":0,"falso":false,"vacio":""}',
+
+              call:
+                'JSON.stringify(seleccionarPropias(...input))',
+
+              description:
+                'distingue existencia de truthiness',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    id: 9,
+                    nombre: 'Ada',
+                  }),
+                  Object.freeze([
+                    'nombre',
+                    'id',
+                  ]),
+                ]),
+
+              expected:
+                'Ada|9|false',
+
+              call:
+                "(() => { const original = input[0]; const r = seleccionarPropias(...input); return r.nombre + '|' + r.id + '|' + (r === original); })()",
+
+              description:
+                'selecciona claves en orden arbitrario y devuelve otro objeto',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-mastery-aliasing-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                'Noa|Eva|Eva|true',
+
+              call:
+                "(() => { const perfil = { nombre: 'Eva', activo: true }; const estado = { principal: perfil, respaldo: perfil }; const r = actualizarPrincipal(estado, 'Noa'); return r.principal.nombre + '|' + r.respaldo.nombre + '|' + estado.principal.nombre + '|' + r.principal.activo; })()",
+
+              description:
+                'separa principal conservando respaldo y propiedades arbitrarias',
+            }),
+
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                'false|false|true',
+
+              call:
+                "(() => { const perfil = { nombre: 'A' }; const estado = { principal: perfil, respaldo: perfil }; const r = actualizarPrincipal(estado, 'B'); return (r === estado) + '|' + (r.principal === estado.principal) + '|' + (r.respaldo === estado.respaldo); })()",
+
+              description:
+                'crea contenedor y principal nuevos manteniendo la rama respaldo',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-mastery-normalize-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  nombre: '  EVA  ',
+                  email: 'Eva@Test.COM',
+                  puntos: 0,
+                  activo: false,
+                }),
+
+              expected:
+                'EVA|eva@test.com|0|false',
+
+              call:
+                "(() => { const r = normalizarUsuario(input); return r.nombre + '|' + r.email + '|' + r.puntos + '|' + r.activo; })()",
+
+              description:
+                'normaliza campos conservando valores falsy y propiedades extra',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  nombre: ' Lin ',
+                  email: 'LIN@X.IO',
+                  rol: 'admin',
+                }),
+
+              expected:
+                ' Lin |LIN@X.IO|false|admin',
+
+              call:
+                "(() => { const original = input; const r = normalizarUsuario(original); return original.nombre + '|' + original.email + '|' + (r === original) + '|' + r.rol; })()",
+
+              description:
+                'no muta el objeto recibido y devuelve otra referencia',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-mastery-nested-config-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    tema: 'claro',
+                    limites:
+                      Object.freeze({
+                        min: 1,
+                        max: 10,
+                        paso: 2,
+                      }),
+                  }),
+                  Object.freeze({
+                    tema: 'oscuro',
+                    limites:
+                      Object.freeze({
+                        max: 30,
+                      }),
+                  }),
+                ]),
+
+              expected:
+                'oscuro|1|30|2',
+
+              call:
+                "(() => { const r = combinarConfigProfunda(...input); return r.tema + '|' + r.limites.min + '|' + r.limites.max + '|' + r.limites.paso; })()",
+
+              description:
+                'combina nivel superior y rama limites preservando propiedades',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    limites:
+                      Object.freeze({
+                        min: 0,
+                        max: 9,
+                      }),
+                  }),
+                  Object.freeze({
+                    limites:
+                      Object.freeze({
+                        min: 5,
+                      }),
+                  }),
+                ]),
+
+              expected:
+                '0|9|5|9|false|false',
+
+              call:
+                "(() => { const base = input[0]; const r = combinarConfigProfunda(...input); return base.limites.min + '|' + base.limites.max + '|' + r.limites.min + '|' + r.limites.max + '|' + (r === base) + '|' + (r.limites === base.limites); })()",
+
+              description:
+                'no muta base y crea una rama limites independiente',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-objects-mastery-checkpoint-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    id: 4,
+                    preferencias:
+                      Object.freeze({
+                        tema: 'claro',
+                        idioma: 'es',
+                        volumen: 10,
+                      }),
+                  }),
+                  'volumen',
+                  0,
+                ]),
+
+              expected:
+                '0|10|es|4',
+
+              call:
+                "(() => { const estado = input[0]; const r = actualizarPreferencia(...input); return r.preferencias.volumen + '|' + estado.preferencias.volumen + '|' + r.preferencias.idioma + '|' + r.id; })()",
+
+              description:
+                'actualiza una clave dinámica con valor cero sin mutar la entrada',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze([
+                  Object.freeze({
+                    preferencias:
+                      Object.freeze({
+                        tema: 'claro',
+                      }),
+                    sesion:
+                      Object.freeze({
+                        activa: true,
+                      }),
+                  }),
+                  'avisos',
+                  false,
+                ]),
+
+              expected:
+                'false|undefined|true|false|false',
+
+              call:
+                "(() => { const estado = input[0]; const r = actualizarPreferencia(...input); return r.preferencias.avisos + '|' + estado.preferencias.avisos + '|' + r.sesion.activa + '|' + (r === estado) + '|' + (r.preferencias === estado.preferencias); })()",
+
+              description:
+                'añade una propiedad falsy preservando ramas ajenas',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
   ]);
 
 /**

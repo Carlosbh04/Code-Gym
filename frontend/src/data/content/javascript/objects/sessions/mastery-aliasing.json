@@ -1,0 +1,149 @@
+{
+  "id": "js-objects-mastery-aliasing-01",
+  "title": "Romper un alias sin perder la estructura",
+  "difficulty": "advanced",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Por qué respaldo cambia cuando se modifica principal?",
+      "code": "const perfil = { nombre: 'Ada' };\nconst estado = {\n  principal: perfil,\n  respaldo: perfil,\n};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ambas propiedades son alias del mismo objeto",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Porque estado es const",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Porque spread está prohibido",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Porque nombre es global",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "principal y respaldo almacenan exactamente la misma identidad.",
+      "hints": [
+        "Compara las referencias, no los nombres de las propiedades."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la expresión?",
+      "code": "const perfil = { nombre: 'Ada' };\nconst estado = { principal: perfil, respaldo: perfil };\nconst nuevo = {\n  ...estado,\n  principal: { ...estado.principal, nombre: 'Lin' },\n};\nnuevo.principal.nombre + '|' + nuevo.respaldo.nombre;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Lin|Ada",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Lin|Lin",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Ada|Ada",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Ada|Lin",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Solo principal recibe una referencia nueva; respaldo conserva la original.",
+      "hints": [
+        "Se reconstruye una sola de las dos ramas."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Se quiere actualizar solo principal, pero respaldo también cambia. Localiza la mutación compartida.",
+      "code": "function cambiarPrincipal(estado, nombre) {\n  const copia = { ...estado };\n  copia.principal.nombre = nombre;\n  return copia;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        3
+      ],
+      "errorType": "aliasing",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "principal sigue siendo la referencia compartida con respaldo.",
+      "hints": [
+        "Copia principal antes de modificarla."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige actualizarPrincipal para cambiar solo principal, sin mutar estado ni alterar respaldo.",
+      "code": "function actualizarPrincipal(estado, nombre) {\n  estado.principal.nombre = nombre;\n  return estado;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": "Lin|Ada|Ada",
+          "call": "(() => { const perfil = { nombre: 'Ada' }; const estado = { principal: perfil, respaldo: perfil }; const r = actualizarPrincipal(estado, 'Lin'); return r.principal.nombre + '|' + r.respaldo.nombre + '|' + estado.principal.nombre; })()",
+          "description": "rompe el alias solo para principal"
+        },
+        {
+          "input": null,
+          "expected": "Noa|Eva|true",
+          "call": "(() => { const perfil = { nombre: 'Eva', activo: true }; const estado = { principal: perfil, respaldo: perfil }; const r = actualizarPrincipal(estado, 'Noa'); return r.principal.nombre + '|' + r.respaldo.nombre + '|' + r.principal.activo; })()",
+          "description": "preserva otras propiedades de principal"
+        },
+        {
+          "input": null,
+          "expected": "false|false|true",
+          "call": "(() => { const perfil = { nombre: 'A' }; const estado = { principal: perfil, respaldo: perfil }; const r = actualizarPrincipal(estado, 'B'); return (r === estado) + '|' + (r.principal === estado.principal) + '|' + (r.respaldo === estado.respaldo); })()",
+          "description": "crea contenedor y principal nuevos preservando respaldo"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La rama principal debe separarse antes de cambiar su nombre.",
+      "hints": [
+        "Copia estado y copia también principal."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

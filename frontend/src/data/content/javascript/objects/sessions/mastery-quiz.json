@@ -1,0 +1,208 @@
+{
+  "id": "js-objects-mastery-quiz-01",
+  "title": "Test: identidad y estructuras compuestas",
+  "difficulty": "advanced",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué relación existe entre principal y respaldo?",
+      "code": "const perfil = { nombre: 'Ada' };\nconst estado = {\n  principal: perfil,\n  respaldo: perfil,\n};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Apuntan al mismo objeto",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Son copias profundas",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Solo comparten nombre",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "No existe relación",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las dos propiedades reciben exactamente la misma referencia.",
+      "hints": [
+        "perfil se evalúa dos veces, pero representa el mismo objeto."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "const perfil = { nombre: 'Ada' };\nconst estado = { a: perfil, b: perfil };\nestado.a.nombre = 'Lin';\nestado.b.nombre;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Lin",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Ada",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "a y b son alias de la misma referencia.",
+      "hints": [
+        "La mutación se observa desde cualquier alias."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué parte de esta configuración se mezcla de forma explícitamente anidada?",
+      "code": "const config = {\n  ...base,\n  ...cambios,\n  limites: {\n    ...base.limites,\n    ...cambios.limites,\n  },\n};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "limites",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Todo el grafo de forma profunda",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Ninguna propiedad",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Solo base",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La rama limites recibe su propia combinación explícita.",
+      "hints": [
+        "Busca el objeto anidado reconstruido."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "const base = {\n  limites: { min: 1, max: 10 },\n};\nconst cambios = {\n  limites: { max: 20 },\n};\nconst r = {\n  ...base,\n  ...cambios,\n  limites: {\n    ...base.limites,\n    ...cambios.limites,\n  },\n};\nr.limites.min + ':' + r.limites.max;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "1:20",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined:20",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "1:10",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "20:20",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La mezcla anidada conserva min y sobrescribe max.",
+      "hints": [
+        "Combina primero la rama limites."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué valor conserva original.nombre?",
+      "code": "const original = { nombre: '  Ada  ', activo: true };\nconst normalizado = {\n  ...original,\n  nombre: original.nombre.trim(),\n};\noriginal.nombre;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "  Ada  ",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Ada",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La transformación escribe en un objeto nuevo.",
+      "hints": [
+        "trim se aplica para construir normalizado, no sobre original."
+      ],
+      "stepOrder": 5
+    }
+  ],
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "mastery",
+  "passingPercentage": 70,
+  "requiredForProgression": true
+}

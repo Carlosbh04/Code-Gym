@@ -1,0 +1,208 @@
+{
+  "id": "js-objects-deepening-quiz-01",
+  "title": "Test: copias y composición de objetos",
+  "difficulty": "intermediate",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué referencia sigue compartida después del spread exterior?",
+      "code": "const original = {\n  perfil: { nombre: 'Ada' },\n};\nconst copia = { ...original };",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "copia completa",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "perfil",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "ninguna referencia",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "solo nombre",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Spread crea un contenedor exterior nuevo, pero perfil conserva la misma referencia.",
+      "hints": [
+        "Observa qué valor de original se copia directamente."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "const base = { tema: 'claro', limite: 10 };\nconst cambios = { limite: 25 };\nconst config = { ...base, ...cambios };\nconfig.limite;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "10",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "25",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La propiedad situada más a la derecha prevalece.",
+      "hints": [
+        "cambios se aplica después de base."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué devuelve Object.fromEntries?",
+      "code": "const pares = [\n  ['a', 1],\n  ['b', 2],\n];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un objeto construido desde los pares",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Solo las claves",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Solo los valores",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Una copia profunda",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Object.fromEntries convierte pares [clave, valor] en propiedades de un objeto.",
+      "hints": [
+        "Es la operación complementaria de Object.entries."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué valor queda en original.perfil.nombre?",
+      "code": "const original = {\n  perfil: { nombre: 'Ada' },\n};\nconst copia = {\n  ...original,\n  perfil: { ...original.perfil },\n};\ncopia.perfil.nombre = 'Lin';\noriginal.perfil.nombre;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ada",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Lin",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "También se copió perfil, por lo que las ramas son independientes.",
+      "hints": [
+        "Hay dos spreads en niveles distintos."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la expresión?",
+      "code": "const dato = { activo: false };\nObject.hasOwn(dato, 'activo');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "true",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza TypeError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La propiedad existe aunque su valor sea false.",
+      "hints": [
+        "Existencia y truthiness no son lo mismo."
+      ],
+      "stepOrder": 5
+    }
+  ],
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "deepening",
+  "passingPercentage": 70,
+  "requiredForProgression": true
+}

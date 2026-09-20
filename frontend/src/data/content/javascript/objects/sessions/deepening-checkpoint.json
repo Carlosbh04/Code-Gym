@@ -1,0 +1,175 @@
+{
+  "id": "js-objects-deepening-checkpoint-01",
+  "title": "Checkpoint: transformación segura de objetos",
+  "difficulty": "intermediate",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué comprueba Object.hasOwn(objeto, clave)?",
+      "code": "const usuario = { nombre: 'Ada' };\nObject.hasOwn(usuario, 'nombre');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Que nombre es una propiedad propia",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Que nombre es truthy",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Que usuario es inmutable",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Que usuario no tiene prototipo",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Object.hasOwn comprueba existencia directa de la clave.",
+      "hints": [
+        "El valor de la propiedad no determina su existencia."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la expresión?",
+      "code": "const obj = { activo: false };\nObject.hasOwn(obj, 'activo') + ':' + obj.activo;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "true:false",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "false:false",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "true:true",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "false:true",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La propiedad existe aunque contenga false.",
+      "hints": [
+        "No confundas existencia con truthiness."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Se quieren copiar solo claves existentes, pero una propiedad válida con valor 0 se omite. Localiza la condición.",
+      "code": "function copiar(origen, claves) {\n  const resultado = {};\n  for (const clave of claves) {\n    if (origen[clave]) {\n      resultado[clave] = origen[clave];\n    }\n  }\n  return resultado;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        4
+      ],
+      "errorType": "existencia",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Comprobar el valor por truthiness confunde una clave existente con un valor falsy.",
+      "hints": [
+        "Comprueba la presencia de la propiedad, no su valor."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige seleccionarPropias para devolver un objeto nuevo con las claves solicitadas que existan realmente en origen, incluso cuando su valor sea falsy.",
+      "code": "function seleccionarPropias(origen, claves) {\n  const resultado = {};\n  for (const clave of claves) {\n    if (origen[clave]) {\n      resultado[clave] = origen[clave];\n    }\n  }\n  return resultado;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            {
+              "a": 0,
+              "b": false,
+              "c": "",
+              "d": 4
+            },
+            [
+              "a",
+              "b",
+              "d"
+            ]
+          ],
+          "expected": "{\"a\":0,\"b\":false,\"d\":4}",
+          "call": "JSON.stringify(seleccionarPropias(...input))",
+          "description": "conserva propiedades falsy existentes"
+        },
+        {
+          "input": [
+            {
+              "nombre": "Ada",
+              "edad": 30
+            },
+            [
+              "edad",
+              "faltante"
+            ]
+          ],
+          "expected": "{\"edad\":30}",
+          "call": "JSON.stringify(seleccionarPropias(...input))",
+          "description": "omite una clave inexistente"
+        },
+        {
+          "input": [
+            {
+              "x": 1
+            },
+            []
+          ],
+          "expected": "0|false",
+          "call": "(() => { const original = input[0]; const r = seleccionarPropias(...input); return Object.keys(r).length + '|' + (r === original); })()",
+          "description": "devuelve objeto nuevo también con selección vacía"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La selección depende de la existencia de la clave, no de que su valor sea truthy.",
+      "hints": [
+        "0, false y '' pueden ser datos válidos."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

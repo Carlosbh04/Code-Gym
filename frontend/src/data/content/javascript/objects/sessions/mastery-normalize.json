@@ -1,0 +1,162 @@
+{
+  "id": "js-objects-mastery-normalize-01",
+  "title": "Normalizar datos sin alterar la entrada",
+  "difficulty": "advanced",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué propiedad del patrón evita modificar usuario?",
+      "code": "function normalizar(usuario) {\n  return {\n    ...usuario,\n    nombre: usuario.nombre.trim(),\n  };\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Construye un objeto nuevo",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Usa return",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "nombre es string",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "trim muta automáticamente usuario",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El literal de objeto crea una identidad nueva.",
+      "hints": [
+        "La transformación usa usuario como fuente."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "const u = { nombre: '  Ada  ', email: 'ADA@X.COM' };\nconst r = {\n  ...u,\n  nombre: u.nombre.trim(),\n  email: u.email.toLowerCase(),\n};\nr.nombre + '|' + r.email;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ada|ada@x.com",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "  Ada  |ADA@X.COM",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Ada|ADA@X.COM",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined|undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Se normalizan ambas propiedades en el nuevo objeto.",
+      "hints": [
+        "Observa trim y toLowerCase."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La función debería devolver datos normalizados sin tocar la entrada. Localiza la mutación.",
+      "code": "function normalizar(usuario) {\n  usuario.nombre = usuario.nombre.trim();\n  usuario.email = usuario.email.toLowerCase();\n  return usuario;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        2,
+        3
+      ],
+      "errorType": "mutacion",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las asignaciones escriben directamente sobre el objeto recibido.",
+      "hints": [
+        "Construye otro objeto a partir del original."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige normalizarUsuario para devolver un objeto nuevo con nombre sin espacios exteriores y email en minúsculas, preservando las demás propiedades.",
+      "code": "function normalizarUsuario(usuario) {\n  usuario.nombre = usuario.nombre.trim();\n  usuario.email = usuario.email.toLowerCase();\n  return usuario;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "nombre": "  Ada  ",
+            "email": "ADA@EXAMPLE.COM",
+            "activo": true
+          },
+          "expected": "Ada|ada@example.com|true",
+          "call": "(() => { const r = normalizarUsuario(input); return r.nombre + '|' + r.email + '|' + r.activo; })()",
+          "description": "normaliza nombre y email conservando propiedades"
+        },
+        {
+          "input": {
+            "nombre": " Lin ",
+            "email": "Lin@X.IO",
+            "rol": "admin"
+          },
+          "expected": " Lin |Lin@X.IO|false",
+          "call": "(() => { const original = input; normalizarUsuario(original); return original.nombre + '|' + original.email + '|' + (normalizarUsuario(original) === original); })()",
+          "description": "no muta la entrada y devuelve otra referencia"
+        },
+        {
+          "input": {
+            "nombre": "Noa",
+            "email": "NOA@TEST.ES",
+            "puntos": 0
+          },
+          "expected": "Noa|noa@test.es|0",
+          "call": "(() => { const r = normalizarUsuario(input); return r.nombre + '|' + r.email + '|' + r.puntos; })()",
+          "description": "preserva valores falsy válidos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Normaliza al construir un objeto nuevo.",
+      "hints": [
+        "Usa usuario como fuente, no como destino."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 2,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

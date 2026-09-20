@@ -1,0 +1,188 @@
+{
+  "id": "js-objects-mastery-nested-config-01",
+  "title": "Combinar configuración por ramas",
+  "difficulty": "advanced",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Por qué se reconstruye limites por separado?",
+      "code": "const config = {\n  ...base,\n  ...cambios,\n  limites: {\n    ...base.limites,\n    ...cambios.limites,\n  },\n};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Para conservar propiedades anidadas no sobrescritas",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Porque spread solo funciona dentro de limites",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Para mutar base",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Porque limites debe ser un array",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Una mezcla superficial reemplazaría limites completo.",
+      "hints": [
+        "La rama anidada tiene su propio contrato de combinación."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "const base = { limites: { min: 1, max: 10 } };\nconst cambios = { limites: { max: 50 } };\nconst r = {\n  ...base,\n  ...cambios,\n  limites: {\n    ...base.limites,\n    ...cambios.limites,\n  },\n};\nr.limites.min + '|' + r.limites.max;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "1|50",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined|50",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "1|10",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "50|50",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "max se sobrescribe y min se conserva.",
+      "hints": [
+        "La rama limites también se mezcla."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El cambio de max está eliminando min. Localiza la mezcla demasiado superficial.",
+      "code": "function combinar(base, cambios) {\n  return {\n    ...base,\n    ...cambios,\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        4
+      ],
+      "errorType": "copia-superficial",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El spread de cambios reemplaza por completo la propiedad limites.",
+      "hints": [
+        "Reconstruye limites explícitamente."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige combinarConfigProfunda para mezclar base y cambios, combinando también la rama limites sin mutar las entradas.",
+      "code": "function combinarConfigProfunda(base, cambios) {\n  return {\n    ...base,\n    ...cambios,\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            {
+              "tema": "claro",
+              "limites": {
+                "min": 1,
+                "max": 10
+              }
+            },
+            {
+              "limites": {
+                "max": 25
+              }
+            }
+          ],
+          "expected": "claro|1|25",
+          "call": "(() => { const r = combinarConfigProfunda(...input); return r.tema + '|' + r.limites.min + '|' + r.limites.max; })()",
+          "description": "conserva propiedades anidadas de base"
+        },
+        {
+          "input": [
+            {
+              "activo": true,
+              "limites": {
+                "min": 0,
+                "max": 100
+              }
+            },
+            {
+              "activo": false,
+              "limites": {
+                "min": 5
+              }
+            }
+          ],
+          "expected": "false|5|100",
+          "call": "(() => { const r = combinarConfigProfunda(...input); return r.activo + '|' + r.limites.min + '|' + r.limites.max; })()",
+          "description": "mezcla nivel superior y rama limites"
+        },
+        {
+          "input": [
+            {
+              "limites": {
+                "min": 1,
+                "max": 9
+              }
+            },
+            {
+              "limites": {
+                "max": 20
+              }
+            }
+          ],
+          "expected": "1|9|false|false",
+          "call": "(() => { const base = input[0]; const cambios = input[1]; const r = combinarConfigProfunda(base, cambios); return base.limites.min + '|' + base.limites.max + '|' + (r === base) + '|' + (r.limites === base.limites); })()",
+          "description": "no muta base y crea una rama limites nueva"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La composición necesita una mezcla explícita para limites.",
+      "hints": [
+        "Mezcla primero el exterior y después reconstruye limites."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

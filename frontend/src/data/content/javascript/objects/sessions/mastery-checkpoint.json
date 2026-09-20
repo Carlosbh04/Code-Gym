@@ -1,0 +1,179 @@
+{
+  "id": "js-objects-mastery-checkpoint-01",
+  "title": "Checkpoint: identidad y composición segura",
+  "difficulty": "advanced",
+  "conceptId": "js-object-references",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué rama debe copiarse para modificar tema sin alterar el estado anterior?",
+      "code": "const estado = {\n  preferencias: {\n    tema: 'claro',\n    idioma: 'es',\n  },\n};",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "preferencias",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Solo el string tema",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Ninguna rama",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "technologyId",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "preferencias es el objeto que contiene la propiedad modificada.",
+      "hints": [
+        "Copia cada nivel de la ruta que cambia."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "const estado = {\n  preferencias: { tema: 'claro', idioma: 'es' },\n};\nconst nuevo = {\n  ...estado,\n  preferencias: {\n    ...estado.preferencias,\n    tema: 'oscuro',\n  },\n};\nestado.preferencias.tema + '|' + nuevo.preferencias.tema;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "claro|oscuro",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "oscuro|oscuro",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "claro|claro",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined|oscuro",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La rama preferencias fue reconstruida.",
+      "hints": [
+        "El objeto original no recibe ninguna asignación."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Se quiere actualizar una preferencia sin mutar el estado original. Localiza la escritura compartida.",
+      "code": "function actualizar(estado, clave, valor) {\n  const copia = { ...estado };\n  copia.preferencias[clave] = valor;\n  return copia;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        3
+      ],
+      "errorType": "mutacion",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "preferencias sigue siendo la misma referencia en copia y estado.",
+      "hints": [
+        "También debes copiar preferencias."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige actualizarPreferencia para devolver un estado nuevo con la clave actualizada dentro de preferencias, sin mutar la entrada ni perder otras propiedades.",
+      "code": "function actualizarPreferencia(estado, clave, valor) {\n  estado.preferencias[clave] = valor;\n  return estado;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            {
+              "id": 1,
+              "preferencias": {
+                "tema": "claro",
+                "idioma": "es"
+              }
+            },
+            "tema",
+            "oscuro"
+          ],
+          "expected": "oscuro|claro|es|1",
+          "call": "(() => { const estado = input[0]; const r = actualizarPreferencia(...input); return r.preferencias.tema + '|' + estado.preferencias.tema + '|' + r.preferencias.idioma + '|' + r.id; })()",
+          "description": "actualiza una preferencia preservando el resto"
+        },
+        {
+          "input": [
+            {
+              "preferencias": {
+                "tema": "claro"
+              }
+            },
+            "notificaciones",
+            false
+          ],
+          "expected": "false|undefined",
+          "call": "(() => { const estado = input[0]; const r = actualizarPreferencia(...input); return r.preferencias.notificaciones + '|' + estado.preferencias.notificaciones; })()",
+          "description": "permite añadir una propiedad con valor false"
+        },
+        {
+          "input": [
+            {
+              "preferencias": {
+                "volumen": 10
+              },
+              "sesion": {
+                "activa": true
+              }
+            },
+            "volumen",
+            0
+          ],
+          "expected": "0|10|true|false|false",
+          "call": "(() => { const estado = input[0]; const r = actualizarPreferencia(...input); return r.preferencias.volumen + '|' + estado.preferencias.volumen + '|' + r.sesion.activa + '|' + (r === estado) + '|' + (r.preferencias === estado.preferencias); })()",
+          "description": "conserva otras ramas y separa la rama modificada"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Debes copiar tanto estado como preferencias antes de escribir la nueva propiedad.",
+      "hints": [
+        "La clave puede ser dinámica.",
+        "Preserva las ramas no modificadas."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}
