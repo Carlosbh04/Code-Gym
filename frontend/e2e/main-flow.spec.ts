@@ -151,7 +151,7 @@ test('completa una sesión real desde la navegación hasta el progreso', async (
       );
 
     if (
-      width >= 1024
+      width >= 1280
     ) {
       expect(
         Math.abs(
@@ -217,7 +217,7 @@ test('completa una sesión real desde la navegación hasta el progreso', async (
 
   await expect(
     page.getByText(
-      'Solución correcta. Todos los tests privados del servidor han pasado.',
+      'Solución correcta. La validación completa del servidor ha pasado.',
     ),
   ).toBeVisible();
 

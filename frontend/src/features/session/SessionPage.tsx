@@ -64,7 +64,6 @@ type SessionEntryAccessState =
 function SessionPage() {
   const { sessionId = '' } = useParams();
   const navigate = useNavigate();
-  const { getTechnology } = useContent();
   const {
     accessToken,
   } = useAuth();
@@ -407,14 +406,11 @@ function SessionPage() {
     );
   }
 
-  const technology = getTechnology(session.technologyId)?.name ?? session.technologyId;
-
   return (
-    <section className="relative flex min-w-0 flex-col gap-5 sm:gap-6">
+    <section className="flex flex-col gap-6">
       <SessionHeader
         title={session.title}
         concept={session.conceptId}
-        technology={technology}
         difficulty={session.difficulty}
         totalSteps={session.steps.length}
         currentStep={state.currentStep}
@@ -428,7 +424,7 @@ function SessionPage() {
         />
       )}
 
-      <ExerciseCard state={isAnswered ? 'answered' : 'default'} className="min-w-0 rounded-2xl border-border bg-card shadow-sm">
+      <ExerciseCard state={isAnswered ? 'answered' : 'default'}>
         <div className="flex flex-col gap-6">
           {currentStep === null ? (
             <p role="status" className="text-sm text-muted-foreground">
@@ -532,7 +528,7 @@ function SessionPage() {
             />
           )}
 
-          <div aria-label="Acciones de la sesión" className="flex flex-wrap gap-3 rounded-2xl border border-border bg-background/30 p-4">
+          <div aria-label="Acciones de la sesión" className="flex flex-wrap gap-3">
             {currentStep?.type !== 'fix-code' && (
               <button
                 type="button"
