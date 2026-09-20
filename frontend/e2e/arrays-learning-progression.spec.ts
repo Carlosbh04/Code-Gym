@@ -226,6 +226,18 @@ async function answerChoiceSession(
   page: Page,
   answers: readonly string[],
 ) {
+  await answerChoiceSessionWithFeedback(
+    page,
+    answers,
+    'Respuesta correcta',
+  );
+}
+
+async function answerChoiceSessionWithFeedback(
+  page: Page,
+  answers: readonly string[],
+  feedback: 'Respuesta correcta' | 'Respuesta incorrecta',
+) {
   for (
     let index = 0;
     index < answers.length;
@@ -256,7 +268,7 @@ async function answerChoiceSession(
 
     await expect(
       page.getByText(
-        'Respuesta correcta',
+        feedback,
       ),
     ).toBeVisible();
 
@@ -281,6 +293,247 @@ async function answerChoiceSession(
 test.describe(
   'Arrays — progresión pedagógica real',
   () => {
+    test(
+      'tres intentos fallidos no anuncian ni desbloquean la práctica y sobreviven a la recarga',
+      async ({
+        page,
+      }) => {
+        test.setTimeout(
+          120_000,
+        );
+
+        const api =
+          await playwrightRequest
+            .newContext({
+              baseURL:
+                API_BASE_URL,
+            });
+
+        const accessToken =
+          await createPedagogyUser(
+            api,
+          );
+
+        await page.unroute(
+          '**/auth/refresh',
+        );
+
+        await page.route(
+          '**/auth/refresh',
+          async (
+            route,
+          ) => {
+            await route.fulfill({
+              contentType:
+                'application/json',
+              status:
+                200,
+              body:
+                JSON.stringify({
+                  accessToken,
+                }),
+            });
+          },
+        );
+
+        try {
+          const theoryCompletion =
+            await api.post(
+              `/learning/concepts/${CONCEPT_ID}/levels/foundation/theory/complete`,
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${accessToken}`,
+                },
+              },
+            );
+
+          expect(
+            theoryCompletion.status(),
+          ).toBe(
+            200,
+          );
+
+          await page.goto(
+            `${TOPIC_URL}?concept=${CONCEPT_ID}&stage=quiz`,
+          );
+
+          await page
+            .getByText(
+              'Empezar test',
+              {
+                exact: true,
+              },
+            )
+            .click();
+
+          const wrongAnswers = [
+            '[2, 4, 6]',
+            '[4, 8, 12] y después [4, 8, 12]',
+            'numeros.map((numero) => numero > 10)',
+            '30',
+            'forEach',
+          ] as const;
+
+          for (
+            let attempt = 1;
+            attempt <= 3;
+            attempt += 1
+          ) {
+            await answerChoiceSessionWithFeedback(
+              page,
+              wrongAnswers,
+              'Respuesta incorrecta',
+            );
+
+            await expect(
+              page.getByRole(
+                'heading',
+                {
+                  name:
+                    'Aún no has superado el test',
+                },
+              ),
+            ).toBeVisible();
+
+            await expect(
+              page.getByRole(
+                'heading',
+                {
+                  name:
+                    'Has desbloqueado la práctica',
+                },
+              ),
+            ).toHaveCount(
+              0,
+            );
+
+            const failedState =
+              await getJson(
+                api,
+                accessToken,
+                `/learning/concepts/${CONCEPT_ID}/levels/foundation/state`,
+              );
+
+            expect(
+              failedState
+                .state
+                .stages
+                ?.quiz
+                ?.status,
+            ).toBe(
+              'available',
+            );
+
+            expect(
+              failedState
+                .state
+                .stages
+                ?.practice
+                ?.status,
+            ).toBe(
+              'locked',
+            );
+
+            if (
+              attempt < 3
+            ) {
+              await page
+                .getByRole(
+                  'button',
+                  {
+                    name:
+                      'Reintentar test',
+                  },
+                )
+                .click();
+
+              await expect(
+                page.getByRole(
+                  'radio',
+                  {
+                    name:
+                      wrongAnswers[0],
+                    exact:
+                      true,
+                  },
+                ),
+              ).toBeVisible();
+            }
+          }
+
+          await page
+            .getByRole(
+              'link',
+              {
+                name:
+                  'Volver al recorrido',
+              },
+            )
+            .click();
+
+          await expect(
+            page,
+          ).toHaveURL(
+            `${TOPIC_URL}?concept=${CONCEPT_ID}`,
+          );
+
+          const stages =
+            page.getByRole(
+              'navigation',
+              {
+                name:
+                  'Etapas del aprendizaje',
+              },
+            );
+
+          await expect(
+            stages.getByRole(
+              'button',
+              {
+                name:
+                  /Test.*Actual/,
+              },
+            ),
+          ).toBeEnabled();
+
+          await expect(
+            stages.getByRole(
+              'button',
+              {
+                name:
+                  /Práctica.*Bloqueado/,
+              },
+            ),
+          ).toBeDisabled();
+
+          await page.reload();
+
+          await expect(
+            stages.getByRole(
+              'button',
+              {
+                name:
+                  /Test.*Actual/,
+              },
+            ),
+          ).toBeEnabled();
+
+          await expect(
+            stages.getByRole(
+              'button',
+              {
+                name:
+                  /Práctica.*Bloqueado/,
+              },
+            ),
+          ).toBeDisabled();
+        } finally {
+          await api.dispose();
+        }
+      },
+    );
+
     test(
       'Fundamentos exige teoría, quiz, prácticas y checkpoint antes de desbloquear Profundización',
       async ({

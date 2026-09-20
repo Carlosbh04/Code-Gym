@@ -1,4 +1,10 @@
-import { CheckCircle2, TriangleAlert } from 'lucide-react';
+import {
+  ArrowLeft,
+  BookmarkCheck,
+  CheckCircle2,
+  RotateCcw,
+  TriangleAlert,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/codegym/EmptyState';
@@ -10,6 +16,7 @@ import { useSession } from '@/hooks/useSession';
 import { useContent } from '@/hooks/useContent';
 import { useAuth } from '@/features/auth/AuthContext';
 import { browserLearningApi } from '@/features/learning/learning-api';
+import type { LearningLevelState } from '@/features/learning/learning-types';
 import {
   canEnterLearningSession,
 } from '@/features/learning/session-learning-kind';
@@ -389,6 +396,7 @@ function SessionPage() {
             answer => answer.isCorrect,
           ).length}
           total={state.answers.length}
+          onRetry={startNewSession}
         />
       );
     }
@@ -401,6 +409,7 @@ function SessionPage() {
         <CheckpointComplete
           session={session}
           answers={state.answers}
+          onRetry={startNewSession}
         />
       );
     }
@@ -579,6 +588,9 @@ type CheckpointResolution =
   | {
       readonly status:
         'retry';
+
+      readonly levelState:
+        LearningLevelState;
     }
   | {
       readonly status:
@@ -596,12 +608,16 @@ type CheckpointResolution =
 function CheckpointComplete({
   session,
   answers,
+  onRetry,
 }: {
   readonly session:
     ExerciseSession;
 
   readonly answers:
     UserAnswer[];
+
+  readonly onRetry:
+    () => void;
 }) {
   const {
     accessToken,
@@ -614,6 +630,20 @@ function CheckpointComplete({
   const [
     destination,
     setDestination,
+  ] = useState(
+    `/tech/${session.technologyId}`,
+  );
+
+  const [
+    levelName,
+    setLevelName,
+  ] = useState<string | null>(
+    null,
+  );
+
+  const [
+    retryDestination,
+    setRetryDestination,
   ] = useState(
     `/tech/${session.technologyId}`,
   );
@@ -650,6 +680,22 @@ function CheckpointComplete({
             setDestination(
               `/tech/${session.technologyId}/${concept.topicId}`,
             );
+
+            setRetryDestination(
+              `/tech/${session.technologyId}/${concept.topicId}`
+              + `?concept=${encodeURIComponent(session.conceptId)}`,
+            );
+
+            setLevelName(
+              concept.levels
+                ?.find(
+                  level =>
+                    level.id
+                    === session.levelId,
+                )
+                ?.name
+              ?? null,
+            );
           },
         )
         .catch(
@@ -666,6 +712,7 @@ function CheckpointComplete({
     [
       getConcept,
       session.conceptId,
+      session.levelId,
       session.technologyId,
     ],
   );
@@ -711,6 +758,8 @@ function CheckpointComplete({
               setResolution({
                 status:
                   'retry',
+
+                levelState,
               });
 
               return;
@@ -826,6 +875,17 @@ function CheckpointComplete({
   const needsRetry =
     resolution.status
     === 'retry';
+
+  if (needsRetry) {
+    return (
+      <CheckpointRetry
+        destination={retryDestination}
+        levelName={levelName}
+        levelState={resolution.levelState}
+        onRetry={onRetry}
+      />
+    );
+  }
 
   return (
     <section
@@ -946,21 +1006,327 @@ function CheckpointComplete({
   );
 }
 
+const LEARNING_STAGES = [
+  'theory',
+  'quiz',
+  'practice',
+  'checkpoint',
+] as const;
+
+function CheckpointRetry({
+  destination,
+  levelName,
+  levelState,
+  onRetry,
+}: {
+  readonly destination:
+    string;
+
+  readonly levelName:
+    string | null;
+
+  readonly levelState:
+    LearningLevelState;
+
+  readonly onRetry:
+    () => void;
+}) {
+  const completedStages =
+    LEARNING_STAGES.filter(
+      stage =>
+        levelState.stages[
+          stage
+        ].status
+        === 'completed',
+    ).length;
+
+  const percentage =
+    Math.round(
+      completedStages
+      / LEARNING_STAGES.length
+      * 100,
+    );
+
+  const radius =
+    54;
+
+  const circumference =
+    2
+    * Math.PI
+    * radius;
+
+  const progressOffset =
+    circumference
+    * (1 - percentage / 100);
+
+  const displayedLevel =
+    levelName
+    ?? 'el nivel actual';
+
+  const progressLabel =
+    levelName === null
+      ? 'Progreso del nivel actual'
+      : `Progreso de ${levelName}`;
+
+  return (
+    <section
+      aria-labelledby="checkpoint-retry-title"
+      className="
+        mx-auto
+        flex
+        w-full
+        max-w-xl
+        flex-col
+        items-center
+        overflow-hidden
+        rounded-2xl
+        border
+        border-primary/25
+        bg-card
+        px-5
+        py-7
+        text-center
+        shadow-[0_24px_70px_hsl(var(--background)/0.35)]
+        sm:px-10
+        sm:py-10
+      "
+    >
+      <p
+        className="
+          inline-flex
+          items-center
+          gap-2
+          text-xs
+          font-semibold
+          uppercase
+          tracking-[0.16em]
+          text-primary
+        "
+      >
+        <CheckCircle2
+          aria-hidden="true"
+          className="size-4"
+        />
+
+        Checkpoint completado
+      </p>
+
+      <div
+        role="progressbar"
+        aria-label={progressLabel}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percentage}
+        aria-valuetext={`${percentage}% completado`}
+        className="
+          relative
+          mt-6
+          size-36
+          shrink-0
+          sm:size-44
+        "
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 128 128"
+          className="size-full -rotate-90"
+        >
+          <circle
+            cx="64"
+            cy="64"
+            r={radius}
+            fill="none"
+            stroke="hsl(var(--muted))"
+            strokeWidth="9"
+          />
+
+          <circle
+            cx="64"
+            cy="64"
+            r={radius}
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth="9"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={progressOffset}
+          />
+        </svg>
+
+        <span
+          aria-hidden="true"
+          className="
+            absolute
+            inset-0
+            flex
+            items-center
+            justify-center
+            text-3xl
+            font-bold
+            tabular-nums
+            tracking-tight
+            text-foreground
+            sm:text-4xl
+          "
+        >
+          {percentage}%
+        </span>
+      </div>
+
+      <p
+        className="
+          mt-4
+          text-sm
+          font-medium
+          text-muted-foreground
+        "
+      >
+        <span className="tabular-nums text-foreground">
+          {percentage}%
+        </span>
+        {' · '}
+        {levelName !== null ? `${levelName} · ` : ''}
+        Nivel aún no superado
+      </p>
+
+      <h1
+        id="checkpoint-retry-title"
+        className="
+          mt-6
+          text-2xl
+          font-bold
+          tracking-tight
+          text-foreground
+          sm:text-3xl
+        "
+      >
+        Casi lo tienes
+      </h1>
+
+      <p
+        className="
+          mt-3
+          max-w-md
+          text-sm
+          leading-relaxed
+          text-muted-foreground
+          sm:text-base
+        "
+      >
+        Has completado el checkpoint, pero todavía no alcanzaste
+        lo necesario para superar {displayedLevel}.
+      </p>
+
+      <div
+        className="
+          mt-6
+          flex
+          w-full
+          max-w-md
+          items-start
+          gap-3
+          rounded-xl
+          border
+          border-primary/20
+          bg-primary/[0.06]
+          p-4
+          text-left
+        "
+      >
+        <BookmarkCheck
+          aria-hidden="true"
+          className="mt-0.5 size-5 shrink-0 text-primary"
+        />
+
+        <p
+          className="
+            text-sm
+            leading-relaxed
+            text-foreground
+          "
+        >
+          <span className="font-semibold">
+            Tu progreso está guardado.
+          </span>{' '}
+          No necesitas repetir lo que ya has completado.
+        </p>
+      </div>
+
+      <div
+        aria-label="Acciones del checkpoint"
+        className="
+          mt-7
+          flex
+          w-full
+          max-w-md
+          flex-col
+          gap-3
+          sm:flex-row
+        "
+      >
+        <Link
+          to={destination}
+          className={`
+            ${BUTTON}
+            w-full
+            gap-2
+            bg-primary
+            text-primary-foreground
+            hover:bg-primary/90
+          `}
+        >
+          <ArrowLeft
+            aria-hidden="true"
+            className="size-4"
+          />
+
+          Volver al recorrido
+        </Link>
+
+        <button
+          type="button"
+          onClick={onRetry}
+          className={`
+            ${BUTTON}
+            w-full
+            gap-2
+            border
+            border-border
+            bg-card
+            text-foreground
+            hover:bg-accent
+          `}
+        >
+          <RotateCcw
+            aria-hidden="true"
+            className="size-4"
+          />
+
+          Reintentar checkpoint
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function StageComplete({
   session,
   correct,
   total,
+  onRetry,
 }: {
-  readonly session: {
-    readonly id: string;
-    readonly title: string;
-    readonly conceptId: string;
-    readonly technologyId: string;
-    readonly kind?: 'quiz' | 'practice' | 'checkpoint';
-  };
+  readonly session:
+    ExerciseSession;
   readonly correct: number;
   readonly total: number;
+
+  readonly onRetry:
+    () => void;
 }) {
+  const {
+    accessToken,
+  } = useAuth();
+
   const {
     getConcept,
   } = useContent();
@@ -970,6 +1336,38 @@ function StageComplete({
     setDestination,
   ] = useState(
     `/tech/${session.technologyId}`,
+  );
+
+  const [
+    practiceDestination,
+    setPracticeDestination,
+  ] = useState(
+    `/tech/${session.technologyId}`,
+  );
+
+  const [
+    retryDestination,
+    setRetryDestination,
+  ] = useState(
+    `/tech/${session.technologyId}`,
+  );
+
+  const isQuiz =
+    session.kind === 'quiz';
+
+  const [
+    quizResolution,
+    setQuizResolution,
+  ] = useState<
+    | 'not-applicable'
+    | 'checking'
+    | 'passed'
+    | 'retry'
+    | 'verification-error'
+  >(
+    isQuiz
+      ? 'checking'
+      : 'not-applicable',
   );
 
   useEffect(() => {
@@ -992,6 +1390,18 @@ function StageComplete({
         setDestination(
           `/tech/${session.technologyId}/${concept.topicId}`,
         );
+
+        const journeyDestination =
+          `/tech/${session.technologyId}/${concept.topicId}`
+          + `?concept=${encodeURIComponent(session.conceptId)}`;
+
+        setRetryDestination(
+          journeyDestination,
+        );
+
+        setPracticeDestination(
+          `${journeyDestination}&stage=practice`,
+        );
       })
       .catch(() => {
         // El fallback de tecnología sigue siendo navegable.
@@ -1006,13 +1416,145 @@ function StageComplete({
     session.technologyId,
   ]);
 
-  const isQuiz =
-    session.kind === 'quiz';
+  useEffect(
+    () => {
+      if (!isQuiz) {
+        return;
+      }
+
+      let active =
+        true;
+
+      const resolveQuizCompletion =
+        async () => {
+          if (
+            accessToken
+            === null
+          ) {
+            if (active) {
+              setQuizResolution(
+                'verification-error',
+              );
+            }
+
+            return;
+          }
+
+          try {
+            const learningState =
+              session.levelId
+                === undefined
+                ? await browserLearningApi
+                    .getConceptState(
+                      session.conceptId,
+                      accessToken,
+                    )
+                : await browserLearningApi
+                    .getLevelState(
+                      session.conceptId,
+                      session.levelId,
+                      accessToken,
+                    );
+
+            if (!active) {
+              return;
+            }
+
+            const quizPassed =
+              learningState
+                .stages
+                .quiz
+                .status
+              === 'completed';
+
+            const practiceAccessible =
+              !learningState.locked
+              && learningState
+                .stages
+                .practice
+                .status
+                !== 'locked';
+
+            setQuizResolution(
+              quizPassed
+              && practiceAccessible
+                ? 'passed'
+                : 'retry',
+            );
+          } catch {
+            if (active) {
+              setQuizResolution(
+                'verification-error',
+              );
+            }
+          }
+        };
+
+      void resolveQuizCompletion();
+
+      return () => {
+        active =
+          false;
+      };
+    },
+    [
+      accessToken,
+      isQuiz,
+      session.conceptId,
+      session.levelId,
+    ],
+  );
+
+  if (
+    quizResolution
+    === 'checking'
+  ) {
+    return (
+      <section
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        className="
+          mx-auto
+          w-full
+          max-w-2xl
+          rounded-2xl
+          border
+          border-border
+          bg-card
+          p-6
+          text-center
+          text-sm
+          text-muted-foreground
+          shadow-sm
+          sm:p-10
+        "
+      >
+        Verificando si la práctica está disponible…
+      </section>
+    );
+  }
+
+  const quizPassed =
+    quizResolution
+    === 'passed';
+
+  const quizNeedsRetry =
+    quizResolution
+    === 'retry';
+
+  const quizVerificationFailed =
+    quizResolution
+    === 'verification-error';
+
+  const successful =
+    !isQuiz
+    || quizPassed;
 
   return (
     <section
       aria-labelledby="stage-complete-title"
-      className="
+      className={`
         mx-auto
         flex
         w-full
@@ -1021,42 +1563,68 @@ function StageComplete({
         items-center
         rounded-2xl
         border
-        border-success/30
+        ${
+          successful
+            ? 'border-success/30'
+            : 'border-warning/30'
+        }
         bg-card
         p-6
         text-center
         shadow-sm
         sm:p-10
-      "
+      `}
     >
       <span
-        className="
+        className={`
           flex
           size-14
           items-center
           justify-center
           rounded-full
-          bg-success/10
-          text-success
-        "
+          ${
+            successful
+              ? 'bg-success/10 text-success'
+              : 'bg-warning/10 text-warning'
+          }
+        `}
       >
-        <CheckCircle2
-          aria-hidden="true"
-          className="size-7"
-        />
+        {
+          successful
+            ? (
+              <CheckCircle2
+                aria-hidden="true"
+                className="size-7"
+              />
+            )
+            : (
+              <TriangleAlert
+                aria-hidden="true"
+                className="size-7"
+              />
+            )
+        }
       </span>
 
       <p
-        className="
+        className={`
           mt-5
           text-sm
           font-semibold
-          text-success
-        "
+          ${
+            successful
+              ? 'text-success'
+              : 'text-warning'
+          }
+        `}
       >
         {
-          isQuiz
+          quizPassed
             ? 'Test superado'
+            : quizNeedsRetry
+              ? 'Intento guardado'
+              : quizVerificationFailed
+                ? 'Progreso guardado'
             : 'Práctica completada'
         }
       </p>
@@ -1072,8 +1640,12 @@ function StageComplete({
         "
       >
         {
-          isQuiz
+          quizPassed
             ? 'Has desbloqueado la práctica'
+            : quizNeedsRetry
+              ? 'Aún no has superado el test'
+              : quizVerificationFailed
+                ? 'No pudimos verificar el desbloqueo'
             : 'Progreso guardado'
         }
       </h1>
@@ -1087,31 +1659,77 @@ function StageComplete({
           text-muted-foreground
         "
       >
-        Has completado {
-          correct
-        } de {
-          total
-        } ejercicios correctamente en {
-          session.title
-        }.
+        {
+          quizNeedsRetry
+            ? (
+              <>
+                Has completado {correct} de {total} ejercicios
+                correctamente. Refuerza estos conceptos y vuelve
+                a intentarlo; la práctica continúa bloqueada.
+              </>
+            )
+            : quizVerificationFailed
+              ? (
+                'Tu intento quedó guardado, pero no confirmaremos '
+                + 'la práctica hasta consultar el progreso autoritativo.'
+              )
+              : (
+                <>
+                  Has completado {correct} de {total} ejercicios
+                  correctamente en {session.title}.
+                </>
+              )
+        }
       </p>
 
-      <Link
-        to={destination}
-        className={`
-          ${BUTTON}
-          mt-7
-          bg-primary
-          text-primary-foreground
-          hover:bg-primary/90
-        `}
-      >
+      {
+        quizNeedsRetry
+          ? (
+            <div
+              aria-label="Acciones del test"
+              className="mt-7 flex w-full max-w-md flex-col gap-3 sm:flex-row"
+            >
+              <Link
+                to={retryDestination}
+                className={`${BUTTON} w-full border border-border bg-card text-foreground hover:bg-accent`}
+              >
+                Volver al recorrido
+              </Link>
+
+              <button
+                type="button"
+                onClick={onRetry}
+                className={`${BUTTON} w-full bg-primary text-primary-foreground hover:bg-primary/90`}
+              >
+                Reintentar test
+              </button>
+            </div>
+          )
+          : (
+            <Link
+              to={
+                quizPassed
+                  ? practiceDestination
+                  : destination
+              }
+              className={`
+                ${BUTTON}
+                mt-7
+                bg-primary
+                text-primary-foreground
+                hover:bg-primary/90
+              `}
+            >
         {
-          isQuiz
+          quizPassed
             ? 'Continuar a práctica'
-            : 'Continuar recorrido'
+            : quizVerificationFailed
+              ? 'Volver al recorrido'
+              : 'Continuar recorrido'
         }
-      </Link>
+            </Link>
+          )
+      }
     </section>
   );
 }
