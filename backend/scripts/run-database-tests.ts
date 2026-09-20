@@ -56,6 +56,7 @@ runNodeCli(
     'tests/integration/badge.integration.test.ts',
     'tests/integration/dashboard.integration.test.ts',
     'tests/integration/training.integration.test.ts',
+    'tests/integration/variables-coding-practice.integration.test.ts',
     'tests/integration/isolation.integration.test.ts',
   ],
 );
