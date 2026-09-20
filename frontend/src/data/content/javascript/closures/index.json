@@ -4,11 +4,203 @@
   "topicId": "js-closures",
   "technologyId": "javascript",
   "position": 0,
-  "content": { "sections": [
-    { "type": "intro", "title": "Introducción", "body": "Un closure conserva acceso al entorno léxico donde se creó una función." },
-    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Reconocer variables capturadas", "Distinguir valor y binding"] },
-    { "type": "code", "title": "Ejemplo", "language": "javascript", "code": "function counter() { let value = 0; return () => ++value; }" },
-    { "type": "key-point", "title": "Punto clave", "body": "El closure mantiene el binding, por eso puede observar valores actualizados." },
-    { "type": "quick-check", "question": "¿Qué conserva la función devuelta?", "answer": "Acceso a value." }
-  ] }
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Nivel base del concepto.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Analiza closures que coordinan varias funciones, fábricas configurables y estado privado con operaciones relacionadas.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Diseña y depura closures con estado encapsulado, dependencias capturadas y múltiples instancias sin acoplamiento accidental.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Introducción",
+        "body": "Un closure conserva acceso al entorno léxico donde se creó una función."
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Reconocer variables capturadas",
+          "Distinguir valor y binding"
+        ]
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "function counter() { let value = 0; return () => ++value; }"
+      },
+      {
+        "type": "key-point",
+        "title": "Punto clave",
+        "body": "El closure mantiene el binding, por eso puede observar valores actualizados."
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Qué conserva la función devuelta?",
+        "answer": "Acceso a value."
+      },
+      {
+        "levelId": "deepening",
+        "type": "intro",
+        "title": "Profundización",
+        "body": "Un closure se vuelve especialmente útil cuando varias funciones necesitan coordinarse alrededor del mismo estado privado."
+      },
+      {
+        "levelId": "deepening",
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Compartir estado de forma intencional entre varias funciones",
+          "Distinguir dependencias capturadas de argumentos de cada llamada",
+          "Crear fábricas configurables sin mezclar instancias",
+          "Reconocer cuándo una función conserva estado y cuándo solo conserva configuración"
+        ]
+      },
+      {
+        "levelId": "deepening",
+        "type": "explanation",
+        "title": "Varias funciones pueden compartir el mismo entorno",
+        "body": "Si una fábrica devuelve varias funciones creadas durante la misma ejecución, todas pueden cerrar sobre las mismas variables locales."
+      },
+      {
+        "levelId": "deepening",
+        "type": "code",
+        "title": "Un estado, varias operaciones",
+        "language": "javascript",
+        "code": "function crearCuenta(inicial) {\n  let saldo = inicial;\n\n  return {\n    ingresar(cantidad) {\n      saldo += cantidad;\n      return saldo;\n    },\n    retirar(cantidad) {\n      saldo -= cantidad;\n      return saldo;\n    },\n    leer() {\n      return saldo;\n    },\n  };\n}"
+      },
+      {
+        "levelId": "deepening",
+        "type": "quick-check",
+        "question": "¿Por qué ingresar, retirar y leer observan siempre el mismo saldo?",
+        "answer": "Porque las tres funciones fueron creadas en la misma llamada a crearCuenta y capturan el mismo binding saldo."
+      },
+      {
+        "levelId": "deepening",
+        "type": "explanation",
+        "title": "Configuración capturada y datos de llamada",
+        "body": "Una fábrica puede capturar configuración estable y devolver una función que reciba datos distintos en cada ejecución."
+      },
+      {
+        "levelId": "deepening",
+        "type": "code",
+        "title": "Fábrica configurable",
+        "language": "javascript",
+        "code": "function crearImpuesto(porcentaje) {\n  return function calcular(base) {\n    return base * porcentaje;\n  };\n}\n\nconst iva = crearImpuesto(0.21);\niva(100); // 21\niva(50);  // 10.5"
+      },
+      {
+        "levelId": "deepening",
+        "type": "warning",
+        "title": "No mezcles instancias por accidente",
+        "body": "El estado que deba pertenecer a cada instancia debe declararse dentro de la fábrica. Si se declara fuera, diferentes instancias pueden terminar compartiéndolo."
+      },
+      {
+        "levelId": "deepening",
+        "type": "explanation",
+        "title": "El closure puede conservar funciones",
+        "body": "También puede capturar callbacks o estrategias. Eso permite construir funciones configuradas sin depender de variables globales."
+      },
+      {
+        "levelId": "deepening",
+        "type": "quick-check",
+        "question": "Si dos llamadas distintas a una fábrica reciben callbacks distintos, ¿cada función devuelta puede conservar el suyo?",
+        "answer": "Sí. Cada ejecución de la fábrica crea su propio entorno y puede capturar una dependencia distinta."
+      },
+      {
+        "levelId": "deepening",
+        "type": "key-point",
+        "title": "Resumen",
+        "body": "En Profundización importa identificar qué estado se comparte dentro de una instancia y qué debe permanecer aislado entre instancias."
+      },
+      {
+        "levelId": "mastery",
+        "type": "intro",
+        "title": "Dominio",
+        "body": "En código real, los closures suelen combinar estado privado, configuración y dependencias. El reto es mantener contratos claros y evitar acoplamientos invisibles."
+      },
+      {
+        "levelId": "mastery",
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Diseñar APIs pequeñas alrededor de estado encapsulado",
+          "Inyectar dependencias mediante closures",
+          "Separar estado privado de datos externos mutables",
+          "Rastrear múltiples instancias y múltiples funciones sobre un mismo entorno"
+        ]
+      },
+      {
+        "levelId": "mastery",
+        "type": "explanation",
+        "title": "El closure como frontera de encapsulación",
+        "body": "Una fábrica puede exponer solo las operaciones permitidas y mantener sus datos internos inaccesibles desde fuera."
+      },
+      {
+        "levelId": "mastery",
+        "type": "code",
+        "title": "API con estado privado",
+        "language": "javascript",
+        "code": "function crearSesion(usuario) {\n  let activa = true;\n\n  return {\n    cerrar() {\n      activa = false;\n    },\n    estado() {\n      return { usuario, activa };\n    },\n  };\n}"
+      },
+      {
+        "levelId": "mastery",
+        "type": "quick-check",
+        "question": "¿Puede el código exterior cambiar directamente la variable activa?",
+        "answer": "No. Solo puede interactuar con ella mediante las funciones que la capturan."
+      },
+      {
+        "levelId": "mastery",
+        "type": "explanation",
+        "title": "Inyección de dependencias",
+        "body": "Capturar una función recibida como argumento permite configurar comportamiento una vez y reutilizarlo después sin consultar globals."
+      },
+      {
+        "levelId": "mastery",
+        "type": "code",
+        "title": "Dependencia capturada",
+        "language": "javascript",
+        "code": "function crearRegistrador(escribir) {\n  return function registrar(mensaje) {\n    escribir(`[app] ${mensaje}`);\n  };\n}"
+      },
+      {
+        "levelId": "mastery",
+        "type": "warning",
+        "title": "Capturar una referencia mutable también crea dependencia",
+        "body": "Si el closure captura un objeto externo y ese objeto cambia, la función verá esos cambios. Decide si necesitas observar la referencia viva o copiar los datos relevantes."
+      },
+      {
+        "levelId": "mastery",
+        "type": "explanation",
+        "title": "Varias instancias deben permanecer aisladas",
+        "body": "Cuando una fábrica se ejecuta varias veces, cada resultado debe conservar su propio estado salvo que compartirlo sea un requisito explícito."
+      },
+      {
+        "levelId": "mastery",
+        "type": "quick-check",
+        "question": "¿Qué debes inspeccionar primero cuando dos instancias se contaminan entre sí?",
+        "answer": "Dónde se declaró el estado que ambas funciones están capturando."
+      },
+      {
+        "levelId": "mastery",
+        "type": "key-point",
+        "title": "Resumen",
+        "body": "Dominar closures significa controlar deliberadamente qué se captura, qué se comparte, qué permanece privado y qué debe aislarse entre instancias."
+      }
+    ]
+  }
 }

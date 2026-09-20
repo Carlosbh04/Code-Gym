@@ -1,0 +1,208 @@
+{
+  "id": "js-closures-mastery-quiz-01",
+  "title": "Test: diseño con closures",
+  "difficulty": "advanced",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué dato permanece privado?",
+      "code": "function crearSesion(usuario) {\n  let activa = true;\n\n  return {\n    cerrar() { activa = false; },\n    estado() { return { usuario, activa }; },\n  };\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "activa",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "El objeto completo retornado",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "usuario necesariamente",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Ninguno",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "activa solo es accesible a través de las funciones que la capturan.",
+      "hints": [
+        "Busca qué variable no se expone como propiedad."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "function crearId(prefijo) {\n  let siguiente = 1;\n  return () => prefijo + siguiente++;\n}\n\nconst a = crearId(\"A-\");\nconst b = crearId(\"B-\");\n\na() + \"|\" + a() + \"|\" + b();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "A-1|A-2|B-1",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "A-1|A-2|B-3",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "A-1|A-1|B-1",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "A-1|B-2|B-3",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada generador tiene contador propio, además de su prefijo capturado.",
+      "hints": [
+        "siguiente nace una vez por fábrica."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué ventaja aporta capturar escribir?",
+      "code": "function crearLogger(escribir) {\n  return mensaje => escribir(\"[app] \" + mensaje);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Permite configurar la dependencia una vez sin usar una global",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Convierte escribir en una constante global",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Hace que escribir se ejecute al crear el logger",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Evita que el logger pueda recibir mensajes",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La dependencia queda inyectada en el entorno del closure.",
+      "hints": [
+        "crearLogger recibe comportamiento, no solo datos."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué observa leer?",
+      "code": "const config = { modo: \"A\" };\n\nfunction crearLector() {\n  return () => config.modo;\n}\n\nconst leer = crearLector();\nconfig.modo = \"B\";\nleer();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "B",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "A",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "ReferenceError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El closure conserva acceso a la referencia viva de config.",
+      "hints": [
+        "No se hizo una copia del valor modo."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "function crearCaja(inicial) {\n  let valor = inicial;\n  return {\n    cambiar(x) { valor = x; },\n    leer() { return valor; },\n  };\n}\n\nconst a = crearCaja(\"uno\");\nconst b = crearCaja(\"dos\");\n\na.cambiar(\"tres\");\n\na.leer() + \":\" + b.leer();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "tres:dos",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "tres:tres",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "uno:dos",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "dos:tres",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada caja encapsula su propio binding valor.",
+      "hints": [
+        "Las instancias no comparten entorno."
+      ],
+      "stepOrder": 5
+    }
+  ],
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "mastery",
+  "passingPercentage": 70,
+  "requiredForProgression": true
+}

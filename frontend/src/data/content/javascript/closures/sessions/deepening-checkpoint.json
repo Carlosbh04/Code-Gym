@@ -1,0 +1,149 @@
+{
+  "id": "js-closures-deepening-checkpoint-01",
+  "title": "Checkpoint: coordinación de closures",
+  "difficulty": "intermediate",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué propiedad garantiza el aislamiento entre dos historiales?",
+      "code": "function crearHistorial() {\n  const eventos = [];\n  return {\n    agregar(x) { eventos.push(x); },\n    cantidad() { return eventos.length; },\n  };\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "eventos se crea dentro de cada llamada a crearHistorial",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "eventos es const",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "cantidad no recibe parámetros",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "El objeto devuelto tiene dos métodos",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada llamada crea su propio array y sus métodos cierran sobre él.",
+      "hints": [
+        "Piensa cuándo nace eventos."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "function crearHistorial() {\n  const eventos = [];\n  return {\n    agregar(x) { eventos.push(x); },\n    ultimo() { return eventos.at(-1); },\n  };\n}\n\nconst a = crearHistorial();\nconst b = crearHistorial();\n\na.agregar(\"uno\");\na.agregar(\"dos\");\nb.agregar(\"otro\");\n\na.ultimo() + \":\" + b.ultimo();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "dos:otro",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "otro:otro",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "dos:dos",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "uno:otro",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada historial mantiene un estado privado independiente.",
+      "hints": [
+        "a y b proceden de llamadas distintas."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Todos los historiales están compartiendo eventos. Localiza la declaración responsable.",
+      "code": "const eventos = [];\n\nfunction crearHistorial() {\n  return {\n    agregar(x) {\n      eventos.push(x);\n    },\n    cantidad() {\n      return eventos.length;\n    },\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        1
+      ],
+      "errorType": "estado-compartido",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "eventos está fuera de la fábrica, por lo que todas las instancias capturan la misma referencia.",
+      "hints": [
+        "El estado debe nacer con cada historial."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige crearHistorial para que cada historial tenga eventos privados e independientes.",
+      "code": "const eventos = [];\n\nfunction crearHistorial() {\n  return {\n    agregar(x) {\n      eventos.push(x);\n      return eventos.length;\n    },\n    cantidad() {\n      return eventos.length;\n    },\n    ultimo() {\n      return eventos.at(-1);\n    },\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": "2|1",
+          "call": "(() => { const a = crearHistorial(); const b = crearHistorial(); a.agregar('x'); a.agregar('y'); b.agregar('z'); return a.cantidad() + '|' + b.cantidad(); })()",
+          "description": "separa el número de eventos por instancia"
+        },
+        {
+          "input": null,
+          "expected": "y|z",
+          "call": "(() => { const a = crearHistorial(); const b = crearHistorial(); a.agregar('x'); a.agregar('y'); b.agregar('z'); return a.ultimo() + '|' + b.ultimo(); })()",
+          "description": "mantiene contenidos independientes"
+        },
+        {
+          "input": null,
+          "expected": 0,
+          "call": "crearHistorial().cantidad()",
+          "description": "una instancia nueva comienza vacía"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "El array eventos debe declararse dentro de crearHistorial para que cada ejecución cree una referencia privada nueva.",
+      "hints": [
+        "Mueve la creación del estado al interior de la fábrica."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

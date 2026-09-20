@@ -1,0 +1,149 @@
+{
+  "id": "js-closures-mastery-dependency-isolation-01",
+  "title": "Dependencias aisladas por instancia",
+  "difficulty": "advanced",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué conserva cada logger?",
+      "code": "function crearLogger(escribir, prefijo) {\n  return mensaje => escribir(prefijo + mensaje);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Su función escribir y su prefijo",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Solo el último mensaje",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Una variable global compartida",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Nada; ambos parámetros desaparecen",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Ambos parámetros forman parte del entorno capturado.",
+      "hints": [
+        "Los dos pertenecen a la llamada de crearLogger."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué contiene eventos?",
+      "code": "function crearLogger(escribir, prefijo) {\n  return mensaje => escribir(prefijo + mensaje);\n}\n\nconst eventos = [];\nconst log = crearLogger(x => eventos.push(x), \"A:\");\n\nlog(\"uno\");\nlog(\"dos\");\n\neventos.join(\"|\");",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "A:uno|A:dos",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "uno|dos",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "A:dos",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "A:uno:A:dos",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El logger conserva tanto la dependencia como la configuración.",
+      "hints": [
+        "escribir añade cada resultado al array."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Dos loggers deberían escribir en destinos distintos. Localiza la dependencia global que provoca interferencia.",
+      "code": "let escribirActual;\n\nfunction crearLogger(escribir, prefijo) {\n  escribirActual = escribir;\n\n  return function log(mensaje) {\n    escribirActual(prefijo + mensaje);\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        1
+      ],
+      "errorType": "estado-compartido",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "escribirActual es compartida y la última instancia sobrescribe la dependencia de las anteriores.",
+      "hints": [
+        "Cada logger ya recibe su propia función escribir."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige crearLogger para que cada logger conserve su propio destino y prefijo.",
+      "code": "let escribirActual;\n\nfunction crearLogger(escribir, prefijo) {\n  escribirActual = escribir;\n\n  return function log(mensaje) {\n    escribirActual(prefijo + mensaje);\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": "A:uno|B:dos",
+          "call": "(() => { const a = []; const b = []; const logA = crearLogger(x => a.push(x), 'A:'); const logB = crearLogger(x => b.push(x), 'B:'); logA('uno'); logB('dos'); return a[0] + '|' + b[0]; })()",
+          "description": "mantiene destinos y prefijos independientes"
+        },
+        {
+          "input": null,
+          "expected": "x|y",
+          "call": "(() => { const out = []; const log = crearLogger(x => out.push(x), ''); log('x'); log('y'); return out.join('|'); })()",
+          "description": "reutiliza la misma dependencia en varias llamadas"
+        },
+        {
+          "input": null,
+          "expected": 2,
+          "call": "(() => { let n = 0; const log = crearLogger(() => { n += 1; }, 'P:'); log('a'); log('b'); return n; })()",
+          "description": "invoca una vez la dependencia por llamada"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La función devuelta debe usar directamente escribir y prefijo capturados por su propia fábrica.",
+      "hints": [
+        "No necesitas escribirActual."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 2,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

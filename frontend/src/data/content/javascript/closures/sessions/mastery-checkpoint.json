@@ -1,0 +1,150 @@
+{
+  "id": "js-closures-mastery-checkpoint-01",
+  "title": "Checkpoint: closures en diseño real",
+  "difficulty": "advanced",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Dónde debe vivir disponible para que cada reserva tenga su propio cupo?",
+      "code": "function crearReserva(capacidad) {\n  let disponible = capacidad;\n\n  return {\n    reservar() {\n      disponible -= 1;\n    },\n    leer() {\n      return disponible;\n    },\n  };\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Dentro de crearReserva",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Como variable global",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Dentro únicamente de reservar",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Como propiedad pública obligatoria",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El estado privado debe nacer con cada instancia.",
+      "hints": [
+        "Piensa qué debe aislarse entre reservas."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "function crearReserva(capacidad) {\n  let disponible = capacidad;\n\n  return {\n    reservar() {\n      if (disponible > 0) disponible -= 1;\n      return disponible;\n    },\n    liberar() {\n      disponible += 1;\n      return disponible;\n    },\n  };\n}\n\nconst r = crearReserva(2);\nr.reservar();\nr.reservar();\nr.liberar();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "1",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "2",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "3",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las operaciones comparten el mismo estado privado.",
+      "hints": [
+        "2 → 1 → 0 → 1."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Todas las reservas comparten accidentalmente el mismo cupo. Localiza la declaración responsable.",
+      "code": "let disponible = 0;\n\nfunction crearReserva(capacidad) {\n  disponible = capacidad;\n\n  return {\n    reservar() {\n      if (disponible > 0) disponible -= 1;\n      return disponible;\n    },\n    leer() {\n      return disponible;\n    },\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        1
+      ],
+      "errorType": "estado-compartido",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "disponible es global y cada nueva instancia sobrescribe el estado de las anteriores.",
+      "hints": [
+        "El cupo debe pertenecer a cada llamada de crearReserva."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige crearReserva para que cada instancia mantenga su propio cupo privado; reservar no debe bajar de cero y liberar debe aumentar el cupo.",
+      "code": "let disponible = 0;\n\nfunction crearReserva(capacidad) {\n  disponible = capacidad;\n\n  return {\n    reservar() {\n      disponible -= 1;\n      return disponible;\n    },\n    liberar() {\n      disponible += 1;\n      return disponible;\n    },\n    leer() {\n      return disponible;\n    },\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": "0|5",
+          "call": "(() => { const a = crearReserva(2); const b = crearReserva(5); a.reservar(); a.reservar(); return a.leer() + '|' + b.leer(); })()",
+          "description": "mantiene instancias independientes"
+        },
+        {
+          "input": null,
+          "expected": 0,
+          "call": "(() => { const r = crearReserva(1); r.reservar(); r.reservar(); return r.leer(); })()",
+          "description": "no permite bajar de cero"
+        },
+        {
+          "input": null,
+          "expected": 2,
+          "call": "(() => { const r = crearReserva(1); r.reservar(); r.liberar(); r.liberar(); return r.leer(); })()",
+          "description": "liberar incrementa el estado privado"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "disponible debe declararse dentro de la fábrica y todas las operaciones deben cerrar sobre ese binding.",
+      "hints": [
+        "Mueve disponible dentro de crearReserva.",
+        "Antes de restar, comprueba que sea mayor que cero."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

@@ -1,0 +1,149 @@
+{
+  "id": "js-closures-mastery-live-reference-01",
+  "title": "Referencia viva o snapshot",
+  "difficulty": "advanced",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué observará leer después de modificar config.modo?",
+      "code": "const config = { modo: \"A\" };\n\nfunction crearLector() {\n  return () => config.modo;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "El valor nuevo porque captura la referencia viva",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Siempre A",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Una copia automática del objeto",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El closure sigue accediendo al mismo objeto.",
+      "hints": [
+        "No hay ninguna copia dentro de crearLector."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve leer?",
+      "code": "const config = { modo: \"A\" };\n\nfunction crearLector() {\n  const modoInicial = config.modo;\n  return () => modoInicial;\n}\n\nconst leer = crearLector();\nconfig.modo = \"B\";\nleer();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "A",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "B",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "ReferenceError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "modoInicial captura un snapshot del dato necesario.",
+      "hints": [
+        "La copia ocurre antes de cambiar config."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El lector debería conservar el modo existente al crearse. Localiza la lectura que mantiene una dependencia viva accidental.",
+      "code": "function crearLector(config) {\n  return function leer() {\n    return config.modo;\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        3
+      ],
+      "errorType": "referencia-viva",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "leer consulta la referencia mutable en cada ejecución en vez de un valor capturado al crear el lector.",
+      "hints": [
+        "Necesitas decidir el dato que debe congelarse."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige crearLector para conservar el valor de config.modo existente en el momento de creación, aunque el objeto cambie después.",
+      "code": "function crearLector(config) {\n  return function leer() {\n    return config.modo;\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": "A",
+          "call": "(() => { const config = { modo: 'A' }; const leer = crearLector(config); config.modo = 'B'; return leer(); })()",
+          "description": "conserva el modo original"
+        },
+        {
+          "input": null,
+          "expected": "oscuro",
+          "call": "(() => { const config = { modo: 'oscuro' }; const leer = crearLector(config); return leer(); })()",
+          "description": "respeta configuraciones arbitrarias"
+        },
+        {
+          "input": null,
+          "expected": "uno|dos",
+          "call": "(() => { const a = { modo: 'uno' }; const b = { modo: 'dos' }; const leerA = crearLector(a); const leerB = crearLector(b); a.modo = 'x'; b.modo = 'y'; return leerA() + '|' + leerB(); })()",
+          "description": "cada lector mantiene su snapshot independiente"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Copia config.modo dentro de la fábrica y haz que leer capture esa copia.",
+      "hints": [
+        "Guarda el dato antes de devolver la función."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

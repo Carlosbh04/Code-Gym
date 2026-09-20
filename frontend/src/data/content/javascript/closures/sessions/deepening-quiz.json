@@ -1,0 +1,208 @@
+{
+  "id": "js-closures-deepening-quiz-01",
+  "title": "Test: closures coordinados",
+  "difficulty": "intermediate",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué comparten incrementar y leer?",
+      "code": "function crearContador() {\n  let valor = 0;\n\n  return {\n    incrementar() {\n      valor += 1;\n    },\n    leer() {\n      return valor;\n    },\n  };\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "El mismo binding local valor",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Dos copias distintas de valor",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Una propiedad pública del objeto",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "El valor global de valor",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Ambas funciones nacen en la misma ejecución de la fábrica y capturan el mismo binding.",
+      "hints": [
+        "Localiza dónde se declara valor."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última línea?",
+      "code": "function crearAcumulador(inicial) {\n  let total = inicial;\n  return cantidad => total += cantidad;\n}\n\nconst a = crearAcumulador(10);\nconst b = crearAcumulador(100);\n\na(5);\nb(20);\na(2);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "17",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "137",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "27",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "117",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada llamada a crearAcumulador crea un entorno distinto.",
+      "hints": [
+        "Sigue solo el estado capturado por a."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué dato queda configurado una sola vez?",
+      "code": "function crearPrefijador(prefijo) {\n  return texto => prefijo + texto;\n}\n\nconst error = crearPrefijador(\"[ERROR] \");",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "prefijo",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "texto",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "El resultado de cada llamada",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Ninguno; todo se calcula globalmente",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "prefijo pertenece al entorno de la fábrica y se conserva entre llamadas.",
+      "hints": [
+        "Distingue parámetros de la fábrica y de la función devuelta."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve procesar(4)?",
+      "code": "function crearProcesador(transformar) {\n  return valor => transformar(valor);\n}\n\nconst duplicar = crearProcesador(n => n * 2);\nduplicar(4);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "8",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "4",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Lanza ReferenceError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La función devuelta conserva la referencia al callback recibido.",
+      "hints": [
+        "transformar sigue accesible gracias al closure."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "function crearEstado() {\n  let valor = 0;\n  return {\n    subir: () => ++valor,\n    leer: () => valor,\n  };\n}\n\nconst uno = crearEstado();\nconst dos = crearEstado();\n\nuno.subir();\nuno.subir();\ndos.subir();\n\nuno.leer() + \":\" + dos.leer();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "2:1",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "3:3",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "2:2",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "1:1",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las funciones de una instancia comparten estado, pero instancias distintas no.",
+      "hints": [
+        "Hay dos ejecuciones diferentes de crearEstado."
+      ],
+      "stepOrder": 5
+    }
+  ],
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "deepening",
+  "passingPercentage": 70,
+  "requiredForProgression": true
+}

@@ -65,7 +65,7 @@ describe('StaticContentRepository (T019)', () => {
       const session = await repo.getSessionById('js-functions-return-flow-01');
 
       expect(session?.conceptId).toBe(FUNCTIONS_CONCEPT);
-      expect(session?.difficulty).toBe('advanced');
+      expect(session?.difficulty).toBe('intermediate');
       expect(session?.steps.at(-1)?.requirements.length).toBeGreaterThan(0);
     });
 
@@ -182,7 +182,7 @@ describe('StaticContentRepository (T019)', () => {
     });
 
     it(
-      'devuelve las 12 sesiones staged de Functions',
+      'devuelve las 15 sesiones staged de Functions',
       async () => {
         const sessions =
           await repo.getSessionsByConcept(
@@ -192,7 +192,7 @@ describe('StaticContentRepository (T019)', () => {
         expect(
           sessions,
         ).toHaveLength(
-          12,
+          15,
         );
 
         expect(
@@ -222,16 +222,19 @@ describe('StaticContentRepository (T019)', () => {
         ).toEqual(
           [
             'deepening:checkpoint:js-functions-deepening-checkpoint-01',
+            'deepening:practice:js-functions-deepening-callbacks-01',
             'deepening:practice:js-functions-return-flow-01',
             'deepening:practice:js-functions-scope-hoisting-01',
             'deepening:quiz:js-functions-deepening-quiz-01',
             'foundation:checkpoint:js-functions-foundation-checkpoint-01',
             'foundation:practice:js-functions-coding-format-name-01',
             'foundation:practice:js-functions-default-parameters-01',
+            'foundation:practice:js-functions-foundation-reference-execution-01',
             'foundation:quiz:js-functions-foundation-quiz-01',
             'mastery:checkpoint:js-functions-mastery-checkpoint-01',
             'mastery:practice:js-functions-mastery-consistent-return-01',
             'mastery:practice:js-functions-mastery-contracts-01',
+            'mastery:practice:js-functions-mastery-pipeline-effects-01',
             'mastery:quiz:js-functions-mastery-quiz-01',
           ].sort(),
         );
@@ -284,6 +287,9 @@ describe('StaticContentRepository (T019)', () => {
             'beginner',
             'beginner',
             'beginner',
+            'beginner',
+            'intermediate',
+            'intermediate',
             'intermediate',
             'intermediate',
             'intermediate',
@@ -292,15 +298,25 @@ describe('StaticContentRepository (T019)', () => {
       },
     );
 
-    it('devuelve las 6 sesiones de Closures', async () => {
+    it('devuelve las 16 sesiones de Closures', async () => {
       const sessions = await repo.getSessionsByConcept(CLOSURES_CONCEPT);
 
-      expect(sessions).toHaveLength(6);
+      expect(sessions).toHaveLength(16);
       expect(sessions.map((s) => s.difficulty).sort()).toEqual([
+        'advanced',
+        'advanced',
+        'advanced',
+        'advanced',
+        'advanced',
         'advanced',
         'beginner',
         'beginner',
         'beginner',
+        'intermediate',
+        'intermediate',
+        'intermediate',
+        'intermediate',
+        'intermediate',
         'intermediate',
         'intermediate',
       ]);
@@ -628,7 +644,7 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 60 sesiones de JavaScript conservan su contrato', async () => {
+    it('las 73 sesiones de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
@@ -639,8 +655,8 @@ describe('StaticContentRepository (T019)', () => {
         ...(await repo.getSessionsByConcept(ERRORS_CONCEPT)),
       ];
 
-      expect(all).toHaveLength(60);
-      expect(new Set(all.map((s) => s.id)).size).toBe(60);
+      expect(all).toHaveLength(73);
+      expect(new Set(all.map((s) => s.id)).size).toBe(73);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length >= 1)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);

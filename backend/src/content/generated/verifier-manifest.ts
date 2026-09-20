@@ -1364,6 +1364,338 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-closures-deepening-captured-dependency-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "transformar es un parámetro de crearProcesador."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Hay dos entornos de fábrica independientes."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            1
+          ],
+          "errorType": "estado-compartido",
+          "hints": [
+            "La dependencia debe vivir en el entorno de cada fábrica."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": null,
+              "expected": "ADA|3",
+              "call": "(() => { const mayus = crearProcesador(x => x.toUpperCase()); const largo = crearProcesador(x => x.length); return mayus('ada') + '|' + largo('ada'); })()",
+              "description": "mantiene estrategias independientes"
+            },
+            {
+              "input": 4,
+              "expected": 16,
+              "call": "crearProcesador(x => x * x)(input)",
+              "description": "funciona con callbacks numéricos"
+            },
+            {
+              "input": null,
+              "expected": "x!",
+              "call": "crearProcesador(x => x + '!')('x')",
+              "description": "funciona con otra transformación válida"
+            }
+          ],
+          "hints": [
+            "El parámetro estrategia ya es suficiente para formar el closure."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Piensa cuándo nace eventos."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "a y b proceden de llamadas distintas."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            1
+          ],
+          "errorType": "estado-compartido",
+          "hints": [
+            "El estado debe nacer con cada historial."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": null,
+              "expected": "2|1",
+              "call": "(() => { const a = crearHistorial(); const b = crearHistorial(); a.agregar('x'); a.agregar('y'); b.agregar('z'); return a.cantidad() + '|' + b.cantidad(); })()",
+              "description": "separa el número de eventos por instancia"
+            },
+            {
+              "input": null,
+              "expected": "y|z",
+              "call": "(() => { const a = crearHistorial(); const b = crearHistorial(); a.agregar('x'); a.agregar('y'); b.agregar('z'); return a.ultimo() + '|' + b.ultimo(); })()",
+              "description": "mantiene contenidos independientes"
+            },
+            {
+              "input": null,
+              "expected": 0,
+              "call": "crearHistorial().cantidad()",
+              "description": "una instancia nueva comienza vacía"
+            }
+          ],
+          "hints": [
+            "Mueve la creación del estado al interior de la fábrica."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-deepening-configured-factory-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Cada llamada a la fábrica crea un entorno nuevo."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Evalúa cada fábrica por separado."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            1
+          ],
+          "errorType": "estado-compartido",
+          "hints": [
+            "La configuración debería pertenecer a cada llamada de crearConversor."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": null,
+              "expected": "6|15",
+              "call": "(() => { const doble = crearConversor(2); const triple = crearConversor(3); return doble(3) + '|' + triple(5); })()",
+              "description": "cada conversor conserva su factor"
+            },
+            {
+              "input": null,
+              "expected": 2.5,
+              "call": "crearConversor(0.5)(5)",
+              "description": "admite factores decimales"
+            },
+            {
+              "input": null,
+              "expected": -12,
+              "call": "crearConversor(-3)(4)",
+              "description": "admite factores negativos"
+            }
+          ],
+          "hints": [
+            "No necesitas una variable global para conservar factor."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Localiza dónde se declara valor."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue solo el estado capturado por a."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Distingue parámetros de la fábrica y de la función devuelta."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "transformar sigue accesible gracias al closure."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Hay dos ejecuciones diferentes de crearEstado."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-deepening-shared-environment-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Busca una única declaración de valor."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "10 + 5 - 3."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            9
+          ],
+          "errorType": "scope",
+          "hints": [
+            "Busca una segunda declaración con el mismo nombre."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": null,
+              "expected": 12,
+              "call": "(() => { const m = crearMarcador(10); m.sumar(5); m.restar(3); return m.leer(); })()",
+              "description": "coordina sumar y restar sobre el mismo estado"
+            },
+            {
+              "input": null,
+              "expected": "7|100",
+              "call": "(() => { const a = crearMarcador(5); const b = crearMarcador(100); a.sumar(4); a.restar(2); return a.leer() + '|' + b.leer(); })()",
+              "description": "mantiene aisladas instancias distintas"
+            },
+            {
+              "input": null,
+              "expected": -6,
+              "call": "(() => { const m = crearMarcador(-2); m.restar(4); return m.leer(); })()",
+              "description": "funciona con valores negativos"
+            }
+          ],
+          "hints": [
+            "No declares otro valor dentro de restar."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-closures-foundation-checkpoint-01",
       "technologyId": "javascript",
       "topicId": "js-closures",
@@ -1589,6 +1921,339 @@ export const verifierManifest = {
           "hints": [
             "Solo hay que cambiar una palabra en la línea 3.",
             "¿Qué declaración crea un binding nuevo por cada vuelta del bucle?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Piensa qué debe aislarse entre reservas."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "2 → 1 → 0 → 1."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            1
+          ],
+          "errorType": "estado-compartido",
+          "hints": [
+            "El cupo debe pertenecer a cada llamada de crearReserva."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": null,
+              "expected": "0|5",
+              "call": "(() => { const a = crearReserva(2); const b = crearReserva(5); a.reservar(); a.reservar(); return a.leer() + '|' + b.leer(); })()",
+              "description": "mantiene instancias independientes"
+            },
+            {
+              "input": null,
+              "expected": 0,
+              "call": "(() => { const r = crearReserva(1); r.reservar(); r.reservar(); return r.leer(); })()",
+              "description": "no permite bajar de cero"
+            },
+            {
+              "input": null,
+              "expected": 2,
+              "call": "(() => { const r = crearReserva(1); r.reservar(); r.liberar(); r.liberar(); return r.leer(); })()",
+              "description": "liberar incrementa el estado privado"
+            }
+          ],
+          "hints": [
+            "Mueve disponible dentro de crearReserva.",
+            "Antes de restar, comprueba que sea mayor que cero."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-mastery-dependency-isolation-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Los dos pertenecen a la llamada de crearLogger."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "escribir añade cada resultado al array."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            1
+          ],
+          "errorType": "estado-compartido",
+          "hints": [
+            "Cada logger ya recibe su propia función escribir."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": null,
+              "expected": "A:uno|B:dos",
+              "call": "(() => { const a = []; const b = []; const logA = crearLogger(x => a.push(x), 'A:'); const logB = crearLogger(x => b.push(x), 'B:'); logA('uno'); logB('dos'); return a[0] + '|' + b[0]; })()",
+              "description": "mantiene destinos y prefijos independientes"
+            },
+            {
+              "input": null,
+              "expected": "x|y",
+              "call": "(() => { const out = []; const log = crearLogger(x => out.push(x), ''); log('x'); log('y'); return out.join('|'); })()",
+              "description": "reutiliza la misma dependencia en varias llamadas"
+            },
+            {
+              "input": null,
+              "expected": 2,
+              "call": "(() => { let n = 0; const log = crearLogger(() => { n += 1; }, 'P:'); log('a'); log('b'); return n; })()",
+              "description": "invoca una vez la dependencia por llamada"
+            }
+          ],
+          "hints": [
+            "No necesitas escribirActual."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-mastery-encapsulated-api-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "activa no es propiedad del objeto devuelto."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue activa después de cada operación."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            6
+          ],
+          "errorType": "scope",
+          "hints": [
+            "Hay dos declaraciones de activa."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": null,
+              "expected": false,
+              "call": "(() => { const s = crearSesion(); s.cerrar(); return s.estado(); })()",
+              "description": "cerrar actualiza el estado privado"
+            },
+            {
+              "input": null,
+              "expected": true,
+              "call": "(() => { const s = crearSesion(); s.cerrar(); s.abrir(); return s.estado(); })()",
+              "description": "abrir reutiliza el mismo binding"
+            },
+            {
+              "input": null,
+              "expected": "false|true",
+              "call": "(() => { const a = crearSesion(); const b = crearSesion(); a.cerrar(); return a.estado() + '|' + b.estado(); })()",
+              "description": "mantiene instancias independientes"
+            }
+          ],
+          "hints": [
+            "Quita las declaraciones interiores duplicadas."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-mastery-live-reference-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No hay ninguna copia dentro de crearLector."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La copia ocurre antes de cambiar config."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "referencia-viva",
+          "hints": [
+            "Necesitas decidir el dato que debe congelarse."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": null,
+              "expected": "A",
+              "call": "(() => { const config = { modo: 'A' }; const leer = crearLector(config); config.modo = 'B'; return leer(); })()",
+              "description": "conserva el modo original"
+            },
+            {
+              "input": null,
+              "expected": "oscuro",
+              "call": "(() => { const config = { modo: 'oscuro' }; const leer = crearLector(config); return leer(); })()",
+              "description": "respeta configuraciones arbitrarias"
+            },
+            {
+              "input": null,
+              "expected": "uno|dos",
+              "call": "(() => { const a = { modo: 'uno' }; const b = { modo: 'dos' }; const leerA = crearLector(a); const leerB = crearLector(b); a.modo = 'x'; b.modo = 'y'; return leerA() + '|' + leerB(); })()",
+              "description": "cada lector mantiene su snapshot independiente"
+            }
+          ],
+          "hints": [
+            "Guarda el dato antes de devolver la función."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Busca qué variable no se expone como propiedad."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "siguiente nace una vez por fábrica."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "crearLogger recibe comportamiento, no solo datos."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No se hizo una copia del valor modo."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Las instancias no comparten entorno."
           ]
         }
       ]

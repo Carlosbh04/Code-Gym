@@ -2598,6 +2598,230 @@ const registry =
           }),
       }),
     ],
+
+    [
+      verifierKey(
+        'js-closures-deepening-shared-environment-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input: null,
+          expected: '16|4',
+          call:
+            "(() => { const m = crearMarcador(10); m.sumar(8); m.restar(2); const primero = m.leer(); m.restar(12); return primero + '|' + m.leer(); })()",
+          description:
+            'coordina varias operaciones sobre el mismo estado privado',
+        }),
+
+        Object.freeze({
+          input: null,
+          expected: '9|-11|50',
+          call:
+            "(() => { const a = crearMarcador(4); const b = crearMarcador(-5); const c = crearMarcador(50); a.sumar(10); a.restar(5); b.restar(6); return a.leer() + '|' + b.leer() + '|' + c.leer(); })()",
+          description:
+            'mantiene tres instancias independientes',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-closures-deepening-configured-factory-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input: null,
+          expected: '17.5|-8',
+          call:
+            "(() => { const mitad = crearConversor(0.5); const negativo = crearConversor(-2); return mitad(35) + '|' + negativo(4); })()",
+          description:
+            'conserva factores alternativos',
+        }),
+
+        Object.freeze({
+          input: null,
+          expected: '6|15|8',
+          call:
+            "(() => { const doble = crearConversor(2); const triple = crearConversor(3); const otroDoble = crearConversor(2); return doble(3) + '|' + triple(5) + '|' + otroDoble(4); })()",
+          description:
+            'no contamina otras fábricas',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-closures-deepening-captured-dependency-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input: null,
+          expected: 'hola!|16',
+          call:
+            "(() => { const texto = crearProcesador(valor => valor + '!'); const cuadrado = crearProcesador(valor => valor * valor); return texto('hola') + '|' + cuadrado(4); })()",
+          description:
+            'conserva estrategias de tipos distintos',
+        }),
+
+        Object.freeze({
+          input: null,
+          expected:
+            Object.freeze({
+              resultado: 15,
+              llamadas: 2,
+            }),
+          call:
+            "(() => { let llamadas = 0; const procesar = crearProcesador(valor => { llamadas += 1; return valor + 5; }); const primero = procesar(3); const segundo = procesar(10); return { resultado: primero + segundo - 8, llamadas }; })()",
+          description:
+            'reutiliza exactamente la dependencia capturada',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-closures-deepening-checkpoint-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input: null,
+          expected: '3|2|c|y',
+          call:
+            "(() => { const a = crearHistorial(); const b = crearHistorial(); a.agregar('a'); a.agregar('b'); a.agregar('c'); b.agregar('x'); b.agregar('y'); return a.cantidad() + '|' + b.cantidad() + '|' + a.ultimo() + '|' + b.ultimo(); })()",
+          description:
+            'mantiene cantidad y último elemento por instancia',
+        }),
+
+        Object.freeze({
+          input: null,
+          expected: '0|1|0',
+          call:
+            "(() => { const vacio = crearHistorial(); const usado = crearHistorial(); usado.agregar('uno'); const nuevo = crearHistorial(); return vacio.cantidad() + '|' + usado.cantidad() + '|' + nuevo.cantidad(); })()",
+          description:
+            'cada historial nuevo comienza vacío',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-closures-mastery-encapsulated-api-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input: null,
+          expected: 'false|true|false',
+          call:
+            "(() => { const s = crearSesion(); s.cerrar(); const uno = s.estado(); s.abrir(); const dos = s.estado(); s.cerrar(); return uno + '|' + dos + '|' + s.estado(); })()",
+          description:
+            'coordina transiciones sobre estado encapsulado',
+        }),
+
+        Object.freeze({
+          input: null,
+          expected: 'true|false|true',
+          call:
+            "(() => { const a = crearSesion(); const b = crearSesion(); const c = crearSesion(); b.cerrar(); return a.estado() + '|' + b.estado() + '|' + c.estado(); })()",
+          description:
+            'mantiene sesiones independientes',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-closures-mastery-dependency-isolation-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input: null,
+          expected: 'X:a|X:b|Y:c',
+          call:
+            "(() => { const uno = []; const dos = []; const logX = crearLogger(valor => uno.push(valor), 'X:'); const logY = crearLogger(valor => dos.push(valor), 'Y:'); logX('a'); logX('b'); logY('c'); return uno.join('|') + '|' + dos.join('|'); })()",
+          description:
+            'separa destinos y prefijos',
+        }),
+
+        Object.freeze({
+          input: null,
+          expected:
+            Object.freeze({
+              a: 2,
+              b: 1,
+            }),
+          call:
+            "(() => { let a = 0; let b = 0; const logA = crearLogger(() => { a += 1; }, 'A:'); const logB = crearLogger(() => { b += 1; }, 'B:'); logA('x'); logB('y'); logA('z'); return { a, b }; })()",
+          description:
+            'mantiene callbacks independientes',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-closures-mastery-live-reference-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input: null,
+          expected: 'inicial',
+          call:
+            "(() => { const config = { modo: 'inicial' }; const leer = crearLector(config); config.modo = 'cambiado'; config.extra = true; return leer(); })()",
+          description:
+            'conserva el snapshot tras mutaciones posteriores',
+        }),
+
+        Object.freeze({
+          input: null,
+          expected: 'A|B|C',
+          call:
+            "(() => { const a = { modo: 'A' }; const b = { modo: 'B' }; const c = { modo: 'C' }; const leerA = crearLector(a); const leerB = crearLector(b); const leerC = crearLector(c); a.modo = 'X'; b.modo = 'Y'; c.modo = 'Z'; return leerA() + '|' + leerB() + '|' + leerC(); })()",
+          description:
+            'mantiene snapshots de varias instancias',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-closures-mastery-checkpoint-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input: null,
+          expected: '0|3',
+          call:
+            "(() => { const a = crearReserva(2); const b = crearReserva(3); a.reservar(); a.reservar(); a.reservar(); b.reservar(); b.liberar(); return a.leer() + '|' + b.leer(); })()",
+          description:
+            'respeta límite inferior y aislamiento',
+        }),
+
+        Object.freeze({
+          input: null,
+          expected: '4|0|1',
+          call:
+            "(() => { const grande = crearReserva(1); grande.liberar(); grande.liberar(); grande.liberar(); const cero = crearReserva(0); cero.reservar(); const otra = crearReserva(1); return grande.leer() + '|' + cero.leer() + '|' + otra.leer(); })()",
+          description:
+            'maneja capacidad cero y liberaciones',
+        }),
+      ),
+    ],
   ]);
 
 /**

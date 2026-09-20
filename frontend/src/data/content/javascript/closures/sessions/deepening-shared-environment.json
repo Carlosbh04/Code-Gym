@@ -1,0 +1,149 @@
+{
+  "id": "js-closures-deepening-shared-environment-01",
+  "title": "Un entorno, varias operaciones",
+  "difficulty": "intermediate",
+  "conceptId": "js-closure-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Por qué leer ve los cambios hechos por sumar?",
+      "code": "function crearMarcador(inicial) {\n  let valor = inicial;\n\n  return {\n    sumar(cantidad) {\n      valor += cantidad;\n    },\n    leer() {\n      return valor;\n    },\n  };\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ambas funciones capturan el mismo binding valor",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Porque leer llama internamente a sumar",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Porque valor es global",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Porque el objeto copia valor después de cada llamada",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Las dos funciones se crearon dentro del mismo entorno léxico.",
+      "hints": [
+        "Busca una única declaración de valor."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la última expresión?",
+      "code": "function crearMarcador(inicial) {\n  let valor = inicial;\n  return {\n    sumar(n) { valor += n; },\n    restar(n) { valor -= n; },\n    leer() { return valor; },\n  };\n}\n\nconst m = crearMarcador(10);\nm.sumar(5);\nm.restar(3);\nm.leer();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "12",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "7",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "15",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "10",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "sumar, restar y leer operan sobre el mismo estado privado.",
+      "hints": [
+        "10 + 5 - 3."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "restar debería modificar el mismo estado que sumar. Localiza la línea que crea un estado separado.",
+      "code": "function crearMarcador(inicial) {\n  let valor = inicial;\n\n  return {\n    sumar(n) {\n      valor += n;\n    },\n    restar(n) {\n      let valor = inicial;\n      valor -= n;\n    },\n    leer() {\n      return valor;\n    },\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [
+        9
+      ],
+      "errorType": "scope",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La nueva declaración de valor dentro de restar oculta al binding compartido.",
+      "hints": [
+        "Busca una segunda declaración con el mismo nombre."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige crearMarcador para que sumar, restar y leer trabajen sobre el mismo estado privado.",
+      "code": "function crearMarcador(inicial) {\n  let valor = inicial;\n\n  return {\n    sumar(n) {\n      valor += n;\n      return valor;\n    },\n    restar(n) {\n      let valor = inicial;\n      valor -= n;\n      return valor;\n    },\n    leer() {\n      return valor;\n    },\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": null,
+          "expected": 12,
+          "call": "(() => { const m = crearMarcador(10); m.sumar(5); m.restar(3); return m.leer(); })()",
+          "description": "coordina sumar y restar sobre el mismo estado"
+        },
+        {
+          "input": null,
+          "expected": "7|100",
+          "call": "(() => { const a = crearMarcador(5); const b = crearMarcador(100); a.sumar(4); a.restar(2); return a.leer() + '|' + b.leer(); })()",
+          "description": "mantiene aisladas instancias distintas"
+        },
+        {
+          "input": null,
+          "expected": -6,
+          "call": "(() => { const m = crearMarcador(-2); m.restar(4); return m.leer(); })()",
+          "description": "funciona con valores negativos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "restar debe actualizar el mismo binding valor declarado por la fábrica.",
+      "hints": [
+        "No declares otro valor dentro de restar."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}
