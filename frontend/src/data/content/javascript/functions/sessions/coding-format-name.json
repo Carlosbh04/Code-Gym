@@ -45,6 +45,61 @@
         "Devuelve una sola cadena."
       ],
       "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Qué parte del contrato garantiza return?",
+      "code": "function nombreCompleto(nombre, apellido) {\n  const limpio = `${nombre.trim()} ${apellido.trim()}`;\n  return limpio;\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "Entrega la cadena limpia al llamador", "correct": true },
+        { "id": "b", "text": "Convierte limpio en una variable global", "correct": false },
+        { "id": "c", "text": "Vuelve opcionales ambos parámetros", "correct": false },
+        { "id": "d", "text": "Ejecuta nombreCompleto otra vez", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "return expone el resultado de la función sin exponer su variable local.",
+      "hints": ["El llamador recibe un valor, no el binding local."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime el programa?",
+      "code": "function inicial(nombre = 'Invitado') {\n  return nombre[0];\n}\n\nconsole.log(inicial('Ada'));\nconsole.log(inicial());",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "A e I", "correct": true },
+        { "id": "b", "text": "A y undefined", "correct": false },
+        { "id": "c", "text": "Ada e Invitado", "correct": false },
+        { "id": "d", "text": "ReferenceError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada llamada obtiene su parámetro y devuelve el primer carácter correspondiente.",
+      "hints": ["La segunda llamada usa el parámetro por defecto."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "La función calcula el nombre, pero el llamador recibe undefined. Localiza el error.",
+      "code": "function nombreCompleto(nombre, apellido) {\n  const resultado = `${nombre} ${apellido}`;\n  resultado.trim();\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [3],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La expresión se evalúa pero no se devuelve; además trim produce una cadena nueva.",
+      "hints": ["La última línea necesita entregar su resultado al llamador."],
+      "stepOrder": 4
     }
   ],
   "kind": "practice",

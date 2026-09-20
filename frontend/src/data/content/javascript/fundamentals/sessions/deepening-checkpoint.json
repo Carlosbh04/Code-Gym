@@ -1,0 +1,92 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-fundamentals",
+  "conceptId": "js-variables-basics",
+  "levelId": "deepening",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-variables-deepening-checkpoint-01",
+  "title": "Checkpoint: scope y bindings",
+  "status": "published",
+  "kind": "checkpoint",
+  "difficulty": "intermediate",
+  "position": 4,
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué decisión mantiene un único estado actualizable?",
+      "code": "let saldo = 10;\nif (true) {\n  saldo += 5;\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "Asignar al saldo existente", "correct": true },
+        { "id": "b", "text": "Declarar const saldo dentro del bloque", "correct": false },
+        { "id": "c", "text": "Declarar var saldo en cada línea", "correct": false },
+        { "id": "d", "text": "Convertir saldo en cadena", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La asignación actualiza el binding exterior sin crear shadowing.",
+      "hints": ["El saldo debe sobrevivir al bloque."],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const datos = { valor: 2 };\nconst alias = datos;\nalias.valor += 3;\nconsole.log(datos.valor);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "2", "correct": false },
+        { "id": "b", "text": "3", "correct": false },
+        { "id": "c", "text": "5", "correct": true },
+        { "id": "d", "text": "TypeError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "datos y alias contienen la misma referencia.",
+      "hints": ["La asignación de un objeto no crea una copia."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Localiza el shadowing que impide conservar el saldo actualizado.",
+      "code": "function mover(saldo, cambio) {\n  if (cambio !== 0) {\n    const saldo = saldo + cambio;\n  }\n  return saldo;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [3],
+      "errorType": "scope",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La declaración interior oculta el parámetro y además intenta leer su propio binding antes de inicializarlo.",
+      "hints": ["No necesitas declarar otro saldo."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige aplicarMovimiento para sumar un movimiento textual al saldo; una cadena vacía significa que no hay movimiento.",
+      "code": "function aplicarMovimiento(saldoInicial, movimientoTexto) {\n  let saldo = Number(saldoInicial);\n\n  if (movimientoTexto !== '') {\n    const saldo = saldo + Number(movimientoTexto);\n  }\n\n  return saldo;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        { "input": ["100", "25"], "expected": 125, "call": "aplicarMovimiento(...input)", "description": "suma dos valores recibidos como texto" },
+        { "input": ["10", "-3"], "expected": 7, "call": "aplicarMovimiento(...input)", "description": "aplica un movimiento negativo" },
+        { "input": ["8", ""], "expected": 8, "call": "aplicarMovimiento(...input)", "description": "mantiene el saldo si no hay movimiento" }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Actualiza el saldo existente con el movimiento convertido; no declares otro saldo dentro del if.",
+      "hints": ["El binding que se devuelve ya existe fuera del bloque."],
+      "stepOrder": 4
+    }
+  ]
+}

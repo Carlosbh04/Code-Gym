@@ -4,6 +4,26 @@
   "topicId": "js-fundamentals",
   "technologyId": "javascript",
   "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Nivel base del concepto.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Comprende alcance léxico, shadowing, TDZ y la diferencia entre reasignar un binding y mutar su valor.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Sigue el estado de variables a través de scopes anidados, alias y operaciones coordinadas.",
+      "position": 2
+    }
+  ],
   "content": {
     "sections": [
       {
@@ -59,6 +79,171 @@
         "title": "Comprobación rápida",
         "question": "Si un valor no necesita cambiar, ¿qué declaración deberías preferir?",
         "answer": "const"
+      },
+      {
+        "type": "intro",
+        "levelId": "deepening",
+        "title": "Profundización",
+        "body": "Una declaración no vive en todo el archivo: vive dentro de un ámbito. En este nivel aprenderás a seguir qué binding se está leyendo, cuándo se crea uno nuevo y por qué una referencia constante puede apuntar a un valor mutable."
+      },
+      {
+        "type": "objectives",
+        "levelId": "deepening",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Rastrear variables en ámbitos léxicos y bloques anidados",
+          "Detectar shadowing accidental",
+          "Distinguir reasignación de binding y mutación del valor",
+          "Comprender la zona muerta temporal de let y const",
+          "Controlar conversiones explícitas al recibir texto"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "El ámbito es léxico",
+        "body": "JavaScript decide qué declaración corresponde a un nombre observando dónde está escrito el código. Un bloque puede leer bindings exteriores mientras no declare otro binding con el mismo nombre."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Leer desde un bloque",
+        "language": "javascript",
+        "code": "const prefijo = 'ID';\n\nif (true) {\n  const numero = 7;\n  console.log(`${prefijo}-${numero}`);\n}\n\n// numero no existe aquí",
+        "caption": "El bloque puede leer prefijo, pero numero queda limitado al bloque."
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Shadowing",
+        "body": "Si un ámbito interior declara el mismo nombre que uno exterior, crea un binding diferente. Dentro del bloque el nombre interior oculta al exterior; al salir, vuelve a verse el binding exterior."
+      },
+      {
+        "type": "warning",
+        "levelId": "deepening",
+        "title": "Shadowing accidental",
+        "body": "Declarar const resultado dentro de un if no actualiza un let resultado exterior. Aunque ambos nombres se escriban igual, representan bindings distintos."
+      },
+      {
+        "type": "comparison",
+        "levelId": "deepening",
+        "title": "Binding constante y valor mutable",
+        "left": {
+          "title": "Reasignar",
+          "body": "config = otroObjeto intenta cambiar qué valor está asociado al binding y no está permitido si se declaró con const."
+        },
+        "right": {
+          "title": "Mutar",
+          "body": "config.activo = true modifica el objeto al que apunta el binding; const no congela automáticamente ese objeto."
+        }
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "const no congela arrays",
+        "language": "javascript",
+        "code": "const etiquetas = ['js'];\netiquetas.push('web');\n\nconsole.log(etiquetas); // ['js', 'web']",
+        "caption": "El binding sigue apuntando al mismo array; cambia el contenido del array."
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Zona muerta temporal",
+        "body": "Desde el inicio del bloque hasta la declaración, un binding let o const existe pero no puede leerse. Intentarlo produce ReferenceError. Mueve la declaración antes del primer uso en vez de confiar en hoisting."
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Conversión explícita",
+        "body": "Los formularios suelen entregar texto. Si una variable representa una cantidad, conviértela de forma explícita antes de operar. Number('3') produce 3, mientras que '3' + 2 produce la cadena '32'."
+      },
+      {
+        "type": "key-point",
+        "levelId": "deepening",
+        "title": "Resumen",
+        "body": "Sigue el binding que corresponde a cada nombre, evita shadowing accidental, declara antes de leer y diferencia cambiar una referencia de cambiar el valor referenciado."
+      },
+      {
+        "type": "intro",
+        "levelId": "mastery",
+        "title": "Dominio",
+        "body": "Los fallos difíciles aparecen cuando varios scopes, alias y transformaciones de estado interactúan. Ahora rastrearás el valor de cada binding durante procesos completos y corregirás inconsistencias sin convertir el código en una cadena de variables ambiguas."
+      },
+      {
+        "type": "objectives",
+        "levelId": "mastery",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Seguir bindings a través de varios scopes anidados",
+          "Detectar shadowing en actualizaciones acumuladas",
+          "Reconocer alias que apuntan al mismo objeto",
+          "Separar estado inicial, estado actual y resultado final",
+          "Corregir procesos con varias variables sin ocultar actualizaciones"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Rastrear por identidad de binding",
+        "body": "Cuando un nombre se repite, no basta con anotar su texto. Identifica la declaración exacta que lo creó y actualiza únicamente la columna mental de ese binding."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Dos totales distintos",
+        "language": "javascript",
+        "code": "let total = 10;\n\nif (true) {\n  let total = 3;\n  total += 2;\n  console.log(total); // 5\n}\n\nconsole.log(total); // 10",
+        "caption": "El total interior nunca actualiza el total exterior."
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Aliasing",
+        "body": "Dos bindings pueden contener la misma referencia. const copia = original no crea otro objeto: ambos nombres apuntan al mismo valor mutable. Una escritura mediante cualquiera de los alias se observa desde el otro."
+      },
+      {
+        "type": "comparison",
+        "levelId": "mastery",
+        "title": "Alias frente a copia",
+        "left": {
+          "title": "Alias",
+          "body": "const b = a conserva la misma referencia. a === b es true."
+        },
+        "right": {
+          "title": "Otro objeto",
+          "body": "const b = { ...a } crea una referencia distinta para las propiedades de primer nivel."
+        }
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Estado inicial, actual y siguiente",
+        "body": "En un proceso con varias operaciones, utiliza nombres que expresen el momento del dato. Reutilizar nombres mediante shadowing puede hacer que una actualización solo viva dentro de un bloque y se pierda al continuar."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Actualizar un único estado",
+        "language": "javascript",
+        "code": "let saldoActual = 100;\nconst movimientos = [20, -5];\n\nfor (const movimiento of movimientos) {\n  saldoActual += movimiento;\n}\n\nconsole.log(saldoActual); // 115"
+      },
+      {
+        "type": "warning",
+        "levelId": "mastery",
+        "title": "Estados parcialmente actualizados",
+        "body": "Si varias variables describen el mismo estado, actualizarlas en ramas distintas puede producir combinaciones imposibles. Calcula primero los valores coherentes y construye el resultado después."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "question": "Si const copia = original y después copia.activo = true, ¿qué observa original.activo?",
+        "answer": "true, porque ambos bindings contienen la misma referencia."
+      },
+      {
+        "type": "key-point",
+        "levelId": "mastery",
+        "title": "Resumen",
+        "body": "En código complejo, sigue declaraciones concretas, evita ocultar el estado que quieres actualizar y decide conscientemente cuándo necesitas un alias y cuándo una referencia nueva."
       }
     ]
   }

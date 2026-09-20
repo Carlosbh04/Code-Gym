@@ -246,7 +246,9 @@ describe(
 
         expect(
           finallyCleanup.hiddenTestCases,
-        ).toEqual([]);
+        ).toHaveLength(
+          2,
+        );
 
         expect(
           finallyCleanup.pedagogicalRequirements,
@@ -255,6 +257,83 @@ describe(
         expect(
           finallyCleanup.oracle,
         ).toBeNull();
+      },
+    );
+
+    it(
+      'resolves hidden cases for every new Variables fix-code',
+      () => {
+        const targets = [
+          [
+            'js-variables-deepening-shadowing-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-variables-deepening-const-values-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-variables-deepening-tdz-coercion-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-variables-deepening-checkpoint-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-variables-mastery-nested-scopes-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-variables-mastery-aliasing-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-variables-mastery-state-tracing-01',
+            'step-4',
+            2,
+          ],
+          [
+            'js-variables-mastery-checkpoint-01',
+            'step-4',
+            3,
+          ],
+        ] as const;
+
+        for (
+          const [
+            sessionId,
+            exerciseId,
+            hiddenCaseCount,
+          ]
+          of targets
+        ) {
+          const config =
+            resolvePrivateVerifierConfig(
+              sessionId,
+              exerciseId,
+            );
+
+          expect(
+            config.hiddenTestCases,
+          ).toHaveLength(
+            hiddenCaseCount,
+          );
+
+          expect(
+            config.pedagogicalRequirements,
+          ).toEqual([]);
+
+          expect(
+            config.oracle,
+          ).toBeNull();
+        }
       },
     );
 

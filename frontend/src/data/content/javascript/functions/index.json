@@ -21,7 +21,9 @@
           "Comprender cuándo se aplica un parámetro por defecto",
           "Reconocer que undefined activa el valor por defecto",
           "Diferenciar null, 0, false y cadena vacía de un argumento ausente",
-          "Seguir un return sencillo"
+          "Seguir un return sencillo",
+          "Distinguir entre referenciar una función y ejecutarla",
+          "Reconocer el ámbito de parámetros y variables locales"
         ]
       },
       {
@@ -88,6 +90,31 @@
         "answer": "undefined."
       },
       {
+        "type": "explanation",
+        "levelId": "foundation",
+        "title": "Referenciar no es ejecutar",
+        "body": "El nombre de una función sin paréntesis representa la propia función. Añadir paréntesis realiza una llamada y produce el valor que devuelva. Guardar una referencia puede ser útil, pero no equivale a obtener el resultado."
+      },
+      {
+        "type": "code",
+        "levelId": "foundation",
+        "title": "Referencia y resultado",
+        "language": "javascript",
+        "code": "function duplicar(numero) {\n  return numero * 2;\n}\n\nconst referencia = duplicar;\nconst resultado = duplicar(4);\n\nconsole.log(typeof referencia); // 'function'\nconsole.log(resultado);          // 8"
+      },
+      {
+        "type": "explanation",
+        "levelId": "foundation",
+        "title": "Parámetros y locales viven dentro de la función",
+        "body": "Los parámetros y las variables declaradas dentro de una función pertenecen a esa llamada. El código exterior no puede leerlos directamente, y cada llamada recibe sus propios valores."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "foundation",
+        "question": "¿Qué obtiene const valor = duplicar: el número duplicado o la función?",
+        "answer": "La función. Para obtener el resultado hay que llamarla, por ejemplo duplicar(4)."
+      },
+      {
         "type": "key-point",
         "levelId": "foundation",
         "title": "Resumen",
@@ -109,7 +136,9 @@
           "Reconocer la zona muerta temporal",
           "Diferenciar declaraciones de función y expresiones asignadas a const",
           "Seguir todos los caminos de retorno",
-          "Detectar retornos prematuros"
+          "Detectar retornos prematuros",
+          "Usar funciones como valores y callbacks básicos",
+          "Reconocer cuándo una función muta un argumento referenciado"
         ]
       },
       {
@@ -176,6 +205,31 @@
         "answer": "No. La ejecución de esa llamada termina inmediatamente."
       },
       {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Las funciones también son valores",
+        "body": "Una función puede recibirse como argumento. La función que la recibe decide cuándo ejecutarla y con qué datos; a esa función recibida se la suele llamar callback."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Ejecutar un callback",
+        "language": "javascript",
+        "code": "function procesar(valor, transformar) {\n  return transformar(valor);\n}\n\nprocesar(4, numero => numero * 2); // 8"
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Los objetos se pasan como referencias compartidas",
+        "body": "Si una función cambia una propiedad de un objeto recibido, el llamador observa esa mutación porque ambos usan el mismo objeto. Reasignar el parámetro, en cambio, solo cambia la variable local."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "question": "¿Reasignar parametro = {} sustituye el objeto que conserva el llamador?",
+        "answer": "No. Solo cambia el parámetro local; mutar una propiedad sí sería observable fuera."
+      },
+      {
         "type": "key-point",
         "levelId": "deepening",
         "title": "Resumen",
@@ -197,7 +251,9 @@
           "Garantizar retornos coherentes",
           "Separar validación de salida prematura accidental",
           "Construir funciones pequeñas que puedan componerse",
-          "Revisar contratos de entrada y salida"
+          "Revisar contratos de entrada y salida",
+          "Combinar transformaciones mediante callbacks",
+          "Separar el valor devuelto de los efectos secundarios"
         ]
       },
       {
@@ -262,6 +318,31 @@
         "levelId": "mastery",
         "question": "¿Cuándo es seguro un return temprano?",
         "answer": "Cuando resuelve de forma completa e intencional ese camino y no omite trabajo necesario."
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Componer transformaciones",
+        "body": "Una función de orden superior puede recibir varias funciones y conectar sus resultados. El valor producido por un paso se convierte en la entrada del siguiente, manteniendo explícito el contrato de cada transformación."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Pipeline de dos pasos",
+        "language": "javascript",
+        "code": "function ejecutarPipeline(valor, primero, segundo) {\n  return segundo(primero(valor));\n}\n\nejecutarPipeline('  ada ', texto => texto.trim(), texto => texto.toUpperCase()); // 'ADA'"
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Transformación y efecto son contratos distintos",
+        "body": "Transformar produce un nuevo valor. Registrar, imprimir o enviar datos es un efecto secundario. Una función puede coordinar ambos, pero debe devolver el resultado de la transformación sin depender del valor devuelto por el efecto."
+      },
+      {
+        "type": "warning",
+        "levelId": "mastery",
+        "title": "No devuelvas por accidente el resultado del callback de efecto",
+        "body": "Callbacks como console.log o push tienen su propio valor de retorno. Ejecutarlos no debe sustituir el resultado que promete el contrato principal."
       },
       {
         "type": "key-point",

@@ -1,0 +1,92 @@
+{
+  "id": "js-functions-deepening-callbacks-01",
+  "title": "Funciones como valores y callbacks",
+  "difficulty": "intermediate",
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué responsabilidad tiene aplicarOperacion?",
+      "code": "function aplicarOperacion(valor, operacion) {\n  return operacion(valor);\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "Ejecutar la función recibida con valor y devolver su resultado", "correct": true },
+        { "id": "b", "text": "Convertir operacion en una cadena", "correct": false },
+        { "id": "c", "text": "Ignorar valor y devolver operacion", "correct": false },
+        { "id": "d", "text": "Crear una variable global", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La función exterior define cuándo y con qué entrada se ejecuta el callback.",
+      "hints": ["operacion es un parámetro cuyo valor es una función."],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la llamada?",
+      "code": "function aplicarOperacion(valor, operacion) {\n  return operacion(valor);\n}\n\nconst cuadrado = numero => numero * numero;\naplicarOperacion(5, cuadrado);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "25", "correct": true },
+        { "id": "b", "text": "10", "correct": false },
+        { "id": "c", "text": "La función cuadrado", "correct": false },
+        { "id": "d", "text": "undefined", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "cuadrado recibe 5 y su retorno 25 se convierte en el retorno de aplicarOperacion.",
+      "hints": ["Sustituye operacion por cuadrado."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La función devuelve el callback en lugar del valor transformado. Localiza el error.",
+      "code": "function aplicarOperacion(valor, operacion) {\n  return operacion;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [2],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La referencia debe ejecutarse con valor para producir la salida prometida.",
+      "hints": ["El callback necesita una llamada."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige aplicarOperacion para ejecutar el callback recibido con valor y devolver el resultado producido.",
+      "code": "function aplicarOperacion(valor, operacion) {\n  return operacion;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        { "input": 4, "expected": 12, "call": "aplicarOperacion(input, numero => numero * 3)", "description": "ejecuta una transformación numérica" },
+        { "input": -2, "expected": 2, "call": "aplicarOperacion(input, numero => Math.abs(numero))", "description": "admite un callback alternativo" },
+        { "input": " ada ", "expected": "ADA", "call": "aplicarOperacion(input, texto => texto.trim().toUpperCase())", "description": "funciona con otro tipo de entrada y transformación" }
+      ],
+      "expectedPatterns": null,
+      "explanation": "El contrato es conductual: recibir una función, ejecutarla una vez con el valor y devolver lo que produzca.",
+      "hints": ["Llama a operacion pasando valor."],
+      "stepOrder": 4
+    }
+  ],
+  "kind": "practice",
+  "levelId": "deepening",
+  "position": 3,
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

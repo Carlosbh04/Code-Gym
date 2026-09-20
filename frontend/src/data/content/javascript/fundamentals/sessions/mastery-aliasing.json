@@ -1,0 +1,92 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-fundamentals",
+  "conceptId": "js-variables-basics",
+  "levelId": "mastery",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-variables-mastery-aliasing-01",
+  "title": "Taller: alias o referencia nueva",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "advanced",
+  "position": 2,
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué comparación es verdadera?",
+      "code": "const a = { valor: 1 };\nconst b = a;\nconst c = { ...a };",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "a === b", "correct": true },
+        { "id": "b", "text": "a === c", "correct": false },
+        { "id": "c", "text": "b === c", "correct": false },
+        { "id": "d", "text": "Todas", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "b recibe la misma referencia; c recibe una referencia nueva.",
+      "hints": ["Spread crea el objeto de primer nivel."],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const estado = { modo: 'claro' };\nconst temporal = estado;\ntemporal.modo = 'oscuro';\nconsole.log(estado.modo);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "claro", "correct": false },
+        { "id": "b", "text": "oscuro", "correct": true },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": "TypeError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los dos bindings apuntan al mismo objeto.",
+      "hints": ["No aparece ninguna operación de copia."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Se quería preservar config. Localiza la línea que crea solo un alias.",
+      "code": "function cambiar(config) {\n  const siguiente = config;\n  siguiente.activo = true;\n  return siguiente;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [2],
+      "errorType": "shared-reference",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Asignar config a siguiente no copia el objeto.",
+      "hints": ["Comprueba la identidad de ambas referencias."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige actualizarPreferencia para devolver una configuración nueva con el tema indicado sin modificar la original.",
+      "code": "function actualizarPreferencia(config, tema) {\n  const siguiente = config;\n  siguiente.tema = tema;\n  return siguiente;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        { "input": [{ "tema": "claro", "idioma": "es" }, "oscuro"], "expected": { "temaNuevo": "oscuro", "temaOriginal": "claro", "idioma": "es", "referenciaNueva": true }, "call": "(() => { const original = input[0]; const resultado = actualizarPreferencia(original, input[1]); return { temaNuevo: resultado.tema, temaOriginal: original.tema, idioma: resultado.idioma, referenciaNueva: resultado !== original }; })()", "description": "crea otra referencia y conserva propiedades" },
+        { "input": [{ "tema": "azul", "compacto": false }, "verde"], "expected": { "tema": "verde", "compacto": false }, "call": "actualizarPreferencia(input[0], input[1])", "description": "conserva valores falsy del objeto" },
+        { "input": [{ "tema": "uno" }, "uno"], "expected": true, "call": "actualizarPreferencia(input[0], input[1]) !== input[0]", "description": "crea otra referencia aunque el valor coincida" }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Construye otro objeto con las propiedades existentes y sobrescribe tema; evita usar un alias como si fuera una copia.",
+      "hints": ["El resultado debe tener identidad distinta al objeto recibido."],
+      "stepOrder": 4
+    }
+  ]
+}

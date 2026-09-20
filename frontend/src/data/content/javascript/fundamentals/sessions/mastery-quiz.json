@@ -1,0 +1,119 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-fundamentals",
+  "conceptId": "js-variables-basics",
+  "levelId": "mastery",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-variables-mastery-quiz-01",
+  "title": "Test: estado, alias y scopes anidados",
+  "status": "published",
+  "kind": "quiz",
+  "difficulty": "advanced",
+  "position": 0,
+  "passingPercentage": 100,
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Cuántos bindings distintos llamados total existen?",
+      "code": "let total = 1;\n{\n  let total = 2;\n  {\n    const total = 3;\n    console.log(total);\n  }\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "Uno", "correct": false },
+        { "id": "b", "text": "Dos", "correct": false },
+        { "id": "c", "text": "Tres", "correct": true },
+        { "id": "d", "text": "Cuatro", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada declaración crea un binding en un ámbito diferente.",
+      "hints": ["Cuenta declaraciones, no asignaciones."],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const original = { activo: false };\nconst alias = original;\nconst copia = { ...original };\nalias.activo = true;\nconsole.log(original.activo, copia.activo);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "true false", "correct": true },
+        { "id": "b", "text": "true true", "correct": false },
+        { "id": "c", "text": "false false", "correct": false },
+        { "id": "d", "text": "TypeError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "alias comparte referencia con original; copia es otro objeto de primer nivel.",
+      "hints": ["Compara qué asignación crea un objeto nuevo."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué declaración permite actualizar acumulado desde todos los bloques sin crear bindings nuevos?",
+      "code": "/* acumulado cambia durante todo el proceso */",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "let acumulado = 0 fuera de los bloques", "correct": true },
+        { "id": "b", "text": "const acumulado = 0 dentro de cada bloque", "correct": false },
+        { "id": "c", "text": "declarar let acumulado en cada iteración", "correct": false },
+        { "id": "d", "text": "no declarar acumulado", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El estado compartido por las iteraciones debe vivir en el ámbito que contiene el proceso.",
+      "hints": ["El binding debe sobrevivir a cada bloque."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "let valor = 2;\nfor (const cambio of [3, -1, 4]) {\n  valor += cambio;\n}\nconsole.log(valor);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "2", "correct": false },
+        { "id": "b", "text": "6", "correct": false },
+        { "id": "c", "text": "8", "correct": true },
+        { "id": "d", "text": "10", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El mismo binding se actualiza sucesivamente: 2, 5, 4 y 8.",
+      "hints": ["Aplica los cambios en orden."],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve obtener?",
+      "code": "function obtener() {\n  let estado = 'inicial';\n  if (true) {\n    const estado = 'final';\n  }\n  return estado;\n}\n\nconsole.log(obtener());",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "inicial", "correct": true },
+        { "id": "b", "text": "final", "correct": false },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": "ReferenceError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El estado interior desaparece al cerrar el bloque y nunca cambia el exterior.",
+      "hints": ["Hay dos declaraciones con el mismo nombre."],
+      "stepOrder": 5
+    }
+  ]
+}

@@ -51,6 +51,86 @@
         "Revisa el contrato del nivel antes de responder."
       ],
       "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime el programa?",
+      "code": "const prefijo = 'global';\n\nfunction mostrar(prefijo) {\n  return prefijo;\n}\n\nconsole.log(mostrar('local'));\nconsole.log(prefijo);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "local y global", "correct": true },
+        { "id": "b", "text": "global y global", "correct": false },
+        { "id": "c", "text": "local y local", "correct": false },
+        { "id": "d", "text": "ReferenceError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El parámetro hace shadowing del binding exterior únicamente dentro de mostrar.",
+      "hints": ["La función resuelve primero el nombre más cercano."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué se pasa como segundo argumento a ejecutar?",
+      "code": "function duplicar(numero) {\n  return numero * 2;\n}\n\nfunction ejecutar(valor, operacion) {\n  return operacion(valor);\n}\n\nejecutar(5, duplicar);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "La referencia a duplicar", "correct": true },
+        { "id": "b", "text": "El resultado de duplicar(5)", "correct": false },
+        { "id": "c", "text": "La cadena 'duplicar'", "correct": false },
+        { "id": "d", "text": "undefined", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "duplicar se pasa sin paréntesis como valor; ejecutar decide cuándo llamarla.",
+      "hints": ["No hay paréntesis después de duplicar en la llamada exterior."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve procesar(3, duplicar)?",
+      "code": "function procesar(valor, callback) {\n  return callback(valor) + 1;\n}\n\nfunction duplicar(numero) {\n  return numero * 2;\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "7", "correct": true },
+        { "id": "b", "text": "6", "correct": false },
+        { "id": "c", "text": "4", "correct": false },
+        { "id": "d", "text": "undefined", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El callback produce 6 y la función exterior suma 1 a ese retorno.",
+      "hints": ["Evalúa primero callback(valor)."],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "code-reading",
+      "prompt": "¿Qué cambio observa el llamador?",
+      "code": "function actualizar(config) {\n  config.activo = true;\n  config = { activo: false };\n}\n\nconst estado = { activo: false };\nactualizar(estado);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "estado.activo queda en true", "correct": true },
+        { "id": "b", "text": "estado se sustituye por el objeto nuevo", "correct": false },
+        { "id": "c", "text": "estado.activo queda en false", "correct": false },
+        { "id": "d", "text": "Se lanza TypeError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La mutación de la propiedad es observable; reasignar el parámetro solo cambia la variable local.",
+      "hints": ["Distingue mutar el objeto de reasignar el parámetro."],
+      "stepOrder": 5
     }
   ]
 }

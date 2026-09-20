@@ -17,12 +17,14 @@
     "test:watch": "vitest --exclude \"tests/integration/**\" --exclude \".manual-backup-content/**\"",
     "pretest:db": "npm run db:generate",
     "test:db": "tsx scripts/run-database-tests.ts",
+    "content:manifest:generate": "node ../scripts/generate-verifier-manifest.mjs .",
+    "content:manifest:check": "node ../scripts/generate-verifier-manifest.mjs . --check",
     "db:validate": "prisma validate",
     "db:generate": "prisma generate",
     "db:migrate:dev": "tsx scripts/prisma-migrate-dev.ts",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:status": "prisma migrate status",
-    "check": "npm run db:validate && npm run db:generate && npm run lint && npm run typecheck && npm test && npm run build"
+    "check": "npm run content:manifest:check && npm run db:validate && npm run db:generate && npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "7.10.0",

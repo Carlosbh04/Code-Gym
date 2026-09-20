@@ -1,0 +1,119 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-fundamentals",
+  "conceptId": "js-variables-basics",
+  "levelId": "deepening",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-variables-deepening-quiz-01",
+  "title": "Test: scope, bindings y conversiones",
+  "status": "published",
+  "kind": "quiz",
+  "difficulty": "intermediate",
+  "position": 0,
+  "passingPercentage": 100,
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué afirmación describe correctamente el alcance de mensaje?",
+      "code": "if (true) {\n  const mensaje = 'hola';\n  console.log(mensaje);\n}\n\nconsole.log(mensaje);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "Existe solamente dentro del bloque", "correct": true },
+        { "id": "b", "text": "Existe en todo el archivo", "correct": false },
+        { "id": "c", "text": "Se convierte automáticamente en var", "correct": false },
+        { "id": "d", "text": "Solo existe dentro de console.log", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "const y let tienen ámbito de bloque; la lectura exterior produce ReferenceError.",
+      "hints": ["Observa las llaves que rodean la declaración."],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime el programa?",
+      "code": "let estado = 'fuera';\n\nif (true) {\n  const estado = 'dentro';\n  console.log(estado);\n}\n\nconsole.log(estado);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "dentro / dentro", "correct": false },
+        { "id": "b", "text": "fuera / fuera", "correct": false },
+        { "id": "c", "text": "dentro / fuera", "correct": true },
+        { "id": "d", "text": "ReferenceError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La declaración interior hace shadowing únicamente dentro del bloque.",
+      "hints": ["Hay dos bindings diferentes llamados estado."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Por qué este código es válido?",
+      "code": "const ajustes = { volumen: 2 };\najustes.volumen = 3;",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "Porque const permite reasignar cualquier cosa", "correct": false },
+        { "id": "b", "text": "Porque cambia el objeto, no el binding ajustes", "correct": true },
+        { "id": "c", "text": "Porque las propiedades siempre son const", "correct": false },
+        { "id": "d", "text": "No es válido", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "const impide otra asignación al binding; no congela el objeto referenciado.",
+      "hints": ["Distingue ajustes = otroObjeto de ajustes.volumen = 3."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const cantidad = '4';\nconst total = cantidad + 2;\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "6", "correct": false },
+        { "id": "b", "text": "42", "correct": true },
+        { "id": "c", "text": "NaN", "correct": false },
+        { "id": "d", "text": "TypeError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Con una cadena, + concatena. Number(cantidad) permitiría sumar numéricamente.",
+      "hints": ["Comprueba el tipo de cantidad."],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué ocurre al ejecutar el bloque?",
+      "code": "{\n  console.log(puntos);\n  let puntos = 10;\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "Imprime undefined", "correct": false },
+        { "id": "b", "text": "Imprime 10", "correct": false },
+        { "id": "c", "text": "ReferenceError por la zona muerta temporal", "correct": true },
+        { "id": "d", "text": "SyntaxError por usar un bloque", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El binding existe desde el inicio del bloque, pero no puede leerse antes de su declaración.",
+      "hints": ["let no se comporta como una lectura de var antes de inicializar."],
+      "stepOrder": 5
+    }
+  ]
+}

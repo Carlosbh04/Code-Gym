@@ -51,6 +51,86 @@
         "Revisa el contrato del nivel antes de responder."
       ],
       "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve obtenerEstado(false)?",
+      "code": "function obtenerEstado(activo) {\n  if (!activo) return { estado: 'inactivo' };\n  return { estado: 'activo' };\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "{ estado: 'inactivo' }", "correct": true },
+        { "id": "b", "text": "false", "correct": false },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": "{ estado: 'activo' }", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El early return resuelve por completo el caso inactivo y mantiene el mismo tipo de retorno.",
+      "hints": ["Sigue la primera condición con activo igual a false."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué implementación compone correctamente las dos transformaciones?",
+      "code": null,
+      "language": null,
+      "options": [
+        { "id": "a", "text": "return segundo(primero(valor));", "correct": true },
+        { "id": "b", "text": "return primero + segundo + valor;", "correct": false },
+        { "id": "c", "text": "return segundo;", "correct": false },
+        { "id": "d", "text": "primero(valor); return valor;", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La salida del primer paso debe convertirse en la entrada del segundo.",
+      "hints": ["Conecta los retornos, no los nombres de las funciones."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve ejecutar(4, registrar)?",
+      "code": "function ejecutar(valor, registrar) {\n  const resultado = valor * 2;\n  registrar(resultado);\n  return resultado;\n}\n\nfunction registrar(valor) {\n  return `guardado:${valor}`;\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "8", "correct": true },
+        { "id": "b", "text": "'guardado:8'", "correct": false },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": "4", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El callback realiza un efecto, pero el contrato principal devuelve la transformación.",
+      "hints": ["Observa qué expresión aparece en el return de ejecutar."],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "code-reading",
+      "prompt": "¿Qué problema de contrato tiene buscar?",
+      "code": "function buscar(items, id) {\n  const encontrado = items.find(item => item.id === id);\n  if (encontrado) return encontrado;\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "El caso sin coincidencia devuelve undefined de forma implícita", "correct": true },
+        { "id": "b", "text": "find siempre lanza un error", "correct": false },
+        { "id": "c", "text": "Una función no puede devolver objetos", "correct": false },
+        { "id": "d", "text": "id no puede ser un parámetro", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La ausencia debería formar parte explícita del contrato, por ejemplo devolviendo null.",
+      "hints": ["Revisa el camino en el que encontrado es undefined."],
+      "stepOrder": 5
     }
   ]
 }

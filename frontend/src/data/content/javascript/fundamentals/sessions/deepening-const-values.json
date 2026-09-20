@@ -1,0 +1,92 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-fundamentals",
+  "conceptId": "js-variables-basics",
+  "levelId": "deepening",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-variables-deepening-const-values-01",
+  "title": "Taller: binding constante, valor mutable",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "intermediate",
+  "position": 2,
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Cuál operación intenta reasignar el binding?",
+      "code": "const lista = ['a'];\nlista.push('b');\nlista[0] = 'z';\nlista = ['nueva'];",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "lista.push('b')", "correct": false },
+        { "id": "b", "text": "lista[0] = 'z'", "correct": false },
+        { "id": "c", "text": "lista = ['nueva']", "correct": true },
+        { "id": "d", "text": "Todas", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Solo la última operación intenta asociar lista con otro array.",
+      "hints": ["Mutar el array no sustituye la referencia guardada en lista."],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const perfil = { puntos: 1 };\nperfil.puntos += 2;\nconsole.log(perfil.puntos);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "1", "correct": false },
+        { "id": "b", "text": "3", "correct": true },
+        { "id": "c", "text": "TypeError", "correct": false },
+        { "id": "d", "text": "undefined", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La propiedad cambia, pero perfil sigue apuntando al mismo objeto.",
+      "hints": ["const protege el binding, no todas las propiedades."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Localiza la reasignación que falla aunque el array sí sea mutable.",
+      "code": "function guardar(valor) {\n  const valores = [];\n  valores.push(valor);\n  valores = valores.concat('fin');\n  return valores;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [4],
+      "errorType": "assignment",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "concat crea otro array y la línea intenta reasignarlo al binding const.",
+      "hints": ["push muta; concat devuelve otra referencia."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige agregarEtiqueta para añadir la etiqueta a la lista existente y devolver el mismo perfil.",
+      "code": "function agregarEtiqueta(perfil, etiqueta) {\n  const etiquetas = perfil.etiquetas;\n  etiquetas = [...etiquetas, etiqueta];\n  return perfil;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        { "input": [{ "etiquetas": ["js"] }, "web"], "expected": { "etiquetas": ["js", "web"], "mismoPerfil": true, "mismaLista": true }, "call": "(() => { const perfil = input[0]; const lista = perfil.etiquetas; const resultado = agregarEtiqueta(perfil, input[1]); return { etiquetas: resultado.etiquetas, mismoPerfil: resultado === perfil, mismaLista: resultado.etiquetas === lista }; })()", "description": "muta la lista existente sin cambiar referencias" },
+        { "input": [{ "etiquetas": [] }, "api"], "expected": ["api"], "call": "agregarEtiqueta(input[0], input[1]).etiquetas", "description": "funciona con una lista vacía" },
+        { "input": [{ "etiquetas": ["a", "a"] }, "b"], "expected": ["a", "a", "b"], "call": "agregarEtiqueta(input[0], input[1]).etiquetas", "description": "conserva valores previos y duplicados" }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Modifica el contenido del array existente, por ejemplo con push; no reasignes el binding etiquetas.",
+      "hints": ["La referencia debe seguir siendo la misma."],
+      "stepOrder": 4
+    }
+  ]
+}

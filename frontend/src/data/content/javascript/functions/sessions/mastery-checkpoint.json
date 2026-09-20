@@ -2,7 +2,7 @@
   "id": "js-functions-mastery-checkpoint-01",
   "title": "Checkpoint: funciones robustas",
   "difficulty": "advanced",
-  "position": 3,
+  "position": 4,
   "kind": "checkpoint",
   "levelId": "mastery",
   "passingPercentage": null,
@@ -53,6 +53,61 @@
         "Comprueba los casos límite incluidos en los tests."
       ],
       "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve componer(3, duplicar, incrementar)?",
+      "code": "function componer(valor, primero, segundo) {\n  return segundo(primero(valor));\n}\n\nconst duplicar = numero => numero * 2;\nconst incrementar = numero => numero + 1;",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "7", "correct": true },
+        { "id": "b", "text": "8", "correct": false },
+        { "id": "c", "text": "6", "correct": false },
+        { "id": "d", "text": "undefined", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El primer paso produce 6 y el segundo produce 7.",
+      "hints": ["El orden de los callbacks forma parte del contrato."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve procesar(' a ', limpiar, registrar)?",
+      "code": "function procesar(valor, transformar, notificar) {\n  const resultado = transformar(valor);\n  notificar(resultado);\n  return resultado;\n}\n\nconst limpiar = texto => texto.trim();\nconst registrar = valor => `guardado:${valor}`;",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "a", "correct": true },
+        { "id": "b", "text": "guardado:a", "correct": false },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": " a ", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "notificar se ejecuta como efecto, pero el retorno principal sigue siendo la transformación.",
+      "hints": ["Mira el return de procesar, no el de registrar."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "La composición devuelve el resultado del primer paso e ignora el segundo. Localiza el error.",
+      "code": "function pipeline(valor, primero, segundo) {\n  const intermedio = primero(valor);\n  segundo(intermedio);\n  return intermedio;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [3],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El resultado del segundo callback se descarta, por lo que el contrato no devuelve la transformación final.",
+      "hints": ["La segunda llamada produce el valor que debería devolverse."],
+      "stepOrder": 4
     }
   ]
 }

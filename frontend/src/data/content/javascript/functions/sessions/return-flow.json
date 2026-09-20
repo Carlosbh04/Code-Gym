@@ -1,7 +1,7 @@
 {
   "id": "js-functions-return-flow-01",
   "title": "Salir de una función en el momento equivocado",
-  "difficulty": "advanced",
+  "difficulty": "intermediate",
   "conceptId": "js-function-basics",
   "technologyId": "javascript",
   "version": "1.0.0",

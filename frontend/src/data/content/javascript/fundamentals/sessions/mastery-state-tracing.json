@@ -1,0 +1,92 @@
+{
+  "technologyId": "javascript",
+  "topicId": "js-fundamentals",
+  "conceptId": "js-variables-basics",
+  "levelId": "mastery",
+  "requiredForProgression": true,
+  "version": "1.0.0",
+  "id": "js-variables-mastery-state-tracing-01",
+  "title": "Taller: seguir el estado completo",
+  "status": "published",
+  "kind": "practice",
+  "difficulty": "advanced",
+  "position": 3,
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué variable representa el dato después de cada cambio?",
+      "code": "const inicial = 10;\nlet actual = inicial;\nactual += 5;\nactual -= 2;",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "inicial", "correct": false },
+        { "id": "b", "text": "actual", "correct": true },
+        { "id": "c", "text": "Las dos cambian", "correct": false },
+        { "id": "d", "text": "Ninguna", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "inicial conserva la referencia lógica de partida y actual evoluciona.",
+      "hints": ["Solo una declaración usa let."],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime?",
+      "code": "const inicial = 5;\nlet actual = inicial;\nfor (const cambio of [2, -1, 4]) actual += cambio;\nconsole.log(inicial, actual, actual - inicial);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "5 10 5", "correct": true },
+        { "id": "b", "text": "10 10 0", "correct": false },
+        { "id": "c", "text": "5 5 0", "correct": false },
+        { "id": "d", "text": "5 11 6", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los cambios suman 5; inicial permanece en 5 y actual termina en 10.",
+      "hints": ["Conserva separado el valor inicial."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Localiza la declaración que hace que cada iteración pierda el estado acumulado.",
+      "code": "function finalizar(inicial, cambios) {\n  let actual = inicial;\n  for (const cambio of cambios) {\n    const actual = inicial + cambio;\n  }\n  return actual;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [4],
+      "errorType": "scope",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La iteración crea otro actual y además recalcula desde inicial.",
+      "hints": ["El estado que se devuelve ya existe antes del bucle."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige resumirCambios para devolver los valores inicial, final y diferencia después de aplicar todos los cambios.",
+      "code": "function resumirCambios(valorInicial, cambios) {\n  const inicial = Number(valorInicial);\n  let final = inicial;\n\n  for (const cambio of cambios) {\n    const final = inicial + Number(cambio);\n  }\n\n  return {\n    inicial,\n    final,\n    diferencia: final - inicial,\n  };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        { "input": ["10", ["2", -1, 4]], "expected": { "inicial": 10, "final": 15, "diferencia": 5 }, "call": "resumirCambios(...input)", "description": "aplica varios cambios en orden" },
+        { "input": [-5, []], "expected": { "inicial": -5, "final": -5, "diferencia": 0 }, "call": "resumirCambios(...input)", "description": "resume correctamente sin cambios" },
+        { "input": [0, [1.5, 2.5]], "expected": { "inicial": 0, "final": 4, "diferencia": 4 }, "call": "resumirCambios(...input)", "description": "conserva cambios decimales" }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Actualiza el binding final existente en cada vuelta y calcula la diferencia al terminar.",
+      "hints": ["No declares final dentro del bucle."],
+      "stepOrder": 4
+    }
+  ]
+}

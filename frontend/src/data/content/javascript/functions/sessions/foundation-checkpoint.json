@@ -2,7 +2,7 @@
   "id": "js-functions-foundation-checkpoint-01",
   "title": "Checkpoint: fundamentos",
   "difficulty": "beginner",
-  "position": 3,
+  "position": 4,
   "kind": "checkpoint",
   "levelId": "foundation",
   "passingPercentage": null,
@@ -49,6 +49,61 @@
         "Comprueba los casos límite incluidos en los tests."
       ],
       "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime el programa?",
+      "code": "function total(base, extra = 0) {\n  return base + extra;\n}\n\nconsole.log(total(8));",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "8", "correct": true },
+        { "id": "b", "text": "0", "correct": false },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": "NaN", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "extra toma el valor por defecto 0 y return entrega la suma.",
+      "hints": ["El argumento extra se omite."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime typeof referencia?",
+      "code": "function saludar() {\n  return 'hola';\n}\n\nconst referencia = saludar;\nconsole.log(typeof referencia);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "function", "correct": true },
+        { "id": "b", "text": "string", "correct": false },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": "object", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La asignación conserva la función porque no se ha realizado una llamada.",
+      "hints": ["No aparecen paréntesis tras saludar."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "La función debería devolver el doble, pero entrega undefined. Localiza el error.",
+      "code": "function doble(numero) {\n  numero * 2;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [2],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Calcular una expresión no la devuelve; falta return en el camino de ejecución.",
+      "hints": ["El resultado debe salir de la función."],
+      "stepOrder": 4
     }
   ]
 }

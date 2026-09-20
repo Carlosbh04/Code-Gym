@@ -48,21 +48,15 @@ export function evaluatePedagogicalRequirements(
     const requirement
     of requirements
   ) {
-    switch (requirement.kind) {
-      case 'required-array-method': {
-        if (
-          !usesArrayMethod(
-            analyzableSource,
-            requirement.method,
-          )
-        ) {
-          failedFeedback.push(
-            requirement.feedback,
-          );
-        }
-
-        break;
-      }
+    if (
+      !usesArrayMethod(
+        analyzableSource,
+        requirement.method,
+      )
+    ) {
+      failedFeedback.push(
+        requirement.feedback,
+      );
     }
   }
 
@@ -145,8 +139,10 @@ function stripCommentsAndStrings(
   let index = 0;
 
   while (index < source.length) {
-    const char = source[index];
-    const next = source[index + 1];
+    const char =
+      source.charAt(index);
+    const next =
+      source.charAt(index + 1);
 
     if (
       char === '/'

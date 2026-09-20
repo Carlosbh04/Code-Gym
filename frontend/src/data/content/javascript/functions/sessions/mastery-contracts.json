@@ -53,6 +53,61 @@
         "No sustituyas valores válidos por accidente."
       ],
       "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Qué contrato conserva correctamente un valor 0 explícito?",
+      "code": null,
+      "language": null,
+      "options": [
+        { "id": "a", "text": "function crear(limite = 10) { return limite; }", "correct": true },
+        { "id": "b", "text": "function crear(limite) { return limite || 10; }", "correct": false },
+        { "id": "c", "text": "function crear(limite) { return 10; }", "correct": false },
+        { "id": "d", "text": "function crear() { return limite; }", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El parámetro por defecto solo actúa ante undefined y conserva 0.",
+      "hints": ["El contrato distingue ausencia de falsy."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve crearOpciones(0, '')?",
+      "code": "function crearOpciones(limite = 5, etiqueta = 'general') {\n  return { limite, etiqueta };\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "{ limite: 0, etiqueta: '' }", "correct": true },
+        { "id": "b", "text": "{ limite: 5, etiqueta: 'general' }", "correct": false },
+        { "id": "c", "text": "{ limite: 0, etiqueta: 'general' }", "correct": false },
+        { "id": "d", "text": "undefined", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "0 y cadena vacía son argumentos explícitos y se conservan.",
+      "hints": ["Ninguno de los argumentos es undefined."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "La opción silencioso=false termina convertida en true. Localiza la línea responsable.",
+      "code": "function opciones(silencioso) {\n  silencioso = silencioso || true;\n  return { silencioso };\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [2],
+      "errorType": "logico",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El operador || sustituye false aunque sea una elección válida del llamador.",
+      "hints": ["El default debe aplicarse solo ante undefined."],
+      "stepOrder": 4
     }
   ]
 }

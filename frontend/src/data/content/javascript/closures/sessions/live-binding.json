@@ -132,7 +132,7 @@
       "id": "step-4",
       "type": "fix-code",
       "prompt": "Corrige `crearPrecio` para que cada precio fije la moneda en el momento de su creación: los precios ya creados no deben cambiar de divisa aunque `moneda` se reasigne después.",
-      "code": "let moneda = 'EUR';\n\nfunction crearPrecio(base) {\n  return function precio() {\n    return `${base} ${moneda}`;\n  };\n}",
+      "code": "var moneda = 'EUR';\n\nfunction crearPrecio(base) {\n  return function precio() {\n    return `${base} ${moneda}`;\n  };\n}",
       "language": "javascript",
       "options": null,
       "errorLines": null,
@@ -141,7 +141,7 @@
         {
           "input": null,
           "expected": "100 EUR",
-          "call": "(() => { const p = crearPrecio(100); moneda = 'USD'; return p(); })()",
+          "call": "(() => { moneda = 'EUR'; const p = crearPrecio(100); moneda = 'USD'; return p(); })()",
           "description": "un precio creado no cambia de divisa si la moneda se reasigna después"
         },
         {
@@ -153,13 +153,13 @@
         {
           "input": null,
           "expected": "50 EUR",
-          "call": "(() => { const p = crearPrecio(50); return p(); })()",
+          "call": "(() => { moneda = 'EUR'; const p = crearPrecio(50); return p(); })()",
           "description": "sin reasignaciones devuelve la moneda vigente"
         },
         {
           "input": null,
           "expected": "100 EUR|100 EUR",
-          "call": "(() => { const p = crearPrecio(100); return p() + '|' + p(); })()",
+          "call": "(() => { moneda = 'EUR'; const p = crearPrecio(100); return p() + '|' + p(); })()",
           "description": "las llamadas repetidas dan siempre el mismo precio"
         }
       ],

@@ -1,0 +1,92 @@
+{
+  "id": "js-functions-mastery-pipeline-effects-01",
+  "title": "Composición y efectos controlados",
+  "difficulty": "advanced",
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-20",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué valor debe recibir segundo?",
+      "code": "function ejecutarPipeline(valor, primero, segundo) {\n  const intermedio = primero(valor);\n  return segundo(intermedio);\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "El resultado de primero(valor)", "correct": true },
+        { "id": "b", "text": "La referencia a primero", "correct": false },
+        { "id": "c", "text": "Siempre el valor original", "correct": false },
+        { "id": "d", "text": "El nombre de la función", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Componer significa conectar la salida del primer contrato con la entrada del segundo.",
+      "hints": ["Sigue el valor guardado en intermedio."],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la llamada?",
+      "code": "function ejecutarPipeline(valor, primero, segundo, notificar) {\n  const resultado = segundo(primero(valor));\n  notificar(resultado);\n  return resultado;\n}\n\nconst identidad = valor => valor;\nconst duplicar = valor => valor * 2;\nconst registrar = valor => `registro:${valor}`;\n\nejecutarPipeline(3, identidad, duplicar, registrar);",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "6", "correct": true },
+        { "id": "b", "text": "registro:6", "correct": false },
+        { "id": "c", "text": "3", "correct": false },
+        { "id": "d", "text": "undefined", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "notificar realiza un efecto, pero no sustituye el retorno de la transformación.",
+      "hints": ["El return principal usa resultado."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La función ejecuta todo, pero devuelve el valor del efecto en vez del resultado transformado. Localiza el error.",
+      "code": "function ejecutarPipeline(valor, primero, segundo, notificar) {\n  const resultado = segundo(primero(valor));\n  return notificar(resultado);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [3],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El callback de efecto debe ejecutarse, pero el contrato principal debe devolver resultado.",
+      "hints": ["Separa la llamada a notificar del return."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige ejecutarPipeline: aplica primero y después segundo, llama una vez a notificar con el resultado final y devuelve ese mismo resultado.",
+      "code": "function ejecutarPipeline(valor, primero, segundo, notificar) {\n  const resultado = primero(segundo(valor));\n  return notificar(resultado);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        { "input": 2, "expected": 7, "call": "ejecutarPipeline(input, numero => numero * 3, numero => numero + 1, () => undefined)", "description": "respeta el orden de las transformaciones" },
+        { "input": " ada ", "expected": "ADA", "call": "ejecutarPipeline(input, texto => texto.trim(), texto => texto.toUpperCase(), () => undefined)", "description": "compone funciones con otro tipo de entrada" },
+        { "input": -4, "expected": { "resultado": { "valor": 4 }, "eventos": [{ "valor": 4 }] }, "call": "(() => { const eventos = []; const resultado = ejecutarPipeline(input, numero => Math.abs(numero), numero => ({ valor: numero }), valor => eventos.push(valor)); return { resultado, eventos }; })()", "description": "notifica una vez con el mismo resultado que devuelve" }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La función compone dos transformaciones y mantiene separado el efecto de notificación del valor devuelto.",
+      "hints": ["Guarda segundo(primero(valor)), notifícalo y luego devuélvelo."],
+      "stepOrder": 4
+    }
+  ],
+  "kind": "practice",
+  "levelId": "mastery",
+  "position": 3,
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

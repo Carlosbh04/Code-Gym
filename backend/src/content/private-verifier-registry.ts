@@ -44,10 +44,7 @@ PrivateVerifierConfig =
   });
 
 const registry =
-  new Map<
-    string,
-    PrivateVerifierConfig
-  >([
+  createPrivateVerifierRegistry([
     [
       verifierKey(
         'js-variables-basics-01',
@@ -288,7 +285,7 @@ const registry =
 
     [
       verifierKey(
-        'js-objects-coding-pick-01',
+        'js-arrays-coding-transform-01',
         'step-1',
       ),
 
@@ -298,54 +295,46 @@ const registry =
             Object.freeze({
               input:
                 Object.freeze([
-                  Object.freeze({
-                    id: 7,
-                    nombre: 'Ada',
-                    activo: false,
-                    rol: 'admin',
-                  }),
-                  Object.freeze([
-                    'id',
-                    'rol',
-                  ]),
+                  80,
+                  25,
+                  0,
                 ]),
 
               expected:
-                Object.freeze({
-                  id: 7,
-                  rol: 'admin',
-                }),
+                Object.freeze([
+                  72,
+                  22.5,
+                  0,
+                ]),
 
               call:
-                'seleccionar(...input)',
+                'aplicarDescuento(input)',
 
               description:
-                'selecciona claves arbitrarias distintas a los ejemplos públicos',
+                'aplica el descuento a valores no publicados incluyendo cero',
             }),
 
             Object.freeze({
               input:
                 Object.freeze([
-                  Object.freeze({
-                    a: 1,
-                    b: 2,
-                  }),
-                  Object.freeze([
-                    'b',
-                    'z',
-                  ]),
+                  40,
+                  10,
                 ]),
 
               expected:
                 Object.freeze({
-                  b: 2,
+                  sameReference:
+                    false,
+
+                  inputUnchanged:
+                    true,
                 }),
 
               call:
-                'seleccionar(...input)',
+                "(() => { const original = JSON.stringify(input); const resultado = aplicarDescuento(input); return { sameReference: resultado === input, inputUnchanged: JSON.stringify(input) === original }; })()",
 
               description:
-                'omite claves inexistentes sin alterar las existentes',
+                'crea un array nuevo sin modificar la entrada',
             }),
           ]),
 
@@ -359,7 +348,7 @@ const registry =
 
     [
       verifierKey(
-        'js-objects-object-entries-01',
+        'js-arrays-map-vs-foreach-01',
         'step-4',
       ),
 
@@ -368,45 +357,62 @@ const registry =
           Object.freeze([
             Object.freeze({
               input:
-                Object.freeze({
-                  uno: 10,
-                  dos: -3,
-                  tres: 0,
-                  cuatro: 5,
-                }),
+                Object.freeze([
+                  7,
+                  -3,
+                  2.5,
+                ]),
 
               expected:
-                12,
+                Object.freeze([
+                  14,
+                  -6,
+                  5,
+                ]),
 
               call:
-                'sumar(input)',
+                'dobles(input)',
 
               description:
-                'suma valores arbitrarios incluyendo negativos y cero',
+                'duplica valores arbitrarios incluyendo negativos y decimales',
             }),
 
             Object.freeze({
               input:
-                Object.freeze({
-                  x: 1,
-                  y: 2,
-                  z: 3,
-                  w: 4,
-                }),
+                Object.freeze([
+                  4,
+                  4,
+                  1,
+                ]),
 
               expected:
-                10,
+                Object.freeze([
+                  8,
+                  8,
+                  2,
+                ]),
 
               call:
-                'sumar(input)',
+                'dobles(input)',
 
               description:
-                'suma más de dos propiedades sin depender de nombres concretos',
+                'conserva orden y duplicados sin depender de los ejemplos públicos',
             }),
           ]),
 
         pedagogicalRequirements:
-          Object.freeze([]),
+          Object.freeze([
+            Object.freeze({
+              kind:
+                'required-array-method',
+
+              method:
+                'map',
+
+              feedback:
+                'El resultado es correcto, pero este ejercicio requiere practicar Array.map() en lugar de Array.forEach().',
+            }),
+          ]),
 
         oracle:
           null,
@@ -415,7 +421,7 @@ const registry =
 
     [
       verifierKey(
-        'js-promises-chain-transform-01',
+        'js-arrays-reduce-accumulator-01',
         'step-4',
       ),
 
@@ -424,35 +430,56 @@ const registry =
           Object.freeze([
             Object.freeze({
               input:
-                7,
+                Object.freeze([
+                  1.5,
+                  -2.5,
+                  10,
+                ]),
 
               expected:
-                14,
+                9,
 
               call:
-                'duplicar(input)',
+                'sumar(input)',
 
               description:
-                'duplica otro valor mediante la cadena asíncrona',
+                'acumula decimales y negativos no publicados',
             }),
 
             Object.freeze({
               input:
-                5,
+                Object.freeze([
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                ]),
 
               expected:
-                true,
+                15,
 
               call:
-                'duplicar(input) instanceof Promise',
+                'sumar(input)',
 
               description:
-                'devuelve una Promise al llamador',
+                'suma una cantidad distinta de elementos',
             }),
           ]),
 
         pedagogicalRequirements:
-          Object.freeze([]),
+          Object.freeze([
+            Object.freeze({
+              kind:
+                'required-array-method',
+
+              method:
+                'reduce',
+
+              feedback:
+                'El resultado es correcto, pero este ejercicio requiere practicar Array.reduce() con valor inicial.',
+            }),
+          ]),
 
         oracle:
           null,
@@ -461,7 +488,7 @@ const registry =
 
     [
       verifierKey(
-        'js-promises-coding-fetch-label-01',
+        'js-closures-coding-counter-01',
         'step-1',
       ),
 
@@ -470,34 +497,42 @@ const registry =
           Object.freeze([
             Object.freeze({
               input:
-                Object.freeze({
-                  nombre: 'Noa',
-                }),
+                null,
 
               expected:
-                'Hola, Noa',
+                Object.freeze([
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                ]),
 
               call:
-                'etiquetaUsuario(Promise.resolve(input))',
+                '(() => { const contar = crearContador(); return [contar(), contar(), contar(), contar(), contar()]; })()',
 
               description:
-                'usa dinámicamente el nombre de otro usuario',
+                'mantiene el estado privado durante más llamadas',
             }),
 
             Object.freeze({
               input:
-                Object.freeze({
-                  nombre: 'Eva',
-                }),
+                null,
 
               expected:
-                true,
+                Object.freeze([
+                  1,
+                  2,
+                  1,
+                  3,
+                  2,
+                ]),
 
               call:
-                'etiquetaUsuario(Promise.resolve(input)) instanceof Promise',
+                '(() => { const a = crearContador(); const b = crearContador(); return [a(), a(), b(), a(), b()]; })()',
 
               description:
-                'mantiene un contrato asíncrono',
+                'aísla el estado de contadores intercalados',
             }),
           ]),
 
@@ -511,7 +546,7 @@ const registry =
 
     [
       verifierKey(
-        'js-promises-error-recovery-01',
+        'js-closures-live-binding-01',
         'step-4',
       ),
 
@@ -520,44 +555,30 @@ const registry =
           Object.freeze([
             Object.freeze({
               input:
-                true,
+                null,
 
               expected:
-                true,
+                '12 GBP|12 GBP',
 
               call:
-                'cargar(input) instanceof Promise',
+                "(() => { moneda = 'GBP'; const precio = crearPrecio(12); moneda = 'JPY'; return precio() + '|' + precio(); })()",
 
               description:
-                'la rama remota devuelve una Promise',
+                'captura una moneda arbitraria sin escribirla a mano',
             }),
 
             Object.freeze({
               input:
-                false,
+                null,
 
               expected:
-                true,
+                '3 JPY|9 CHF',
 
               call:
-                'cargar(input) instanceof Promise',
+                "(() => { moneda = 'JPY'; const primero = crearPrecio(3); moneda = 'CHF'; const segundo = crearPrecio(9); moneda = 'CAD'; return primero() + '|' + segundo(); })()",
 
               description:
-                'la rama de rechazo devuelve una Promise',
-            }),
-
-            Object.freeze({
-              input:
-                false,
-
-              expected:
-                'Error',
-
-              call:
-                "cargar(input).then(() => 'sin error').catch((error) => error.name)",
-
-              description:
-                'el rechazo sigue disponible para el caller',
+                'cada closure conserva la moneda vigente al crearse',
             }),
           ]),
 
@@ -1058,6 +1079,43 @@ const registry =
 
     [
       verifierKey(
+        'js-functions-foundation-reference-execution-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            'Grace',
+
+          expected:
+            'Hola, Grace',
+
+          call:
+            'crearSaludo(input)',
+
+          description:
+            'saluda otro nombre no incluido en los casos públicos',
+        }),
+
+        Object.freeze({
+          input:
+            '',
+
+          expected:
+            'Hola, ',
+
+          call:
+            'crearSaludo(input)',
+
+          description:
+            'conserva una cadena vacía porque no es undefined',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
         'js-functions-deepening-checkpoint-01',
         'step-1',
       ),
@@ -1100,6 +1158,48 @@ const registry =
         oracle:
           null,
       }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-deepening-callbacks-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            7,
+
+          expected:
+            5,
+
+          call:
+            'aplicarOperacion(input, numero => numero - 2)',
+
+          description:
+            'ejecuta una transformación numérica diferente a las públicas',
+        }),
+
+        Object.freeze({
+          input:
+            'ab',
+
+          expected:
+            Object.freeze({
+              resultado:
+                'abab',
+              llamadas:
+                1,
+            }),
+
+          call:
+            '(() => { let llamadas = 0; const resultado = aplicarOperacion(input, texto => { llamadas += 1; return texto.repeat(2); }); return { resultado, llamadas }; })()',
+
+          description:
+            'ejecuta exactamente una vez un callback alternativo',
+        }),
+      ),
     ],
 
     [
@@ -1207,6 +1307,59 @@ const registry =
         oracle:
           null,
       }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-mastery-pipeline-effects-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            5,
+
+          expected:
+            Object.freeze({
+              resultado:
+                21,
+              pasos:
+                Object.freeze([
+                  'primero:5',
+                  'segundo:7',
+                  'notificar:21',
+                ]),
+            }),
+
+          call:
+            "(() => { const pasos = []; const resultado = ejecutarPipeline(input, valor => { pasos.push('primero:' + valor); return valor + 2; }, valor => { pasos.push('segundo:' + valor); return valor * 3; }, valor => { pasos.push('notificar:' + valor); }); return { resultado, pasos }; })()",
+
+          description:
+            'preserva el orden y notifica una vez con el resultado final',
+        }),
+
+        Object.freeze({
+          input:
+            ' xy ',
+
+          expected:
+            Object.freeze({
+              resultado:
+                'XY!',
+              notificados:
+                Object.freeze([
+                  'XY!',
+                ]),
+            }),
+
+          call:
+            '(() => { const notificados = []; const resultado = ejecutarPipeline(input, texto => texto.trim().toUpperCase(), texto => texto + "!", valor => notificados.push(valor)); return { resultado, notificados }; })()',
+
+          description:
+            'acepta composiciones de cadenas sin depender de una solución concreta',
+        }),
+      ),
     ],
 
     [
@@ -1641,6 +1794,708 @@ const registry =
 
     [
       verifierKey(
+        'js-closures-loop-capture-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                Object.freeze([
+                  2,
+                  0,
+                  1,
+                  2,
+                ]),
+
+              call:
+                '(() => { const marcadores = crearMarcadores(); return [marcadores[2](), marcadores[0](), marcadores[1](), marcadores[2]()]; })()',
+
+              description:
+                'cada función conserva su binding aunque se invoquen fuera de orden',
+            }),
+
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                Object.freeze({
+                  allFunctions:
+                    true,
+
+                  independentArrays:
+                    true,
+
+                  independentFunctions:
+                    true,
+                }),
+
+              call:
+                "(() => { const a = crearMarcadores(); const b = crearMarcadores(); return { allFunctions: a.every((item) => typeof item === 'function'), independentArrays: a !== b, independentFunctions: a.every((item, index) => item !== b[index]) }; })()",
+
+              description:
+                'cada fábrica produce una colección nueva de funciones',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-closures-shared-state-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                Object.freeze([
+                  1,
+                  1,
+                  2,
+                  1,
+                  2,
+                  3,
+                ]),
+
+              call:
+                '(() => { const a = crearRegistro(); const b = crearRegistro(); const c = crearRegistro(); return [a(), b(), a(), c(), b(), a()]; })()',
+
+              description:
+                'aísla tres estados aun cuando sus llamadas se intercalan',
+            }),
+
+            Object.freeze({
+              input:
+                null,
+
+              expected:
+                Object.freeze([
+                  4,
+                  1,
+                ]),
+
+              call:
+                '(() => { const antiguo = crearRegistro(); antiguo(); antiguo(); antiguo(); const nuevo = crearRegistro(); return [antiguo(), nuevo()]; })()',
+
+              description:
+                'un registro tardío empieza desde cero sin reiniciar otro existente',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-finally-cleanup-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                false,
+
+              expected:
+                Object.freeze({
+                  bothClosed:
+                    true,
+
+                  distinctResources:
+                    true,
+                }),
+
+              call:
+                '(() => { const primero = ejecutar(input); const segundo = ejecutar(input); return { bothClosed: primero.cerrado && segundo.cerrado, distinctResources: primero !== segundo }; })()',
+
+              description:
+                'cada ejecución exitosa cierra su propio recurso',
+            }),
+
+            Object.freeze({
+              input:
+                true,
+
+              expected:
+                'Error|fallo',
+
+              call:
+                "(() => { try { ejecutar(input); return 'sin error'; } catch (error) { return error.name + '|' + error.message; } })()",
+
+              description:
+                'la limpieza no sustituye ni absorbe el error original',
+            }),
+          ]),
+
+        /*
+         * El contrato observable permite estrategias equivalentes
+         * a `finally`; el prompt no obliga a escribir esa palabra.
+         */
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-return-flow-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  nombre:
+                    'Lin',
+
+                  email:
+                    '',
+                }),
+
+              expected:
+                Object.freeze([
+                  'falta el email',
+                ]),
+
+              call:
+                'validar(input)',
+
+              description:
+                'detecta un email vacío con un nombre distinto a los ejemplos',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  nombre:
+                    false,
+
+                  email:
+                    0,
+                }),
+
+              expected:
+                Object.freeze([
+                  'falta el nombre',
+                  'falta el email',
+                ]),
+
+              call:
+                'validar(input)',
+
+              description:
+                'acumula ambos errores para valores ausentes representados por falsy',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-functions-scope-hoisting-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                100.5,
+
+              expected:
+                'avanzado',
+
+              call:
+                'nivel(input)',
+
+              description:
+                'clasifica un decimal por encima del umbral',
+            }),
+
+            Object.freeze({
+              input:
+                99.999,
+
+              expected:
+                'inicial',
+
+              call:
+                'nivel(input)',
+
+              description:
+                'clasifica un decimal justo por debajo del umbral',
+            }),
+
+            Object.freeze({
+              input:
+                -10,
+
+              expected:
+                'inicial',
+
+              call:
+                'nivel(input)',
+
+              description:
+                'clasifica valores negativos sin depender de los ejemplos públicos',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-variables-deepening-shadowing-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            '  Grace Hopper  ',
+          expected:
+            'Grace Hopper',
+          call:
+            'normalizarNombre(input)',
+          description:
+            'normaliza un nombre no publicado con espacio interior',
+        }),
+        Object.freeze({
+          input:
+            '   ',
+          expected:
+            'sin nombre',
+          call:
+            'normalizarNombre(input)',
+          description:
+            'trata una cadena formada por espacios como nombre vacío',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-variables-deepening-const-values-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze([
+              Object.freeze({
+                etiquetas:
+                  Object.freeze([
+                    'backend',
+                  ]),
+              }),
+              'testing',
+            ]),
+          expected:
+            Object.freeze({
+              values:
+                Object.freeze([
+                  'backend',
+                  'testing',
+                ]),
+              sameProfile:
+                true,
+              sameList:
+                true,
+            }),
+          call:
+            '(() => { const perfil = input[0]; const lista = perfil.etiquetas; const resultado = agregarEtiqueta(perfil, input[1]); return { values: resultado.etiquetas, sameProfile: resultado === perfil, sameList: resultado.etiquetas === lista }; })()',
+          description:
+            'mantiene ambas referencias con otros valores',
+        }),
+        Object.freeze({
+          input:
+            Object.freeze([
+              Object.freeze({
+                etiquetas:
+                  Object.freeze([
+                    'x',
+                    'y',
+                  ]),
+              }),
+              'x',
+            ]),
+          expected:
+            Object.freeze([
+              'x',
+              'y',
+              'x',
+            ]),
+          call:
+            'agregarEtiqueta(input[0], input[1]).etiquetas',
+          description:
+            'añade sin deduplicar ni sustituir la lista',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-variables-deepening-tdz-coercion-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze([
+              '7',
+              1.5,
+            ]),
+          expected:
+            10.5,
+          call:
+            'calcularTotal(...input)',
+          description:
+            'convierte una cantidad no publicada con precio decimal',
+        }),
+        Object.freeze({
+          input:
+            Object.freeze([
+              '-2',
+              4,
+            ]),
+          expected:
+            -8,
+          call:
+            'calcularTotal(...input)',
+          description:
+            'conserva el signo durante la conversión',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-variables-deepening-checkpoint-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze([
+              '100.5',
+              '-0.5',
+            ]),
+          expected:
+            100,
+          call:
+            'aplicarMovimiento(...input)',
+          description:
+            'combina saldos y movimientos decimales',
+        }),
+        Object.freeze({
+          input:
+            Object.freeze([
+              '-8',
+              '3.5',
+            ]),
+          expected:
+            -4.5,
+          call:
+            'aplicarMovimiento(...input)',
+          description:
+            'actualiza un saldo negativo sin hardcode',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-variables-mastery-nested-scopes-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze([
+              1,
+              Object.freeze([
+                2,
+                3,
+                4,
+              ]),
+            ]),
+          expected:
+            10,
+          call:
+            'aplicarAjustes(...input)',
+          description:
+            'acumula más ajustes que los ejemplos públicos',
+        }),
+        Object.freeze({
+          input:
+            Object.freeze([
+              2.5,
+              Object.freeze([
+                -1.5,
+                0,
+                3,
+              ]),
+            ]),
+          expected:
+            4,
+          call:
+            'aplicarAjustes(...input)',
+          description:
+            'combina decimales, cero y negativos',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-variables-mastery-aliasing-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze([
+              Object.freeze({
+                tema:
+                  'noche',
+                contador:
+                  0,
+                avisos:
+                  false,
+              }),
+              'día',
+            ]),
+          expected:
+            Object.freeze({
+              nextTheme:
+                'día',
+              originalTheme:
+                'noche',
+              counter:
+                0,
+              notifications:
+                false,
+              different:
+                true,
+            }),
+          call:
+            '(() => { const original = input[0]; const resultado = actualizarPreferencia(original, input[1]); return { nextTheme: resultado.tema, originalTheme: original.tema, counter: resultado.contador, notifications: resultado.avisos, different: resultado !== original }; })()',
+          description:
+            'preserva propiedades falsy y la entrada original',
+        }),
+        Object.freeze({
+          input:
+            Object.freeze([
+              Object.freeze({
+                tema:
+                  'rojo',
+                idioma:
+                  'ca',
+              }),
+              'azul',
+            ]),
+          expected:
+            Object.freeze({
+              tema:
+                'azul',
+              idioma:
+                'ca',
+            }),
+          call:
+            'actualizarPreferencia(input[0], input[1])',
+          description:
+            'conserva otra propiedad no publicada',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-variables-mastery-state-tracing-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze([
+              '5',
+              Object.freeze([
+                2,
+                '-3',
+                0.5,
+              ]),
+            ]),
+          expected:
+            Object.freeze({
+              inicial:
+                5,
+              final:
+                4.5,
+              diferencia:
+                -0.5,
+            }),
+          call:
+            'resumirCambios(...input)',
+          description:
+            'sigue cambios mixtos y decimales',
+        }),
+        Object.freeze({
+          input:
+            Object.freeze([
+              100,
+              Object.freeze([
+                -25,
+                -25,
+              ]),
+            ]),
+          expected:
+            Object.freeze({
+              inicial:
+                100,
+              final:
+                50,
+              diferencia:
+                -50,
+            }),
+          call:
+            'resumirCambios(...input)',
+          description:
+            'no confunde el estado inicial con el final',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        'js-variables-mastery-checkpoint-01',
+        'step-4',
+      ),
+
+      behaviorOnly(
+        Object.freeze({
+          input:
+            Object.freeze([
+              0,
+              '0',
+              false,
+            ]),
+          expected:
+            Object.freeze({
+              inicial:
+                0,
+              actual:
+                0,
+              diferencia:
+                0,
+              bloqueado:
+                false,
+            }),
+          call:
+            'construirResultado(...input)',
+          description:
+            'conserva ceros explícitos sin activar defaults',
+        }),
+        Object.freeze({
+          input:
+            Object.freeze([
+              1.5,
+              '2.5',
+              false,
+            ]),
+          expected:
+            Object.freeze({
+              inicial:
+                1.5,
+              actual:
+                4,
+              diferencia:
+                2.5,
+              bloqueado:
+                false,
+            }),
+          call:
+            'construirResultado(...input)',
+          description:
+            'aplica un cambio decimal no publicado',
+        }),
+        Object.freeze({
+          input:
+            Object.freeze([
+              9,
+              '100',
+              true,
+            ]),
+          expected:
+            Object.freeze({
+              inicial:
+                9,
+              actual:
+                9,
+              diferencia:
+                0,
+              bloqueado:
+                true,
+            }),
+          call:
+            'construirResultado(...input)',
+          description:
+            'ignora un cambio distinto cuando está bloqueado',
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
         'js-arrays-filter-mutation-01',
         'step-4',
       ),
@@ -1773,4 +2628,60 @@ function verifierKey(
   exerciseId: string,
 ): string {
   return `${sessionId}/${exerciseId}`;
+}
+
+function behaviorOnly(
+  ...hiddenTestCases:
+    readonly VerifierTestCase[]
+): PrivateVerifierConfig {
+  return Object.freeze({
+    hiddenTestCases:
+      Object.freeze([
+        ...hiddenTestCases,
+      ]),
+    pedagogicalRequirements:
+      Object.freeze([]),
+    oracle:
+      null,
+  });
+}
+
+function createPrivateVerifierRegistry(
+  entries:
+    readonly (
+      readonly [
+        string,
+        PrivateVerifierConfig,
+      ]
+    )[],
+): ReadonlyMap<
+  string,
+  PrivateVerifierConfig
+> {
+  const result =
+    new Map<
+      string,
+      PrivateVerifierConfig
+    >();
+
+  for (
+    const [
+      key,
+      config,
+    ]
+    of entries
+  ) {
+    if (result.has(key)) {
+      throw new Error(
+        `Private verifier duplicado: ${key}`,
+      );
+    }
+
+    result.set(
+      key,
+      config,
+    );
+  }
+
+  return result;
 }

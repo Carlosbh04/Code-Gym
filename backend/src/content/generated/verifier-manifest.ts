@@ -1364,6 +1364,76 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-closures-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "subir y leer comparten el mismo entorno."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Busca dónde nace el binding compartido."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-closures-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-closures",
+      "conceptId": "js-closure-basics",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "total no desaparece cuando crear termina."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Piensa en alcance léxico."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Cada closure tiene su propio n."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-closures-live-binding-01",
       "technologyId": "javascript",
       "topicId": "js-closures",
@@ -1412,7 +1482,7 @@ export const verifierManifest = {
             {
               "input": null,
               "expected": "100 EUR",
-              "call": "(() => { const p = crearPrecio(100); moneda = 'USD'; return p(); })()",
+              "call": "(() => { moneda = 'EUR'; const p = crearPrecio(100); moneda = 'USD'; return p(); })()",
               "description": "un precio creado no cambia de divisa si la moneda se reasigna después"
             },
             {
@@ -1424,13 +1494,13 @@ export const verifierManifest = {
             {
               "input": null,
               "expected": "50 EUR",
-              "call": "(() => { const p = crearPrecio(50); return p(); })()",
+              "call": "(() => { moneda = 'EUR'; const p = crearPrecio(50); return p(); })()",
               "description": "sin reasignaciones devuelve la moneda vigente"
             },
             {
               "input": null,
               "expected": "100 EUR|100 EUR",
-              "call": "(() => { const p = crearPrecio(100); return p() + '|' + p(); })()",
+              "call": "(() => { moneda = 'EUR'; const p = crearPrecio(100); return p() + '|' + p(); })()",
               "description": "las llamadas repetidas dan siempre el mismo precio"
             }
           ],
@@ -1766,6 +1836,76 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-errors-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue el flujo try → catch → finally."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "La limpieza no debe depender del camino tomado."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "No estás capturando el error: lo estás originando."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "El throw ocurre dentro del try."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Piensa en liberar recursos."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-errors-throw-validation-01",
       "technologyId": "javascript",
       "topicId": "js-errors",
@@ -1945,6 +2085,76 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-es6-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "resto contiene edad."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "La sustitución solo debe ocurrir con null o undefined."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-es6-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-es6-plus",
+      "conceptId": "js-es6-modern-syntax",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Observa la propiedad incluida entre llaves."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Es la misma sintaxis de tres puntos usada según contexto."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "0 es falsy, pero no es nullish."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-es6-nullish-defaults-01",
       "technologyId": "javascript",
       "topicId": "js-es6-plus",
@@ -2092,7 +2302,7 @@ export const verifierManifest = {
       "topicId": "js-functions",
       "conceptId": "js-function-basics",
       "status": "published",
-      "totalExercises": 1,
+      "totalExercises": 4,
       "steps": [
         {
           "id": "step-1",
@@ -2121,6 +2331,105 @@ export const verifierManifest = {
             "trim elimina espacios externos.",
             "Devuelve una sola cadena."
           ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El llamador recibe un valor, no el binding local."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La segunda llamada usa el parámetro por defecto."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "La última línea necesita entregar su resultado al llamador."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-deepening-callbacks-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "operacion es un parámetro cuyo valor es una función."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sustituye operacion por cuadrado."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "El callback necesita una llamada."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": 4,
+              "expected": 12,
+              "call": "aplicarOperacion(input, numero => numero * 3)",
+              "description": "ejecuta una transformación numérica"
+            },
+            {
+              "input": -2,
+              "expected": 2,
+              "call": "aplicarOperacion(input, numero => Math.abs(numero))",
+              "description": "admite un callback alternativo"
+            },
+            {
+              "input": " ada ",
+              "expected": "ADA",
+              "call": "aplicarOperacion(input, texto => texto.trim().toUpperCase())",
+              "description": "funciona con otro tipo de entrada y transformación"
+            }
+          ],
+          "hints": [
+            "Llama a operacion pasando valor."
+          ]
         }
       ]
     },
@@ -2130,7 +2439,7 @@ export const verifierManifest = {
       "topicId": "js-functions",
       "conceptId": "js-function-basics",
       "status": "published",
-      "totalExercises": 1,
+      "totalExercises": 4,
       "steps": [
         {
           "id": "step-1",
@@ -2153,6 +2462,37 @@ export const verifierManifest = {
             "Revisa entradas, ámbito y retorno.",
             "Comprueba los casos límite incluidos en los tests."
           ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sustituye callback por incrementar."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Evalúa las condiciones en orden."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Nada se ejecuta después de return."
+          ]
         }
       ]
     },
@@ -2162,7 +2502,7 @@ export const verifierManifest = {
       "topicId": "js-functions",
       "conceptId": "js-function-basics",
       "status": "published",
-      "totalExercises": 1,
+      "totalExercises": 5,
       "steps": [
         {
           "id": "step-1",
@@ -2172,6 +2512,46 @@ export const verifierManifest = {
           ],
           "hints": [
             "Revisa el contrato del nivel antes de responder."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La función resuelve primero el nombre más cercano."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No hay paréntesis después de duplicar en la llamada exterior."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Evalúa primero callback(valor)."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Distingue mutar el objeto de reasignar el parámetro."
           ]
         }
       ]
@@ -2275,7 +2655,7 @@ export const verifierManifest = {
       "topicId": "js-functions",
       "conceptId": "js-function-basics",
       "status": "published",
-      "totalExercises": 1,
+      "totalExercises": 4,
       "steps": [
         {
           "id": "step-1",
@@ -2303,6 +2683,37 @@ export const verifierManifest = {
             "Revisa entradas, ámbito y retorno.",
             "Comprueba los casos límite incluidos en los tests."
           ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El argumento extra se omite."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No aparecen paréntesis tras saludar."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "El resultado debe salir de la función."
+          ]
         }
       ]
     },
@@ -2312,7 +2723,7 @@ export const verifierManifest = {
       "topicId": "js-functions",
       "conceptId": "js-function-basics",
       "status": "published",
-      "totalExercises": 1,
+      "totalExercises": 5,
       "steps": [
         {
           "id": "step-1",
@@ -2323,6 +2734,114 @@ export const verifierManifest = {
           "hints": [
             "Revisa el contrato del nivel antes de responder."
           ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Un parámetro por defecto solo sustituye undefined."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Busca qué expresión incluye la llamada ()."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue el valor del parámetro dentro de la plantilla."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Observa dónde se declaran ambos nombres."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-foundation-reference-execution-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La expresión contiene una llamada ()."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Asignar una función no impide llamarla después."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            6
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Faltan los paréntesis y el argumento."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": "Ada",
+              "expected": "Hola, Ada",
+              "call": "crearSaludo(input)",
+              "description": "saluda con el nombre recibido"
+            },
+            {
+              "input": "Lin",
+              "expected": "Hola, Lin",
+              "call": "crearSaludo(input)",
+              "description": "funciona con otro nombre"
+            },
+            {
+              "input": null,
+              "expected": "Hola, Invitado",
+              "call": "crearSaludo(undefined)",
+              "description": "usa el valor por defecto cuando el argumento es undefined"
+            }
+          ],
+          "hints": [
+            "Ejecuta formatear con el parámetro nombre."
+          ]
         }
       ]
     },
@@ -2332,7 +2851,7 @@ export const verifierManifest = {
       "topicId": "js-functions",
       "conceptId": "js-function-basics",
       "status": "published",
-      "totalExercises": 1,
+      "totalExercises": 4,
       "steps": [
         {
           "id": "step-1",
@@ -2364,6 +2883,37 @@ export const verifierManifest = {
             "Revisa entradas, ámbito y retorno.",
             "Comprueba los casos límite incluidos en los tests."
           ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El orden de los callbacks forma parte del contrato."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Mira el return de procesar, no el de registrar."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "La segunda llamada produce el valor que debería devolverse."
+          ]
         }
       ]
     },
@@ -2373,7 +2923,7 @@ export const verifierManifest = {
       "topicId": "js-functions",
       "conceptId": "js-function-basics",
       "status": "published",
-      "totalExercises": 1,
+      "totalExercises": 4,
       "steps": [
         {
           "id": "step-1",
@@ -2410,6 +2960,37 @@ export const verifierManifest = {
             "Haz explícito el contrato de entrada y salida.",
             "No sustituyas valores válidos por accidente."
           ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Elige dos resultados intencionales y compatibles con el contrato."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La primera condición se cumple."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            5
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Sigue la ejecución cuando activo vale false."
+          ]
         }
       ]
     },
@@ -2419,7 +3000,7 @@ export const verifierManifest = {
       "topicId": "js-functions",
       "conceptId": "js-function-basics",
       "status": "published",
-      "totalExercises": 1,
+      "totalExercises": 4,
       "steps": [
         {
           "id": "step-1",
@@ -2451,6 +3032,114 @@ export const verifierManifest = {
             "Haz explícito el contrato de entrada y salida.",
             "No sustituyas valores válidos por accidente."
           ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El contrato distingue ausencia de falsy."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Ninguno de los argumentos es undefined."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "logico",
+          "hints": [
+            "El default debe aplicarse solo ante undefined."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-functions-mastery-pipeline-effects-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue el valor guardado en intermedio."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El return principal usa resultado."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Separa la llamada a notificar del return."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": 2,
+              "expected": 7,
+              "call": "ejecutarPipeline(input, numero => numero * 3, numero => numero + 1, () => undefined)",
+              "description": "respeta el orden de las transformaciones"
+            },
+            {
+              "input": " ada ",
+              "expected": "ADA",
+              "call": "ejecutarPipeline(input, texto => texto.trim(), texto => texto.toUpperCase(), () => undefined)",
+              "description": "compone funciones con otro tipo de entrada"
+            },
+            {
+              "input": -4,
+              "expected": {
+                "resultado": {
+                  "valor": 4
+                },
+                "eventos": [
+                  {
+                    "valor": 4
+                  }
+                ]
+              },
+              "call": "(() => { const eventos = []; const resultado = ejecutarPipeline(input, numero => Math.abs(numero), numero => ({ valor: numero }), valor => eventos.push(valor)); return { resultado, eventos }; })()",
+              "description": "notifica una vez con el mismo resultado que devuelve"
+            }
+          ],
+          "hints": [
+            "Guarda segundo(primero(valor)), notifícalo y luego devuélvelo."
+          ]
         }
       ]
     },
@@ -2460,7 +3149,7 @@ export const verifierManifest = {
       "topicId": "js-functions",
       "conceptId": "js-function-basics",
       "status": "published",
-      "totalExercises": 1,
+      "totalExercises": 5,
       "steps": [
         {
           "id": "step-1",
@@ -2470,6 +3159,46 @@ export const verifierManifest = {
           ],
           "hints": [
             "Revisa el contrato del nivel antes de responder."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue la primera condición con activo igual a false."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Conecta los retornos, no los nombres de las funciones."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Observa qué expresión aparece en el return de ejecutar."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Revisa el camino en el que encontrado es undefined."
           ]
         }
       ]
@@ -2766,6 +3495,76 @@ export const verifierManifest = {
           "hints": [
             "campo contiene el nombre real.",
             "Usa corchetes."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "original y copia ya no son el mismo contenedor."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Distingue el contenedor externo del objeto anidado."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-objects-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-objects",
+      "conceptId": "js-object-references",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "No se creó una copia."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "El punto buscaría literalmente la propiedad clave."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Cada elemento contiene dos posiciones."
           ]
         }
       ]
@@ -3135,6 +3934,76 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-promises-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Cada then recibe el retorno anterior."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "catch también puede producir el valor siguiente."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Sigue la cadena de izquierda a derecha."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Después del catch la promesa vuelve a estar resuelta."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "La espera afecta al flujo de esa función async."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-variables-basics-01",
       "technologyId": "javascript",
       "topicId": "js-fundamentals",
@@ -3193,6 +4062,887 @@ export const verifierManifest = {
           "hints": [
             "Empieza a partir del valor recibido en inicial.",
             "El resultado debe ser exactamente una unidad mayor."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El saldo debe sobrevivir al bloque."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "La asignación de un objeto no crea una copia."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "scope",
+          "hints": [
+            "No necesitas declarar otro saldo."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                "100",
+                "25"
+              ],
+              "expected": 125,
+              "call": "aplicarMovimiento(...input)",
+              "description": "suma dos valores recibidos como texto"
+            },
+            {
+              "input": [
+                "10",
+                "-3"
+              ],
+              "expected": 7,
+              "call": "aplicarMovimiento(...input)",
+              "description": "aplica un movimiento negativo"
+            },
+            {
+              "input": [
+                "8",
+                ""
+              ],
+              "expected": 8,
+              "call": "aplicarMovimiento(...input)",
+              "description": "mantiene el saldo si no hay movimiento"
+            }
+          ],
+          "hints": [
+            "El binding que se devuelve ya existe fuera del bloque."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-deepening-const-values-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Mutar el array no sustituye la referencia guardada en lista."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "const protege el binding, no todas las propiedades."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "assignment",
+          "hints": [
+            "push muta; concat devuelve otra referencia."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                {
+                  "etiquetas": [
+                    "js"
+                  ]
+                },
+                "web"
+              ],
+              "expected": {
+                "etiquetas": [
+                  "js",
+                  "web"
+                ],
+                "mismoPerfil": true,
+                "mismaLista": true
+              },
+              "call": "(() => { const perfil = input[0]; const lista = perfil.etiquetas; const resultado = agregarEtiqueta(perfil, input[1]); return { etiquetas: resultado.etiquetas, mismoPerfil: resultado === perfil, mismaLista: resultado.etiquetas === lista }; })()",
+              "description": "muta la lista existente sin cambiar referencias"
+            },
+            {
+              "input": [
+                {
+                  "etiquetas": []
+                },
+                "api"
+              ],
+              "expected": [
+                "api"
+              ],
+              "call": "agregarEtiqueta(input[0], input[1]).etiquetas",
+              "description": "funciona con una lista vacía"
+            },
+            {
+              "input": [
+                {
+                  "etiquetas": [
+                    "a",
+                    "a"
+                  ]
+                },
+                "b"
+              ],
+              "expected": [
+                "a",
+                "a",
+                "b"
+              ],
+              "call": "agregarEtiqueta(input[0], input[1]).etiquetas",
+              "description": "conserva valores previos y duplicados"
+            }
+          ],
+          "hints": [
+            "La referencia debe seguir siendo la misma."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Observa las llaves que rodean la declaración."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Hay dos bindings diferentes llamados estado."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Distingue ajustes = otroObjeto de ajustes.volumen = 3."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Comprueba el tipo de cantidad."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "let no se comporta como una lectura de var antes de inicializar."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-deepening-shadowing-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Busca la declaración más cercana al lugar de la asignación."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El binding interior deja de existir al cerrar el bloque."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "scope",
+          "hints": [
+            "La línea problemática repite una declaración existente."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": "  Ada  ",
+              "expected": "Ada",
+              "call": "normalizarNombre(input)",
+              "description": "elimina espacios externos"
+            },
+            {
+              "input": "",
+              "expected": "sin nombre",
+              "call": "normalizarNombre(input)",
+              "description": "usa fallback para una cadena vacía"
+            },
+            {
+              "input": "Lin",
+              "expected": "Lin",
+              "call": "normalizarNombre(input)",
+              "description": "conserva un nombre ya normalizado"
+            }
+          ],
+          "hints": [
+            "Dentro del if necesitas actualizar el binding que se devuelve."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-deepening-tdz-coercion-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El dato original procede de texto."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "La declaración aparece después de la lectura."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "temporal-dead-zone",
+          "hints": [
+            "Sigue el orden real de ejecución."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                "3",
+                10
+              ],
+              "expected": 30,
+              "call": "calcularTotal(...input)",
+              "description": "convierte una cantidad entera"
+            },
+            {
+              "input": [
+                "0",
+                5
+              ],
+              "expected": 0,
+              "call": "calcularTotal(...input)",
+              "description": "conserva el cero"
+            },
+            {
+              "input": [
+                "2.5",
+                4
+              ],
+              "expected": 10,
+              "call": "calcularTotal(...input)",
+              "description": "admite una cantidad decimal"
+            }
+          ],
+          "hints": [
+            "Ningún binding let o const puede leerse antes de inicializarse."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "La clave es que el valor cambiará."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Calcula primero el nuevo valor de puntos."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Piensa en la intención que comunica cada declaración."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Observa la última asignación."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Fíjate en cómo se declaró edad."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-mastery-aliasing-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Spread crea el objeto de primer nivel."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "No aparece ninguna operación de copia."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "shared-reference",
+          "hints": [
+            "Comprueba la identidad de ambas referencias."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                {
+                  "tema": "claro",
+                  "idioma": "es"
+                },
+                "oscuro"
+              ],
+              "expected": {
+                "temaNuevo": "oscuro",
+                "temaOriginal": "claro",
+                "idioma": "es",
+                "referenciaNueva": true
+              },
+              "call": "(() => { const original = input[0]; const resultado = actualizarPreferencia(original, input[1]); return { temaNuevo: resultado.tema, temaOriginal: original.tema, idioma: resultado.idioma, referenciaNueva: resultado !== original }; })()",
+              "description": "crea otra referencia y conserva propiedades"
+            },
+            {
+              "input": [
+                {
+                  "tema": "azul",
+                  "compacto": false
+                },
+                "verde"
+              ],
+              "expected": {
+                "tema": "verde",
+                "compacto": false
+              },
+              "call": "actualizarPreferencia(input[0], input[1])",
+              "description": "conserva valores falsy del objeto"
+            },
+            {
+              "input": [
+                {
+                  "tema": "uno"
+                },
+                "uno"
+              ],
+              "expected": true,
+              "call": "actualizarPreferencia(input[0], input[1]) !== input[0]",
+              "description": "crea otra referencia aunque el valor coincida"
+            }
+          ],
+          "hints": [
+            "El resultado debe tener identidad distinta al objeto recibido."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Separa cálculo y construcción del resultado."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Sigue cada referencia por separado."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "scope",
+          "hints": [
+            "El estado que debe devolverse se declaró antes del if."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                "10",
+                "5",
+                false
+              ],
+              "expected": {
+                "inicial": 10,
+                "actual": 15,
+                "diferencia": 5,
+                "bloqueado": false
+              },
+              "call": "construirResultado(...input)",
+              "description": "aplica un cambio permitido"
+            },
+            {
+              "input": [
+                10,
+                "5",
+                true
+              ],
+              "expected": {
+                "inicial": 10,
+                "actual": 10,
+                "diferencia": 0,
+                "bloqueado": true
+              },
+              "call": "construirResultado(...input)",
+              "description": "conserva el estado cuando está bloqueado"
+            },
+            {
+              "input": [
+                "-2",
+                "-3",
+                false
+              ],
+              "expected": {
+                "inicial": -2,
+                "actual": -5,
+                "diferencia": -3,
+                "bloqueado": false
+              },
+              "call": "construirResultado(...input)",
+              "description": "maneja valores negativos"
+            }
+          ],
+          "hints": [
+            "Dentro del if necesitas una asignación al actual exterior."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-mastery-nested-scopes-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El return está fuera del bloque."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Solo dos valores superan la condición."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "scope",
+          "hints": [
+            "El acumulador ya fue declarado antes del bucle."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                100,
+                [
+                  10,
+                  -5
+                ]
+              ],
+              "expected": 105,
+              "call": "aplicarAjustes(...input)",
+              "description": "aplica ajustes positivos y negativos"
+            },
+            {
+              "input": [
+                "20",
+                [
+                  0,
+                  "3",
+                  -8
+                ]
+              ],
+              "expected": 15,
+              "call": "aplicarAjustes(...input)",
+              "description": "convierte valores textuales y conserva cero"
+            },
+            {
+              "input": [
+                -4,
+                []
+              ],
+              "expected": -4,
+              "call": "aplicarAjustes(...input)",
+              "description": "mantiene la base sin ajustes"
+            }
+          ],
+          "hints": [
+            "Dentro del if debe haber una asignación, no otra declaración."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Cuenta declaraciones, no asignaciones."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Compara qué asignación crea un objeto nuevo."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El binding debe sobrevivir a cada bloque."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "c"
+          ],
+          "hints": [
+            "Aplica los cambios en orden."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Hay dos declaraciones con el mismo nombre."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-variables-mastery-state-tracing-01",
+      "technologyId": "javascript",
+      "topicId": "js-fundamentals",
+      "conceptId": "js-variables-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "b"
+          ],
+          "hints": [
+            "Solo una declaración usa let."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Conserva separado el valor inicial."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            4
+          ],
+          "errorType": "scope",
+          "hints": [
+            "El estado que se devuelve ya existe antes del bucle."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                "10",
+                [
+                  "2",
+                  -1,
+                  4
+                ]
+              ],
+              "expected": {
+                "inicial": 10,
+                "final": 15,
+                "diferencia": 5
+              },
+              "call": "resumirCambios(...input)",
+              "description": "aplica varios cambios en orden"
+            },
+            {
+              "input": [
+                -5,
+                []
+              ],
+              "expected": {
+                "inicial": -5,
+                "final": -5,
+                "diferencia": 0
+              },
+              "call": "resumirCambios(...input)",
+              "description": "resume correctamente sin cambios"
+            },
+            {
+              "input": [
+                0,
+                [
+                  1.5,
+                  2.5
+                ]
+              ],
+              "expected": {
+                "inicial": 0,
+                "final": 4,
+                "diferencia": 4
+              },
+              "call": "resumirCambios(...input)",
+              "description": "conserva cambios decimales"
+            }
+          ],
+          "hints": [
+            "No declares final dentro del bucle."
           ]
         }
       ]

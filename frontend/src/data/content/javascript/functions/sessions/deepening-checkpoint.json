@@ -2,7 +2,7 @@
   "id": "js-functions-deepening-checkpoint-01",
   "title": "Checkpoint: ámbito y flujo",
   "difficulty": "intermediate",
-  "position": 3,
+  "position": 4,
   "kind": "checkpoint",
   "levelId": "deepening",
   "passingPercentage": null,
@@ -44,6 +44,61 @@
         "Comprueba los casos límite incluidos en los tests."
       ],
       "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve ejecutar(4, incrementar)?",
+      "code": "function ejecutar(valor, callback) {\n  return callback(valor);\n}\n\nfunction incrementar(numero) {\n  return numero + 1;\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "5", "correct": true },
+        { "id": "b", "text": "4", "correct": false },
+        { "id": "c", "text": "La función incrementar", "correct": false },
+        { "id": "d", "text": "undefined", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "ejecutar llama al callback con el valor recibido y devuelve su resultado.",
+      "hints": ["Sustituye callback por incrementar."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve clasificar(0)?",
+      "code": "function clasificar(numero) {\n  if (numero < 0) return 'negativo';\n  if (numero === 0) return 'cero';\n  return 'positivo';\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "cero", "correct": true },
+        { "id": "b", "text": "negativo", "correct": false },
+        { "id": "c", "text": "positivo", "correct": false },
+        { "id": "d", "text": "undefined", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El primer early return no se ejecuta; el segundo resuelve el caso cero.",
+      "hints": ["Evalúa las condiciones en orden."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "El callback nunca llega a ejecutarse. Localiza la salida prematura.",
+      "code": "function procesar(valor, callback) {\n  return valor;\n  return callback(valor);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [2],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El primer return termina la llamada y vuelve inalcanzable la ejecución del callback.",
+      "hints": ["Nada se ejecuta después de return."],
+      "stepOrder": 4
     }
   ]
 }

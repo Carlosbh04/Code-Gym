@@ -58,6 +58,61 @@
         "No sustituyas valores válidos por accidente."
       ],
       "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "code-reading",
+      "prompt": "¿Qué contrato de retorno es más previsible para una búsqueda?",
+      "code": null,
+      "language": null,
+      "options": [
+        { "id": "a", "text": "Devolver el elemento o null", "correct": true },
+        { "id": "b", "text": "Devolver el elemento, false o undefined según la rama", "correct": false },
+        { "id": "c", "text": "Imprimir el elemento sin devolverlo", "correct": false },
+        { "id": "d", "text": "Devolver siempre true", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Un caso de ausencia explícito evita que el llamador tenga que adivinar entre varios resultados accidentales.",
+      "hints": ["Elige dos resultados intencionales y compatibles con el contrato."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve resolver(-1)?",
+      "code": "function resolver(valor) {\n  if (valor < 0) return { ok: false, valor: null };\n  return { ok: true, valor };\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "{ ok: false, valor: null }", "correct": true },
+        { "id": "b", "text": "false", "correct": false },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": "{ ok: true, valor: -1 }", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La guard clause devuelve un objeto con la misma forma que el camino exitoso.",
+      "hints": ["La primera condición se cumple."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "find-error",
+      "prompt": "La función promete un resultado para cualquier estado, pero uno de los caminos devuelve undefined. Localiza la causa.",
+      "code": "function etiqueta(activo) {\n  if (activo) {\n    return 'activo';\n  }\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": [5],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Al terminar la función sin otro return, el camino false produce undefined accidentalmente.",
+      "hints": ["Sigue la ejecución cuando activo vale false."],
+      "stepOrder": 4
     }
   ]
 }

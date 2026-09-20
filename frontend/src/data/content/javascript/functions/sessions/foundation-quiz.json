@@ -51,6 +51,86 @@
         "Revisa el contrato del nivel antes de responder."
       ],
       "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime el programa?",
+      "code": "function sumar(a, b = 1) {\n  return a + b;\n}\n\nconsole.log(sumar(4));\nconsole.log(sumar(4, 0));",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "5 y 4", "correct": true },
+        { "id": "b", "text": "5 y 5", "correct": false },
+        { "id": "c", "text": "4 y 4", "correct": false },
+        { "id": "d", "text": "undefined y 4", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La primera llamada activa el valor por defecto. La segunda conserva 0 porque es un argumento explícito.",
+      "hints": ["Un parámetro por defecto solo sustituye undefined."],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "code-reading",
+      "prompt": "¿Qué guarda cada constante?",
+      "code": "function obtenerNumero() {\n  return 7;\n}\n\nconst a = obtenerNumero;\nconst b = obtenerNumero();",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "a guarda la función y b guarda 7", "correct": true },
+        { "id": "b", "text": "a y b guardan 7", "correct": false },
+        { "id": "c", "text": "a guarda 7 y b guarda la función", "correct": false },
+        { "id": "d", "text": "Ambas líneas lanzan un error", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Sin paréntesis se conserva la referencia; con paréntesis se ejecuta la función y se guarda su retorno.",
+      "hints": ["Busca qué expresión incluye la llamada ()."],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime la llamada?",
+      "code": "function describir(valor) {\n  const etiqueta = `valor:${valor}`;\n  return etiqueta;\n}\n\nconsole.log(describir('A'));",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "valor:A", "correct": true },
+        { "id": "b", "text": "etiqueta", "correct": false },
+        { "id": "c", "text": "undefined", "correct": false },
+        { "id": "d", "text": "ReferenceError", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El parámetro valor y la variable local etiqueta existen durante la llamada; return entrega la cadena creada.",
+      "hints": ["Sigue el valor del parámetro dentro de la plantilla."],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "code-reading",
+      "prompt": "¿Qué afirmación describe correctamente este código?",
+      "code": "function crearMensaje(nombre) {\n  const mensaje = `Hola, ${nombre}`;\n  return mensaje;\n}",
+      "language": "javascript",
+      "options": [
+        { "id": "a", "text": "nombre y mensaje solo existen dentro de la función", "correct": true },
+        { "id": "b", "text": "mensaje queda disponible globalmente", "correct": false },
+        { "id": "c", "text": "nombre solo existe antes de ejecutar la función", "correct": false },
+        { "id": "d", "text": "return convierte mensaje en una variable global", "correct": false }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los parámetros y las variables locales pertenecen al ámbito de la función.",
+      "hints": ["Observa dónde se declaran ambos nombres."],
+      "stepOrder": 5
     }
   ]
 }
