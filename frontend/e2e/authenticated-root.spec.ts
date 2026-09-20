@@ -18,6 +18,22 @@ test('la raíz autenticada renderiza la Home canónica para un usuario nuevo', a
     ['SQL', '/tech/sql'],
   ] as const;
 
+  await expect(
+    page.getByRole(
+      'link',
+      {
+        name:
+          /^Comenzar /,
+      },
+    ),
+  ).toHaveCount(
+    technologyLinks.length,
+    {
+      timeout:
+        15_000,
+    },
+  );
+
   for (const [name, href] of technologyLinks) {
     await expect(page.getByRole('link', { name: `Comenzar ${name}` }))
       .toHaveAttribute('href', href);

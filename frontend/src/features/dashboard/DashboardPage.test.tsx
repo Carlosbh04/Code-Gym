@@ -283,7 +283,7 @@ describe('DashboardPage', () => {
         );
 
         expect(
-          screen.getByRole(
+          await screen.findByRole(
             'link',
             {
               name:
