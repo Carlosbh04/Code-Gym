@@ -157,31 +157,31 @@ function ReviewHubPage() {
   // REVIEW_CANONICAL_PRACTICE_GATE
   useEffect(
     () => {
-      if (
-        model === null
-      ) {
-        setPracticeAccess({
-          status:
-            'idle',
-          sessionIds:
-            new Set(),
-        });
-
-        return;
-      }
-
       let active =
         true;
 
+      if (
+        model === null
+      ) {
+        void Promise.resolve().then(() => {
+          if (active) {
+            setPracticeAccess({
+              status:
+                'idle',
+              sessionIds:
+                new Set(),
+            });
+          }
+        });
+
+        return () => {
+          active =
+            false;
+        };
+      }
+
       const sessions =
         model.recommendedSessions;
-
-      setPracticeAccess({
-        status:
-          'checking',
-        sessionIds:
-          new Set(),
-      });
 
       const verify =
         async () => {
@@ -304,7 +304,20 @@ function ReviewHubPage() {
           });
         };
 
-      void verify();
+      void Promise.resolve().then(() => {
+        if (!active) {
+          return;
+        }
+
+        setPracticeAccess({
+          status:
+            'checking',
+          sessionIds:
+            new Set(),
+        });
+
+        return verify();
+      });
 
       return () => {
         active =

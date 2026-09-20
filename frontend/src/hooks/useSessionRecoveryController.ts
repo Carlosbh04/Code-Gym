@@ -356,14 +356,16 @@ export function useSessionRecoveryController({
     completionCleanupAttempted.current = true;
     pendingOperation.current = 'clear';
 
-    try {
-      store.clear();
-      pendingOperation.current = null;
-      persistencePaused.current = false;
-      setWarning(null);
-    } catch (reason: unknown) {
-      reportStorageFailure(reason, 'clear');
-    }
+    void Promise.resolve().then(() => {
+      try {
+        store.clear();
+        pendingOperation.current = null;
+        persistencePaused.current = false;
+        setWarning(null);
+      } catch (reason: unknown) {
+        reportStorageFailure(reason, 'clear');
+      }
+    });
   }, [reportStorageFailure, state.isComplete, store]);
 
   const continueRecovery = useCallback(() => {

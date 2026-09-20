@@ -1,12 +1,15 @@
 import {
-  createContext,
   type ReactNode,
   useCallback,
-  useContext,
   useMemo,
   useRef,
   useState,
 } from 'react';
+
+import {
+  LogoutTransitionContext,
+  type LogoutTransitionContextValue,
+} from './logout-transition-context';
 
 import './logout-transition.css';
 
@@ -17,19 +20,6 @@ type LogoutTransitionPhase =
   | 'idle'
   | 'exiting'
   | 'farewell';
-
-interface LogoutTransitionContextValue {
-  readonly active: boolean;
-  runLogoutTransition(
-    logoutAction: () => Promise<void>,
-    onFinished?: () => void,
-  ): Promise<void>;
-}
-
-const LogoutTransitionContext =
-  createContext<LogoutTransitionContextValue | null>(
-    null,
-  );
 
 function wait(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
@@ -188,18 +178,4 @@ export function LogoutTransitionProvider({
       )}
     </LogoutTransitionContext.Provider>
   );
-}
-
-export function useLogoutTransition():
-LogoutTransitionContextValue {
-  const context =
-    useContext(LogoutTransitionContext);
-
-  if (context === null) {
-    throw new Error(
-      'useLogoutTransition must be used within LogoutTransitionProvider',
-    );
-  }
-
-  return context;
 }

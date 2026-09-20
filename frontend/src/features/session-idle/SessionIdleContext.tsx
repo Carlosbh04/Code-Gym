@@ -1,7 +1,5 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -26,6 +24,11 @@ import {
   SessionIdleModal,
 } from './SessionIdleModal';
 
+import {
+  SessionIdleContext,
+  type SessionIdleContextValue,
+} from './session-idle-context';
+
 const IDLE_TIMEOUT_MS =
   15 * 60 * 1_000;
 
@@ -49,27 +52,6 @@ type ActivitySyncResult =
   | 'synchronized'
   | 'retryable-failure'
   | 'session-ended';
-
-
-interface SessionIdleContextValue {
-  readonly warningOpen: boolean;
-
-  readonly secondsRemaining: number;
-
-  readonly continuePending: boolean;
-
-  continueSession():
-    Promise<void>;
-
-  closeSession():
-    Promise<void>;
-}
-
-
-const SessionIdleContext =
-  createContext<
-    SessionIdleContextValue | null
-  >(null);
 
 
 interface SessionIdleProviderProps {
@@ -106,12 +88,12 @@ export function SessionIdleProvider({
 
   const lastHumanActivityRef =
     useRef(
-      Date.now(),
+      0,
     );
 
   const lastHeartbeatRef =
     useRef(
-      Date.now(),
+      0,
     );
 
   const warningOpenRef =
@@ -521,6 +503,9 @@ export function SessionIdleProvider({
 
   useEffect(
     () => {
+      let active =
+        true;
+
       if (
         status !==
           'authenticated'
@@ -544,15 +529,24 @@ export function SessionIdleProvider({
             null;
         }
 
-        setWarningOpen(
-          false,
-        );
+        void Promise.resolve().then(() => {
+          if (!active) {
+            return;
+          }
 
-        setSecondsRemaining(
-          WARNING_SECONDS,
-        );
+          setWarningOpen(
+            false,
+          );
 
-        return;
+          setSecondsRemaining(
+            WARNING_SECONDS,
+          );
+        });
+
+        return () => {
+          active =
+            false;
+        };
       }
 
       sessionEndingRef.current =
@@ -570,13 +564,19 @@ export function SessionIdleProvider({
       warningOpenRef.current =
         false;
 
-      setWarningOpen(
-        false,
-      );
+      void Promise.resolve().then(() => {
+        if (!active) {
+          return;
+        }
 
-      setSecondsRemaining(
-        WARNING_SECONDS,
-      );
+        setWarningOpen(
+          false,
+        );
+
+        setSecondsRemaining(
+          WARNING_SECONDS,
+        );
+      });
 
 
       const handleHumanActivity =
@@ -716,6 +716,9 @@ export function SessionIdleProvider({
 
 
       return () => {
+        active =
+          false;
+
         window.clearInterval(
           timer,
         );
@@ -755,6 +758,7 @@ export function SessionIdleProvider({
       };
     },
     [
+      accessToken,
       endSession,
       scheduleTrailingHeartbeat,
       status,
@@ -807,21 +811,4 @@ export function SessionIdleProvider({
       />
     </SessionIdleContext.Provider>
   );
-}
-
-
-export function useSessionIdle():
-SessionIdleContextValue {
-  const context =
-    useContext(
-      SessionIdleContext,
-    );
-
-  if (context === null) {
-    throw new Error(
-      'useSessionIdle must be used within SessionIdleProvider',
-    );
-  }
-
-  return context;
 }

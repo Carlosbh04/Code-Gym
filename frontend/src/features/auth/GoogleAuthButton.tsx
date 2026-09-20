@@ -44,11 +44,19 @@ export function GoogleAuthButton({
   ] =
     useState(false);
 
-  callbackRef.current =
-    onCredential;
+  useEffect(
+    () => {
+      callbackRef.current =
+        onCredential;
 
-  errorRef.current =
-    onError;
+      errorRef.current =
+        onError;
+    },
+    [
+      onCredential,
+      onError,
+    ],
+  );
 
   useEffect(
     () => {

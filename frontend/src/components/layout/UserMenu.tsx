@@ -39,7 +39,7 @@ const SECONDARY_MENU_ITEMS: readonly SecondaryMenuItem[] = [
 
 import {
   useLogoutTransition,
-} from '@/features/logout-transition/LogoutTransitionContext';
+} from '@/features/logout-transition/useLogoutTransition';
 
 export function UserMenu() {
   const { user, logout } = useAuth();

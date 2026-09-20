@@ -462,9 +462,7 @@ export function AuthPanel({
       }
     };
 
-  const handleGoogleError = (
-    _error: Error,
-  ) => {
+  const handleGoogleError = () => {
     setNotice(
       'No se pudo iniciar Google. Inténtalo de nuevo.',
     );

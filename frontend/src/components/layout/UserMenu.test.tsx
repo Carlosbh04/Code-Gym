@@ -32,7 +32,7 @@ vi.mock('@/features/auth/AuthContext', () => ({
 }));
 
 vi.mock(
-  '@/features/logout-transition/LogoutTransitionContext',
+  '@/features/logout-transition/useLogoutTransition',
   () => ({
     useLogoutTransition: () => ({
       active: false,

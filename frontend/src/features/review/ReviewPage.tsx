@@ -110,6 +110,9 @@ function ReviewPage() {
       const session =
         sessionResult.session;
 
+      let active =
+        true;
+
       /*
        * Contenido legacy mantiene exactamente
        * el comportamiento histórico.
@@ -118,28 +121,25 @@ function ReviewPage() {
         session.levelId
         === undefined
       ) {
-        setRepeatPracticeAccess({
-          sessionId:
-            session.id,
-          status:
-            'allowed',
+        void Promise.resolve().then(() => {
+          if (active) {
+            setRepeatPracticeAccess({
+              sessionId:
+                session.id,
+              status:
+                'allowed',
+            });
+          }
         });
 
-        return;
+        return () => {
+          active =
+            false;
+        };
       }
-
-      let active =
-        true;
 
       const levelId =
         session.levelId;
-
-      setRepeatPracticeAccess({
-        sessionId:
-          session.id,
-        status:
-          'checking',
-      });
 
       const verify =
         async () => {
@@ -195,7 +195,20 @@ function ReviewPage() {
           }
         };
 
-      void verify();
+      void Promise.resolve().then(() => {
+        if (!active) {
+          return;
+        }
+
+        setRepeatPracticeAccess({
+          sessionId:
+            session.id,
+          status:
+            'checking',
+        });
+
+        return verify();
+      });
 
       return () => {
         active =

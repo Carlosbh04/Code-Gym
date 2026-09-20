@@ -51,28 +51,33 @@ export function PageLoadTransition({
         : 'entering',
     );
 
-  const skeletonShownAt = useRef(
-    shouldShowInitialSkeleton
-      ? Date.now()
-      : 0,
-  );
+  const [previousLoading, setPreviousLoading] =
+    useState(loading);
 
-  useEffect(() => {
-    let timeoutId:
-      | ReturnType<typeof setTimeout>
-      | undefined;
+  if (loading !== previousLoading) {
+    setPreviousLoading(loading);
 
     if (loading) {
-      if (phase !== 'loading') {
-        skeletonShownAt.current = Date.now();
-        setPhase('loading');
-      }
+      setPhase('loading');
+    }
+  }
+
+  const skeletonShownAt =
+    useRef<number | null>(null);
+
+  useEffect(() => {
+    if (loading) {
+      skeletonShownAt.current = Date.now();
 
       return;
     }
 
     if (phase !== 'loading') {
       return;
+    }
+
+    if (skeletonShownAt.current === null) {
+      skeletonShownAt.current = Date.now();
     }
 
     const elapsed =
@@ -83,15 +88,13 @@ export function PageLoadTransition({
       MIN_SKELETON_VISIBLE_MS - elapsed,
     );
 
-    timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       presentedKeys.add(presentationKey);
       setPhase('exiting');
     }, remaining);
 
     return () => {
-      if (timeoutId !== undefined) {
-        clearTimeout(timeoutId);
-      }
+      clearTimeout(timeoutId);
     };
   }, [
     loading,
@@ -123,6 +126,7 @@ export function PageLoadTransition({
       return;
     }
 
+    skeletonShownAt.current = null;
     setPhase('ready');
   };
 

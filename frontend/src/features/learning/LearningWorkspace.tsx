@@ -231,72 +231,84 @@ export function LearningWorkspace({
 
   useEffect(
     () => {
-      /*
-       * Una URL válida solo puede seleccionar
-       * contenido staged después de que el
-       * backend confirme locked === false.
-       */
-      if (
-        requestedConceptCanOpen
-        && requestedConcept
-          !== undefined
-      ) {
-        if (
-          requestedConcept.id
-          !== selectedConceptId
-        ) {
-          setSelectedConceptId(
-            requestedConcept.id,
-          );
+      let active = true;
+
+      void Promise.resolve().then(() => {
+        if (!active) {
+          return;
         }
 
-        return;
-      }
+        /*
+         * Una URL válida solo puede seleccionar
+         * contenido staged después de que el
+         * backend confirme locked === false.
+         */
+        if (
+          requestedConceptCanOpen
+          && requestedConcept
+            !== undefined
+        ) {
+          if (
+            requestedConcept.id
+            !== selectedConceptId
+          ) {
+            setSelectedConceptId(
+              requestedConcept.id,
+            );
+          }
 
-      /*
-       * Si un concepto que había sido seleccionado
-       * mediante URL pasa a estar bloqueado, no
-       * conservamos esa selección.
-       */
-      if (
-        requestedConcept
-          !== undefined
-        && requestedConcept.id
-          === selectedConceptId
-        && isStagedLearningConcept(
-          requestedConcept,
-        )
-        && learningStates[
-          requestedConcept.id
-        ]?.locked
-          === true
-      ) {
+          return;
+        }
+
+        /*
+         * Si un concepto que había sido seleccionado
+         * mediante URL pasa a estar bloqueado, no
+         * conservamos esa selección.
+         */
+        if (
+          requestedConcept
+            !== undefined
+          && requestedConcept.id
+            === selectedConceptId
+          && isStagedLearningConcept(
+            requestedConcept,
+          )
+          && learningStates[
+            requestedConcept.id
+          ]?.locked
+            === true
+        ) {
+          setSelectedConceptId(
+            concepts[0]?.id
+            ?? '',
+          );
+
+          return;
+        }
+
+        /*
+         * Query inexistente, bloqueada o aún pendiente:
+         * conservar una selección local válida.
+         */
+        if (
+          concepts.some(
+            concept =>
+              concept.id
+              === selectedConceptId,
+          )
+        ) {
+          return;
+        }
+
         setSelectedConceptId(
           concepts[0]?.id
           ?? '',
         );
+      });
 
-        return;
-      }
-
-      /*
-       * Query inexistente, bloqueada o aún pendiente:
-       * conservar una selección local válida.
-       */
-      if (
-        concepts.some(
-          concept =>
-            concept.id
-            === selectedConceptId,
-        )
-      ) {
-        return;
-      }
-
-      setSelectedConceptId(
-        concepts[0]?.id
-        ?? '',
-      );
+      return () => {
+        active = false;
+      };
     },
     [
       concepts,
@@ -357,10 +369,14 @@ export function LearningWorkspace({
         ];
 
   const selectedSessions =
-    selectedResult?.status
-      === 'success'
-      ? selectedResult.sessions
-      : [];
+    useMemo(
+      () =>
+        selectedResult?.status
+          === 'success'
+          ? selectedResult.sessions
+          : [],
+      [selectedResult],
+    );
 
   const selectedConceptIsStaged =
     selectedConcept !== undefined
@@ -446,37 +462,49 @@ export function LearningWorkspace({
 
   useEffect(
     () => {
-      if (
-        selectedConceptIsStaged
-        && levelState
-          !== undefined
-      ) {
+      let active = true;
+
+      void Promise.resolve().then(() => {
+        if (!active) {
+          return;
+        }
+
         if (
-          requestedStage !== null
-          && canOpenLearningStage(
-            levelState,
-            requestedStage,
-          )
+          selectedConceptIsStaged
+          && levelState
+            !== undefined
         ) {
+          if (
+            requestedStage !== null
+            && canOpenLearningStage(
+              levelState,
+              requestedStage,
+            )
+          ) {
+            setSelectedStage(
+              requestedStage,
+            );
+
+            return;
+          }
+
           setSelectedStage(
-            requestedStage,
+            resolveCurrentLearningStage(
+              levelState,
+            ),
           );
 
           return;
         }
 
         setSelectedStage(
-          resolveCurrentLearningStage(
-            levelState,
-          ),
+          'theory',
         );
+      });
 
-        return;
-      }
-
-      setSelectedStage(
-        'theory',
-      );
+      return () => {
+        active = false;
+      };
     },
     [
       activeLevelId,

@@ -131,13 +131,6 @@ function SessionPage() {
       let active =
         true;
 
-      setEntryAccess({
-        sessionId:
-          session.id,
-        status:
-          'checking',
-      });
-
       const verifyAccess =
         async () => {
           if (
@@ -192,7 +185,20 @@ function SessionPage() {
           }
         };
 
-      void verifyAccess();
+      void Promise.resolve().then(() => {
+        if (!active) {
+          return;
+        }
+
+        setEntryAccess({
+          sessionId:
+            session.id,
+          status:
+            'checking',
+        });
+
+        return verifyAccess();
+      });
 
       return () => {
         active =
@@ -201,6 +207,7 @@ function SessionPage() {
     },
     [
       accessToken,
+      session,
       session?.conceptId,
       session?.id,
       session?.kind,

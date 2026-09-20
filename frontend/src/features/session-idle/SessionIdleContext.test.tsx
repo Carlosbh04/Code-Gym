@@ -16,8 +16,11 @@ import {
 
 import {
   SessionIdleProvider,
-  useSessionIdle,
 } from './SessionIdleContext';
+
+import {
+  useSessionIdle,
+} from './useSessionIdle';
 
 import {
   ApiError,

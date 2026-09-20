@@ -276,6 +276,9 @@ function HomePage() {
       return;
     }
 
+    const levelId =
+      session.levelId;
+
     let active = true;
 
     if (accessToken === null) {
@@ -297,22 +300,35 @@ function HomePage() {
       };
     }
 
-    setContinueAccess({
-      sessionId:
-        session.id,
-      status:
-        'loading',
-    });
+    void Promise.resolve()
+      .then(
+        () => {
+          if (!active) {
+            return null;
+          }
 
-    void browserLearningApi
-      .getLevelState(
-        session.conceptId,
-        session.levelId,
-        accessToken,
+          setContinueAccess({
+            sessionId:
+              session.id,
+            status:
+              'loading',
+          });
+
+          return browserLearningApi
+            .getLevelState(
+              session.conceptId,
+              levelId,
+              accessToken,
+            );
+        },
       )
       .then(
         levelState => {
           if (!active) {
+            return;
+          }
+
+          if (levelState === null) {
             return;
           }
 
