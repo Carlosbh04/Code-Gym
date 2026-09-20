@@ -1098,6 +1098,235 @@ describe('TopicPage (T057)', () => {
     expect(screen.queryByText('Disponible')).not.toBeInTheDocument();
   });
 
+  it(
+    'abre teoría al entrar explícitamente en modo repaso aunque el siguiente stage sea quiz',
+    async () => {
+      // TOPIC_THEORY_REVIEW_ENTRY_REGRESSION
+      authMockState.accessToken =
+        'topic-theory-review-token';
+
+      const stagedConcept:
+        Concept = {
+          ...CONCEPTS[0],
+          id:
+            'js-array-iteration',
+          levels: [
+            {
+              id:
+                'foundation',
+              name:
+                'Fundamentos',
+              description:
+                'Base del concepto.',
+              position:
+                0,
+            },
+          ],
+          content: {
+            sections: [
+              {
+                type:
+                  'intro',
+                levelId:
+                  'foundation',
+                title:
+                  'Teoría de Fundamentos',
+                body:
+                  'Contenido de teoría para repaso.',
+              },
+            ],
+          },
+        };
+
+      const quizSession:
+        ExerciseSession = {
+          ...ARRAY_SESSION,
+          id:
+            'arrays-foundation-quiz',
+          conceptId:
+            stagedConcept.id,
+          kind:
+            'quiz',
+          levelId:
+            'foundation',
+          requiredForProgression:
+            true,
+        };
+
+      const conceptState = {
+        conceptId:
+          stagedConcept.id,
+        previousConceptId:
+          null,
+        locked:
+          false,
+        lockReason:
+          null,
+        stages: {
+          theory: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-19T10:00:00.000Z',
+          },
+          quiz: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+          practice: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+          checkpoint: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+        },
+        completed:
+          false,
+        completedAt:
+          null,
+      } as const;
+
+      const levelState = {
+        conceptId:
+          stagedConcept.id,
+        levelId:
+          'foundation',
+        previousLevelId:
+          null,
+        nextLevelId:
+          null,
+        locked:
+          false,
+        lockReason:
+          null,
+        stages: {
+          theory: {
+            status:
+              'completed',
+            completedAt:
+              '2026-09-19T10:00:00.000Z',
+          },
+          quiz: {
+            status:
+              'available',
+            completedAt:
+              null,
+          },
+          practice: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+          checkpoint: {
+            status:
+              'locked',
+            completedAt:
+              null,
+          },
+        },
+        completed:
+          false,
+        completedAt:
+          null,
+      } as const;
+
+      const getConceptState =
+        vi.spyOn(
+          browserLearningApi,
+          'getConceptState',
+        ).mockResolvedValue(
+          conceptState,
+        );
+
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockResolvedValue(
+          levelState,
+        );
+
+      const rendered =
+        renderTopicPage({
+          getConceptsByTopic:
+            vi.fn().mockResolvedValue([
+              stagedConcept,
+            ]),
+          getSessionsByConcept:
+            vi.fn().mockImplementation(
+              async conceptId =>
+                conceptId === stagedConcept.id
+                  ? [quizSession]
+                  : [],
+            ),
+          initialEntry:
+            `/tech/javascript/arrays?concept=${stagedConcept.id}&stage=theory`,
+        });
+
+      try {
+        expect(
+          await screen.findByRole(
+            'button',
+            {
+              name:
+                /Teoría/i,
+            },
+          ),
+        ).toHaveAttribute(
+          'aria-current',
+          'step',
+        );
+
+        expect(
+          await screen.findByText(
+            'Contenido de teoría para repaso.',
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          screen.queryByRole(
+            'link',
+            {
+              name:
+                'Empezar test',
+            },
+          ),
+        ).not.toBeInTheDocument();
+
+        expect(
+          getConceptState,
+        ).toHaveBeenCalledWith(
+          stagedConcept.id,
+          'topic-theory-review-token',
+        );
+
+        expect(
+          getLevelState,
+        ).toHaveBeenCalledWith(
+          stagedConcept.id,
+          'foundation',
+          'topic-theory-review-token',
+        );
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        vi.restoreAllMocks();
+      }
+    },
+  );
+
   it('muestra el breadcrumb real y progreso únicamente cuando existe actividad', async () => {
     renderTopicPage({
       progress: new Map([

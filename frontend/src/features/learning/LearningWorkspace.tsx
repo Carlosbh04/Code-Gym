@@ -182,6 +182,21 @@ export function LearningWorkspace({
       'concept',
     );
 
+  const requestedStageParam =
+    searchParams.get(
+      'stage',
+    );
+
+  const requestedStage:
+    LearningStage
+    | null =
+      requestedStageParam === 'theory'
+      || requestedStageParam === 'quiz'
+      || requestedStageParam === 'practice'
+      || requestedStageParam === 'checkpoint'
+        ? requestedStageParam
+        : null;
+
   // LOCKED_CONCEPT_URL_GATE
   const requestedConcept =
     requestedConceptId === null
@@ -313,6 +328,10 @@ export function LearningWorkspace({
             conceptId,
           );
 
+          next.delete(
+            'stage',
+          );
+
           return next;
         },
         {
@@ -432,6 +451,20 @@ export function LearningWorkspace({
         && levelState
           !== undefined
       ) {
+        if (
+          requestedStage !== null
+          && canOpenLearningStage(
+            levelState,
+            requestedStage,
+          )
+        ) {
+          setSelectedStage(
+            requestedStage,
+          );
+
+          return;
+        }
+
         setSelectedStage(
           resolveCurrentLearningStage(
             levelState,
@@ -448,10 +481,40 @@ export function LearningWorkspace({
     [
       activeLevelId,
       levelState,
+      requestedStage,
       selectedConceptIsStaged,
       selectedConcept?.id,
     ],
   );
+
+  const selectStage =
+    (
+      stage:
+        LearningStage,
+    ) => {
+      setSelectedStage(
+        stage,
+      );
+
+      setSearchParams(
+        current => {
+          const next =
+            new URLSearchParams(
+              current,
+            );
+
+          next.delete(
+            'stage',
+          );
+
+          return next;
+        },
+        {
+          replace:
+            true,
+        },
+      );
+    };
 
   if (
     selectedConcept
@@ -917,7 +980,7 @@ export function LearningWorkspace({
                       selectedStage
                     }
                     onSelect={
-                      setSelectedStage
+                      selectStage
                     }
                     pending={
                       canonicalPending

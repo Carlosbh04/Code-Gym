@@ -227,7 +227,124 @@ describe('ResultsPage', () => {
           ),
         ).toHaveAttribute(
           'href',
-          '/tech/javascript/arrays',
+          '/tech/javascript/arrays?concept=js-array-iteration&stage=theory',
+        );
+      } finally {
+        rendered.unmount();
+
+        authMockState.accessToken =
+          null;
+
+        getLevelState.mockRestore();
+      }
+    },
+  );
+
+  it(
+    'continúa al siguiente formato canónico después de completar una sesión staged',
+    async () => {
+      // RESULT_CANONICAL_STAGE_CONTINUATION_REGRESSION
+      authMockState.accessToken =
+        'results-stage-continuation-token';
+
+      const stagedPractice:
+        ExerciseSession = {
+          ...SESSION,
+          kind:
+            'practice',
+          levelId:
+            'foundation',
+          requiredForProgression:
+            true,
+        };
+
+      const getLevelState =
+        vi.spyOn(
+          browserLearningApi,
+          'getLevelState',
+        ).mockResolvedValue({
+          conceptId:
+            stagedPractice.conceptId,
+          levelId:
+            'foundation',
+          previousLevelId:
+            null,
+          nextLevelId:
+            'deepening',
+          locked:
+            false,
+          lockReason:
+            null,
+          stages: {
+            theory: {
+              status:
+                'completed',
+              completedAt:
+                '2026-09-19T10:00:00.000Z',
+            },
+            quiz: {
+              status:
+                'completed',
+              completedAt:
+                '2026-09-19T10:01:00.000Z',
+            },
+            practice: {
+              status:
+                'completed',
+              completedAt:
+                '2026-09-19T10:02:00.000Z',
+            },
+            checkpoint: {
+              status:
+                'available',
+              completedAt:
+                null,
+            },
+          },
+          completed:
+            false,
+          completedAt:
+            null,
+        });
+
+      const rendered =
+        renderResultsPage({
+          getSession:
+            vi.fn().mockResolvedValue(
+              stagedPractice,
+            ),
+        });
+
+      try {
+        expect(
+          await screen.findByRole(
+            'link',
+            {
+              name:
+                'Continuar tu progreso',
+            },
+          ),
+        ).toHaveAttribute(
+          'href',
+          '/tech/javascript/arrays?concept=js-array-iteration',
+        );
+
+        expect(
+          screen.queryByRole(
+            'link',
+            {
+              name:
+                'Seguir practicando',
+            },
+          ),
+        ).not.toBeInTheDocument();
+
+        expect(
+          getLevelState,
+        ).toHaveBeenCalledWith(
+          stagedPractice.conceptId,
+          'foundation',
+          'results-stage-continuation-token',
         );
       } finally {
         rendered.unmount();
@@ -262,7 +379,10 @@ describe('ResultsPage', () => {
     expect(rendered.getSession).toHaveBeenCalledWith('session-1');
     expect(rendered.getAttemptsBySession).toHaveBeenCalledWith('session-1');
     expect(screen.getByRole('link', { name: 'Seguir practicando' })).toHaveAttribute('href', '/practice/session-1');
-    expect(screen.getByRole('link', { name: 'Repasar tema' })).toHaveAttribute('href', '/tech/javascript/arrays');
+    expect(screen.getByRole('link', { name: 'Repasar tema' })).toHaveAttribute(
+      'href',
+      '/tech/javascript/arrays?concept=js-array-iteration&stage=theory',
+    );
     expect(screen.getByRole('link', { name: 'Revisar respuestas' })).toHaveAttribute('href', '/review/session-1');
     expect(screen.getByRole('link', { name: 'Revisar respuesta 1: ¿Qué devuelve este código?' })).toHaveAttribute('href', '/review/session-1');
     expect(screen.getByRole('link', { name: 'Entrenar' })).toHaveAttribute('href', '/tech');
@@ -752,7 +872,7 @@ describe('ResultsPage', () => {
           ),
         ).toHaveAttribute(
           'href',
-          '/tech/javascript/arrays',
+          '/tech/javascript/arrays?concept=js-array-iteration&stage=theory',
         );
 
         expect(

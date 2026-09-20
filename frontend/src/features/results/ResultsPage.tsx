@@ -352,6 +352,14 @@ function ResultsPage() {
       ? null
       : `/tech/${topic.technologyId}/${topic.id}`;
 
+  const reviewTopicPath =
+    topicPath === null
+    || concept === null
+      ? topicPath
+      : `${topicPath}?concept=${encodeURIComponent(
+          concept.id,
+        )}&stage=theory`;
+
   const isCheckpoint =
     currentMetadata?.session.kind
     === 'checkpoint';
@@ -373,6 +381,26 @@ function ResultsPage() {
       )
     );
 
+  /*
+   * RESULT_CANONICAL_STAGE_CONTINUATION
+   *
+   * Una sesión staged completada no debe volver a abrir la misma práctica.
+   * Volvemos al concepto actual y LearningWorkspace resuelve desde el estado
+   * autoritativo del backend el primer stage pendiente:
+   * theory -> quiz -> practice -> checkpoint.
+   */
+  const stagedContinuationPath =
+    !isCheckpoint
+    && currentMetadata?.session.levelId !== undefined
+    && transitionStatus?.status === 'success'
+    && !transitionStatus.state.locked
+    && topicPath !== null
+    && concept !== null
+      ? `${topicPath}?concept=${encodeURIComponent(
+          concept.id,
+        )}`
+      : null;
+
   const primaryAction =
     isCheckpoint
     && topicPath !== null
@@ -393,32 +421,42 @@ function ResultsPage() {
                 'Continuar aprendiendo',
             }
           : {
-              to: topicPath,
+              to:
+                finalLevelCompleted
+                  ? reviewTopicPath ?? topicPath
+                  : topicPath,
               label:
                 finalLevelCompleted
                   ? 'Volver al tema'
                   : 'Volver al recorrido',
             }
-      : repeatPracticeAllowed
+      : stagedContinuationPath !== null
         ? {
             to:
-              `/practice/${completedSession.sessionId}`,
+              stagedContinuationPath,
             label:
-              'Seguir practicando',
+              'Continuar tu progreso',
           }
-        : topicPath !== null
+        : repeatPracticeAllowed
           ? {
               to:
-                topicPath,
+                `/practice/${completedSession.sessionId}`,
               label:
-                'Volver al tema',
+                'Seguir practicando',
             }
-          : {
-              to:
-                '/dashboard',
-              label:
-                'Ver mi progreso',
-            };
+          : reviewTopicPath !== null
+            ? {
+                to:
+                  reviewTopicPath,
+                label:
+                  'Volver al tema',
+              }
+            : {
+                to:
+                  '/dashboard',
+                label:
+                  'Ver mi progreso',
+              };
 
   const secondaryAction = metadataLoading
     ? null
@@ -428,7 +466,11 @@ function ResultsPage() {
         ? { to: '/dashboard', label: 'Ver mi progreso' }
         : {
             to:
-              `/tech/${topic.technologyId}/${topic.id}`,
+              concept === null
+                ? `/tech/${topic.technologyId}/${topic.id}`
+                : `/tech/${topic.technologyId}/${topic.id}?concept=${encodeURIComponent(
+                    concept.id,
+                  )}&stage=theory`,
             label: 'Repasar tema',
           };
 
