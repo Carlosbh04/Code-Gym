@@ -1,0 +1,169 @@
+{
+  "id": "js-promises-mastery-timeout-boundary-01",
+  "title": "Límites de espera componibles",
+  "difficulty": "advanced",
+  "position": 2,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué representa un timeout componible?",
+      "code": "return Promise.race([operacion, limite]);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una Promise que adopta el primer asentamiento observable",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "La cancelación automática de cualquier recurso",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Un bucle síncrono",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "La eliminación del rechazo original",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "race limita la espera observable, aunque cancelar recursos sea otra responsabilidad.",
+      "hints": [
+        "Timeout y cancelación no son sinónimos.",
+        "Ambas entradas siguen siendo Promises."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué valor gana?",
+      "code": "Promise.race([Promise.resolve('datos'), new Promise(() => {})])\n  .then(console.log);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "datos",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "pending",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La primera Promise ya puede cumplir; la otra permanece pendiente.",
+      "hints": [
+        "race no espera a todas.",
+        "Una Promise pendiente no bloquea al ganador."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El límite se crea pero no participa en el resultado. Localiza el error.",
+      "code": "function conLimite(operacion, limite) {\n  Promise.race([operacion, limite]);\n  return operacion;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Se devuelve operacion en lugar de la Promise de race",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "race necesita tres entradas",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "operacion no puede ser Promise",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "limite debe ser un número siempre",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2,
+        3
+      ],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El caller debe recibir la frontera compuesta.",
+      "hints": [
+        "Observa cuál Promise sale de la función.",
+        "Crear race no basta."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige conLimite para devolver el primer asentamiento entre operacion y limite.",
+      "code": "function conLimite(operacion, limite) {\n  Promise.race([operacion, limite]);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": "datos",
+          "expected": "datos",
+          "call": "conLimite(Promise.resolve(input), new Promise(() => {}))",
+          "description": "devuelve el resultado si llega primero"
+        },
+        {
+          "input": "TIMEOUT",
+          "expected": "TIMEOUT",
+          "call": "conLimite(new Promise(() => {}), Promise.reject(new Error(input))).then(() => 'sin error').catch((error) => error.message)",
+          "description": "propaga el límite si gana el rechazo"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La Promise de race es el contrato que debe observar el caller.",
+      "hints": [
+        "Retorna Promise.race.",
+        "No ocultes el rechazo ganador."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

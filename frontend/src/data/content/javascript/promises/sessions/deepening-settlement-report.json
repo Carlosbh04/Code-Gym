@@ -1,0 +1,180 @@
+{
+  "id": "js-promises-deepening-settlement-report-01",
+  "title": "Inspeccionar todos los resultados",
+  "difficulty": "intermediate",
+  "position": 2,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Cuándo conviene allSettled?",
+      "code": "const report = await Promise.allSettled(operations);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Cuando se necesita conocer el resultado de cada operación aunque alguna falle",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Cuando debe abortarse al primer rechazo",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Cuando solo interesa la primera respuesta",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Cuando no existen Promises",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "allSettled conserva éxitos y fallos en un informe completo.",
+      "hints": [
+        "Compara con el fail-fast de Promise.all.",
+        "Cada elemento tiene status."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime el segundo estado?",
+      "code": "Promise.allSettled([Promise.resolve(1), Promise.reject('x')])\n  .then((items) => console.log(items[1].status));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "rejected",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "fulfilled",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "pending",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "x",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El segundo elemento representa la Promise rechazada.",
+      "hints": [
+        "El rechazo no interrumpe allSettled.",
+        "status no es reason."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El informe trata todos los resultados como éxitos. Localiza el error.",
+      "code": "function valores(items) {\n  return items.map((item) => item.value);\n}\nPromise.allSettled(tareas).then(valores);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Debe distinguir fulfilled de rejected antes de leer value",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "allSettled no devuelve arrays",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "map vuelve síncrona la Promise",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "value solo existe en rejected",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "contrato",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los elementos rechazados exponen reason, no value.",
+      "hints": [
+        "Revisa la unión de formas del resultado.",
+        "status decide qué propiedad leer."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Implementa resumir para devolver fulfilled:<valor> o rejected:<razón> por cada resultado.",
+      "code": "async function resumir(promesas) {\n  const items = await Promise.allSettled(promesas);\n  return [];\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            2,
+            "x"
+          ],
+          "expected": [
+            "fulfilled:2",
+            "rejected:x"
+          ],
+          "call": "resumir([Promise.resolve(input[0]), Promise.reject(input[1])])",
+          "description": "conserva éxito y rechazo"
+        },
+        {
+          "input": [
+            "ok",
+            "fin"
+          ],
+          "expected": [
+            "fulfilled:ok",
+            "fulfilled:fin"
+          ],
+          "call": "resumir([Promise.resolve(input[0]), Promise.resolve(input[1])])",
+          "description": "informa varios éxitos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "El resumen se deriva de status y de value o reason.",
+      "hints": [
+        "Recorre el resultado de allSettled.",
+        "No conviertas un rechazo en excepción del lote."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

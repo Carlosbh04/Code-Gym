@@ -1,0 +1,213 @@
+{
+  "id": "js-promises-mastery-quiz-01",
+  "title": "Quiz: flujos asíncronos robustos",
+  "difficulty": "advanced",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "mastery",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué debe acotar una política de reintentos?",
+      "code": "return reintentar(operacion, { maxIntentos: 3 });",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "El número de intentos y los fallos que justifican repetir",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Solo el texto exacto del error",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Un bucle sin límite",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "La implementación interna del caller",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Un reintento robusto tiene límites y una regla explícita.",
+      "hints": [
+        "No todos los fallos son temporales.",
+        "Evita ciclos infinitos."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué valor produce finally?",
+      "code": "Promise.resolve('dato')\n  .finally(() => 'otro')\n  .then(console.log);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "dato",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "otro",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "finally no reemplaza el valor si termina normalmente.",
+      "hints": [
+        "Su retorno ordinario no transforma la cadena.",
+        "Sirve para limpieza."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué ocurre si finally lanza?",
+      "code": "Promise.resolve('dato')\n  .finally(() => { throw new Error('limpieza'); })\n  .catch((error) => console.log(error.message));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "limpieza",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "dato",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "fulfilled",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Un fallo nuevo en finally reemplaza el estado anterior.",
+      "hints": [
+        "La limpieza también puede fallar.",
+        "El catch observa el nuevo error."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "code-reading",
+      "prompt": "¿Qué hace observable una operación asíncrona entre capas?",
+      "code": "function guardar(data) {\n  return repositorio.save(data);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Retornar la Promise al llamador",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Crear la Promise sin devolverla",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Añadir un timeout fijo siempre",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Comparar el source del llamador",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La Promise retornada transporta valor y error a la capa superior.",
+      "hints": [
+        "Piensa en composición.",
+        "El caller necesita esperar o capturar."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué política conserva resultados parciales?",
+      "code": "const report = await Promise.allSettled(tasks);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un informe con fulfilled y rejected por operación",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Un rechazo inmediato sin informe",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Solo el primer resultado",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Una lista de callbacks",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "allSettled permite decidir después de observar el lote completo.",
+      "hints": [
+        "No confundir con all.",
+        "Cada item conserva su estado."
+      ],
+      "stepOrder": 5
+    }
+  ]
+}

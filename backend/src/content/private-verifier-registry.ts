@@ -4314,7 +4314,455 @@ const registry =
       }),
     ],
 
-  ]);
+
+
+    [
+      verifierKey(
+        'js-promises-deepening-checkpoint-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+
+            Object.freeze({
+              input:
+                [
+                  "privado-a",
+                  "privado-b"
+                ],
+
+              expected:
+                "privado-a",
+
+              call:
+                "primeraDisponible([Promise.resolve(input[0]), Promise.resolve(input[1])])",
+
+              description:
+                "resuelve el primer valor disponible con datos privados",
+            }),
+
+            Object.freeze({
+              input:
+                37,
+
+              expected:
+                37,
+
+              call:
+                "primeraDisponible([Promise.resolve(input), new Promise(() => {})])",
+
+              description:
+                "no queda bloqueada por una operación pendiente privada",
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-deepening-concurrent-batch-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+
+            Object.freeze({
+              input:
+                [
+                  12,
+                  -5
+                ],
+
+              expected:
+                7,
+
+              call:
+                "sumarResultados(Promise.resolve(input[0]), Promise.resolve(input[1]))",
+
+              description:
+                "suma valores privados positivos y negativos",
+            }),
+
+            Object.freeze({
+              input:
+                [
+                  -4,
+                  -9
+                ],
+
+              expected:
+                -13,
+
+              call:
+                "sumarResultados(Promise.resolve(input[0]), Promise.resolve(input[1]))",
+
+              description:
+                "conserva dos valores negativos",
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-deepening-parallel-work-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+
+            Object.freeze({
+              input:
+                {
+                  "a": "izquierda",
+                  "b": "derecha"
+                },
+
+              expected:
+                [
+                  "izquierda",
+                  "derecha"
+                ],
+
+              call:
+                "cargarPar(() => Promise.resolve(input.a), () => Promise.resolve(input.b))",
+
+              description:
+                "conserva ambos resultados privados",
+            }),
+
+            Object.freeze({
+              input:
+                {
+                  "a": "",
+                  "b": null
+                },
+
+              expected:
+                [
+                  "",
+                  null
+                ],
+
+              call:
+                "cargarPar(() => Promise.resolve(input.a), () => Promise.resolve(input.b))",
+
+              description:
+                "conserva valores falsy sin normalizarlos",
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-deepening-settlement-report-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+
+            Object.freeze({
+              input:
+                [
+                  42,
+                  "privado-error"
+                ],
+
+              expected:
+                [
+                  "fulfilled:42",
+                  "rejected:privado-error"
+                ],
+
+              call:
+                "resumir([Promise.resolve(input[0]), Promise.reject(input[1])])",
+
+              description:
+                "resume éxito y rechazo con valores privados",
+            }),
+
+            Object.freeze({
+              input:
+                [
+                  "alpha",
+                  "omega"
+                ],
+
+              expected:
+                [
+                  "fulfilled:alpha",
+                  "fulfilled:omega"
+                ],
+
+              call:
+                "resumir([Promise.resolve(input[0]), Promise.resolve(input[1])])",
+
+              description:
+                "conserva dos fulfilled privados",
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-mastery-checkpoint-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+
+            Object.freeze({
+              input:
+                "Z",
+
+              expected:
+                "Confirmado:Z",
+
+              call:
+                "guardarYConfirmar((value) => Promise.resolve(value), input)",
+
+              description:
+                "transforma otro valor confirmado",
+            }),
+
+            Object.freeze({
+              input:
+                "fallo-privado",
+
+              expected:
+                "fallo-privado",
+
+              call:
+                "guardarYConfirmar(() => Promise.reject(new Error(input)), 'x').then(() => 'sin error').catch((error) => error.message)",
+
+              description:
+                "mantiene observable un rechazo privado",
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-mastery-retry-policy-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+
+            Object.freeze({
+              input:
+                [
+                  {
+                    "ok": false,
+                    "error": "temporal"
+                  },
+                  {
+                    "ok": false,
+                    "error": "otra"
+                  },
+                  {
+                    "ok": true,
+                    "value": 21
+                  }
+                ],
+
+              expected:
+                21,
+
+              call:
+                "(() => { let i = 0; return reintentar(() => { const item = input[i++]; return item.ok ? Promise.resolve(item.value) : Promise.reject(new Error(item.error)); }, input.length); })()",
+
+              description:
+                "resuelve tras varios fallos privados",
+            }),
+
+            Object.freeze({
+              input:
+                [
+                  "fallo-a",
+                  "fallo-b",
+                  "fallo-final"
+                ],
+
+              expected:
+                "fallo-final",
+
+              call:
+                "(() => { let i = 0; return reintentar(() => Promise.reject(new Error(input[i++])), input.length).then(() => 'sin error').catch((error) => error.message); })()",
+
+              description:
+                "propaga el último error privado",
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-mastery-settlement-aggregation-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+
+            Object.freeze({
+              input:
+                [
+                  2,
+                  "privado",
+                  4
+                ],
+
+              expected:
+                {
+                  "valores": [
+                    2,
+                    4
+                  ],
+                  "errores": [
+                    "privado"
+                  ]
+                },
+
+              call:
+                "agregar([Promise.resolve(input[0]), Promise.reject(input[1]), Promise.resolve(input[2])])",
+
+              description:
+                "agrega resultados privados conservando orden",
+            }),
+
+            Object.freeze({
+              input:
+                [
+                  "err-a",
+                  "err-b"
+                ],
+
+              expected:
+                {
+                  "valores": [],
+                  "errores": [
+                    "err-a",
+                    "err-b"
+                  ]
+                },
+
+              call:
+                "agregar([Promise.reject(input[0]), Promise.reject(input[1])])",
+
+              description:
+                "conserva múltiples errores privados",
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-promises-mastery-timeout-boundary-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+
+            Object.freeze({
+              input:
+                "resultado-privado",
+
+              expected:
+                "resultado-privado",
+
+              call:
+                "conLimite(Promise.resolve(input), new Promise(() => {}))",
+
+              description:
+                "devuelve la operación cuando se asienta primero",
+            }),
+
+            Object.freeze({
+              input:
+                "PRIVATE_TIMEOUT",
+
+              expected:
+                "PRIVATE_TIMEOUT",
+
+              call:
+                "conLimite(new Promise(() => {}), Promise.reject(new Error(input))).then(() => 'sin error').catch((error) => error.message)",
+
+              description:
+                "propaga el rechazo privado del límite",
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+]);
 
 /**
  * Resolves server-owned verification configuration for one

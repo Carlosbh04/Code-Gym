@@ -1,0 +1,213 @@
+{
+  "id": "js-promises-deepening-quiz-01",
+  "title": "Quiz: composición y concurrencia",
+  "difficulty": "intermediate",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "deepening",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué garantiza Promise.all?",
+      "code": "const resultado = Promise.all([Promise.resolve(2), Promise.resolve(3)]);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Resuelve una Promise con los valores en el orden de entrada",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Ejecuta las tareas estrictamente una tras otra",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Ignora cualquier rechazo",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Devuelve directamente un array",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Promise.all conserva el orden de entrada aunque las operaciones terminen en otro orden.",
+      "hints": [
+        "El resultado sigue siendo una Promise.",
+        "Piensa en la forma del valor resuelto."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué valor llega al último then?",
+      "code": "Promise.resolve(2)\n  .then((n) => n * 3)\n  .then((n) => n + 1)\n  .then(console.log);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "7",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "6",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "3",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Promise { 7 }",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada then recibe el valor resuelto por el anterior.",
+      "hints": [
+        "Sigue la cadena de izquierda a derecha.",
+        "Cada retorno alimenta el siguiente handler."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué estado informa allSettled para un rechazo?",
+      "code": "Promise.allSettled([Promise.reject('x')])\n  .then(([item]) => console.log(item.status));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "rejected",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "fulfilled",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "pending",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "allSettled describe cada resultado sin rechazar por el primer fallo.",
+      "hints": [
+        "Observa el nombre del método.",
+        "El resultado contiene objetos de estado."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "code-reading",
+      "prompt": "¿Qué combinador entrega el primer asentamiento?",
+      "code": "const first = Promise.race([requestA, requestB]);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Promise.race",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Promise.all",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Promise.allSettled",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Promise.resolve",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Promise.race adopta el primer cumplimiento o rechazo.",
+      "hints": [
+        "No espera a todas.",
+        "También puede ganar un rechazo."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué observa el catch exterior?",
+      "code": "Promise.reject(new Error('red'))\n  .then(() => 'ok')\n  .catch((error) => error.message)\n  .then(console.log);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "red",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "ok",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El rechazo salta los handlers de éxito hasta encontrar un catch.",
+      "hints": [
+        "El primer then no se ejecuta.",
+        "catch puede recuperar con un valor."
+      ],
+      "stepOrder": 5
+    }
+  ]
+}

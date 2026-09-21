@@ -1,0 +1,168 @@
+{
+  "id": "js-promises-mastery-checkpoint-01",
+  "title": "Checkpoint: orquestación asíncrona",
+  "difficulty": "advanced",
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué contrato evita una floating promise?",
+      "code": "function ejecutar() {\n  return guardar().finally(liberar);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Retornar la cadena completa",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Invocar guardar sin return",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Capturar y ocultar todo error",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Usar un nombre de función concreto",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La cadena retornada permite esperar éxito, fallo y limpieza.",
+      "hints": [
+        "El caller necesita una Promise.",
+        "finally pertenece a la misma cadena."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué mensaje llega al catch?",
+      "code": "Promise.reject(new Error('origen'))\n  .finally(() => undefined)\n  .catch((error) => console.log(error.message));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "origen",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "finally",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "sin error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "finally normal preserva el rechazo original.",
+      "hints": [
+        "No hay un error nuevo en finally.",
+        "El estado atraviesa la limpieza."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La capa convierte el fallo en éxito ambiguo. Localiza el problema.",
+      "code": "async function cargar(repositorio) {\n  try { return await repositorio.read(); }\n  catch { return undefined; }\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "El catch oculta cualquier rechazo como undefined",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "await no funciona dentro de try",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "read debe ser una propiedad",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "async no puede devolver undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "contrato",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El consumidor ya no distingue ausencia legítima de fallo.",
+      "hints": [
+        "La recuperación necesita una alternativa válida.",
+        "Propagar conserva la señal."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige guardarYConfirmar para devolver la Promise de guardar y transformar su resultado en Confirmado:<valor>.",
+      "code": "function guardarYConfirmar(guardar, dato) {\n  guardar(dato).then((valor) => `Confirmado:${valor}`);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": "A",
+          "expected": "Confirmado:A",
+          "call": "guardarYConfirmar((value) => Promise.resolve(value), input)",
+          "description": "devuelve la confirmación"
+        },
+        {
+          "input": "fallo",
+          "expected": "fallo",
+          "call": "guardarYConfirmar(() => Promise.reject(new Error(input)), 'x').then(() => 'sin error').catch((error) => error.message)",
+          "description": "mantiene observable el rechazo"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Retornar la cadena conserva tanto la transformación como el rechazo.",
+      "hints": [
+        "Añade return delante de guardar.",
+        "No necesitas capturar si no puedes recuperar."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

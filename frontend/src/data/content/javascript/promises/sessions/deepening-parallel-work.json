@@ -1,0 +1,181 @@
+{
+  "id": "js-promises-deepening-parallel-work-01",
+  "title": "Iniciar trabajo antes de esperar",
+  "difficulty": "intermediate",
+  "position": 3,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué versión permite solapar operaciones independientes?",
+      "code": "const aPromise = cargarA();\nconst bPromise = cargarB();\nconst [a, b] = await Promise.all([aPromise, bPromise]);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "La que inicia ambas antes de esperar el conjunto",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "La que espera A antes de iniciar B",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "La que elimina await",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "La que usa un catch vacío",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Iniciar primero y esperar después permite concurrencia sin perder control.",
+      "hints": [
+        "Separar inicio de espera es importante.",
+        "Las operaciones son independientes."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿En qué orden se conserva el resultado?",
+      "code": "Promise.all([Promise.resolve('A'), Promise.resolve('B')])\n  .then((values) => console.log(values.join('-')));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "A-B",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "B-A",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "AB pendiente",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Promise.all conserva el orden de las entradas.",
+      "hints": [
+        "No depende del orden de finalización.",
+        "join une el array resuelto."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Las operaciones independientes se vuelven secuenciales. Localiza el problema.",
+      "code": "async function cargar() {\n  const a = await cargarA();\n  const b = await cargarB();\n  return [a, b];\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "cargarB no comienza hasta que cargarA termina",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "No se pueden devolver arrays desde async",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "await solo funciona con números",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Falta un catch vacío",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2,
+        3
+      ],
+      "errorType": "concurrencia",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Esperar inmediatamente cada llamada serializa operaciones que podrían solaparse.",
+      "hints": [
+        "Pregunta cuándo empieza cargarB.",
+        "Promise.all puede esperar ambas."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige cargarPar para iniciar ambas funciones y devolver sus resultados.",
+      "code": "async function cargarPar(cargarA, cargarB) {\n  const a = await cargarA();\n  const b = await cargarB();\n  return [a, b];\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "a": "uno",
+            "b": "dos"
+          },
+          "expected": [
+            "uno",
+            "dos"
+          ],
+          "call": "cargarPar(() => Promise.resolve(input.a), () => Promise.resolve(input.b))",
+          "description": "devuelve ambos resultados"
+        },
+        {
+          "input": {
+            "a": 0,
+            "b": false
+          },
+          "expected": [
+            0,
+            false
+          ],
+          "call": "cargarPar(() => Promise.resolve(input.a), () => Promise.resolve(input.b))",
+          "description": "no altera valores falsy"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Las dos funciones deben invocarse antes de esperar Promise.all.",
+      "hints": [
+        "Guarda ambas Promises primero.",
+        "Devuelve el resultado ordenado del lote."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

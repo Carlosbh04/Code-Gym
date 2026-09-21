@@ -7070,6 +7070,369 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-promises-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Compáralo con allSettled.",
+            "El rechazo sigue siendo una ruta de la Promise."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "catch también devuelve una Promise.",
+            "El siguiente then recibe 4."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Observa el return de guardar.",
+            "Evita una floating promise."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                "a",
+                "b"
+              ],
+              "expected": "a",
+              "call": "primeraDisponible([Promise.resolve(input[0]), Promise.resolve(input[1])])",
+              "description": "resuelve el primer valor disponible"
+            },
+            {
+              "input": 9,
+              "expected": 9,
+              "call": "primeraDisponible([Promise.resolve(input), new Promise(() => {})])",
+              "description": "no espera una operación pendiente"
+            }
+          ],
+          "hints": [
+            "Promise.race ya expresa el contrato.",
+            "No pierdas la Promise al salir de la función."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-deepening-concurrent-batch-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La concurrencia no cambia el orden del array.",
+            "Las dos operaciones ya forman parte del lote."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Promise.all entrega un array.",
+            "reduce empieza en cero."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Mira el valor de retorno de cargarTodo.",
+            "La Promise debe atravesar la frontera de la función."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                4,
+                7
+              ],
+              "expected": 11,
+              "call": "sumarResultados(Promise.resolve(input[0]), Promise.resolve(input[1]))",
+              "description": "suma dos resultados asíncronos"
+            },
+            {
+              "input": [
+                0,
+                -2
+              ],
+              "expected": -2,
+              "call": "sumarResultados(Promise.resolve(input[0]), Promise.resolve(input[1]))",
+              "description": "conserva ceros y negativos"
+            }
+          ],
+          "hints": [
+            "Devuelve el resultado de Promise.all.",
+            "El Worker espera la Promise retornada."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-deepening-parallel-work-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Separar inicio de espera es importante.",
+            "Las operaciones son independientes."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No depende del orden de finalización.",
+            "join une el array resuelto."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2,
+            3
+          ],
+          "errorType": "concurrencia",
+          "hints": [
+            "Pregunta cuándo empieza cargarB.",
+            "Promise.all puede esperar ambas."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "a": "uno",
+                "b": "dos"
+              },
+              "expected": [
+                "uno",
+                "dos"
+              ],
+              "call": "cargarPar(() => Promise.resolve(input.a), () => Promise.resolve(input.b))",
+              "description": "devuelve ambos resultados"
+            },
+            {
+              "input": {
+                "a": 0,
+                "b": false
+              },
+              "expected": [
+                0,
+                false
+              ],
+              "call": "cargarPar(() => Promise.resolve(input.a), () => Promise.resolve(input.b))",
+              "description": "no altera valores falsy"
+            }
+          ],
+          "hints": [
+            "Guarda ambas Promises primero.",
+            "Devuelve el resultado ordenado del lote."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El resultado sigue siendo una Promise.",
+            "Piensa en la forma del valor resuelto."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Sigue la cadena de izquierda a derecha.",
+            "Cada retorno alimenta el siguiente handler."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Observa el nombre del método.",
+            "El resultado contiene objetos de estado."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No espera a todas.",
+            "También puede ganar un rechazo."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El primer then no se ejecuta.",
+            "catch puede recuperar con un valor."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-deepening-settlement-report-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Compara con el fail-fast de Promise.all.",
+            "Cada elemento tiene status."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El rechazo no interrumpe allSettled.",
+            "status no es reason."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "contrato",
+          "hints": [
+            "Revisa la unión de formas del resultado.",
+            "status decide qué propiedad leer."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                2,
+                "x"
+              ],
+              "expected": [
+                "fulfilled:2",
+                "rejected:x"
+              ],
+              "call": "resumir([Promise.resolve(input[0]), Promise.reject(input[1])])",
+              "description": "conserva éxito y rechazo"
+            },
+            {
+              "input": [
+                "ok",
+                "fin"
+              ],
+              "expected": [
+                "fulfilled:ok",
+                "fulfilled:fin"
+              ],
+              "call": "resumir([Promise.resolve(input[0]), Promise.resolve(input[1])])",
+              "description": "informa varios éxitos"
+            }
+          ],
+          "hints": [
+            "Recorre el resultado de allSettled.",
+            "No conviertas un rechazo en excepción del lote."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-promises-error-recovery-01",
       "technologyId": "javascript",
       "topicId": "js-promises",
@@ -7201,6 +7564,369 @@ export const verifierManifest = {
           ],
           "hints": [
             "La espera afecta al flujo de esa función async."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El caller necesita una Promise.",
+            "finally pertenece a la misma cadena."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No hay un error nuevo en finally.",
+            "El estado atraviesa la limpieza."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "contrato",
+          "hints": [
+            "La recuperación necesita una alternativa válida.",
+            "Propagar conserva la señal."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": "A",
+              "expected": "Confirmado:A",
+              "call": "guardarYConfirmar((value) => Promise.resolve(value), input)",
+              "description": "devuelve la confirmación"
+            },
+            {
+              "input": "fallo",
+              "expected": "fallo",
+              "call": "guardarYConfirmar(() => Promise.reject(new Error(input)), 'x').then(() => 'sin error').catch((error) => error.message)",
+              "description": "mantiene observable el rechazo"
+            }
+          ],
+          "hints": [
+            "Añade return delante de guardar.",
+            "No necesitas capturar si no puedes recuperar."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No todos los fallos son temporales.",
+            "Evita ciclos infinitos."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Su retorno ordinario no transforma la cadena.",
+            "Sirve para limpieza."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La limpieza también puede fallar.",
+            "El catch observa el nuevo error."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Piensa en composición.",
+            "El caller necesita esperar o capturar."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No confundir con all.",
+            "Cada item conserva su estado."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-mastery-retry-policy-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Cuenta las invocaciones.",
+            "El último fallo debe seguir siendo observable."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "catch recibe una función.",
+            "La segunda llamada incrementa de nuevo."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "control",
+          "hints": [
+            "Piensa en un servicio caído.",
+            "El caller necesita un rechazo final."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                {
+                  "ok": false,
+                  "error": "uno"
+                },
+                {
+                  "ok": true,
+                  "value": 7
+                }
+              ],
+              "expected": 7,
+              "call": "(() => { let i = 0; return reintentar(() => { const item = input[i++]; return item.ok ? Promise.resolve(item.value) : Promise.reject(new Error(item.error)); }, input.length); })()",
+              "description": "resuelve después de un fallo temporal"
+            },
+            {
+              "input": [
+                "uno",
+                "dos"
+              ],
+              "expected": "dos",
+              "call": "(() => { let i = 0; return reintentar(() => Promise.reject(new Error(input[i++])), input.length).then(() => 'sin error').catch((error) => error.message); })()",
+              "description": "propaga el último error al agotar intentos"
+            }
+          ],
+          "hints": [
+            "Usa un contador o un bucle.",
+            "No captures el último error como éxito."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-mastery-settlement-aggregation-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "fulfilled tiene value.",
+            "rejected tiene reason."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "allSettled conserva las tres.",
+            "Filtra por status."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "información",
+          "hints": [
+            "El resultado rejected incluye reason.",
+            "No colapses fallos distintos."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                1,
+                "x",
+                3
+              ],
+              "expected": {
+                "valores": [
+                  1,
+                  3
+                ],
+                "errores": [
+                  "x"
+                ]
+              },
+              "call": "agregar([Promise.resolve(input[0]), Promise.reject(input[1]), Promise.resolve(input[2])])",
+              "description": "separa éxitos y fallos"
+            },
+            {
+              "input": [
+                "a",
+                "b"
+              ],
+              "expected": {
+                "valores": [],
+                "errores": [
+                  "a",
+                  "b"
+                ]
+              },
+              "call": "agregar([Promise.reject(input[0]), Promise.reject(input[1])])",
+              "description": "conserva varios errores"
+            }
+          ],
+          "hints": [
+            "Usa dos arrays.",
+            "Mantén el orden en que aparecen los resultados."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-promises-mastery-timeout-boundary-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Timeout y cancelación no son sinónimos.",
+            "Ambas entradas siguen siendo Promises."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "race no espera a todas.",
+            "Una Promise pendiente no bloquea al ganador."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2,
+            3
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Observa cuál Promise sale de la función.",
+            "Crear race no basta."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": "datos",
+              "expected": "datos",
+              "call": "conLimite(Promise.resolve(input), new Promise(() => {}))",
+              "description": "devuelve el resultado si llega primero"
+            },
+            {
+              "input": "TIMEOUT",
+              "expected": "TIMEOUT",
+              "call": "conLimite(new Promise(() => {}), Promise.reject(new Error(input))).then(() => 'sin error').catch((error) => error.message)",
+              "description": "propaga el límite si gana el rechazo"
+            }
+          ],
+          "hints": [
+            "Retorna Promise.race.",
+            "No ocultes el rechazo ganador."
           ]
         }
       ]

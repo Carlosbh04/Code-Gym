@@ -1,0 +1,180 @@
+{
+  "id": "js-promises-mastery-retry-policy-01",
+  "title": "Reintentos limitados y observables",
+  "difficulty": "advanced",
+  "position": 1,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué propiedad evita un reintento infinito?",
+      "code": "async function reintentar(op, maxIntentos) { /* ... */ }",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un máximo explícito de intentos",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Un catch que ignore todo",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Una Promise siempre pendiente",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Comparar mensajes exactos",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El límite convierte la política en un contrato finito.",
+      "hints": [
+        "Cuenta las invocaciones.",
+        "El último fallo debe seguir siendo observable."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Cuántas veces se invoca op?",
+      "code": "let intentos = 0;\nasync function op() {\n  intentos += 1;\n  if (intentos < 2) throw new Error('temporal');\n  return 'ok';\n}\nop().catch(op).then(() => console.log(intentos));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "2",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "1",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "3",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "0",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El primer rechazo activa una segunda llamada que cumple.",
+      "hints": [
+        "catch recibe una función.",
+        "La segunda llamada incrementa de nuevo."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La política puede repetir para siempre. Localiza el error.",
+      "code": "async function ejecutar(op) {\n  try { return await op(); }\n  catch { return ejecutar(op); }\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "La recursión no tiene límite de intentos",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "await impide capturar errores",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "try no puede devolver",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "op debe ser una cadena",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "control",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Sin contador ni criterio, un fallo permanente nunca termina.",
+      "hints": [
+        "Piensa en un servicio caído.",
+        "El caller necesita un rechazo final."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Implementa reintentar: invoca operacion como máximo maxIntentos y devuelve el primer éxito; si todos fallan, propaga el último error.",
+      "code": "async function reintentar(operacion, maxIntentos) {\n  // Implementa una política limitada\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            {
+              "ok": false,
+              "error": "uno"
+            },
+            {
+              "ok": true,
+              "value": 7
+            }
+          ],
+          "expected": 7,
+          "call": "(() => { let i = 0; return reintentar(() => { const item = input[i++]; return item.ok ? Promise.resolve(item.value) : Promise.reject(new Error(item.error)); }, input.length); })()",
+          "description": "resuelve después de un fallo temporal"
+        },
+        {
+          "input": [
+            "uno",
+            "dos"
+          ],
+          "expected": "dos",
+          "call": "(() => { let i = 0; return reintentar(() => Promise.reject(new Error(input[i++])), input.length).then(() => 'sin error').catch((error) => error.message); })()",
+          "description": "propaga el último error al agotar intentos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La política debe ser finita, devolver el éxito y conservar el último rechazo.",
+      "hints": [
+        "Usa un contador o un bucle.",
+        "No captures el último error como éxito."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "id": "js-promises-deepening-checkpoint-01",
+  "title": "Checkpoint: cadenas y combinadores",
+  "difficulty": "intermediate",
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué ocurre si una entrada de Promise.all rechaza?",
+      "code": "const lote = Promise.all([ok, fallo, otro]);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "El lote rechaza con ese fallo",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "El lote siempre cumple con tres estados",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "El fallo se convierte en undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Solo se cancela el primer elemento",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Promise.all aplica una política fail-fast observable.",
+      "hints": [
+        "Compáralo con allSettled.",
+        "El rechazo sigue siendo una ruta de la Promise."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime tras recuperar?",
+      "code": "Promise.reject('x')\n  .catch(() => 4)\n  .then((n) => console.log(n * 2));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "8",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "x",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "4",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "catch devuelve 4 y la cadena continúa cumplida.",
+      "hints": [
+        "catch también devuelve una Promise.",
+        "El siguiente then recibe 4."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El rechazo queda sin observador. Localiza el error.",
+      "code": "function guardar() {\n  enviar().then(confirmar);\n}\nawait guardar();",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "guardar no retorna la cadena de enviar",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "await no acepta funciones",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "then debe ir después de catch siempre",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "confirmar debe ejecutarse antes de enviar",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "await guardar() solo puede esperar el trabajo si guardar devuelve su Promise.",
+      "hints": [
+        "Observa el return de guardar.",
+        "Evita una floating promise."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige primeraDisponible para devolver el primer asentamiento del conjunto.",
+      "code": "function primeraDisponible(promesas) {\n  Promise.race(promesas);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            "a",
+            "b"
+          ],
+          "expected": "a",
+          "call": "primeraDisponible([Promise.resolve(input[0]), Promise.resolve(input[1])])",
+          "description": "resuelve el primer valor disponible"
+        },
+        {
+          "input": 9,
+          "expected": 9,
+          "call": "primeraDisponible([Promise.resolve(input), new Promise(() => {})])",
+          "description": "no espera una operación pendiente"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Debe devolverse la Promise producida por el combinador.",
+      "hints": [
+        "Promise.race ya expresa el contrato.",
+        "No pierdas la Promise al salir de la función."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

@@ -323,18 +323,35 @@ describe('StaticContentRepository (T019)', () => {
       expect(sessions.every((s) => s.conceptId === CLOSURES_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 6 sesiones de Promises', async () => {
+    it('devuelve las 16 sesiones de Promises', async () => {
       const sessions = await repo.getSessionsByConcept(PROMISES_CONCEPT);
 
+      expect(sessions).toHaveLength(16);
       expect(sessions.map((s) => s.id).sort()).toEqual([
         'js-promises-await-value-01',
         'js-promises-chain-transform-01',
         'js-promises-coding-fetch-label-01',
+        'js-promises-deepening-checkpoint-01',
+        'js-promises-deepening-concurrent-batch-01',
+        'js-promises-deepening-parallel-work-01',
+        'js-promises-deepening-quiz-01',
+        'js-promises-deepening-settlement-report-01',
         'js-promises-error-recovery-01',
         'js-promises-foundation-checkpoint-01',
         'js-promises-foundation-quiz-01',
+        'js-promises-mastery-checkpoint-01',
+        'js-promises-mastery-quiz-01',
+        'js-promises-mastery-retry-policy-01',
+        'js-promises-mastery-settlement-aggregation-01',
+        'js-promises-mastery-timeout-boundary-01',
       ]);
-      expect(sessions.every((session) => session.conceptId === PROMISES_CONCEPT)).toBe(true);
+      expect(
+        sessions.every(
+          (session) =>
+            session.conceptId
+            === PROMISES_CONCEPT,
+        ),
+      ).toBe(true);
     });
 
     it('devuelve las 16 sesiones de Objects', async () => {
@@ -678,7 +695,7 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 103 sesiones de JavaScript conservan su contrato', async () => {
+    it('las 113 sesiones de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
@@ -689,8 +706,8 @@ describe('StaticContentRepository (T019)', () => {
         ...(await repo.getSessionsByConcept(ERRORS_CONCEPT)),
       ];
 
-      expect(all).toHaveLength(103);
-      expect(new Set(all.map((s) => s.id)).size).toBe(103);
+      expect(all).toHaveLength(113);
+      expect(new Set(all.map((s) => s.id)).size).toBe(113);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length >= 1)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);

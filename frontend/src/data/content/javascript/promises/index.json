@@ -4,11 +4,212 @@
   "topicId": "js-promises",
   "technologyId": "javascript",
   "position": 0,
-  "content": { "sections": [
-    { "type": "intro", "title": "Introducción", "body": "Una promesa representa un resultado que puede llegar más tarde o fallar." },
-    { "type": "objectives", "title": "Qué vas a aprender", "items": ["Encadenar transformaciones", "Capturar rechazos"] },
-    { "type": "code", "title": "Ejemplo", "language": "javascript", "code": "const user = await fetchUser(id);" },
-    { "type": "warning", "title": "Error común", "body": "No manejar un rechazo deja una ruta de error sin explicación para la persona usuaria." },
-    { "type": "quick-check", "question": "¿Qué espera await?", "answer": "La resolución o el rechazo de una promesa." }
-  ] }
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Nivel base del concepto.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Compone cadenas, coordina concurrencia y conserva errores observables.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Diseña políticas robustas de reintento, límites y agregación asíncrona.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Introducción",
+        "body": "Una promesa representa un resultado que puede llegar más tarde o fallar.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Encadenar transformaciones",
+          "Capturar rechazos"
+        ],
+        "levelId": "foundation"
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const user = await fetchUser(id);",
+        "levelId": "foundation"
+      },
+      {
+        "type": "warning",
+        "title": "Error común",
+        "body": "No manejar un rechazo deja una ruta de error sin explicación para la persona usuaria.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Qué espera await?",
+        "answer": "La resolución o el rechazo de una promesa.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "intro",
+        "title": "Componer trabajo asíncrono",
+        "body": "Las Promises permiten expresar dependencias, concurrencia y fallos como un flujo que puede devolverse, esperarse y combinarse.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a profundizar",
+        "items": [
+          "Encadenar sin perder la Promise",
+          "Coordinar operaciones con Promise.all",
+          "Inspeccionar lotes con Promise.allSettled",
+          "Usar race como frontera observable",
+          "Distinguir trabajo secuencial de concurrente"
+        ],
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Un lote concurrente",
+        "language": "javascript",
+        "code": "const tareas = [cargarPerfil(), cargarPermisos()];\nconst [perfil, permisos] = await Promise.all(tareas);",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Inicia antes de esperar",
+        "body": "Si las operaciones son independientes, iniciarlas antes de await permite solaparlas. Promise.all espera el conjunto y conserva el orden de entrada.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Un informe completo",
+        "language": "javascript",
+        "code": "const resultados = await Promise.allSettled(tareas);\nconst fallos = resultados.filter((item) => item.status === 'rejected');",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "all y allSettled expresan políticas distintas",
+        "body": "Promise.all rechaza cuando una entrada rechaza. Promise.allSettled espera el lote completo y describe cada resultado.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "warning",
+        "title": "No dejes Promises flotantes",
+        "body": "Crear una Promise sin retornarla ni esperarla separa su ciclo de vida del caller y puede ocultar rechazos o completar demasiado pronto.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Propagar la cadena",
+        "language": "javascript",
+        "code": "function guardar(data) {\n  return validar(data).then(persistir);\n}",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "El rechazo viaja por la cadena",
+        "body": "Un rechazo omite handlers de éxito hasta encontrar una recuperación. Un catch que devuelve un valor transforma el flujo en cumplimiento.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Cuándo elegir allSettled en lugar de all?",
+        "answer": "Cuando necesitas observar cada éxito y cada fallo aunque una operación rechace.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Verifica el comportamiento observable",
+        "body": "Una solución equivalente puede usar chaining o async/await. Si el contrato no exige una técnica, ambas deben poder aprobar.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "intro",
+        "title": "Orquestación robusta entre capas",
+        "body": "En flujos reales, el caller necesita límites, reintentos finitos, resultados parciales y rechazos que conserven su significado.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a dominar",
+        "items": [
+          "Definir reintentos limitados",
+          "Componer fronteras de espera",
+          "Conservar resultados parciales",
+          "Evitar fallos asíncronos invisibles",
+          "Separar timeout, cancelación y recuperación"
+        ],
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Reintento finito",
+        "language": "javascript",
+        "code": "for (let intento = 1; intento <= maxIntentos; intento += 1) {\n  try { return await operacion(); }\n  catch (error) { if (intento === maxIntentos) throw error; }\n}",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "Reintentar es una política",
+        "body": "Debe indicar qué fallos son recuperables, cuántos intentos se permiten y qué error observa el caller al agotarlos.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Frontera de espera",
+        "language": "javascript",
+        "code": "return Promise.race([operacion, limite]);",
+        "levelId": "mastery"
+      },
+      {
+        "type": "warning",
+        "title": "Timeout no implica cancelación",
+        "body": "Dejar de esperar una operación no garantiza que su recurso se detenga. La cancelación requiere un contrato adicional cuando sea necesaria.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Agregar resultados parciales",
+        "language": "javascript",
+        "code": "const report = await Promise.allSettled(tareas);\nreturn separarExitosYFallos(report);",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "No destruyas la causa",
+        "body": "Una agregación útil conserva qué operaciones fallaron y por qué, en lugar de reemplazar todas las razones por una señal genérica.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "finally preserva el estado normal",
+        "body": "Si finally termina normalmente, el valor o rechazo anterior continúa. Si finally falla, ese nuevo fallo pasa a ser observable.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Qué debe ocurrir tras agotar todos los reintentos?",
+        "answer": "La Promise debe rechazar con un fallo observable, normalmente el último error relevante.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "Diseña contratos, no coincidencias de source",
+        "body": "La robustez se comprueba con entradas, salidas, rechazos y número de intentos observables; no buscando una implementación textual concreta.",
+        "levelId": "mastery"
+      }
+    ]
+  }
 }

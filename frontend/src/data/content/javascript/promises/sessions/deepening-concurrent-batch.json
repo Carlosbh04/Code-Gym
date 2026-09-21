@@ -1,0 +1,174 @@
+{
+  "id": "js-promises-deepening-concurrent-batch-01",
+  "title": "Coordinar resultados con Promise.all",
+  "difficulty": "intermediate",
+  "position": 1,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué forma tendrá values?",
+      "code": "const values = await Promise.all([leerA(), leerB()]);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un array con ambos valores en el orden de entrada",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "La primera Promise que termine",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Un objeto con status",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Dos Promises pendientes",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "await obtiene el array resuelto por Promise.all.",
+      "hints": [
+        "La concurrencia no cambia el orden del array.",
+        "Las dos operaciones ya forman parte del lote."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime la cadena?",
+      "code": "Promise.all([Promise.resolve(4), Promise.resolve(5)])\n  .then((values) => values.reduce((a, b) => a + b, 0))\n  .then(console.log);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "9",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "[4, 5]",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "45",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Promise { 9 }",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El then suma los valores resueltos del lote.",
+      "hints": [
+        "Promise.all entrega un array.",
+        "reduce empieza en cero."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La función pierde el lote asíncrono. Localiza el error.",
+      "code": "function cargarTodo(tareas) {\n  Promise.all(tareas);\n}\n\ncargarTodo(tareas).then(render);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Falta devolver la Promise creada por Promise.all",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Promise.all no acepta arrays",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "then no puede usarse fuera de async",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "render debe ejecutarse antes",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Sin return, el llamador recibe undefined y no puede observar el lote.",
+      "hints": [
+        "Mira el valor de retorno de cargarTodo.",
+        "La Promise debe atravesar la frontera de la función."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige sumarResultados para resolver ambas entradas y devolver su suma.",
+      "code": "function sumarResultados(primero, segundo) {\n  Promise.all([primero, segundo]).then(([a, b]) => a + b);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            4,
+            7
+          ],
+          "expected": 11,
+          "call": "sumarResultados(Promise.resolve(input[0]), Promise.resolve(input[1]))",
+          "description": "suma dos resultados asíncronos"
+        },
+        {
+          "input": [
+            0,
+            -2
+          ],
+          "expected": -2,
+          "call": "sumarResultados(Promise.resolve(input[0]), Promise.resolve(input[1]))",
+          "description": "conserva ceros y negativos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La función debe retornar la Promise que resuelve la suma.",
+      "hints": [
+        "Devuelve el resultado de Promise.all.",
+        "El Worker espera la Promise retornada."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}
