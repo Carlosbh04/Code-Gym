@@ -422,7 +422,7 @@ describe('POST /training/runs/:runId/execute', () => {
       executeCodePreview,
     ).toHaveBeenCalledWith({
       userId:
-        expect.any(String),
+        'user-1',
       runId: 'run-1',
       exerciseId: 'step-1',
       code:

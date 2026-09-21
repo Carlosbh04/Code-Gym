@@ -60,7 +60,6 @@ describe(
 
         if (
           publicStep === undefined
-          || publicStep.type !== 'fix-code'
         ) {
           throw new Error(
             'Expected fix-code pilot step',

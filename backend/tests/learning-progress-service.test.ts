@@ -344,10 +344,10 @@ describe(
               findByUserAndConceptId:
                 vi.fn()
                   .mockImplementation(
-                    async (
+                    (
                       _userId,
                       conceptId,
-                    ) => {
+                    ) => Promise.resolve().then(() => {
                       if (
                         conceptId
                         === firstConceptId
@@ -358,7 +358,7 @@ describe(
                       }
 
                       return null;
-                    },
+                    }),
                   ),
             }),
           );
@@ -428,10 +428,10 @@ describe(
               findByUserAndConceptId:
                 vi.fn()
                   .mockImplementation(
-                    async (
+                    (
                       _userId,
                       conceptId,
-                    ) => {
+                    ) => Promise.resolve().then(() => {
                       if (
                         conceptId
                         === firstConceptId
@@ -446,7 +446,7 @@ describe(
                       }
 
                       return null;
-                    },
+                    }),
                   ),
             }),
           );
@@ -809,10 +809,10 @@ describe(
             ]
           >()
             .mockImplementation(
-              async (
+              (
                 _userId,
                 conceptId,
-              ) => {
+              ) => Promise.resolve().then(() => {
                 if (
                   conceptId
                   === secondConceptId
@@ -827,7 +827,7 @@ describe(
                 }
 
                 return null;
-              },
+              }),
             );
 
         const service =
@@ -943,6 +943,25 @@ describe(
     it(
       'passes quiz at the exact threshold',
       async () => {
+        const markQuizPassed =
+          vi.fn<
+            LearningProgressRepository[
+              'markQuizPassed'
+            ]
+          >()
+            .mockResolvedValue(
+              createRecord(
+                firstConceptId,
+                {
+                  theoryCompletedAt:
+                    firstTimestamp,
+
+                  quizPassedAt:
+                    secondTimestamp,
+                },
+              ),
+            );
+
         const repository =
           createRepository({
             findByUserAndConceptId:
@@ -957,20 +976,7 @@ describe(
                   ),
                 ),
 
-            markQuizPassed:
-              vi.fn()
-                .mockResolvedValue(
-                  createRecord(
-                    firstConceptId,
-                    {
-                      theoryCompletedAt:
-                        firstTimestamp,
-
-                      quizPassedAt:
-                        secondTimestamp,
-                    },
-                  ),
-                ),
+            markQuizPassed,
 
             getRequiredPracticeCompletionStatus:
               vi.fn()
@@ -1019,7 +1025,7 @@ describe(
           );
 
         expect(
-          repository.markQuizPassed,
+          markQuizPassed,
         ).toHaveBeenCalled();
       },
     );

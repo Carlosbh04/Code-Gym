@@ -72,34 +72,35 @@ describe(
             'js-array-transform',
         });
 
+        const secondFindFirstInput:
+        unknown =
+          concept.findFirst
+            .mock.calls[1]?.[0];
+
         expect(
-          concept.findFirst,
-        ).toHaveBeenNthCalledWith(
-          2,
-          expect.objectContaining({
-            where:
-              expect.objectContaining({
-                topicId:
-                  'js-arrays',
+          secondFindFirstInput,
+        ).toMatchObject({
+          where: {
+            topicId:
+              'js-arrays',
 
-                position: {
-                  lt:
-                    3,
-                },
-              }),
+            position: {
+              lt:
+                3,
+            },
+          },
 
-            orderBy: [
-              {
-                position:
-                  'desc',
-              },
-              {
-                id:
-                  'desc',
-              },
-            ],
-          }),
-        );
+          orderBy: [
+            {
+              position:
+                'desc',
+            },
+            {
+              id:
+                'desc',
+            },
+          ],
+        });
       },
     );
 
@@ -202,26 +203,28 @@ describe(
           1,
         );
 
+        const findFirstInput:
+        unknown =
+          exerciseSession.findFirst
+            .mock.calls[0]?.[0];
+
         expect(
-          exerciseSession.findFirst,
-        ).toHaveBeenCalledWith(
-          expect.objectContaining({
-            where:
-              expect.objectContaining({
-                conceptId,
-                levelId:
-                  'FOUNDATION',
-                kind:
-                  'PRACTICE',
-                requiredForProgression:
-                  true,
-                position: {
-                  lt:
-                    4,
-                },
-              }),
-          }),
-        );
+          findFirstInput,
+        ).toMatchObject({
+          where: {
+            conceptId,
+            levelId:
+              'FOUNDATION',
+            kind:
+              'PRACTICE',
+            requiredForProgression:
+              true,
+            position: {
+              lt:
+                4,
+            },
+          },
+        });
 
         expect(
           completedSession.findFirst,
@@ -309,22 +312,24 @@ describe(
           1,
         );
 
+        const findManyInput:
+        unknown =
+          exerciseSession.findMany
+            .mock.calls[0]?.[0];
+
         expect(
-          exerciseSession.findMany,
-        ).toHaveBeenCalledWith(
-          expect.objectContaining({
-            where:
-              expect.objectContaining({
-                conceptId,
-                levelId:
-                  'FOUNDATION',
-                kind:
-                  'PRACTICE',
-                requiredForProgression:
-                  true,
-              }),
-          }),
-        );
+          findManyInput,
+        ).toMatchObject({
+          where: {
+            conceptId,
+            levelId:
+              'FOUNDATION',
+            kind:
+              'PRACTICE',
+            requiredForProgression:
+              true,
+          },
+        });
 
         expect(
           completedSession.findMany,

@@ -95,7 +95,7 @@ TrainingRepository {
 
     recordScoredAnswerAndMaybeComplete:
       vi.fn(),
-  } as unknown as TrainingRepository;
+  };
 }
 
 function createVerifier(

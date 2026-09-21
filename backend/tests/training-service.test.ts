@@ -1136,7 +1136,7 @@ describe('TrainingService · code preview', () => {
         repository as never,
         contentVerifier as never,
         undefined,
-        codeExecutionService as never,
+        codeExecutionService,
       );
 
     await expect(

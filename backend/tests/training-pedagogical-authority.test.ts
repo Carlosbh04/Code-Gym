@@ -9,6 +9,10 @@ import {
   ContentVerifier,
 } from '../src/content/content-verifier.js';
 
+import type {
+  CodeExecutionService,
+} from '../src/code-execution/code-execution-service.js';
+
 import {
   verifierManifest,
 } from '../src/content/generated/verifier-manifest.js';
@@ -123,7 +127,7 @@ function createHarness() {
       ]
     >()
       .mockImplementation(
-        async (input) => {
+        (input) => {
           const correctExercises =
             run.correctExercises
             + (
@@ -132,7 +136,7 @@ function createHarness() {
                 : 0
             );
 
-          return {
+          return Promise.resolve({
             attempt: {
               id:
                 'attempt-pedagogical-1',
@@ -191,7 +195,7 @@ function createHarness() {
               hintsUsed:
                 0,
             },
-          };
+          });
         },
       );
 
@@ -214,7 +218,9 @@ function createHarness() {
   };
 
   const execute =
-    vi.fn()
+    vi.fn<
+      CodeExecutionService['execute']
+    >()
       .mockResolvedValue({
         passed:
           true,
@@ -334,18 +340,21 @@ describe(
           execute,
         ).toHaveBeenCalledOnce();
 
-        expect(
-          execute,
-        ).toHaveBeenCalledWith(
-          expect.objectContaining({
-            code:
-              expect.stringContaining(
-                'for (const numero of numeros)',
-              ),
+        const executeInput =
+          execute.mock.calls[0]?.[0];
 
-            testCases:
-              expect.any(Array),
-          }),
+        expect(
+          executeInput?.code,
+        ).toContain(
+          'for (const numero of numeros)',
+        );
+
+        expect(
+          Array.isArray(
+            executeInput?.testCases,
+          ),
+        ).toBe(
+          true,
         );
 
         /*

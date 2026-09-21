@@ -617,7 +617,16 @@ export class TrainingService {
       && completionMetadata !== null
       && completionMetadata.progressionEnabled
     ) {
-      await this.learningProgressService!
+      const learningProgressService =
+        this.learningProgressService;
+
+      if (
+        learningProgressService === undefined
+      ) {
+        throw new TrainingProgressionUnavailableError();
+      }
+
+      await learningProgressService
         .reconcileTrainingCompletionForLevel(
           input.userId,
           {

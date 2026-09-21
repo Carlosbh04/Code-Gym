@@ -252,19 +252,19 @@ describe(
         repository
           .findLevelByUserAndConceptId
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
                 string,
               levelId:
                 string,
-            ) =>
+            ) => Promise.resolve(
               levelId === 'FOUNDATION'
                 ? levelRecord(
                     'FOUNDATION',
                   )
-                : null,
+                : null),
           );
 
         const service =
@@ -391,14 +391,14 @@ describe(
         repository
           .findLevelByUserAndConceptId
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
                 string,
               levelId:
                 string,
-            ) => {
+            ) => Promise.resolve().then(() => {
               if (
                 levelId === 'DEEPENING'
               ) {
@@ -429,7 +429,7 @@ describe(
               }
 
               return null;
-            },
+            }),
           );
 
         repository
@@ -572,14 +572,14 @@ describe(
         repository
           .findLevelByUserAndConceptId
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
                 string,
               requestedLevelId:
                 string,
-            ) =>
+            ) => Promise.resolve(
               requestedLevelId
               === 'FOUNDATION'
                 ? levelRecord(
@@ -590,7 +590,7 @@ describe(
                         completedAt,
                     },
                   )
-                : null,
+                : null),
           );
 
         repository
@@ -940,14 +940,14 @@ describe(
         repository
           .findLevelByUserAndConceptId
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
                 string,
               levelId:
                 string,
-            ) => {
+            ) => Promise.resolve().then(() => {
               if (
                 levelId === 'DEEPENING'
               ) {
@@ -978,7 +978,7 @@ describe(
               }
 
               return null;
-            },
+            }),
           );
 
         repository
@@ -1105,25 +1105,25 @@ describe(
         repository
           .findByUserAndConceptId
           .mockImplementation(
-            async () =>
-              aggregate,
+            () => Promise.resolve(
+              aggregate),
           );
 
         repository
           .findLevelByUserAndConceptId
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
                 string,
               levelId:
                 string,
-            ) =>
+            ) => Promise.resolve(
               levels.get(
                 levelId as LevelId,
               )
-              ?? null,
+              ?? null),
           );
 
         repository
@@ -1135,7 +1135,7 @@ describe(
         repository
           .completeLevelTheory
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
@@ -1144,7 +1144,7 @@ describe(
                 string,
               at:
                 Date,
-            ) => {
+            ) => Promise.resolve().then(() => {
               const typedLevel =
                 levelId as LevelId;
 
@@ -1172,13 +1172,13 @@ describe(
               );
 
               return next;
-            },
+            }),
           );
 
         repository
           .markLevelQuizPassed
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
@@ -1187,7 +1187,7 @@ describe(
                 string,
               at:
                 Date,
-            ) => {
+            ) => Promise.resolve().then(() => {
               const typedLevel =
                 levelId as LevelId;
 
@@ -1220,20 +1220,20 @@ describe(
               );
 
               return next;
-            },
+            }),
           );
 
         repository
           .getRequiredPracticeCompletionStatusForLevel
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
                 string,
               levelId:
                 string,
-            ) => {
+            ) => Promise.resolve().then(() => {
               const completed =
                 completedPractices.get(
                   levelId as LevelId,
@@ -1250,13 +1250,13 @@ describe(
                 allCompleted:
                   completed === 4,
               };
-            },
+            }),
           );
 
         repository
           .markLevelPracticeCompleted
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
@@ -1265,7 +1265,7 @@ describe(
                 string,
               at:
                 Date,
-            ) => {
+            ) => Promise.resolve().then(() => {
               const typedLevel =
                 levelId as LevelId;
 
@@ -1298,13 +1298,13 @@ describe(
               );
 
               return next;
-            },
+            }),
           );
 
         repository
           .markLevelCheckpointCompleted
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
@@ -1313,7 +1313,7 @@ describe(
                 string,
               at:
                 Date,
-            ) => {
+            ) => Promise.resolve().then(() => {
               const typedLevel =
                 levelId as LevelId;
 
@@ -1349,27 +1349,27 @@ describe(
               );
 
               return next;
-            },
+            }),
           );
 
         repository
           .markConceptCompleted
           .mockImplementation(
-            async (
+            (
               _userId:
                 string,
               _conceptId:
                 string,
               at:
                 Date,
-            ) => {
+            ) => Promise.resolve().then(() => {
               aggregate =
                 aggregateRecord(
                   at,
                 );
 
               return aggregate;
-            },
+            }),
           );
 
         const service =

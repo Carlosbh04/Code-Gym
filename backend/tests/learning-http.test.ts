@@ -460,16 +460,22 @@ describe(
           'FOUNDATION',
         );
 
+        const responseBody:
+        unknown =
+          response.body;
+
         expect(
-          response.body.state,
+          responseBody,
         ).toMatchObject({
-          conceptId,
-          levelId:
-            'foundation',
-          previousLevelId:
-            null,
-          nextLevelId:
-            'deepening',
+          state: {
+            conceptId,
+            levelId:
+              'foundation',
+            previousLevelId:
+              null,
+            nextLevelId:
+              'deepening',
+          },
         });
       },
     );
@@ -515,16 +521,22 @@ describe(
           'FOUNDATION',
         );
 
+        const responseBody:
+        unknown =
+          response.body;
+
         expect(
-          response.body.state,
+          responseBody,
         ).toMatchObject({
-          conceptId,
-          levelId:
-            'foundation',
-          previousLevelId:
-            null,
-          nextLevelId:
-            'deepening',
+          state: {
+            conceptId,
+            levelId:
+              'foundation',
+            previousLevelId:
+              null,
+            nextLevelId:
+              'deepening',
+          },
         });
       },
     );
