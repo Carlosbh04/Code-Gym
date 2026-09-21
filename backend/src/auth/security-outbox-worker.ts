@@ -2,10 +2,6 @@ import {
   randomUUID,
 } from 'node:crypto';
 
-import {
-  SecurityOutboxEventType,
-} from '../generated/prisma/client.js';
-
 import type {
   AccountLockMailer,
 } from './account-lock-mailer.js';
@@ -267,14 +263,10 @@ export class SecurityOutboxWorker {
           undefined;
       }
 
-      if (
-        !this.stopping
-      ) {
-        this.schedule(
-          this.options
-            .pollIntervalMs,
-        );
-      }
+      this.schedule(
+        this.options
+          .pollIntervalMs,
+      );
     }
   }
 
@@ -331,17 +323,9 @@ export class SecurityOutboxWorker {
     event:
       SecurityOutboxClaim,
   ): Promise<void> {
-    switch (
-      event.type
-    ) {
-      case SecurityOutboxEventType
-        .ACCOUNT_LOCKED:
-        await this.processAccountLocked(
-          event,
-        );
-
-        return;
-    }
+    await this.processAccountLocked(
+      event,
+    );
   }
 
 

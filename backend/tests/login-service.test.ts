@@ -180,7 +180,7 @@ function createAuthSessionRepository(
         ),
 
     touchSessionActivity:
-      async () => true,
+      () => Promise.resolve(true),
 
     revokeSessionByRefreshTokenDigest:
       vi
@@ -1136,8 +1136,9 @@ describe(
         const userRepository =
           createSecurityAwareUserRepository();
 
-        vi.mocked(
-          userRepository.findUserByEmail,
+        vi.spyOn(
+          userRepository,
+          'findUserByEmail',
         ).mockResolvedValue(
           null,
         );

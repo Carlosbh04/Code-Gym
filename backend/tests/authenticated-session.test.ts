@@ -130,7 +130,7 @@ function createRepository(
           null,
         ),
     touchSessionActivity:
-      async () => true,
+      () => Promise.resolve(true),
 
     revokeSessionByRefreshTokenDigest:
       vi

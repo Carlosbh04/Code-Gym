@@ -123,8 +123,8 @@ describe(
         let first =
           true;
 
-        const repository:
-          SecurityOutboxRepository = {
+        const repository =
+          {
             claimNext:
               vi.fn(
                 () => {
@@ -160,16 +160,16 @@ describe(
                     true,
                   ),
               ),
-          };
+          } satisfies SecurityOutboxRepository;
 
-        const mailer:
-          AccountLockMailer = {
+        const mailer =
+          {
             sendAccountLocked:
               vi.fn(
                 () =>
                   Promise.resolve(),
               ),
-          };
+          } satisfies AccountLockMailer;
 
         const logger = {
           info:
@@ -253,8 +253,8 @@ describe(
         let first =
           true;
 
-        const repository:
-          SecurityOutboxRepository = {
+        const repository =
+          {
             claimNext() {
               if (
                 first
@@ -290,10 +290,10 @@ describe(
                     true,
                   ),
               ),
-          };
+          } satisfies SecurityOutboxRepository;
 
-        const mailer:
-          AccountLockMailer = {
+        const mailer =
+          {
             sendAccountLocked() {
               return Promise.reject(
                 new Error(
@@ -301,7 +301,7 @@ describe(
                 ),
               );
             },
-          };
+          } satisfies AccountLockMailer;
 
         const logger = {
           info:
@@ -389,8 +389,8 @@ describe(
     it(
       'start and stop are idempotent',
       async () => {
-        const repository:
-          SecurityOutboxRepository = {
+        const repository =
+          {
             claimNext:
               vi.fn(
                 () =>
@@ -414,16 +414,16 @@ describe(
                     true,
                   ),
               ),
-          };
+          } satisfies SecurityOutboxRepository;
 
-        const mailer:
-          AccountLockMailer = {
+        const mailer =
+          {
             sendAccountLocked:
               vi.fn(
                 () =>
                   Promise.resolve(),
               ),
-          };
+          } satisfies AccountLockMailer;
 
         const worker =
           new SecurityOutboxWorker(

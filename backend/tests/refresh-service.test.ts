@@ -70,7 +70,7 @@ function createRepository(
       }),
 
     touchSessionActivity:
-      async () => true,
+      () => Promise.resolve(true),
 
     revokeSessionByRefreshTokenDigest: vi
       .fn<AuthSessionRepository['revokeSessionByRefreshTokenDigest']>()

@@ -1,6 +1,6 @@
-import {
+import type {
+  PrismaClient,
   SecurityOutboxEventType,
-  type PrismaClient,
 } from '../generated/prisma/client.js';
 
 

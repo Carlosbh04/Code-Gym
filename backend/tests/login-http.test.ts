@@ -1092,11 +1092,13 @@ describe(
 
         const isAccountLockedByEmail =
           vi.fn(
-            async (
+            (
               email: string,
             ) =>
-              email
-              === 'locked@example.test',
+              Promise.resolve(
+                email
+                === 'locked@example.test',
+              ),
           );
 
         const app =
@@ -1108,8 +1110,10 @@ describe(
               isAccountLockedByEmail,
               getActiveLoginCooldownUntilByEmail:
                 vi.fn(
-                  async () =>
-                    null,
+                  () =>
+                    Promise.resolve(
+                      null,
+                    ),
                 ),
             },
           );

@@ -296,11 +296,12 @@ RequestHandler {
       });
     },
 
-    async handler(
+    handler(
       request: Request,
       response: Response,
       next,
-    ): Promise<void> {
+    ): void {
+      void (async () => {
       const body =
         request.body as
           | {
@@ -369,14 +370,15 @@ RequestHandler {
         }
       }
 
-      response.status(429).json({
-        error: {
-          code:
-            'RATE_LIMITED',
-          message:
-            'Too many requests',
-        },
-      });
+        response.status(429).json({
+          error: {
+            code:
+              'RATE_LIMITED',
+            message:
+              'Too many requests',
+          },
+        });
+      })().catch(next);
     },
   });
 }
@@ -422,10 +424,12 @@ RequestHandler {
       );
     },
 
-    async handler(
+    handler(
       request: Request,
       response: Response,
-    ): Promise<void> {
+      next,
+    ): void {
+      void (async () => {
       const body =
         request.body as
           | {
@@ -500,14 +504,15 @@ RequestHandler {
         }
       }
 
-      response.status(429).json({
-        error: {
-          code:
-            'RATE_LIMITED',
-          message:
-            'Too many requests',
-        },
-      });
+        response.status(429).json({
+          error: {
+            code:
+              'RATE_LIMITED',
+            message:
+              'Too many requests',
+          },
+        });
+      })().catch(next);
     },
   });
 }

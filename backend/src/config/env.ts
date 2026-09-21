@@ -77,7 +77,7 @@ const rawEnvSchema = z.object({
   REDIS_URL: z
     .string()
     .trim()
-    .url()
+    .pipe(z.url())
     .refine(
       (value) => {
         try {

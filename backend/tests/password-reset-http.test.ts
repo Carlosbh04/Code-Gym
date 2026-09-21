@@ -139,8 +139,12 @@ describe('password reset HTTP protocol', () => {
 
     const resetKey =
       vi.fn(
-        (_key: string) =>
-          Promise.resolve(),
+        (key: string) =>
+          Promise.resolve(
+            key,
+          ).then(
+            () => undefined,
+          ),
       );
 
     const store = {

@@ -287,7 +287,7 @@ class FakeDatabase implements RuntimeDatabase {
       ),
 
     touchSessionActivity:
-      async () => true,
+      () => Promise.resolve(true),
 
     revokeSessionByRefreshTokenDigest: () =>
       Promise.reject(

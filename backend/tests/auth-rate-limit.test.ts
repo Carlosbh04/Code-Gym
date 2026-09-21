@@ -455,8 +455,15 @@ describe('login failure throttling', () => {
         request,
         response,
       ) => {
+        const body =
+          request.body as
+            | {
+                password?: unknown;
+              }
+            | undefined;
+
         if (
-          request.body.password
+          body?.password
           === 'correct-password'
         ) {
           response
@@ -627,9 +634,11 @@ describe('login failure throttling', () => {
           loginFailureKeySecret:
             TEST_RATE_LIMIT_KEY_SECRET,
           isLoginAccountLocked:
-            async (email) =>
-              email
-              === 'locked@example.test',
+            (email) =>
+              Promise.resolve(
+                email
+                === 'locked@example.test',
+              ),
         });
 
       const app =
@@ -719,11 +728,13 @@ describe('login failure throttling', () => {
           loginFailureKeySecret:
             TEST_RATE_LIMIT_KEY_SECRET,
           isLoginAccountLocked:
-            async () =>
-              false,
+            () =>
+              Promise.resolve(false),
           getLoginAccountCooldownUntil:
-            async () =>
-              cooldownUntil,
+            () =>
+              Promise.resolve(
+                cooldownUntil,
+              ),
         });
 
       const app =
@@ -814,14 +825,16 @@ describe('login failure throttling', () => {
           loginFailureKeySecret:
             TEST_RATE_LIMIT_KEY_SECRET,
           isLoginAccountLocked:
-            async () =>
-              false,
+            () =>
+              Promise.resolve(false),
           getLoginAccountCooldownUntil:
-            async (email) =>
-              email
-              === 'cooldown@example.test'
-                ? cooldownUntil
-                : null,
+            (email) =>
+              Promise.resolve(
+                email
+                === 'cooldown@example.test'
+                  ? cooldownUntil
+                  : null,
+              ),
         });
 
       const app =
@@ -904,12 +917,14 @@ describe('login failure throttling', () => {
           loginFailureKeySecret:
             TEST_RATE_LIMIT_KEY_SECRET,
           isLoginAccountLocked:
-            async (email) =>
-              email
-              === 'locked@example.test',
+            (email) =>
+              Promise.resolve(
+                email
+                === 'locked@example.test',
+              ),
           getLoginAccountCooldownUntil:
-            async () =>
-              null,
+            () =>
+              Promise.resolve(null),
         });
 
       const app =

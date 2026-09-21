@@ -203,9 +203,6 @@ implements AuthSessionRepository {
         if (
           securityState.securityLockedAt
             !== null
-          && securityState
-            ?.securityLockedAt
-            !== undefined
         ) {
           throw new AccountLockedError();
         }
@@ -216,8 +213,6 @@ implements AuthSessionRepository {
         if (
           securityState.loginCooldownUntil
             !== null
-          && securityState.loginCooldownUntil
-            !== undefined
           && securityState
             .loginCooldownUntil
             .getTime()

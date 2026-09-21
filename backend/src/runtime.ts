@@ -4,7 +4,6 @@ import type { Logger } from 'pino';
 import { createClient } from 'redis';
 import {
   RedisStore,
-  type RedisReply,
 } from 'rate-limit-redis';
 import {
   createApp,
@@ -757,7 +756,7 @@ export async function startRuntime(
                 (...args: string[]) =>
                   client.sendCommand(
                     args,
-                  ) as Promise<RedisReply>,
+                  ),
               prefix:
                 'codegym:rate-limit:login-fail:',
             });
