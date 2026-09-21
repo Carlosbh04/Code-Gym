@@ -100,7 +100,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "control",
           "text": "La recursión no tiene límite de intentos",
           "correct": true
         },

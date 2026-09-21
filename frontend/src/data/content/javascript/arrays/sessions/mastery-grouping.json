@@ -134,7 +134,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "clave",
+          "id": "conceptual",
           "text": "Conceptual: usa acc.key en vez de acc[key]",
           "correct": true
         },

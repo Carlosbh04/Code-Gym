@@ -100,7 +100,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "contrato",
           "text": "Debe distinguir fulfilled de rejected antes de leer value",
           "correct": true
         },

@@ -91,7 +91,28 @@
       "prompt": "Todas las reservas comparten accidentalmente el mismo cupo. Localiza la declaración responsable.",
       "code": "let disponible = 0;\n\nfunction crearReserva(capacidad) {\n  disponible = capacidad;\n\n  return {\n    reservar() {\n      if (disponible > 0) disponible -= 1;\n      return disponible;\n    },\n    leer() {\n      return disponible;\n    },\n  };\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "estado-compartido",
+          "text": "Estado compartido: disponible es global y una instancia sobrescribe el cupo de las demás",
+          "correct": true
+        },
+        {
+          "id": "retorno",
+          "text": "Retorno: la función necesita devolver dos valores en vez de uno",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: una closure no puede contener funciones anidadas",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: el callback debe convertirse en una Promise",
+          "correct": false
+        }
+      ],
       "errorLines": [
         1
       ],

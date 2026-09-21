@@ -91,7 +91,28 @@
       "prompt": "El lector debería conservar el modo existente al crearse. Localiza la lectura que mantiene una dependencia viva accidental.",
       "code": "function crearLector(config) {\n  return function leer() {\n    return config.modo;\n  };\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "referencia-viva",
+          "text": "Referencia viva: leer consulta modoActual en cada llamada en vez de conservar el modo de creación",
+          "correct": true
+        },
+        {
+          "id": "retorno",
+          "text": "Retorno: la función necesita devolver dos valores en vez de uno",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: una closure no puede contener funciones anidadas",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: el callback debe convertirse en una Promise",
+          "correct": false
+        }
+      ],
       "errorLines": [
         3
       ],

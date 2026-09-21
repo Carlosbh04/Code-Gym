@@ -91,7 +91,28 @@
       "prompt": "Se quiere cambiar ciudad sin alterar el original. Localiza la mutación accidental.",
       "code": "function cambiarCiudad(usuario, ciudad) {\n  const copia = { ...usuario };\n  copia.perfil.ciudad = ciudad;\n  return copia;\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "mutacion",
+          "text": "Mutación: perfil conserva la referencia original porque solo se copió el objeto exterior",
+          "correct": true
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: spread no puede utilizarse dentro de un objeto",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: las propiedades de objeto solo pueden contener strings",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la lectura de propiedades requiere await",
+          "correct": false
+        }
+      ],
       "errorLines": [
         3
       ],

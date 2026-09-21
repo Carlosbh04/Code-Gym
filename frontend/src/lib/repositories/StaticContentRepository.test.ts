@@ -5,6 +5,7 @@ import type { IContentRepository } from '@/types/repository';
 import { StaticContentRepository } from './StaticContentRepository';
 
 const ARRAYS_CONCEPT = 'js-array-iteration';
+const VARIABLES_CONCEPT = 'js-variables-basics';
 const FUNCTIONS_CONCEPT = 'js-function-basics';
 const CLOSURES_CONCEPT = 'js-closure-basics';
 const PROMISES_CONCEPT = 'js-promise-flow';
@@ -179,6 +180,31 @@ describe('StaticContentRepository (T019)', () => {
         'js-arrays-reduce-accumulator-01',
 ]);
       expect(sessions.every((s) => s.conceptId === ARRAYS_CONCEPT)).toBe(true);
+    });
+
+    it('devuelve las 13 sesiones de Variables', async () => {
+      const sessions = await repo.getSessionsByConcept(VARIABLES_CONCEPT);
+
+      expect(sessions.map((session) => session.id).sort()).toEqual([
+        'js-variables-basics-01',
+        'js-variables-deepening-checkpoint-01',
+        'js-variables-deepening-const-values-01',
+        'js-variables-deepening-quiz-01',
+        'js-variables-deepening-shadowing-01',
+        'js-variables-deepening-tdz-coercion-01',
+        'js-variables-foundation-checkpoint-01',
+        'js-variables-foundation-quiz-01',
+        'js-variables-mastery-aliasing-01',
+        'js-variables-mastery-checkpoint-01',
+        'js-variables-mastery-nested-scopes-01',
+        'js-variables-mastery-quiz-01',
+        'js-variables-mastery-state-tracing-01',
+      ]);
+      expect(
+        sessions.every(
+          (session) => session.conceptId === VARIABLES_CONCEPT,
+        ),
+      ).toBe(true);
     });
 
     it(
@@ -672,6 +698,7 @@ describe('StaticContentRepository (T019)', () => {
 
       for (const conceptId of [
         'js-array-iteration',
+        VARIABLES_CONCEPT,
         'js-function-basics',
         'js-closure-basics',
         PROMISES_CONCEPT,
@@ -695,9 +722,10 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 113 sesiones de JavaScript conservan su contrato', async () => {
+    it('las 126 sesiones de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
+        ...(await repo.getSessionsByConcept(VARIABLES_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
         ...(await repo.getSessionsByConcept(CLOSURES_CONCEPT)),
         ...(await repo.getSessionsByConcept(PROMISES_CONCEPT)),
@@ -706,8 +734,8 @@ describe('StaticContentRepository (T019)', () => {
         ...(await repo.getSessionsByConcept(ERRORS_CONCEPT)),
       ];
 
-      expect(all).toHaveLength(113);
-      expect(new Set(all.map((s) => s.id)).size).toBe(113);
+      expect(all).toHaveLength(126);
+      expect(new Set(all.map((s) => s.id)).size).toBe(126);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length >= 1)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);

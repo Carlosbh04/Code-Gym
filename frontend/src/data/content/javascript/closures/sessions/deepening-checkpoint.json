@@ -91,7 +91,28 @@
       "prompt": "Todos los historiales están compartiendo eventos. Localiza la declaración responsable.",
       "code": "const eventos = [];\n\nfunction crearHistorial() {\n  return {\n    agregar(x) {\n      eventos.push(x);\n    },\n    cantidad() {\n      return eventos.length;\n    },\n  };\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "estado-compartido",
+          "text": "Estado compartido: eventos está fuera de la fábrica y todas las instancias capturan el mismo array",
+          "correct": true
+        },
+        {
+          "id": "retorno",
+          "text": "Retorno: la función necesita devolver dos valores en vez de uno",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: una closure no puede contener funciones anidadas",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: el callback debe convertirse en una Promise",
+          "correct": false
+        }
+      ],
       "errorLines": [
         1
       ],

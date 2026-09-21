@@ -100,7 +100,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "flujo",
           "text": "Falta devolver la Promise creada por Promise.all",
           "correct": true
         },

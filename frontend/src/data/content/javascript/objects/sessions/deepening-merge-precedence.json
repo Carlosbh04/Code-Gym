@@ -91,7 +91,28 @@
       "prompt": "Los cambios del usuario deberían tener prioridad, pero base los está sobrescribiendo. Localiza el orden incorrecto.",
       "code": "function combinar(base, cambios) {\n  return {\n    ...cambios,\n    ...base,\n  };\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "precedencia",
+          "text": "Precedencia: ...base aparece después y sobrescribe los cambios del usuario",
+          "correct": true
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: spread no puede utilizarse dentro de un objeto",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: las propiedades de objeto solo pueden contener strings",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la lectura de propiedades requiere await",
+          "correct": false
+        }
+      ],
       "errorLines": [
         4
       ],

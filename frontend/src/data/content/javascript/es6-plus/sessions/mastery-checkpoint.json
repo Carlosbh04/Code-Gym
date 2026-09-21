@@ -90,7 +90,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "conceptual",
           "text": "ultima-propiedad",
           "correct": "nombre se vuelve a escribir al final y puede restaurar undefined"
         },

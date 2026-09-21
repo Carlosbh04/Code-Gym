@@ -91,7 +91,28 @@
       "prompt": "Dos conversores deberían conservar configuraciones distintas. Localiza la línea que hace que ambos dependan de una variable compartida.",
       "code": "let factorActual = 1;\n\nfunction crearConversor(factor) {\n  factorActual = factor;\n\n  return function convertir(valor) {\n    return valor * factorActual;\n  };\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "estado-compartido",
+          "text": "Estado compartido: factorActual vive fuera de la fábrica y queda compartido por todos los conversores",
+          "correct": true
+        },
+        {
+          "id": "retorno",
+          "text": "Retorno: la función necesita devolver dos valores en vez de uno",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: una closure no puede contener funciones anidadas",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: el callback debe convertirse en una Promise",
+          "correct": false
+        }
+      ],
       "errorLines": [
         1
       ],

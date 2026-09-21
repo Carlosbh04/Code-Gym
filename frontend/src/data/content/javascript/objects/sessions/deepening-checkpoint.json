@@ -91,7 +91,28 @@
       "prompt": "Se quieren copiar solo claves existentes, pero una propiedad válida con valor 0 se omite. Localiza la condición.",
       "code": "function copiar(origen, claves) {\n  const resultado = {};\n  for (const clave of claves) {\n    if (origen[clave]) {\n      resultado[clave] = origen[clave];\n    }\n  }\n  return resultado;\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "existencia",
+          "text": "Existencia: comprobar origen[clave] por truthiness omite propiedades existentes con valor falsy",
+          "correct": true
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: spread no puede utilizarse dentro de un objeto",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: las propiedades de objeto solo pueden contener strings",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la lectura de propiedades requiere await",
+          "correct": false
+        }
+      ],
       "errorLines": [
         4
       ],

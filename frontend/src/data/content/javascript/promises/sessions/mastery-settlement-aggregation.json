@@ -100,7 +100,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "información",
           "text": "Sustituye cada reason por un texto genérico",
           "correct": true
         },

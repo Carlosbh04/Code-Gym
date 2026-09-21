@@ -21,17 +21,35 @@
       "code": "function calcular() {\n  let total = 5;\n  {\n    let total = 10;\n    total += 2;\n  }\n  return total;\n}",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "5", "correct": true },
-        { "id": "b", "text": "10", "correct": false },
-        { "id": "c", "text": "12", "correct": false },
-        { "id": "d", "text": "ReferenceError", "correct": false }
+        {
+          "id": "a",
+          "text": "5",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "10",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "12",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "ReferenceError",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "El bloque modifica otro binding total.",
-      "hints": ["El return está fuera del bloque."],
+      "hints": [
+        "El return está fuera del bloque."
+      ],
       "stepOrder": 1
     },
     {
@@ -41,17 +59,35 @@
       "code": "let cuenta = 0;\nfor (const valor of [1, 2, 3]) {\n  if (valor > 1) {\n    cuenta += valor;\n  }\n}\nconsole.log(cuenta);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "0", "correct": false },
-        { "id": "b", "text": "3", "correct": false },
-        { "id": "c", "text": "5", "correct": true },
-        { "id": "d", "text": "6", "correct": false }
+        {
+          "id": "a",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "3",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "5",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "6",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "El binding exterior acumula 2 y 3.",
-      "hints": ["Solo dos valores superan la condición."],
+      "hints": [
+        "Solo dos valores superan la condición."
+      ],
       "stepOrder": 2
     },
     {
@@ -60,13 +96,38 @@
       "prompt": "Localiza la declaración que impide acumular sobre el total exterior.",
       "code": "function sumar(base, valores) {\n  let total = base;\n  for (const valor of valores) {\n    let total = total + valor;\n  }\n  return total;\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [4],
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: total se vuelve a declarar por iteración y oculta el acumulador exterior",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: el valor cambia de tipo y JavaScript lo prohíbe",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: la declaración necesita un punto y coma adicional",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la actualización debería envolverse en una Promise",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        4
+      ],
       "errorType": "scope",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La declaración crea un total por iteración y lee ese binding durante su TDZ.",
-      "hints": ["El acumulador ya fue declarado antes del bucle."],
+      "hints": [
+        "El acumulador ya fue declarado antes del bucle."
+      ],
       "stepOrder": 3
     },
     {
@@ -79,13 +140,46 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": [100, [10, -5]], "expected": 105, "call": "aplicarAjustes(...input)", "description": "aplica ajustes positivos y negativos" },
-        { "input": ["20", [0, "3", -8]], "expected": 15, "call": "aplicarAjustes(...input)", "description": "convierte valores textuales y conserva cero" },
-        { "input": [-4, []], "expected": -4, "call": "aplicarAjustes(...input)", "description": "mantiene la base sin ajustes" }
+        {
+          "input": [
+            100,
+            [
+              10,
+              -5
+            ]
+          ],
+          "expected": 105,
+          "call": "aplicarAjustes(...input)",
+          "description": "aplica ajustes positivos y negativos"
+        },
+        {
+          "input": [
+            "20",
+            [
+              0,
+              "3",
+              -8
+            ]
+          ],
+          "expected": 15,
+          "call": "aplicarAjustes(...input)",
+          "description": "convierte valores textuales y conserva cero"
+        },
+        {
+          "input": [
+            -4,
+            []
+          ],
+          "expected": -4,
+          "call": "aplicarAjustes(...input)",
+          "description": "mantiene la base sin ajustes"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Actualiza el total exterior en cada vuelta sin volver a declararlo.",
-      "hints": ["Dentro del if debe haber una asignación, no otra declaración."],
+      "hints": [
+        "Dentro del if debe haber una asignación, no otra declaración."
+      ],
       "stepOrder": 4
     }
   ]

@@ -85,7 +85,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "conceptual",
           "text": "fallback",
           "correct": "|| trata la cadena vacía como ausencia aunque puede ser un valor válido"
         },

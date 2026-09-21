@@ -100,7 +100,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "silenciado",
+          "id": "flujo",
           "text": "El catch inventa un resultado válido en lugar de propagar o traducir el fallo",
           "correct": true
         },

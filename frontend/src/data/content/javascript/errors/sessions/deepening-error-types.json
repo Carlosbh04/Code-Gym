@@ -95,7 +95,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "tipo",
+          "id": "conceptual",
           "text": "El primer error debería expresar un problema de tipo",
           "correct": true
         },

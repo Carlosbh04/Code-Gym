@@ -95,7 +95,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "clasificacion",
+          "id": "contrato",
           "text": "Debe usar una señal estable del dominio como code",
           "correct": true
         },

@@ -85,7 +85,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "conceptual",
           "text": "shallow",
           "correct": "el spread exterior reemplaza limites completo en lugar de fusionar sus propiedades"
         },

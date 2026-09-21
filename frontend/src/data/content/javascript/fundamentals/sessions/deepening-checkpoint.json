@@ -21,17 +21,35 @@
       "code": "let saldo = 10;\nif (true) {\n  saldo += 5;\n}",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "Asignar al saldo existente", "correct": true },
-        { "id": "b", "text": "Declarar const saldo dentro del bloque", "correct": false },
-        { "id": "c", "text": "Declarar var saldo en cada línea", "correct": false },
-        { "id": "d", "text": "Convertir saldo en cadena", "correct": false }
+        {
+          "id": "a",
+          "text": "Asignar al saldo existente",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Declarar const saldo dentro del bloque",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Declarar var saldo en cada línea",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Convertir saldo en cadena",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La asignación actualiza el binding exterior sin crear shadowing.",
-      "hints": ["El saldo debe sobrevivir al bloque."],
+      "hints": [
+        "El saldo debe sobrevivir al bloque."
+      ],
       "stepOrder": 1
     },
     {
@@ -41,17 +59,35 @@
       "code": "const datos = { valor: 2 };\nconst alias = datos;\nalias.valor += 3;\nconsole.log(datos.valor);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "2", "correct": false },
-        { "id": "b", "text": "3", "correct": false },
-        { "id": "c", "text": "5", "correct": true },
-        { "id": "d", "text": "TypeError", "correct": false }
+        {
+          "id": "a",
+          "text": "2",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "3",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "5",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "TypeError",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "datos y alias contienen la misma referencia.",
-      "hints": ["La asignación de un objeto no crea una copia."],
+      "hints": [
+        "La asignación de un objeto no crea una copia."
+      ],
       "stepOrder": 2
     },
     {
@@ -60,13 +96,38 @@
       "prompt": "Localiza el shadowing que impide conservar el saldo actualizado.",
       "code": "function mover(saldo, cambio) {\n  if (cambio !== 0) {\n    const saldo = saldo + cambio;\n  }\n  return saldo;\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [3],
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: el binding interior saldo oculta el parámetro y se lee durante su TDZ",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: el valor cambia de tipo y JavaScript lo prohíbe",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: la declaración necesita un punto y coma adicional",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la actualización debería envolverse en una Promise",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
       "errorType": "scope",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La declaración interior oculta el parámetro y además intenta leer su propio binding antes de inicializarlo.",
-      "hints": ["No necesitas declarar otro saldo."],
+      "hints": [
+        "No necesitas declarar otro saldo."
+      ],
       "stepOrder": 3
     },
     {
@@ -79,13 +140,39 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": ["100", "25"], "expected": 125, "call": "aplicarMovimiento(...input)", "description": "suma dos valores recibidos como texto" },
-        { "input": ["10", "-3"], "expected": 7, "call": "aplicarMovimiento(...input)", "description": "aplica un movimiento negativo" },
-        { "input": ["8", ""], "expected": 8, "call": "aplicarMovimiento(...input)", "description": "mantiene el saldo si no hay movimiento" }
+        {
+          "input": [
+            "100",
+            "25"
+          ],
+          "expected": 125,
+          "call": "aplicarMovimiento(...input)",
+          "description": "suma dos valores recibidos como texto"
+        },
+        {
+          "input": [
+            "10",
+            "-3"
+          ],
+          "expected": 7,
+          "call": "aplicarMovimiento(...input)",
+          "description": "aplica un movimiento negativo"
+        },
+        {
+          "input": [
+            "8",
+            ""
+          ],
+          "expected": 8,
+          "call": "aplicarMovimiento(...input)",
+          "description": "mantiene el saldo si no hay movimiento"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Actualiza el saldo existente con el movimiento convertido; no declares otro saldo dentro del if.",
-      "hints": ["El binding que se devuelve ya existe fuera del bloque."],
+      "hints": [
+        "El binding que se devuelve ya existe fuera del bloque."
+      ],
       "stepOrder": 4
     }
   ]

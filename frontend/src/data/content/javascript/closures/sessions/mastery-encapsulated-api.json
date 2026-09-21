@@ -91,7 +91,28 @@
       "prompt": "cerrar está modificando una variable distinta a la que lee estado. Localiza la línea problemática.",
       "code": "function crearSesion() {\n  let activa = true;\n\n  return {\n    cerrar() {\n      let activa = false;\n    },\n    estado() {\n      return activa;\n    },\n  };\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: cerrar declara otra variable abierto en vez de modificar el estado privado capturado",
+          "correct": true
+        },
+        {
+          "id": "retorno",
+          "text": "Retorno: la función necesita devolver dos valores en vez de uno",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: una closure no puede contener funciones anidadas",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: el callback debe convertirse en una Promise",
+          "correct": false
+        }
+      ],
       "errorLines": [
         6
       ],

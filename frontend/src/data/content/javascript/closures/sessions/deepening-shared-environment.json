@@ -91,7 +91,28 @@
       "prompt": "restar debería modificar el mismo estado que sumar. Localiza la línea que crea un estado separado.",
       "code": "function crearMarcador(inicial) {\n  let valor = inicial;\n\n  return {\n    sumar(n) {\n      valor += n;\n    },\n    restar(n) {\n      let valor = inicial;\n      valor -= n;\n    },\n    leer() {\n      return valor;\n    },\n  };\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: la declaración local de valor oculta el binding compartido que modifica sumar",
+          "correct": true
+        },
+        {
+          "id": "retorno",
+          "text": "Retorno: la función necesita devolver dos valores en vez de uno",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: una closure no puede contener funciones anidadas",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: el callback debe convertirse en una Promise",
+          "correct": false
+        }
+      ],
       "errorLines": [
         9
       ],

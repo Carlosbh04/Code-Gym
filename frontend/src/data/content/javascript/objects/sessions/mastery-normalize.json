@@ -91,7 +91,28 @@
       "prompt": "La función debería devolver datos normalizados sin tocar la entrada. Localiza la mutación.",
       "code": "function normalizar(usuario) {\n  usuario.nombre = usuario.nombre.trim();\n  usuario.email = usuario.email.toLowerCase();\n  return usuario;\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "mutacion",
+          "text": "Mutación: las asignaciones escriben directamente sobre el objeto usuario recibido",
+          "correct": true
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: spread no puede utilizarse dentro de un objeto",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: las propiedades de objeto solo pueden contener strings",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la lectura de propiedades requiere await",
+          "correct": false
+        }
+      ],
       "errorLines": [
         2,
         3

@@ -52,17 +52,35 @@
       "code": "function ejecutar(valor, callback) {\n  return callback(valor);\n}\n\nfunction incrementar(numero) {\n  return numero + 1;\n}",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "5", "correct": true },
-        { "id": "b", "text": "4", "correct": false },
-        { "id": "c", "text": "La función incrementar", "correct": false },
-        { "id": "d", "text": "undefined", "correct": false }
+        {
+          "id": "a",
+          "text": "5",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "4",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "La función incrementar",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "ejecutar llama al callback con el valor recibido y devuelve su resultado.",
-      "hints": ["Sustituye callback por incrementar."],
+      "hints": [
+        "Sustituye callback por incrementar."
+      ],
       "stepOrder": 2
     },
     {
@@ -72,17 +90,35 @@
       "code": "function clasificar(numero) {\n  if (numero < 0) return 'negativo';\n  if (numero === 0) return 'cero';\n  return 'positivo';\n}",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "cero", "correct": true },
-        { "id": "b", "text": "negativo", "correct": false },
-        { "id": "c", "text": "positivo", "correct": false },
-        { "id": "d", "text": "undefined", "correct": false }
+        {
+          "id": "a",
+          "text": "cero",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "negativo",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "positivo",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "El primer early return no se ejecuta; el segundo resuelve el caso cero.",
-      "hints": ["Evalúa las condiciones en orden."],
+      "hints": [
+        "Evalúa las condiciones en orden."
+      ],
       "stepOrder": 3
     },
     {
@@ -91,13 +127,38 @@
       "prompt": "El callback nunca llega a ejecutarse. Localiza la salida prematura.",
       "code": "function procesar(valor, callback) {\n  return valor;\n  return callback(valor);\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [2],
+      "options": [
+        {
+          "id": "flujo",
+          "text": "Flujo: el primer return termina la función antes de ejecutar el callback",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: todos los parámetros deberían declararse como variables globales",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: JavaScript no permite devolver strings o funciones",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: toda llamada de función necesita la palabra new",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
       "errorType": "flujo",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "El primer return termina la llamada y vuelve inalcanzable la ejecución del callback.",
-      "hints": ["Nada se ejecuta después de return."],
+      "hints": [
+        "Nada se ejecuta después de return."
+      ],
       "stepOrder": 4
     }
   ]

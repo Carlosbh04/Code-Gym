@@ -21,17 +21,35 @@
       "code": "const unidades = '5';\nconst total = unidades * 2;",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "Convertir con Number(unidades) antes de operar", "correct": true },
-        { "id": "b", "text": "Cambiar const por let", "correct": false },
-        { "id": "c", "text": "Declarar unidades otra vez", "correct": false },
-        { "id": "d", "text": "Añadir una cadena vacía", "correct": false }
+        {
+          "id": "a",
+          "text": "Convertir con Number(unidades) antes de operar",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Cambiar const por let",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Declarar unidades otra vez",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Añadir una cadena vacía",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La conversión explícita documenta que la variable debe representar un número.",
-      "hints": ["El dato original procede de texto."],
+      "hints": [
+        "El dato original procede de texto."
+      ],
       "stepOrder": 1
     },
     {
@@ -41,17 +59,35 @@
       "code": "{\n  const doble = cantidad * 2;\n  const cantidad = 4;\n  console.log(doble);\n}",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "Imprime 8", "correct": false },
-        { "id": "b", "text": "Imprime NaN", "correct": false },
-        { "id": "c", "text": "ReferenceError", "correct": true },
-        { "id": "d", "text": "Imprime undefined", "correct": false }
+        {
+          "id": "a",
+          "text": "Imprime 8",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "Imprime NaN",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "ReferenceError",
+          "correct": true
+        },
+        {
+          "id": "d",
+          "text": "Imprime undefined",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "cantidad se lee durante su zona muerta temporal.",
-      "hints": ["La declaración aparece después de la lectura."],
+      "hints": [
+        "La declaración aparece después de la lectura."
+      ],
       "stepOrder": 2
     },
     {
@@ -60,13 +96,38 @@
       "prompt": "Localiza la primera lectura inválida del binding local.",
       "code": "function convertir(texto) {\n  const resultado = numero + 1;\n  const numero = Number(texto);\n  return resultado;\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [2],
+      "options": [
+        {
+          "id": "temporal-dead-zone",
+          "text": "Temporal dead zone: numero se lee antes de inicializar su binding local",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: el valor cambia de tipo y JavaScript lo prohíbe",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: la declaración necesita un punto y coma adicional",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la actualización debería envolverse en una Promise",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
       "errorType": "temporal-dead-zone",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "numero se utiliza antes de inicializarse.",
-      "hints": ["Sigue el orden real de ejecución."],
+      "hints": [
+        "Sigue el orden real de ejecución."
+      ],
       "stepOrder": 3
     },
     {
@@ -79,13 +140,39 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": ["3", 10], "expected": 30, "call": "calcularTotal(...input)", "description": "convierte una cantidad entera" },
-        { "input": ["0", 5], "expected": 0, "call": "calcularTotal(...input)", "description": "conserva el cero" },
-        { "input": ["2.5", 4], "expected": 10, "call": "calcularTotal(...input)", "description": "admite una cantidad decimal" }
+        {
+          "input": [
+            "3",
+            10
+          ],
+          "expected": 30,
+          "call": "calcularTotal(...input)",
+          "description": "convierte una cantidad entera"
+        },
+        {
+          "input": [
+            "0",
+            5
+          ],
+          "expected": 0,
+          "call": "calcularTotal(...input)",
+          "description": "conserva el cero"
+        },
+        {
+          "input": [
+            "2.5",
+            4
+          ],
+          "expected": 10,
+          "call": "calcularTotal(...input)",
+          "description": "admite una cantidad decimal"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Inicializa cantidad antes de calcular total, o convierte directamente dentro de la expresión.",
-      "hints": ["Ningún binding let o const puede leerse antes de inicializarse."],
+      "hints": [
+        "Ningún binding let o const puede leerse antes de inicializarse."
+      ],
       "stepOrder": 4
     }
   ]

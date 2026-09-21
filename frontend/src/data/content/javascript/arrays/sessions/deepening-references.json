@@ -134,7 +134,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "mutacion",
+          "id": "conceptual",
           "text": "Conceptual: se modifica directamente usuario.nombre",
           "correct": true
         },

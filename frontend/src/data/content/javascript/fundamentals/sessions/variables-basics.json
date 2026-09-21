@@ -83,7 +83,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "const-reassignment",
+          "id": "assignment-to-constant",
           "text": "Asignación: se intenta reasignar una variable declarada con const",
           "correct": true
         },

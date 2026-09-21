@@ -21,17 +21,35 @@
       "code": "let nivel = 'básico';\n\nif (true) {\n  let nivel = 'intermedio';\n  nivel = 'avanzado';\n}",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "El nivel exterior", "correct": false },
-        { "id": "b", "text": "El nivel declarado dentro del bloque", "correct": true },
-        { "id": "c", "text": "Los dos bindings", "correct": false },
-        { "id": "d", "text": "Ninguno", "correct": false }
+        {
+          "id": "a",
+          "text": "El nivel exterior",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "El nivel declarado dentro del bloque",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "Los dos bindings",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Ninguno",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La declaración interior oculta al nivel exterior dentro del bloque.",
-      "hints": ["Busca la declaración más cercana al lugar de la asignación."],
+      "hints": [
+        "Busca la declaración más cercana al lugar de la asignación."
+      ],
       "stepOrder": 1
     },
     {
@@ -41,17 +59,35 @@
       "code": "let mensaje = 'A';\n{\n  const mensaje = 'B';\n  console.log(mensaje);\n}\nconsole.log(mensaje);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "B / A", "correct": true },
-        { "id": "b", "text": "B / B", "correct": false },
-        { "id": "c", "text": "A / A", "correct": false },
-        { "id": "d", "text": "ReferenceError", "correct": false }
+        {
+          "id": "a",
+          "text": "B / A",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "B / B",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "A / A",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "ReferenceError",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Cada console.log resuelve un binding distinto.",
-      "hints": ["El binding interior deja de existir al cerrar el bloque."],
+      "hints": [
+        "El binding interior deja de existir al cerrar el bloque."
+      ],
       "stepOrder": 2
     },
     {
@@ -60,13 +96,38 @@
       "prompt": "Se quería actualizar el resultado exterior. Localiza la línea que crea otro binding por error.",
       "code": "function calcular(activo) {\n  let resultado = 'inactivo';\n  if (activo) {\n    const resultado = 'activo';\n  }\n  return resultado;\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [4],
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: const resultado crea un binding interior en lugar de actualizar el exterior",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: el valor cambia de tipo y JavaScript lo prohíbe",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: la declaración necesita un punto y coma adicional",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la actualización debería envolverse en una Promise",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        4
+      ],
       "errorType": "scope",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "const resultado declara un binding interior en vez de asignar el exterior.",
-      "hints": ["La línea problemática repite una declaración existente."],
+      "hints": [
+        "La línea problemática repite una declaración existente."
+      ],
       "stepOrder": 3
     },
     {
@@ -79,13 +140,30 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": "  Ada  ", "expected": "Ada", "call": "normalizarNombre(input)", "description": "elimina espacios externos" },
-        { "input": "", "expected": "sin nombre", "call": "normalizarNombre(input)", "description": "usa fallback para una cadena vacía" },
-        { "input": "Lin", "expected": "Lin", "call": "normalizarNombre(input)", "description": "conserva un nombre ya normalizado" }
+        {
+          "input": "  Ada  ",
+          "expected": "Ada",
+          "call": "normalizarNombre(input)",
+          "description": "elimina espacios externos"
+        },
+        {
+          "input": "",
+          "expected": "sin nombre",
+          "call": "normalizarNombre(input)",
+          "description": "usa fallback para una cadena vacía"
+        },
+        {
+          "input": "Lin",
+          "expected": "Lin",
+          "call": "normalizarNombre(input)",
+          "description": "conserva un nombre ya normalizado"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Actualiza el resultado exterior o devuelve directamente cada resultado; no declares otro binding con el mismo nombre.",
-      "hints": ["Dentro del if necesitas actualizar el binding que se devuelve."],
+      "hints": [
+        "Dentro del if necesitas actualizar el binding que se devuelve."
+      ],
       "stepOrder": 4
     }
   ]

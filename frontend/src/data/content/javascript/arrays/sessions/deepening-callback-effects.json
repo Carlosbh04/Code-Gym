@@ -97,7 +97,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "mutacion",
+          "id": "conceptual",
           "text": "Conceptual: usuario.activo = ... modifica el objeto",
           "correct": true
         },

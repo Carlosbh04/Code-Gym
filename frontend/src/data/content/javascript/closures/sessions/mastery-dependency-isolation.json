@@ -91,7 +91,28 @@
       "prompt": "Dos loggers deberían escribir en destinos distintos. Localiza la dependencia global que provoca interferencia.",
       "code": "let escribirActual;\n\nfunction crearLogger(escribir, prefijo) {\n  escribirActual = escribir;\n\n  return function log(mensaje) {\n    escribirActual(prefijo + mensaje);\n  };\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "estado-compartido",
+          "text": "Estado compartido: escribirActual es global y la última instancia reemplaza la dependencia de las anteriores",
+          "correct": true
+        },
+        {
+          "id": "retorno",
+          "text": "Retorno: la función necesita devolver dos valores en vez de uno",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: una closure no puede contener funciones anidadas",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: el callback debe convertirse en una Promise",
+          "correct": false
+        }
+      ],
       "errorLines": [
         1
       ],

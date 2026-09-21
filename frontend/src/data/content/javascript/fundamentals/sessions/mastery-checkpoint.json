@@ -21,17 +21,35 @@
       "code": "/* nombre y puntos deben formar juntos el resultado final */",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "Calcular ambos valores y construir el resultado una vez", "correct": true },
-        { "id": "b", "text": "Declarar nombres iguales en cada bloque", "correct": false },
-        { "id": "c", "text": "Cambiar const por var en todo el archivo", "correct": false },
-        { "id": "d", "text": "Confiar en conversiones implícitas", "correct": false }
+        {
+          "id": "a",
+          "text": "Calcular ambos valores y construir el resultado una vez",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Declarar nombres iguales en cada bloque",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Cambiar const por var en todo el archivo",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Confiar en conversiones implícitas",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "El resultado se vuelve coherente cuando se construye desde valores ya validados.",
-      "hints": ["Separa cálculo y construcción del resultado."],
+      "hints": [
+        "Separa cálculo y construcción del resultado."
+      ],
       "stepOrder": 1
     },
     {
@@ -41,17 +59,35 @@
       "code": "const base = { valor: 1 };\nconst alias = base;\nconst copia = { ...base };\nalias.valor = 4;\ncopia.valor += 2;\nconsole.log(base.valor, copia.valor);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "1 3", "correct": false },
-        { "id": "b", "text": "4 3", "correct": true },
-        { "id": "c", "text": "4 6", "correct": false },
-        { "id": "d", "text": "TypeError", "correct": false }
+        {
+          "id": "a",
+          "text": "1 3",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "4 3",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "4 6",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "TypeError",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "alias modifica base; copia parte del valor 1 y evoluciona por separado hasta 3.",
-      "hints": ["Sigue cada referencia por separado."],
+      "hints": [
+        "Sigue cada referencia por separado."
+      ],
       "stepOrder": 2
     },
     {
@@ -60,13 +96,38 @@
       "prompt": "Localiza el binding interior que impide conservar la actualización.",
       "code": "function resultado(inicial, cambio) {\n  let actual = inicial;\n  if (cambio !== 0) {\n    const actual = actual + cambio;\n  }\n  return actual;\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [4],
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: la declaración interior actual oculta el binding exterior y se lee en su TDZ",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: el valor cambia de tipo y JavaScript lo prohíbe",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: la declaración necesita un punto y coma adicional",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la actualización debería envolverse en una Promise",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        4
+      ],
       "errorType": "scope",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La declaración interior oculta actual y lee su propio binding durante la TDZ.",
-      "hints": ["El estado que debe devolverse se declaró antes del if."],
+      "hints": [
+        "El estado que debe devolverse se declaró antes del if."
+      ],
       "stepOrder": 3
     },
     {
@@ -79,13 +140,57 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": ["10", "5", false], "expected": { "inicial": 10, "actual": 15, "diferencia": 5, "bloqueado": false }, "call": "construirResultado(...input)", "description": "aplica un cambio permitido" },
-        { "input": [10, "5", true], "expected": { "inicial": 10, "actual": 10, "diferencia": 0, "bloqueado": true }, "call": "construirResultado(...input)", "description": "conserva el estado cuando está bloqueado" },
-        { "input": ["-2", "-3", false], "expected": { "inicial": -2, "actual": -5, "diferencia": -3, "bloqueado": false }, "call": "construirResultado(...input)", "description": "maneja valores negativos" }
+        {
+          "input": [
+            "10",
+            "5",
+            false
+          ],
+          "expected": {
+            "inicial": 10,
+            "actual": 15,
+            "diferencia": 5,
+            "bloqueado": false
+          },
+          "call": "construirResultado(...input)",
+          "description": "aplica un cambio permitido"
+        },
+        {
+          "input": [
+            10,
+            "5",
+            true
+          ],
+          "expected": {
+            "inicial": 10,
+            "actual": 10,
+            "diferencia": 0,
+            "bloqueado": true
+          },
+          "call": "construirResultado(...input)",
+          "description": "conserva el estado cuando está bloqueado"
+        },
+        {
+          "input": [
+            "-2",
+            "-3",
+            false
+          ],
+          "expected": {
+            "inicial": -2,
+            "actual": -5,
+            "diferencia": -3,
+            "bloqueado": false
+          },
+          "call": "construirResultado(...input)",
+          "description": "maneja valores negativos"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Actualiza el binding actual existente y construye el resumen después de decidir el estado final.",
-      "hints": ["Dentro del if necesitas una asignación al actual exterior."],
+      "hints": [
+        "Dentro del if necesitas una asignación al actual exterior."
+      ],
       "stepOrder": 4
     }
   ]

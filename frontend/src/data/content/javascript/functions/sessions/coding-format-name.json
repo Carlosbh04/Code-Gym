@@ -53,17 +53,35 @@
       "code": "function nombreCompleto(nombre, apellido) {\n  const limpio = `${nombre.trim()} ${apellido.trim()}`;\n  return limpio;\n}",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "Entrega la cadena limpia al llamador", "correct": true },
-        { "id": "b", "text": "Convierte limpio en una variable global", "correct": false },
-        { "id": "c", "text": "Vuelve opcionales ambos parámetros", "correct": false },
-        { "id": "d", "text": "Ejecuta nombreCompleto otra vez", "correct": false }
+        {
+          "id": "a",
+          "text": "Entrega la cadena limpia al llamador",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Convierte limpio en una variable global",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Vuelve opcionales ambos parámetros",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Ejecuta nombreCompleto otra vez",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "return expone el resultado de la función sin exponer su variable local.",
-      "hints": ["El llamador recibe un valor, no el binding local."],
+      "hints": [
+        "El llamador recibe un valor, no el binding local."
+      ],
       "stepOrder": 2
     },
     {
@@ -73,17 +91,35 @@
       "code": "function inicial(nombre = 'Invitado') {\n  return nombre[0];\n}\n\nconsole.log(inicial('Ada'));\nconsole.log(inicial());",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "A e I", "correct": true },
-        { "id": "b", "text": "A y undefined", "correct": false },
-        { "id": "c", "text": "Ada e Invitado", "correct": false },
-        { "id": "d", "text": "ReferenceError", "correct": false }
+        {
+          "id": "a",
+          "text": "A e I",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "A y undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Ada e Invitado",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "ReferenceError",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Cada llamada obtiene su parámetro y devuelve el primer carácter correspondiente.",
-      "hints": ["La segunda llamada usa el parámetro por defecto."],
+      "hints": [
+        "La segunda llamada usa el parámetro por defecto."
+      ],
       "stepOrder": 3
     },
     {
@@ -92,13 +128,38 @@
       "prompt": "La función calcula el nombre, pero el llamador recibe undefined. Localiza el error.",
       "code": "function nombreCompleto(nombre, apellido) {\n  const resultado = `${nombre} ${apellido}`;\n  resultado.trim();\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [3],
+      "options": [
+        {
+          "id": "flujo",
+          "text": "Flujo: la expresión normalizada se calcula pero falta devolverla con return",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: todos los parámetros deberían declararse como variables globales",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: JavaScript no permite devolver strings o funciones",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: toda llamada de función necesita la palabra new",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
       "errorType": "flujo",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La expresión se evalúa pero no se devuelve; además trim produce una cadena nueva.",
-      "hints": ["La última línea necesita entregar su resultado al llamador."],
+      "hints": [
+        "La última línea necesita entregar su resultado al llamador."
+      ],
       "stepOrder": 4
     }
   ],

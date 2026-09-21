@@ -134,7 +134,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "inicializacion",
+          "id": "conceptual",
           "text": "Conceptual: una clave nueva necesita partir de 0 antes de sumar 1",
           "correct": true
         },

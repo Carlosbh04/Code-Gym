@@ -95,7 +95,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "politica",
+          "id": "contrato",
           "text": "La decisión debe depender de la categoría del error, no solo de que exista",
           "correct": true
         },

@@ -96,7 +96,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "sin-return",
+          "id": "flow",
           "text": "Flujo: falta devolver acc desde el callback",
           "correct": true
         },

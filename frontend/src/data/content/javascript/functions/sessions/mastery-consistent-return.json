@@ -66,17 +66,35 @@
       "code": null,
       "language": null,
       "options": [
-        { "id": "a", "text": "Devolver el elemento o null", "correct": true },
-        { "id": "b", "text": "Devolver el elemento, false o undefined según la rama", "correct": false },
-        { "id": "c", "text": "Imprimir el elemento sin devolverlo", "correct": false },
-        { "id": "d", "text": "Devolver siempre true", "correct": false }
+        {
+          "id": "a",
+          "text": "Devolver el elemento o null",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Devolver el elemento, false o undefined según la rama",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Imprimir el elemento sin devolverlo",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Devolver siempre true",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Un caso de ausencia explícito evita que el llamador tenga que adivinar entre varios resultados accidentales.",
-      "hints": ["Elige dos resultados intencionales y compatibles con el contrato."],
+      "hints": [
+        "Elige dos resultados intencionales y compatibles con el contrato."
+      ],
       "stepOrder": 2
     },
     {
@@ -86,17 +104,35 @@
       "code": "function resolver(valor) {\n  if (valor < 0) return { ok: false, valor: null };\n  return { ok: true, valor };\n}",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "{ ok: false, valor: null }", "correct": true },
-        { "id": "b", "text": "false", "correct": false },
-        { "id": "c", "text": "undefined", "correct": false },
-        { "id": "d", "text": "{ ok: true, valor: -1 }", "correct": false }
+        {
+          "id": "a",
+          "text": "{ ok: false, valor: null }",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "{ ok: true, valor: -1 }",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La guard clause devuelve un objeto con la misma forma que el camino exitoso.",
-      "hints": ["La primera condición se cumple."],
+      "hints": [
+        "La primera condición se cumple."
+      ],
       "stepOrder": 3
     },
     {
@@ -105,13 +141,38 @@
       "prompt": "La función promete un resultado para cualquier estado, pero uno de los caminos devuelve undefined. Localiza la causa.",
       "code": "function etiqueta(activo) {\n  if (activo) {\n    return 'activo';\n  }\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [5],
+      "options": [
+        {
+          "id": "flujo",
+          "text": "Flujo: el camino false alcanza el final sin return y produce undefined",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: todos los parámetros deberían declararse como variables globales",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: JavaScript no permite devolver strings o funciones",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: toda llamada de función necesita la palabra new",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        5
+      ],
       "errorType": "flujo",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Al terminar la función sin otro return, el camino false produce undefined accidentalmente.",
-      "hints": ["Sigue la ejecución cuando activo vale false."],
+      "hints": [
+        "Sigue la ejecución cuando activo vale false."
+      ],
       "stepOrder": 4
     }
   ]

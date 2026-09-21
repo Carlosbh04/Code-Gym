@@ -90,7 +90,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "conceptual",
           "text": "direccion",
           "correct": "si direccion falta, el acceso posterior a ciudad no está protegido"
         },

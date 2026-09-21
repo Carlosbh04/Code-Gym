@@ -57,17 +57,35 @@
       "code": "function total(base, extra = 0) {\n  return base + extra;\n}\n\nconsole.log(total(8));",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "8", "correct": true },
-        { "id": "b", "text": "0", "correct": false },
-        { "id": "c", "text": "undefined", "correct": false },
-        { "id": "d", "text": "NaN", "correct": false }
+        {
+          "id": "a",
+          "text": "8",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "0",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "NaN",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "extra toma el valor por defecto 0 y return entrega la suma.",
-      "hints": ["El argumento extra se omite."],
+      "hints": [
+        "El argumento extra se omite."
+      ],
       "stepOrder": 2
     },
     {
@@ -77,17 +95,35 @@
       "code": "function saludar() {\n  return 'hola';\n}\n\nconst referencia = saludar;\nconsole.log(typeof referencia);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "function", "correct": true },
-        { "id": "b", "text": "string", "correct": false },
-        { "id": "c", "text": "undefined", "correct": false },
-        { "id": "d", "text": "object", "correct": false }
+        {
+          "id": "a",
+          "text": "function",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "string",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "object",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La asignación conserva la función porque no se ha realizado una llamada.",
-      "hints": ["No aparecen paréntesis tras saludar."],
+      "hints": [
+        "No aparecen paréntesis tras saludar."
+      ],
       "stepOrder": 3
     },
     {
@@ -96,13 +132,38 @@
       "prompt": "La función debería devolver el doble, pero entrega undefined. Localiza el error.",
       "code": "function doble(numero) {\n  numero * 2;\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [2],
+      "options": [
+        {
+          "id": "flujo",
+          "text": "Flujo: se calcula el doble pero no se retorna, por lo que la función entrega undefined",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: todos los parámetros deberían declararse como variables globales",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: JavaScript no permite devolver strings o funciones",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: toda llamada de función necesita la palabra new",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
       "errorType": "flujo",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Calcular una expresión no la devuelve; falta return en el camino de ejecución.",
-      "hints": ["El resultado debe salir de la función."],
+      "hints": [
+        "El resultado debe salir de la función."
+      ],
       "stepOrder": 4
     }
   ]

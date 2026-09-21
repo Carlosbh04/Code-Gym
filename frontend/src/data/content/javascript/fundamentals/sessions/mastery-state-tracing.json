@@ -21,17 +21,35 @@
       "code": "const inicial = 10;\nlet actual = inicial;\nactual += 5;\nactual -= 2;",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "inicial", "correct": false },
-        { "id": "b", "text": "actual", "correct": true },
-        { "id": "c", "text": "Las dos cambian", "correct": false },
-        { "id": "d", "text": "Ninguna", "correct": false }
+        {
+          "id": "a",
+          "text": "inicial",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "actual",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "Las dos cambian",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Ninguna",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "inicial conserva la referencia lógica de partida y actual evoluciona.",
-      "hints": ["Solo una declaración usa let."],
+      "hints": [
+        "Solo una declaración usa let."
+      ],
       "stepOrder": 1
     },
     {
@@ -41,17 +59,35 @@
       "code": "const inicial = 5;\nlet actual = inicial;\nfor (const cambio of [2, -1, 4]) actual += cambio;\nconsole.log(inicial, actual, actual - inicial);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "5 10 5", "correct": true },
-        { "id": "b", "text": "10 10 0", "correct": false },
-        { "id": "c", "text": "5 5 0", "correct": false },
-        { "id": "d", "text": "5 11 6", "correct": false }
+        {
+          "id": "a",
+          "text": "5 10 5",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "10 10 0",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "5 5 0",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "5 11 6",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Los cambios suman 5; inicial permanece en 5 y actual termina en 10.",
-      "hints": ["Conserva separado el valor inicial."],
+      "hints": [
+        "Conserva separado el valor inicial."
+      ],
       "stepOrder": 2
     },
     {
@@ -60,13 +96,38 @@
       "prompt": "Localiza la declaración que hace que cada iteración pierda el estado acumulado.",
       "code": "function finalizar(inicial, cambios) {\n  let actual = inicial;\n  for (const cambio of cambios) {\n    const actual = inicial + cambio;\n  }\n  return actual;\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [4],
+      "options": [
+        {
+          "id": "scope",
+          "text": "Scope: cada iteración declara otro actual y pierde el estado acumulado",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: el valor cambia de tipo y JavaScript lo prohíbe",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: la declaración necesita un punto y coma adicional",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la actualización debería envolverse en una Promise",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        4
+      ],
       "errorType": "scope",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "La iteración crea otro actual y además recalcula desde inicial.",
-      "hints": ["El estado que se devuelve ya existe antes del bucle."],
+      "hints": [
+        "El estado que se devuelve ya existe antes del bucle."
+      ],
       "stepOrder": 3
     },
     {
@@ -79,13 +140,58 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": ["10", ["2", -1, 4]], "expected": { "inicial": 10, "final": 15, "diferencia": 5 }, "call": "resumirCambios(...input)", "description": "aplica varios cambios en orden" },
-        { "input": [-5, []], "expected": { "inicial": -5, "final": -5, "diferencia": 0 }, "call": "resumirCambios(...input)", "description": "resume correctamente sin cambios" },
-        { "input": [0, [1.5, 2.5]], "expected": { "inicial": 0, "final": 4, "diferencia": 4 }, "call": "resumirCambios(...input)", "description": "conserva cambios decimales" }
+        {
+          "input": [
+            "10",
+            [
+              "2",
+              -1,
+              4
+            ]
+          ],
+          "expected": {
+            "inicial": 10,
+            "final": 15,
+            "diferencia": 5
+          },
+          "call": "resumirCambios(...input)",
+          "description": "aplica varios cambios en orden"
+        },
+        {
+          "input": [
+            -5,
+            []
+          ],
+          "expected": {
+            "inicial": -5,
+            "final": -5,
+            "diferencia": 0
+          },
+          "call": "resumirCambios(...input)",
+          "description": "resume correctamente sin cambios"
+        },
+        {
+          "input": [
+            0,
+            [
+              1.5,
+              2.5
+            ]
+          ],
+          "expected": {
+            "inicial": 0,
+            "final": 4,
+            "diferencia": 4
+          },
+          "call": "resumirCambios(...input)",
+          "description": "conserva cambios decimales"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Actualiza el binding final existente en cada vuelta y calcula la diferencia al terminar.",
-      "hints": ["No declares final dentro del bucle."],
+      "hints": [
+        "No declares final dentro del bucle."
+      ],
       "stepOrder": 4
     }
   ]

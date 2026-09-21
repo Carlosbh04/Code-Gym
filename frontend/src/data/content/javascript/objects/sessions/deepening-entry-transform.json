@@ -91,7 +91,28 @@
       "prompt": "Se quieren eliminar solo null y undefined, pero también desaparecen 0, false y ''. Localiza el filtro incorrecto.",
       "code": "function limpiar(datos) {\n  return Object.fromEntries(\n    Object.entries(datos)\n      .filter(([, valor]) => valor)\n  );\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "condicion",
+          "text": "Condición: el filtro por truthiness elimina también 0, false y cadena vacía",
+          "correct": true
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: spread no puede utilizarse dentro de un objeto",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: las propiedades de objeto solo pueden contener strings",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la lectura de propiedades requiere await",
+          "correct": false
+        }
+      ],
       "errorLines": [
         4
       ],

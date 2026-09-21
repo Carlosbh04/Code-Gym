@@ -100,7 +100,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "contrato",
           "text": "El catch oculta cualquier rechazo como undefined",
           "correct": true
         },

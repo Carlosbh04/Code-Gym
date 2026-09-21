@@ -95,7 +95,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "causa",
+          "id": "contextual",
           "text": "El nuevo error debería conservar el error capturado como causa",
           "correct": true
         },

@@ -95,7 +95,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "mensaje",
+          "id": "contrato",
           "text": "La clasificación debería usar un identificador estable como code",
           "correct": true
         },

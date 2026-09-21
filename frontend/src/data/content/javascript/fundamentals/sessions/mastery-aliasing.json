@@ -21,17 +21,35 @@
       "code": "const a = { valor: 1 };\nconst b = a;\nconst c = { ...a };",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "a === b", "correct": true },
-        { "id": "b", "text": "a === c", "correct": false },
-        { "id": "c", "text": "b === c", "correct": false },
-        { "id": "d", "text": "Todas", "correct": false }
+        {
+          "id": "a",
+          "text": "a === b",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "a === c",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "b === c",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Todas",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "b recibe la misma referencia; c recibe una referencia nueva.",
-      "hints": ["Spread crea el objeto de primer nivel."],
+      "hints": [
+        "Spread crea el objeto de primer nivel."
+      ],
       "stepOrder": 1
     },
     {
@@ -41,17 +59,35 @@
       "code": "const estado = { modo: 'claro' };\nconst temporal = estado;\ntemporal.modo = 'oscuro';\nconsole.log(estado.modo);",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "claro", "correct": false },
-        { "id": "b", "text": "oscuro", "correct": true },
-        { "id": "c", "text": "undefined", "correct": false },
-        { "id": "d", "text": "TypeError", "correct": false }
+        {
+          "id": "a",
+          "text": "claro",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "text": "oscuro",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "TypeError",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Los dos bindings apuntan al mismo objeto.",
-      "hints": ["No aparece ninguna operación de copia."],
+      "hints": [
+        "No aparece ninguna operación de copia."
+      ],
       "stepOrder": 2
     },
     {
@@ -60,13 +96,38 @@
       "prompt": "Se quería preservar config. Localiza la línea que crea solo un alias.",
       "code": "function cambiar(config) {\n  const siguiente = config;\n  siguiente.activo = true;\n  return siguiente;\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [2],
+      "options": [
+        {
+          "id": "shared-reference",
+          "text": "Referencia compartida: siguiente es solo un alias de config, no una copia",
+          "correct": true
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: el valor cambia de tipo y JavaScript lo prohíbe",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: la declaración necesita un punto y coma adicional",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la actualización debería envolverse en una Promise",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
       "errorType": "shared-reference",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Asignar config a siguiente no copia el objeto.",
-      "hints": ["Comprueba la identidad de ambas referencias."],
+      "hints": [
+        "Comprueba la identidad de ambas referencias."
+      ],
       "stepOrder": 3
     },
     {
@@ -79,13 +140,55 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": [{ "tema": "claro", "idioma": "es" }, "oscuro"], "expected": { "temaNuevo": "oscuro", "temaOriginal": "claro", "idioma": "es", "referenciaNueva": true }, "call": "(() => { const original = input[0]; const resultado = actualizarPreferencia(original, input[1]); return { temaNuevo: resultado.tema, temaOriginal: original.tema, idioma: resultado.idioma, referenciaNueva: resultado !== original }; })()", "description": "crea otra referencia y conserva propiedades" },
-        { "input": [{ "tema": "azul", "compacto": false }, "verde"], "expected": { "tema": "verde", "compacto": false }, "call": "actualizarPreferencia(input[0], input[1])", "description": "conserva valores falsy del objeto" },
-        { "input": [{ "tema": "uno" }, "uno"], "expected": true, "call": "actualizarPreferencia(input[0], input[1]) !== input[0]", "description": "crea otra referencia aunque el valor coincida" }
+        {
+          "input": [
+            {
+              "tema": "claro",
+              "idioma": "es"
+            },
+            "oscuro"
+          ],
+          "expected": {
+            "temaNuevo": "oscuro",
+            "temaOriginal": "claro",
+            "idioma": "es",
+            "referenciaNueva": true
+          },
+          "call": "(() => { const original = input[0]; const resultado = actualizarPreferencia(original, input[1]); return { temaNuevo: resultado.tema, temaOriginal: original.tema, idioma: resultado.idioma, referenciaNueva: resultado !== original }; })()",
+          "description": "crea otra referencia y conserva propiedades"
+        },
+        {
+          "input": [
+            {
+              "tema": "azul",
+              "compacto": false
+            },
+            "verde"
+          ],
+          "expected": {
+            "tema": "verde",
+            "compacto": false
+          },
+          "call": "actualizarPreferencia(input[0], input[1])",
+          "description": "conserva valores falsy del objeto"
+        },
+        {
+          "input": [
+            {
+              "tema": "uno"
+            },
+            "uno"
+          ],
+          "expected": true,
+          "call": "actualizarPreferencia(input[0], input[1]) !== input[0]",
+          "description": "crea otra referencia aunque el valor coincida"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "Construye otro objeto con las propiedades existentes y sobrescribe tema; evita usar un alias como si fuera una copia.",
-      "hints": ["El resultado debe tener identidad distinta al objeto recibido."],
+      "hints": [
+        "El resultado debe tener identidad distinta al objeto recibido."
+      ],
       "stepOrder": 4
     }
   ]

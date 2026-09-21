@@ -85,7 +85,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "conceptual",
           "text": "acceso",
           "correct": "perfil necesita un objeto por defecto antes de extraer nombre"
         },

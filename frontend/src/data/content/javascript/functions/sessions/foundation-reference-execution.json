@@ -16,17 +16,35 @@
       "code": "function obtenerNumero() {\n  return 12;\n}\n\nconst resultado = obtenerNumero();",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "12", "correct": true },
-        { "id": "b", "text": "La función obtenerNumero", "correct": false },
-        { "id": "c", "text": "undefined", "correct": false },
-        { "id": "d", "text": "La cadena 'obtenerNumero'", "correct": false }
+        {
+          "id": "a",
+          "text": "12",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "La función obtenerNumero",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "La cadena 'obtenerNumero'",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Los paréntesis ejecutan la función y la asignación guarda su valor devuelto.",
-      "hints": ["La expresión contiene una llamada ()."],
+      "hints": [
+        "La expresión contiene una llamada ()."
+      ],
       "stepOrder": 1
     },
     {
@@ -36,17 +54,35 @@
       "code": "function etiqueta(valor = 'vacío') {\n  return `[${valor}]`;\n}\n\nconst referencia = etiqueta;\nconsole.log(referencia('A'));",
       "language": "javascript",
       "options": [
-        { "id": "a", "text": "[A]", "correct": true },
-        { "id": "b", "text": "function", "correct": false },
-        { "id": "c", "text": "[vacío]", "correct": false },
-        { "id": "d", "text": "undefined", "correct": false }
+        {
+          "id": "a",
+          "text": "[A]",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "function",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "[vacío]",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
       ],
       "errorLines": null,
       "errorType": null,
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "referencia apunta a la misma función y puede ejecutarse con sus propios argumentos.",
-      "hints": ["Asignar una función no impide llamarla después."],
+      "hints": [
+        "Asignar una función no impide llamarla después."
+      ],
       "stepOrder": 2
     },
     {
@@ -55,13 +91,38 @@
       "prompt": "La función debería devolver un saludo, pero devuelve otra función. Localiza el error.",
       "code": "function crearSaludo(nombre = 'Invitado') {\n  function formatear(valor) {\n    return `Hola, ${valor}`;\n  }\n\n  return formatear;\n}",
       "language": "javascript",
-      "options": null,
-      "errorLines": [6],
+      "options": [
+        {
+          "id": "flujo",
+          "text": "Flujo: se retorna la función formatear sin invocarla con nombre",
+          "correct": true
+        },
+        {
+          "id": "scope",
+          "text": "Scope: todos los parámetros deberían declararse como variables globales",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: JavaScript no permite devolver strings o funciones",
+          "correct": false
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: toda llamada de función necesita la palabra new",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        6
+      ],
       "errorType": "flujo",
       "testCases": null,
       "expectedPatterns": null,
       "explanation": "Se devuelve la referencia a formatear en lugar del resultado de ejecutarla con nombre.",
-      "hints": ["Faltan los paréntesis y el argumento."],
+      "hints": [
+        "Faltan los paréntesis y el argumento."
+      ],
       "stepOrder": 3
     },
     {
@@ -74,13 +135,30 @@
       "errorLines": null,
       "errorType": null,
       "testCases": [
-        { "input": "Ada", "expected": "Hola, Ada", "call": "crearSaludo(input)", "description": "saluda con el nombre recibido" },
-        { "input": "Lin", "expected": "Hola, Lin", "call": "crearSaludo(input)", "description": "funciona con otro nombre" },
-        { "input": null, "expected": "Hola, Invitado", "call": "crearSaludo(undefined)", "description": "usa el valor por defecto cuando el argumento es undefined" }
+        {
+          "input": "Ada",
+          "expected": "Hola, Ada",
+          "call": "crearSaludo(input)",
+          "description": "saluda con el nombre recibido"
+        },
+        {
+          "input": "Lin",
+          "expected": "Hola, Lin",
+          "call": "crearSaludo(input)",
+          "description": "funciona con otro nombre"
+        },
+        {
+          "input": null,
+          "expected": "Hola, Invitado",
+          "call": "crearSaludo(undefined)",
+          "description": "usa el valor por defecto cuando el argumento es undefined"
+        }
       ],
       "expectedPatterns": null,
       "explanation": "El contrato exige el resultado del saludo, no la referencia a la función que lo construye.",
-      "hints": ["Ejecuta formatear con el parámetro nombre."],
+      "hints": [
+        "Ejecuta formatear con el parámetro nombre."
+      ],
       "stepOrder": 4
     }
   ],

@@ -27,6 +27,53 @@ const sessionFiles = contentFiles.filter((path) =>
   path.endsWith('.json') && relative(CONTENT_ROOT, path).split(sep).includes('sessions'),
 );
 
+interface RawAnswerOption {
+  readonly id: string;
+  readonly text: string;
+  readonly correct?: unknown;
+}
+
+interface RawExerciseStep {
+  readonly id: string;
+  readonly type: string;
+  readonly code: string | null;
+  readonly options: readonly RawAnswerOption[] | null;
+  readonly errorLines?: readonly number[] | null;
+  readonly errorType?: string | null;
+}
+
+interface RawExerciseSession {
+  readonly id: string;
+  readonly steps: readonly RawExerciseStep[];
+}
+
+const FIND_ERROR_TEXT_SIGNALS: Readonly<Record<string, RegExp>> = {
+  aliasing: /alias|referencia compartida/i,
+  assignment: /asigna|reasigna|binding|const/i,
+  'assignment-to-constant': /asigna|reasigna|const/i,
+  async: /async|await|promise/i,
+  conceptual: /conceptual|tipo|direcci[oó]n|acceso|rest|perfil|propiedad|shallow|rama|fallback|desestructur/i,
+  concurrencia: /concurr|paralel|comienza|termina/i,
+  condicion: /condici[oó]n|truthiness|falsy|filtro/i,
+  contextual: /context|causa|cause|error original|error capturado/i,
+  contrato: /contrato|clasific|identificador|se[nñ]al|categor[ií]a|fulfilled|rejected|rechazo|catch/i,
+  control: /control|recursi[oó]n|l[ií]mite|intentos/i,
+  'copia-superficial': /copia superficial|spread|anidad|propiedad/i,
+  estado: /estado|global|comparte|fuera de la f[aá]brica/i,
+  'estado-compartido': /estado compartido|global|compart|instancia|f[aá]brica/i,
+  existencia: /existencia|propiedad existente|truthiness|falsy/i,
+  flow: /flujo|return|devolv/i,
+  flujo: /flujo|return|retorn|devuel|propag|promise|finally|lanzar|catch|resultado/i,
+  'información': /informaci[oó]n|reason|texto gen[eé]rico/i,
+  logico: /l[oó]gic|valor v[aá]lido|clave din[aá]mica|object\.keys|valores/i,
+  mutacion: /mutaci[oó]n|referencia|objeto original|anidado|spread/i,
+  precedencia: /precedencia|sobrescrib/i,
+  'referencia-viva': /referencia viva|cada llamada|creaci[oó]n/i,
+  scope: /scope|binding|oculta|tdz|bloque|exterior|iteraci[oó]n|captur|variable viva/i,
+  'shared-reference': /referencia compartida|alias|copia/i,
+  'temporal-dead-zone': /temporal dead zone|antes de inicializar|binding local/i,
+};
+
 const VALID_SECTION_TYPES = new Set<LearningSection['type']>([
   'intro', 'objectives', 'explanation', 'code', 'key-point', 'warning', 'comparison', 'quick-check',
 ]);
@@ -53,6 +100,71 @@ function assertStructuredLearning(concept: Concept): void {
 }
 
 describe('contenido publicado (T070)', () => {
+  it('mantiene seleccionables todos los find-error de JavaScript', () => {
+    const javascriptSessionFiles = sessionFiles.filter(
+      (path) => relative(CONTENT_ROOT, path).split(sep)[0] === 'javascript',
+    );
+    const sessions = javascriptSessionFiles.map((path) =>
+      readJson<RawExerciseSession>(path),
+    );
+    const steps = sessions.flatMap((session) =>
+      session.steps.map((step) => ({ sessionId: session.id, step })),
+    );
+    const findErrorSteps = steps.filter(({ step }) => step.type === 'find-error');
+    const fixCodeSteps = steps.filter(({ step }) => step.type === 'fix-code');
+
+    expect(sessions).toHaveLength(126);
+    expect(steps).toHaveLength(487);
+    expect(findErrorSteps).toHaveLength(88);
+    expect(fixCodeSteps).toHaveLength(85);
+
+    for (const { sessionId, step } of findErrorSteps) {
+      const label = `${sessionId}/${step.id}`;
+      const code = step.code ?? '';
+      const options = step.options ?? [];
+      const errorLines = step.errorLines ?? [];
+      const errorType = step.errorType ?? '';
+
+      expect(code.trim(), `${label}: code`).not.toBe('');
+      expect(errorLines.length, `${label}: errorLines`).toBeGreaterThan(0);
+      expect(
+        errorLines.every(
+          (line) => Number.isSafeInteger(line) && line > 0 && line <= code.split('\n').length,
+        ),
+        `${label}: errorLines válidas`,
+      ).toBe(true);
+      expect(errorType.trim(), `${label}: errorType`).not.toBe('');
+      expect(options.length, `${label}: options`).toBeGreaterThan(0);
+      expect(
+        new Set(options.map((option) => option.id)).size,
+        `${label}: option.id únicos`,
+      ).toBe(options.length);
+
+      for (const option of options) {
+        expect(option.id.trim(), `${label}: option.id`).not.toBe('');
+        expect(option.text.trim(), `${label}/${option.id}: option.text`).not.toBe('');
+      }
+
+      const selectableMatches = options.filter(
+        (option) => option.id === errorType,
+      );
+      expect(
+        selectableMatches,
+        `${label}: debe existir una única opción seleccionable para errorType=${errorType}`,
+      ).toHaveLength(1);
+      expect(
+        selectableMatches[0]?.text.trim(),
+        `${label}: texto de la opción correcta`,
+      ).not.toBe('');
+      const textSignal = FIND_ERROR_TEXT_SIGNALS[errorType];
+      expect(textSignal, `${label}: señal semántica para ${errorType}`).toBeDefined();
+      expect(
+        textSignal?.test(selectableMatches[0]?.text ?? ''),
+        `${label}: texto coherente con errorType=${errorType}`,
+      ).toBe(true);
+    }
+  });
+
   // Recorre todos los módulos de contenido reales. En la suite paralela, los
   // imports dinámicos comparten CPU con los tests de UI; el límite es local
   // para no alterar el presupuesto de tiempo del resto de la suite.

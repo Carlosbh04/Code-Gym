@@ -134,7 +134,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "return",
+          "id": "flow",
           "text": "Flujo: falta return acc dentro de reduce",
           "correct": true
         },

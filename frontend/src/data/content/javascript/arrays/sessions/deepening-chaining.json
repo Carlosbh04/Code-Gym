@@ -135,7 +135,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "metodo",
+          "id": "conceptual",
           "text": "Conceptual: el primer map debería ser filter",
           "correct": true
         },

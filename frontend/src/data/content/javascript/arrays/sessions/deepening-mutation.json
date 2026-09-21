@@ -96,7 +96,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "asignacion",
+          "id": "conceptual",
           "text": "Conceptual: se asigna true en vez de comprobar",
           "correct": true
         },

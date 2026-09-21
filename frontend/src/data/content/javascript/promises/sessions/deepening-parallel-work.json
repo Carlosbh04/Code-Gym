@@ -100,7 +100,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "concurrencia",
           "text": "cargarB no comienza hasta que cargarA termina",
           "correct": true
         },

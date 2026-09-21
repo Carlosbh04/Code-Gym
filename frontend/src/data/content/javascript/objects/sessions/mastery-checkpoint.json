@@ -91,7 +91,28 @@
       "prompt": "Se quiere actualizar una preferencia sin mutar el estado original. Localiza la escritura compartida.",
       "code": "function actualizar(estado, clave, valor) {\n  const copia = { ...estado };\n  copia.preferencias[clave] = valor;\n  return copia;\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "mutacion",
+          "text": "Mutación: preferencias sigue compartida entre la copia y el estado original",
+          "correct": true
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: spread no puede utilizarse dentro de un objeto",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: las propiedades de objeto solo pueden contener strings",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la lectura de propiedades requiere await",
+          "correct": false
+        }
+      ],
       "errorLines": [
         3
       ],

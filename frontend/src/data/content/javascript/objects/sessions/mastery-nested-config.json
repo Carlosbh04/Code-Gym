@@ -91,7 +91,28 @@
       "prompt": "El cambio de max está eliminando min. Localiza la mezcla demasiado superficial.",
       "code": "function combinar(base, cambios) {\n  return {\n    ...base,\n    ...cambios,\n  };\n}",
       "language": "javascript",
-      "options": null,
+      "options": [
+        {
+          "id": "copia-superficial",
+          "text": "Copia superficial: ...cambios reemplaza limites completo y elimina propiedades como min",
+          "correct": true
+        },
+        {
+          "id": "sintaxis",
+          "text": "Sintaxis: spread no puede utilizarse dentro de un objeto",
+          "correct": false
+        },
+        {
+          "id": "tipo",
+          "text": "Tipo: las propiedades de objeto solo pueden contener strings",
+          "correct": false
+        },
+        {
+          "id": "asincronia",
+          "text": "Asincronía: la lectura de propiedades requiere await",
+          "correct": false
+        }
+      ],
       "errorLines": [
         4
       ],

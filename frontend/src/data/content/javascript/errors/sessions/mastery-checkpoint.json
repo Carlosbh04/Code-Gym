@@ -100,7 +100,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "codigo",
+          "id": "contrato",
           "text": "Si el consumidor necesita clasificarlo, debe añadirse una señal estable como code",
           "correct": true
         },

@@ -85,7 +85,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "conceptual",
           "text": "rama",
           "correct": "preferencias se reemplaza completa sin copiar sus propiedades existentes"
         },

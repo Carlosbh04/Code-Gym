@@ -100,7 +100,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "a",
+          "id": "flujo",
           "text": "Se devuelve operacion en lugar de la Promise de race",
           "correct": true
         },

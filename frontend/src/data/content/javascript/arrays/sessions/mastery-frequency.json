@@ -96,7 +96,7 @@
       "language": "javascript",
       "options": [
         {
-          "id": "inicializacion",
+          "id": "conceptual",
           "text": "Conceptual: una clave nueva vale undefined y falta partir de 0",
           "correct": true
         },
