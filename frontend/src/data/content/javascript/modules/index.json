@@ -1,0 +1,155 @@
+{
+  "id": "js-modules",
+  "name": "Modules",
+  "topicId": "js-modules",
+  "technologyId": "javascript",
+  "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Fundamentos de Modules.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Profundización de Modules.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Dominio de Modules.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Fundamentos",
+        "body": "Modules: export, import, exportaciones nombradas."
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "export",
+          "import",
+          "exportaciones nombradas"
+        ]
+      },
+      {
+        "type": "explanation",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás export, import, exportaciones nombradas mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "// math.js\nexport const doble = n => n * 2;\n// app.js\nimport { doble } from './math.js';",
+        "caption": "Salida esperada: doble queda disponible en app.js"
+      },
+      {
+        "type": "warning",
+        "title": "Error frecuente",
+        "body": "Conceptual: suma es una exportación nombrada y debe importarse entre llaves."
+      },
+      {
+        "type": "quick-check",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar export?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "deepening",
+        "title": "Profundización",
+        "body": "Modules: default export, aliases, reexportación."
+      },
+      {
+        "type": "objectives",
+        "levelId": "deepening",
+        "title": "Qué vas a aprender",
+        "items": [
+          "default export",
+          "aliases",
+          "reexportación"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás default export, aliases, reexportación mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "import formatear, { version as apiVersion } from './format.js';",
+        "caption": "Salida esperada: importa default y alias nombrado"
+      },
+      {
+        "type": "warning",
+        "levelId": "deepening",
+        "title": "Error frecuente",
+        "body": "Conceptual: un módulo solo puede tener una exportación default."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar default export?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "mastery",
+        "title": "Dominio",
+        "body": "Modules: ámbito de módulo, dependencias, ciclos, efectos laterales."
+      },
+      {
+        "type": "objectives",
+        "levelId": "mastery",
+        "title": "Qué vas a aprender",
+        "items": [
+          "ámbito de módulo",
+          "dependencias",
+          "ciclos",
+          "efectos laterales"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás ámbito de módulo, dependencias, ciclos, efectos laterales mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "// config.js\nconst secreto = 3;\nexport const publico = 4;",
+        "caption": "Salida esperada: solo publico se importa"
+      },
+      {
+        "type": "warning",
+        "levelId": "mastery",
+        "title": "Error frecuente",
+        "body": "Conceptual: la dependencia circular puede observar bindings antes de inicializarse."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar ámbito de módulo?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      }
+    ]
+  }
+}

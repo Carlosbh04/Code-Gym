@@ -1,0 +1,94 @@
+{
+  "id": "js-loops-deepening-quiz-01",
+  "title": "Quiz: Loops — deepening",
+  "difficulty": "intermediate",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "deepening",
+  "passingPercentage": 80,
+  "requiredForProgression": true,
+  "conceptId": "js-loops",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Identifica la idea principal de for...of.",
+      "code": "let total = 0;\nfor (const n of [1, 2, 3]) { if (n === 2) continue; total += n; }\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "for...of",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "for...in",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "El código no se ejecuta",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Siempre produce undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Identifica la idea principal de for...of.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "Predice la salida observable del fragmento.",
+      "code": "let total = 0;\nfor (const n of [1, 2, 3]) { if (n === 2) continue; total += n; }\nconsole.log(total);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "4",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "null",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Predice la salida observable del fragmento.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

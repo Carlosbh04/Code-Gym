@@ -240,19 +240,19 @@ describe(
         expect(
           theoryCounts.foundation,
         ).toHaveLength(
-          17,
+          18,
         );
 
         expect(
           theoryCounts.deepening,
         ).toHaveLength(
-          17,
+          18,
         );
 
         expect(
           theoryCounts.mastery,
         ).toHaveLength(
-          17,
+          18,
         );
 
         const sessions =
@@ -261,8 +261,29 @@ describe(
         expect(
           sessions,
         ).toHaveLength(
-          15,
+          18,
         );
+
+        expect(sessions).toEqual(expect.arrayContaining([
+          expect.objectContaining({
+            id: 'js-function-basics-foundation-recursion-basics-01',
+            levelId: 'foundation',
+            position: 5,
+            kind: 'practice',
+          }),
+          expect.objectContaining({
+            id: 'js-function-basics-deepening-recursive-structures-01',
+            levelId: 'deepening',
+            position: 5,
+            kind: 'practice',
+          }),
+          expect.objectContaining({
+            id: 'js-function-basics-mastery-recursion-01',
+            levelId: 'mastery',
+            position: 5,
+            kind: 'practice',
+          }),
+        ]));
 
         for (
           const levelId
@@ -296,6 +317,7 @@ describe(
             2,
             3,
             4,
+            5,
           ]);
 
           expect(
@@ -309,6 +331,7 @@ describe(
             'practice',
             'practice',
             'checkpoint',
+            'practice',
           ]);
 
           expect(
@@ -390,7 +413,7 @@ describe(
             0,
           ),
         ).toBe(
-          63,
+          73,
         );
 
         expect(
@@ -398,10 +421,10 @@ describe(
             typeCounts,
           ),
         ).toEqual({
-          'fix-code': 12,
-          'code-reading': 18,
-          'predict-output': 21,
-          'find-error': 12,
+          'fix-code': 13,
+          'code-reading': 21,
+          'predict-output': 24,
+          'find-error': 15,
         });
       },
     );

@@ -4762,6 +4762,237 @@ const registry =
           null,
       }),
     ],
+
+    [
+      verifierKey(
+        "js-types-operators-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": false,
+                  "expected": false,
+                  "call": "normalizarLimite(input)",
+                  "description": "caso privado de Types & Operators"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-conditionals-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": 0,
+                  "expected": "menor",
+                  "call": "clasificarEdad(input)",
+                  "description": "caso privado de Conditionals"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-loops-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": 10,
+                  "expected": 55,
+                  "call": "sumarHasta(input)",
+                  "description": "caso privado de Loops"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-strings-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": "  MiXeD  ",
+                  "expected": "mixed",
+                  "call": "normalizar(input)",
+                  "description": "caso privado de Strings"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-arrays-basics-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": [
+                            [
+                                      0
+                            ],
+                            1
+                  ],
+                  "expected": {
+                            "salida": [
+                                      0,
+                                      1
+                            ],
+                            "originalSinCambios": true
+                  },
+                  "call": "(() => { const original = [...input[0]]; const salida = agregarSinMutar(input[0], input[1]); return { salida, originalSinCambios: JSON.stringify(input[0]) === JSON.stringify(original) }; })()",
+                  "description": "caso privado de Arrays Basics"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-scope-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": 41,
+                  "expected": 42,
+                  "call": "incrementar(input)",
+                  "description": "caso privado de Scope"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-json-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": "{\"nombre\":\"Nora\",\"activo\":false}",
+                  "expected": "Nora",
+                  "call": "leerNombre(input)",
+                  "description": "caso privado de JSON"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-set-map-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": [
+                            false,
+                            false,
+                            0,
+                            0,
+                            "0"
+                  ],
+                  "expected": 3,
+                  "call": "contarUnicos(input)",
+                  "description": "caso privado de Set & Map"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-date-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": [
+                            86400000,
+                            345600000
+                  ],
+                  "expected": 3,
+                  "call": "diasEntre(...input)",
+                  "description": "caso privado de Date"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-modules-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": {
+                            "default": "utils"
+                  },
+                  "expected": "utils:5",
+                  "call": "usarModulo({ default: input.default, suma: (a, b) => a + b })",
+                  "description": "caso privado de Modules"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-event-loop-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": "microtask",
+                  "expected": "microtask",
+                  "call": "resolverEnOrden(input)",
+                  "description": "caso privado de Event Loop"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-browser-javascript-mastery-checkpoint-01",
+        "step-2",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": {
+                            "id": "otro",
+                            "dataset": {
+                                      "id": "private-7"
+                            }
+                  },
+                  "expected": "private-7",
+                  "call": "leerIdentificador(input)",
+                  "description": "caso privado de Browser JavaScript"
+        }),
+      ),
+    ],
+
+    [
+      verifierKey(
+        "js-function-basics-mastery-recursion-01",
+        "step-4",
+      ),
+      behaviorOnly(
+        Object.freeze(        {
+                  "input": [
+                            1,
+                            [
+                                      2,
+                                      [
+                                                3,
+                                                4
+                                      ]
+                            ]
+                  ],
+                  "expected": 10,
+                  "call": "sumarAnidados(input)",
+                  "description": "suma una estructura privada profunda"
+        }),
+      ),
+    ],
 ]);
 
 /**

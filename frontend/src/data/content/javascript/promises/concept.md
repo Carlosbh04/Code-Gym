@@ -24,3 +24,7 @@ async function leerNombre() {
 Los errores viajan por la cadena hasta un `catch`. Recuperarlos allí permite
 devolver un valor alternativo; ocultarlos sin explicarlos hace más difícil
 detectar qué operación falló.
+
+## Callbacks asíncronos y Promise.any
+
+`forEach` no coordina Promises: usa una estrategia que devuelva y agregue el trabajo. `Promise.any` resuelve con el primer resultado satisfactorio y produce `AggregateError` cuando todas las operaciones fallan.

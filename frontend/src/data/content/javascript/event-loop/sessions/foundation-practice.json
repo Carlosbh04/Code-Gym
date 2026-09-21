@@ -1,0 +1,58 @@
+{
+  "id": "js-event-loop-foundation-practice-01",
+  "title": "Práctica: Event Loop — foundation",
+  "difficulty": "beginner",
+  "position": 1,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-event-loop",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "find-error",
+      "prompt": "Localiza el error relacionado con call stack, runtime/Web APIs, task queue.",
+      "code": "let listo = false;\nsetTimeout(() => { listo = true; }, 0); console.log(listo);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "conceptual",
+          "text": "Conceptual: setTimeout agenda una tarea; el log síncrono ocurre antes.",
+          "correct": true
+        },
+        {
+          "id": "syntax",
+          "text": "La sintaxis impide analizar el programa.",
+          "correct": false
+        },
+        {
+          "id": "runtime",
+          "text": "El runtime no admite esta característica.",
+          "correct": false
+        },
+        {
+          "id": "format",
+          "text": "Solo existe un problema de formato.",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Conceptual: setTimeout agenda una tarea; el log síncrono ocurre antes.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

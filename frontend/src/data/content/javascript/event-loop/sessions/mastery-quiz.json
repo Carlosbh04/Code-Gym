@@ -1,0 +1,94 @@
+{
+  "id": "js-event-loop-mastery-quiz-01",
+  "title": "Quiz: Event Loop — mastery",
+  "difficulty": "advanced",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "mastery",
+  "passingPercentage": 80,
+  "requiredForProgression": true,
+  "conceptId": "js-event-loop",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Identifica la idea principal de orden de ejecución.",
+      "code": "async function f(){ console.log('A'); await 0; console.log('C'); }\nf(); console.log('B');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "orden de ejecución",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "async/await scheduling",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "El código no se ejecuta",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Siempre produce undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Identifica la idea principal de orden de ejecución.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "Predice la salida observable del fragmento.",
+      "code": "async function f(){ console.log('A'); await 0; console.log('C'); }\nf(); console.log('B');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "A B C",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "null",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Predice la salida observable del fragmento.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

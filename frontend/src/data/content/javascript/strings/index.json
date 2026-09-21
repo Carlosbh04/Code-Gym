@@ -1,0 +1,161 @@
+{
+  "id": "js-strings",
+  "name": "Strings",
+  "topicId": "js-strings",
+  "technologyId": "javascript",
+  "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Fundamentos de Strings.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Profundización de Strings.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Dominio de Strings.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Fundamentos",
+        "body": "Strings: length, indexación, inmutabilidad, slice, substring."
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "length",
+          "indexación",
+          "inmutabilidad",
+          "slice",
+          "substring"
+        ]
+      },
+      {
+        "type": "explanation",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás length, indexación, inmutabilidad, slice, substring mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const texto = 'JavaScript';\nconsole.log(texto[0], texto.slice(4));",
+        "caption": "Salida esperada: J Script"
+      },
+      {
+        "type": "warning",
+        "title": "Error frecuente",
+        "body": "Conceptual: los strings son inmutables; una posición no puede reescribirse."
+      },
+      {
+        "type": "quick-check",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar length?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "deepening",
+        "title": "Profundización",
+        "body": "Strings: includes, startsWith, endsWith, indexOf, replace, replaceAll."
+      },
+      {
+        "type": "objectives",
+        "levelId": "deepening",
+        "title": "Qué vas a aprender",
+        "items": [
+          "includes",
+          "startsWith",
+          "endsWith",
+          "indexOf",
+          "replace",
+          "replaceAll"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás includes, startsWith, endsWith, indexOf, replace, replaceAll mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const ruta = '/api/users';\nconsole.log(ruta.startsWith('/api'), ruta.includes('users'));",
+        "caption": "Salida esperada: true true"
+      },
+      {
+        "type": "warning",
+        "levelId": "deepening",
+        "title": "Error frecuente",
+        "body": "Conceptual: replace cambia solo la primera coincidencia; aquí hace falta replaceAll."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar includes?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "mastery",
+        "title": "Dominio",
+        "body": "Strings: split, trim, mayúsculas/minúsculas, template literals, parsing y composición."
+      },
+      {
+        "type": "objectives",
+        "levelId": "mastery",
+        "title": "Qué vas a aprender",
+        "items": [
+          "split",
+          "trim",
+          "mayúsculas/minúsculas",
+          "template literals",
+          "parsing y composición"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás split, trim, mayúsculas/minúsculas, template literals, parsing y composición mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const partes = ' Ana,JS '.trim().split(',');\nconsole.log(`${partes[0]}:${partes[1].toLowerCase()}`);",
+        "caption": "Salida esperada: Ana:js"
+      },
+      {
+        "type": "warning",
+        "levelId": "mastery",
+        "title": "Error frecuente",
+        "body": "Conceptual: falta trim antes de normalizar el texto."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar split?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      }
+    ]
+  }
+}

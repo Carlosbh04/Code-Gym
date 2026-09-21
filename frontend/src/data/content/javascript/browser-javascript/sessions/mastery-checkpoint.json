@@ -1,0 +1,95 @@
+{
+  "id": "js-browser-javascript-mastery-checkpoint-01",
+  "title": "Checkpoint: Browser JavaScript — mastery",
+  "difficulty": "advanced",
+  "position": 2,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": 80,
+  "requiredForProgression": true,
+  "conceptId": "js-browser-javascript",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Explica cómo se combinan preventDefault, forms, dataset, localStorage, sessionStorage, fetch.",
+      "code": "form.addEventListener('submit', e => { e.preventDefault(); console.log(form.dataset.mode); });",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "El resultado depende del orden y del contrato de cada operación.",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Todas las operaciones son equivalentes.",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "El orden nunca importa.",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "JavaScript ignora los casos límite.",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Explica cómo se combinan preventDefault, forms, dataset, localStorage, sessionStorage, fetch.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "fix-code",
+      "prompt": "Corrige leerIdentificador para leer el valor data-id mediante dataset.",
+      "code": "function leerIdentificador(elemento) {\n  return elemento.id;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "id": "visual",
+            "dataset": {
+              "id": "42"
+            }
+          },
+          "expected": "42",
+          "call": "leerIdentificador(input)",
+          "description": "Corrige leerIdentificador para leer el valor data-id mediante dataset."
+        },
+        {
+          "input": {
+            "dataset": {
+              "id": "abc"
+            }
+          },
+          "expected": "abc",
+          "call": "leerIdentificador(input)",
+          "description": "Corrige leerIdentificador para leer el valor data-id mediante dataset."
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Corrige leerIdentificador para leer el valor data-id mediante dataset.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

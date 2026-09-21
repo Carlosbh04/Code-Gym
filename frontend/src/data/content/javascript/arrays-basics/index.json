@@ -1,0 +1,163 @@
+{
+  "id": "js-arrays-basics",
+  "name": "Arrays Basics",
+  "topicId": "js-arrays-basics",
+  "technologyId": "javascript",
+  "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Fundamentos de Arrays Basics.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Profundización de Arrays Basics.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Dominio de Arrays Basics.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Fundamentos",
+        "body": "Arrays Basics: creación, índices, lectura y escritura, length, push, pop."
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "creación",
+          "índices",
+          "lectura y escritura",
+          "length",
+          "push",
+          "pop"
+        ]
+      },
+      {
+        "type": "explanation",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás creación, índices, lectura y escritura, length, push, pop mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const items = ['a'];\nitems.push('b');\nconsole.log(items.length, items[1]);",
+        "caption": "Salida esperada: 2 b"
+      },
+      {
+        "type": "warning",
+        "title": "Error frecuente",
+        "body": "Conceptual: el último índice es length - 1, no length."
+      },
+      {
+        "type": "quick-check",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar creación?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "deepening",
+        "title": "Profundización",
+        "body": "Arrays Basics: shift, unshift, slice, splice, includes, indexOf."
+      },
+      {
+        "type": "objectives",
+        "levelId": "deepening",
+        "title": "Qué vas a aprender",
+        "items": [
+          "shift",
+          "unshift",
+          "slice",
+          "splice",
+          "includes",
+          "indexOf"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás shift, unshift, slice, splice, includes, indexOf mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const items = ['a', 'b', 'c'];\nconsole.log(items.slice(1).join('-'));",
+        "caption": "Salida esperada: b-c"
+      },
+      {
+        "type": "warning",
+        "levelId": "deepening",
+        "title": "Error frecuente",
+        "body": "Conceptual: splice muta el origen; para copiar corresponde slice o spread."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar shift?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "mastery",
+        "title": "Dominio",
+        "body": "Arrays Basics: concat, spread, copias, mutación, referencias, arrays anidados."
+      },
+      {
+        "type": "objectives",
+        "levelId": "mastery",
+        "title": "Qué vas a aprender",
+        "items": [
+          "concat",
+          "spread",
+          "copias",
+          "mutación",
+          "referencias",
+          "arrays anidados"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás concat, spread, copias, mutación, referencias, arrays anidados mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const base = [1, 2];\nconst copia = [...base, 3];\nconsole.log(base.length, copia.length);",
+        "caption": "Salida esperada: 2 3"
+      },
+      {
+        "type": "warning",
+        "levelId": "mastery",
+        "title": "Error frecuente",
+        "body": "Conceptual: spread hace copia superficial y conserva los arrays anidados compartidos."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar concat?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      }
+    ]
+  }
+}

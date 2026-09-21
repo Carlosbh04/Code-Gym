@@ -1,0 +1,159 @@
+{
+  "id": "js-set-map",
+  "name": "Set & Map",
+  "topicId": "js-set-map",
+  "technologyId": "javascript",
+  "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Fundamentos de Set & Map.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Profundización de Set & Map.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Dominio de Set & Map.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Fundamentos",
+        "body": "Set & Map: Set.add, Set.has, Set.delete, size."
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Set.add",
+          "Set.has",
+          "Set.delete",
+          "size"
+        ]
+      },
+      {
+        "type": "explanation",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás Set.add, Set.has, Set.delete, size mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const ids = new Set([1, 1, 2]);\nids.add(3);\nconsole.log(ids.size, ids.has(2));",
+        "caption": "Salida esperada: 3 true"
+      },
+      {
+        "type": "warning",
+        "title": "Error frecuente",
+        "body": "Conceptual: Set expone size, no length."
+      },
+      {
+        "type": "quick-check",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar Set.add?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "deepening",
+        "title": "Profundización",
+        "body": "Set & Map: deduplicación, iteración de Set, Map.set, Map.get."
+      },
+      {
+        "type": "objectives",
+        "levelId": "deepening",
+        "title": "Qué vas a aprender",
+        "items": [
+          "deduplicación",
+          "iteración de Set",
+          "Map.set",
+          "Map.get"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás deduplicación, iteración de Set, Map.set, Map.get mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const unicos = [...new Set(['a', 'a', 'b'])];\nconsole.log(unicos.join(','));",
+        "caption": "Salida esperada: a,b"
+      },
+      {
+        "type": "warning",
+        "levelId": "deepening",
+        "title": "Error frecuente",
+        "body": "Conceptual: Map se escribe con set y se lee con get."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar deduplicación?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "mastery",
+        "title": "Dominio",
+        "body": "Set & Map: Map.has, delete, keys, values, entries, Map frente a Object."
+      },
+      {
+        "type": "objectives",
+        "levelId": "mastery",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Map.has",
+          "delete",
+          "keys",
+          "values",
+          "entries",
+          "Map frente a Object"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás Map.has, delete, keys, values, entries, Map frente a Object mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const mapa = new Map([['a', 1], ['b', 2]]);\nconsole.log([...mapa.values()].join(','));",
+        "caption": "Salida esperada: 1,2"
+      },
+      {
+        "type": "warning",
+        "levelId": "mastery",
+        "title": "Error frecuente",
+        "body": "Conceptual: Object convierte la clave a string; Map conserva la identidad del objeto."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar Map.has?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      }
+    ]
+  }
+}

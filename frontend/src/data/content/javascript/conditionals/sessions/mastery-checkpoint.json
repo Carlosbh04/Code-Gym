@@ -1,0 +1,92 @@
+{
+  "id": "js-conditionals-mastery-checkpoint-01",
+  "title": "Checkpoint: Conditionals — mastery",
+  "difficulty": "advanced",
+  "position": 2,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": 80,
+  "requiredForProgression": true,
+  "conceptId": "js-conditionals",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Explica cómo se combinan switch, fall-through, ternario, guard clauses.",
+      "code": "const rol = 'editor';\nconsole.log(rol === 'admin' ? 'total' : 'limitado');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "El resultado depende del orden y del contrato de cada operación.",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Todas las operaciones son equivalentes.",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "El orden nunca importa.",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "JavaScript ignora los casos límite.",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Explica cómo se combinan switch, fall-through, ternario, guard clauses.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "fix-code",
+      "prompt": "Corrige clasificarEdad para tratar 18 como mayoría de edad.",
+      "code": "function clasificarEdad(edad) {\n  return edad > 18 ? 'adulta' : 'menor';\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": 18,
+          "expected": "adulta",
+          "call": "clasificarEdad(input)",
+          "description": "Corrige clasificarEdad para tratar 18 como mayoría de edad."
+        },
+        {
+          "input": 17,
+          "expected": "menor",
+          "call": "clasificarEdad(input)",
+          "description": "Corrige clasificarEdad para tratar 18 como mayoría de edad."
+        },
+        {
+          "input": 40,
+          "expected": "adulta",
+          "call": "clasificarEdad(input)",
+          "description": "Corrige clasificarEdad para tratar 18 como mayoría de edad."
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Corrige clasificarEdad para tratar 18 como mayoría de edad.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "js-types-operators-mastery-practice-01",
+  "title": "Práctica: Types & Operators — mastery",
+  "difficulty": "advanced",
+  "position": 1,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-types-operators",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "find-error",
+      "prompt": "Localiza el error relacionado con bigint, symbol, asignación, incremento, precedencia, ternario, nullish coalescing.",
+      "code": "const intentos = 0;\nconst visibles = intentos || 3;",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "conceptual",
+          "text": "Conceptual: || descarta el cero válido; corresponde usar ?? para ausencia.",
+          "correct": true
+        },
+        {
+          "id": "syntax",
+          "text": "La sintaxis impide analizar el programa.",
+          "correct": false
+        },
+        {
+          "id": "runtime",
+          "text": "El runtime no admite esta característica.",
+          "correct": false
+        },
+        {
+          "id": "format",
+          "text": "Solo existe un problema de formato.",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Conceptual: || descarta el cero válido; corresponde usar ?? para ausencia.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

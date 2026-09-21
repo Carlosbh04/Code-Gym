@@ -261,6 +261,281 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-arrays-basics-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays-basics",
+      "conceptId": "js-arrays-basics",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-basics-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays-basics",
+      "conceptId": "js-arrays-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-basics-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays-basics",
+      "conceptId": "js-arrays-basics",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-basics-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays-basics",
+      "conceptId": "js-arrays-basics",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-basics-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays-basics",
+      "conceptId": "js-arrays-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-basics-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays-basics",
+      "conceptId": "js-arrays-basics",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-basics-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays-basics",
+      "conceptId": "js-arrays-basics",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              "expected": {
+                "salida": [
+                  1,
+                  2,
+                  3
+                ],
+                "originalSinCambios": true
+              },
+              "call": "(() => { const original = [...input[0]]; const salida = agregarSinMutar(input[0], input[1]); return { salida, originalSinCambios: JSON.stringify(input[0]) === JSON.stringify(original) }; })()",
+              "description": "Corrige agregarSinMutar para devolver otro array sin modificar el recibido."
+            },
+            {
+              "input": [
+                [],
+                "a"
+              ],
+              "expected": {
+                "salida": [
+                  "a"
+                ],
+                "originalSinCambios": true
+              },
+              "call": "(() => { const original = [...input[0]]; const salida = agregarSinMutar(input[0], input[1]); return { salida, originalSinCambios: JSON.stringify(input[0]) === JSON.stringify(original) }; })()",
+              "description": "Corrige agregarSinMutar para devolver otro array sin modificar el recibido."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-basics-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays-basics",
+      "conceptId": "js-arrays-basics",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-arrays-basics-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-arrays-basics",
+      "conceptId": "js-arrays-basics",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-arrays-coding-transform-01",
       "technologyId": "javascript",
       "topicId": "js-arrays",
@@ -1325,6 +1600,269 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-browser-javascript-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-browser",
+      "conceptId": "js-browser-javascript",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-browser-javascript-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-browser",
+      "conceptId": "js-browser-javascript",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-browser-javascript-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-browser",
+      "conceptId": "js-browser-javascript",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-browser-javascript-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-browser",
+      "conceptId": "js-browser-javascript",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-browser-javascript-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-browser",
+      "conceptId": "js-browser-javascript",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-browser-javascript-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-browser",
+      "conceptId": "js-browser-javascript",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-browser-javascript-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-browser",
+      "conceptId": "js-browser-javascript",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "id": "visual",
+                "dataset": {
+                  "id": "42"
+                }
+              },
+              "expected": "42",
+              "call": "leerIdentificador(input)",
+              "description": "Corrige leerIdentificador para leer el valor data-id mediante dataset."
+            },
+            {
+              "input": {
+                "dataset": {
+                  "id": "abc"
+                }
+              },
+              "expected": "abc",
+              "call": "leerIdentificador(input)",
+              "description": "Corrige leerIdentificador para leer el valor data-id mediante dataset."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-browser-javascript-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-browser",
+      "conceptId": "js-browser-javascript",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-browser-javascript-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-browser",
+      "conceptId": "js-browser-javascript",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-closures-coding-counter-01",
       "technologyId": "javascript",
       "topicId": "js-closures",
@@ -2332,6 +2870,526 @@ export const verifierManifest = {
           "hints": [
             "La línea que declara `visitas` se ejecuta una vez por carga; debería ejecutarse una vez por registro.",
             "Mueve la declaración al cuerpo de `crearRegistro`. No hace falta tocar `anotar`."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-conditionals-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-conditionals",
+      "conceptId": "js-conditionals",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-conditionals-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-conditionals",
+      "conceptId": "js-conditionals",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-conditionals-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-conditionals",
+      "conceptId": "js-conditionals",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-conditionals-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-conditionals",
+      "conceptId": "js-conditionals",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-conditionals-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-conditionals",
+      "conceptId": "js-conditionals",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-conditionals-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-conditionals",
+      "conceptId": "js-conditionals",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-conditionals-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-conditionals",
+      "conceptId": "js-conditionals",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": 18,
+              "expected": "adulta",
+              "call": "clasificarEdad(input)",
+              "description": "Corrige clasificarEdad para tratar 18 como mayoría de edad."
+            },
+            {
+              "input": 17,
+              "expected": "menor",
+              "call": "clasificarEdad(input)",
+              "description": "Corrige clasificarEdad para tratar 18 como mayoría de edad."
+            },
+            {
+              "input": 40,
+              "expected": "adulta",
+              "call": "clasificarEdad(input)",
+              "description": "Corrige clasificarEdad para tratar 18 como mayoría de edad."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-conditionals-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-conditionals",
+      "conceptId": "js-conditionals",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-conditionals-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-conditionals",
+      "conceptId": "js-conditionals",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-date-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-date",
+      "conceptId": "js-date",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-date-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-date",
+      "conceptId": "js-date",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-date-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-date",
+      "conceptId": "js-date",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-date-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-date",
+      "conceptId": "js-date",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-date-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-date",
+      "conceptId": "js-date",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-date-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-date",
+      "conceptId": "js-date",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-date-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-date",
+      "conceptId": "js-date",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                0,
+                86400000
+              ],
+              "expected": 1,
+              "call": "diasEntre(...input)",
+              "description": "Corrige diasEntre para devolver una diferencia positiva en días completos."
+            },
+            {
+              "input": [
+                172800000,
+                0
+              ],
+              "expected": 2,
+              "call": "diasEntre(...input)",
+              "description": "Corrige diasEntre para devolver una diferencia positiva en días completos."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-date-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-date",
+      "conceptId": "js-date",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-date-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-date",
+      "conceptId": "js-date",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
           ]
         }
       ]
@@ -4662,6 +5720,420 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-event-loop-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-event-loop",
+      "conceptId": "js-event-loop",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-event-loop-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-event-loop",
+      "conceptId": "js-event-loop",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-event-loop-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-event-loop",
+      "conceptId": "js-event-loop",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-event-loop-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-event-loop",
+      "conceptId": "js-event-loop",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-event-loop-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-event-loop",
+      "conceptId": "js-event-loop",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-event-loop-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-event-loop",
+      "conceptId": "js-event-loop",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-event-loop-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-event-loop",
+      "conceptId": "js-event-loop",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": "ok",
+              "expected": "ok",
+              "call": "resolverEnOrden(input)",
+              "description": "Corrige resolverEnOrden para devolver la Promise de la transformación."
+            },
+            {
+              "input": 0,
+              "expected": 0,
+              "call": "resolverEnOrden(input)",
+              "description": "Corrige resolverEnOrden para devolver la Promise de la transformación."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-event-loop-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-event-loop",
+      "conceptId": "js-event-loop",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-event-loop-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-event-loop",
+      "conceptId": "js-event-loop",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-function-basics-deepening-recursive-structures-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-function-basics-foundation-recursion-basics-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-function-basics-mastery-recursion-01",
+      "technologyId": "javascript",
+      "topicId": "js-functions",
+      "conceptId": "js-function-basics",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                1,
+                [
+                  2,
+                  3
+                ]
+              ],
+              "expected": 6,
+              "call": "sumarAnidados(input)",
+              "description": "suma dos niveles"
+            },
+            {
+              "input": [
+                [
+                  1
+                ],
+                [
+                  [
+                    2
+                  ]
+                ],
+                3
+              ],
+              "expected": 6,
+              "call": "sumarAnidados(input)",
+              "description": "suma profundidad variable"
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-functions-coding-format-name-01",
       "technologyId": "javascript",
       "topicId": "js-functions",
@@ -5742,6 +7214,771 @@ export const verifierManifest = {
             "Mueve la declaración fuera del bloque.",
             "¿Qué valor debe tener la variable cuando el `if` no se cumple?",
             "Con `let` puedes declarar fuera y reasignar dentro; con `const` no."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-json-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-json",
+      "conceptId": "js-json",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-json-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-json",
+      "conceptId": "js-json",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-json-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-json",
+      "conceptId": "js-json",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-json-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-json",
+      "conceptId": "js-json",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-json-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-json",
+      "conceptId": "js-json",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-json-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-json",
+      "conceptId": "js-json",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-json-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-json",
+      "conceptId": "js-json",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": "{\"nombre\":\"Ana\"}",
+              "expected": "Ana",
+              "call": "leerNombre(input)",
+              "description": "Corrige leerNombre para parsear el JSON antes de acceder a nombre."
+            },
+            {
+              "input": "{\"nombre\":\"Leo\"}",
+              "expected": "Leo",
+              "call": "leerNombre(input)",
+              "description": "Corrige leerNombre para parsear el JSON antes de acceder a nombre."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-json-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-json",
+      "conceptId": "js-json",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-json-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-json",
+      "conceptId": "js-json",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-loops-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-loops",
+      "conceptId": "js-loops",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-loops-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-loops",
+      "conceptId": "js-loops",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-loops-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-loops",
+      "conceptId": "js-loops",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-loops-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-loops",
+      "conceptId": "js-loops",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-loops-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-loops",
+      "conceptId": "js-loops",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-loops-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-loops",
+      "conceptId": "js-loops",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-loops-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-loops",
+      "conceptId": "js-loops",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": 3,
+              "expected": 6,
+              "call": "sumarHasta(input)",
+              "description": "Corrige sumarHasta para incluir el límite."
+            },
+            {
+              "input": 1,
+              "expected": 1,
+              "call": "sumarHasta(input)",
+              "description": "Corrige sumarHasta para incluir el límite."
+            },
+            {
+              "input": 5,
+              "expected": 15,
+              "call": "sumarHasta(input)",
+              "description": "Corrige sumarHasta para incluir el límite."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-loops-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-loops",
+      "conceptId": "js-loops",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-loops-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-loops",
+      "conceptId": "js-loops",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-modules-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-modules",
+      "conceptId": "js-modules",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-modules-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-modules",
+      "conceptId": "js-modules",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-modules-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-modules",
+      "conceptId": "js-modules",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-modules-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-modules",
+      "conceptId": "js-modules",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-modules-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-modules",
+      "conceptId": "js-modules",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-modules-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-modules",
+      "conceptId": "js-modules",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-modules-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-modules",
+      "conceptId": "js-modules",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "default": "math",
+                "suma": null
+              },
+              "expected": "math:5",
+              "call": "usarModulo({ default: input.default, suma: (a, b) => a + b })",
+              "description": "Corrige usarModulo para combinar la exportación default con la exportación nombrada suma."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-modules-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-modules",
+      "conceptId": "js-modules",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-modules-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-modules",
+      "conceptId": "js-modules",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
           ]
         }
       ]
@@ -6908,6 +9145,47 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-promise-flow-mastery-promise-any-01",
+      "technologyId": "javascript",
+      "topicId": "js-promises",
+      "conceptId": "js-promise-flow",
+      "status": "published",
+      "totalExercises": 3,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "contrato",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-promises-await-value-01",
       "technologyId": "javascript",
       "topicId": "js-promises",
@@ -7927,6 +10205,1055 @@ export const verifierManifest = {
           "hints": [
             "Retorna Promise.race.",
             "No ocultes el rechazo ganador."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-scope-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-scope",
+      "conceptId": "js-scope",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-scope-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-scope",
+      "conceptId": "js-scope",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-scope-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-scope",
+      "conceptId": "js-scope",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-scope-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-scope",
+      "conceptId": "js-scope",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-scope-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-scope",
+      "conceptId": "js-scope",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-scope-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-scope",
+      "conceptId": "js-scope",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-scope-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-scope",
+      "conceptId": "js-scope",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": 1,
+              "expected": 2,
+              "call": "incrementar(input)",
+              "description": "Corrige incrementar para devolver base + 1 sin crear shadowing."
+            },
+            {
+              "input": 0,
+              "expected": 1,
+              "call": "incrementar(input)",
+              "description": "Corrige incrementar para devolver base + 1 sin crear shadowing."
+            },
+            {
+              "input": -2,
+              "expected": -1,
+              "call": "incrementar(input)",
+              "description": "Corrige incrementar para devolver base + 1 sin crear shadowing."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-scope-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-scope",
+      "conceptId": "js-scope",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-scope-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-scope",
+      "conceptId": "js-scope",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-set-map-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-set-map",
+      "conceptId": "js-set-map",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-set-map-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-set-map",
+      "conceptId": "js-set-map",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-set-map-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-set-map",
+      "conceptId": "js-set-map",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-set-map-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-set-map",
+      "conceptId": "js-set-map",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-set-map-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-set-map",
+      "conceptId": "js-set-map",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-set-map-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-set-map",
+      "conceptId": "js-set-map",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-set-map-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-set-map",
+      "conceptId": "js-set-map",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": [
+                1,
+                1,
+                2
+              ],
+              "expected": 2,
+              "call": "contarUnicos(input)",
+              "description": "Corrige contarUnicos usando Set para contar valores diferentes."
+            },
+            {
+              "input": [
+                "a",
+                "a",
+                "b",
+                "c"
+              ],
+              "expected": 3,
+              "call": "contarUnicos(input)",
+              "description": "Corrige contarUnicos usando Set para contar valores diferentes."
+            },
+            {
+              "input": [],
+              "expected": 0,
+              "call": "contarUnicos(input)",
+              "description": "Corrige contarUnicos usando Set para contar valores diferentes."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-set-map-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-set-map",
+      "conceptId": "js-set-map",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-set-map-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-set-map",
+      "conceptId": "js-set-map",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-strings-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-strings",
+      "conceptId": "js-strings",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-strings-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-strings",
+      "conceptId": "js-strings",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-strings-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-strings",
+      "conceptId": "js-strings",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-strings-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-strings",
+      "conceptId": "js-strings",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-strings-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-strings",
+      "conceptId": "js-strings",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-strings-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-strings",
+      "conceptId": "js-strings",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-strings-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-strings",
+      "conceptId": "js-strings",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": "  JavaScript ",
+              "expected": "javascript",
+              "call": "normalizar(input)",
+              "description": "Corrige normalizar para retirar espacios y convertir a minúsculas."
+            },
+            {
+              "input": " ANA",
+              "expected": "ana",
+              "call": "normalizar(input)",
+              "description": "Corrige normalizar para retirar espacios y convertir a minúsculas."
+            },
+            {
+              "input": "web",
+              "expected": "web",
+              "call": "normalizar(input)",
+              "description": "Corrige normalizar para retirar espacios y convertir a minúsculas."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-strings-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-strings",
+      "conceptId": "js-strings",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-strings-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-strings",
+      "conceptId": "js-strings",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-types-operators-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-types-operators",
+      "conceptId": "js-types-operators",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-types-operators-deepening-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-types-operators",
+      "conceptId": "js-types-operators",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-types-operators-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-types-operators",
+      "conceptId": "js-types-operators",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-types-operators-foundation-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-types-operators",
+      "conceptId": "js-types-operators",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-types-operators-foundation-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-types-operators",
+      "conceptId": "js-types-operators",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-types-operators-foundation-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-types-operators",
+      "conceptId": "js-types-operators",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-types-operators-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-types-operators",
+      "conceptId": "js-types-operators",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": 0,
+              "expected": 0,
+              "call": "normalizarLimite(input)",
+              "description": "Corrige normalizarLimite para conservar 0 y usar 10 solo ante null o undefined."
+            },
+            {
+              "input": null,
+              "expected": 10,
+              "call": "normalizarLimite(input)",
+              "description": "Corrige normalizarLimite para conservar 0 y usar 10 solo ante null o undefined."
+            },
+            {
+              "input": 7,
+              "expected": 7,
+              "call": "normalizarLimite(input)",
+              "description": "Corrige normalizarLimite para conservar 0 y usar 10 solo ante null o undefined."
+            }
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-types-operators-mastery-practice-01",
+      "technologyId": "javascript",
+      "topicId": "js-types-operators",
+      "conceptId": "js-types-operators",
+      "status": "published",
+      "totalExercises": 1,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-types-operators-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-types-operators",
+      "conceptId": "js-types-operators",
+      "status": "published",
+      "totalExercises": 2,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "correct"
+          ],
+          "hints": [
+            "Observa el contrato y sigue los valores paso a paso."
           ]
         }
       ]

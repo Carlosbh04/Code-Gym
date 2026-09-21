@@ -1,0 +1,58 @@
+{
+  "id": "js-date-foundation-practice-01",
+  "title": "Práctica: Date — foundation",
+  "difficulty": "beginner",
+  "position": 1,
+  "kind": "practice",
+  "levelId": "foundation",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-date",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "find-error",
+      "prompt": "Localiza el error relacionado con new Date, timestamps, Date.now.",
+      "code": "const inicio = new Date(0);\nconst fin = new Date(1000); console.log(fin - inicio === 1);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "conceptual",
+          "text": "Conceptual: la diferencia entre Date se expresa en milisegundos.",
+          "correct": true
+        },
+        {
+          "id": "syntax",
+          "text": "La sintaxis impide analizar el programa.",
+          "correct": false
+        },
+        {
+          "id": "runtime",
+          "text": "El runtime no admite esta característica.",
+          "correct": false
+        },
+        {
+          "id": "format",
+          "text": "Solo existe un problema de formato.",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Conceptual: la diferencia entre Date se expresa en milisegundos.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

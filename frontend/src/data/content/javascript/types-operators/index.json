@@ -1,0 +1,164 @@
+{
+  "id": "js-types-operators",
+  "name": "Types & Operators",
+  "topicId": "js-types-operators",
+  "technologyId": "javascript",
+  "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Fundamentos de Types & Operators.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Profundización de Types & Operators.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Dominio de Types & Operators.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Fundamentos",
+        "body": "Types & Operators: string, number, boolean, null, undefined, typeof."
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "string",
+          "number",
+          "boolean",
+          "null",
+          "undefined",
+          "typeof"
+        ]
+      },
+      {
+        "type": "explanation",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás string, number, boolean, null, undefined, typeof mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const valor = Number('2') + 3;\nconsole.log(valor);",
+        "caption": "Salida esperada: 5"
+      },
+      {
+        "type": "warning",
+        "title": "Error frecuente",
+        "body": "Conceptual: falta convertir el texto antes de sumar."
+      },
+      {
+        "type": "quick-check",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar string?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "deepening",
+        "title": "Profundización",
+        "body": "Types & Operators: coerción, conversión explícita, comparación, ===, !==, operadores lógicos."
+      },
+      {
+        "type": "objectives",
+        "levelId": "deepening",
+        "title": "Qué vas a aprender",
+        "items": [
+          "coerción",
+          "conversión explícita",
+          "comparación",
+          "===",
+          "!==",
+          "operadores lógicos"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás coerción, conversión explícita, comparación, ===, !==, operadores lógicos mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "console.log(0 === false, Boolean(''));",
+        "caption": "Salida esperada: false false"
+      },
+      {
+        "type": "warning",
+        "levelId": "deepening",
+        "title": "Error frecuente",
+        "body": "Conceptual: la comparación laxa aplica coerción; aquí debe usarse ===."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar coerción?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "mastery",
+        "title": "Dominio",
+        "body": "Types & Operators: bigint, symbol, asignación, incremento, precedencia, ternario, nullish coalescing."
+      },
+      {
+        "type": "objectives",
+        "levelId": "mastery",
+        "title": "Qué vas a aprender",
+        "items": [
+          "bigint",
+          "symbol",
+          "asignación",
+          "incremento",
+          "precedencia",
+          "ternario",
+          "nullish coalescing"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás bigint, symbol, asignación, incremento, precedencia, ternario, nullish coalescing mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const valor = null ?? 4;\nconsole.log(valor * 2 ** 2);",
+        "caption": "Salida esperada: 16"
+      },
+      {
+        "type": "warning",
+        "levelId": "mastery",
+        "title": "Error frecuente",
+        "body": "Conceptual: || descarta el cero válido; corresponde usar ?? para ausencia."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar bigint?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      }
+    ]
+  }
+}

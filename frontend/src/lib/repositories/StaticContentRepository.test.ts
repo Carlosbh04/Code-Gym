@@ -12,6 +12,20 @@ const PROMISES_CONCEPT = 'js-promise-flow';
 const OBJECTS_CONCEPT = 'js-object-references';
 const ES6_PLUS_CONCEPT = 'js-es6-modern-syntax';
 const ERRORS_CONCEPT = 'js-error-handling';
+const CURRICULUM_CONCEPTS = [
+  'js-types-operators',
+  'js-conditionals',
+  'js-loops',
+  'js-strings',
+  'js-arrays-basics',
+  'js-scope',
+  'js-json',
+  'js-set-map',
+  'js-date',
+  'js-modules',
+  'js-event-loop',
+  'js-browser-javascript',
+] as const;
 
 describe('StaticContentRepository (T019)', () => {
   let repo: IContentRepository;
@@ -208,7 +222,7 @@ describe('StaticContentRepository (T019)', () => {
     });
 
     it(
-      'devuelve las 15 sesiones staged de Functions',
+      'devuelve las 18 sesiones staged de Functions',
       async () => {
         const sessions =
           await repo.getSessionsByConcept(
@@ -218,7 +232,7 @@ describe('StaticContentRepository (T019)', () => {
         expect(
           sessions,
         ).toHaveLength(
-          15,
+          18,
         );
 
         expect(
@@ -250,17 +264,20 @@ describe('StaticContentRepository (T019)', () => {
             'deepening:checkpoint:js-functions-deepening-checkpoint-01',
             'deepening:practice:js-functions-deepening-callbacks-01',
             'deepening:practice:js-functions-return-flow-01',
+            'deepening:practice:js-function-basics-deepening-recursive-structures-01',
             'deepening:practice:js-functions-scope-hoisting-01',
             'deepening:quiz:js-functions-deepening-quiz-01',
             'foundation:checkpoint:js-functions-foundation-checkpoint-01',
             'foundation:practice:js-functions-coding-format-name-01',
             'foundation:practice:js-functions-default-parameters-01',
             'foundation:practice:js-functions-foundation-reference-execution-01',
+            'foundation:practice:js-function-basics-foundation-recursion-basics-01',
             'foundation:quiz:js-functions-foundation-quiz-01',
             'mastery:checkpoint:js-functions-mastery-checkpoint-01',
             'mastery:practice:js-functions-mastery-consistent-return-01',
             'mastery:practice:js-functions-mastery-contracts-01',
             'mastery:practice:js-functions-mastery-pipeline-effects-01',
+            'mastery:practice:js-function-basics-mastery-recursion-01',
             'mastery:quiz:js-functions-mastery-quiz-01',
           ].sort(),
         );
@@ -309,11 +326,14 @@ describe('StaticContentRepository (T019)', () => {
             'advanced',
             'advanced',
             'advanced',
+            'advanced',
             'beginner',
             'beginner',
             'beginner',
             'beginner',
             'beginner',
+            'beginner',
+            'intermediate',
             'intermediate',
             'intermediate',
             'intermediate',
@@ -349,11 +369,12 @@ describe('StaticContentRepository (T019)', () => {
       expect(sessions.every((s) => s.conceptId === CLOSURES_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 16 sesiones de Promises', async () => {
+    it('devuelve las 17 sesiones de Promises', async () => {
       const sessions = await repo.getSessionsByConcept(PROMISES_CONCEPT);
 
-      expect(sessions).toHaveLength(16);
+      expect(sessions).toHaveLength(17);
       expect(sessions.map((s) => s.id).sort()).toEqual([
+        'js-promise-flow-mastery-promise-any-01',
         'js-promises-await-value-01',
         'js-promises-chain-transform-01',
         'js-promises-coding-fetch-label-01',
@@ -581,13 +602,25 @@ describe('StaticContentRepository (T019)', () => {
 
       expect(topics.map((t) => t.id)).toEqual([
         'js-fundamentals',
-        'js-arrays',
+        'js-types-operators',
+        'js-conditionals',
+        'js-loops',
+        'js-strings',
+        'js-arrays-basics',
         'js-functions',
-        'js-closures',
-        'js-promises',
+        'js-scope',
         'js-objects',
+        'js-arrays',
+        'js-closures',
         'js-es6-plus',
+        'js-json',
+        'js-set-map',
+        'js-date',
+        'js-modules',
         'js-errors',
+        'js-promises',
+        'js-event-loop',
+        'js-browser',
       ]);
       expect(topics.every((t) => t.technologyId === 'javascript')).toBe(true);
       expect(topics.every((t) => t.name.length > 0 && t.description.length > 0)).toBe(true);
@@ -705,6 +738,7 @@ describe('StaticContentRepository (T019)', () => {
         OBJECTS_CONCEPT,
         ES6_PLUS_CONCEPT,
         ERRORS_CONCEPT,
+        ...CURRICULUM_CONCEPTS,
       ]) {
         const concept = await repo.getConceptById(conceptId);
         expect(concept).not.toBeNull();
@@ -722,7 +756,7 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 126 sesiones de JavaScript conservan su contrato', async () => {
+    it('las 238 sesiones de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(VARIABLES_CONCEPT)),
@@ -732,10 +766,15 @@ describe('StaticContentRepository (T019)', () => {
         ...(await repo.getSessionsByConcept(OBJECTS_CONCEPT)),
         ...(await repo.getSessionsByConcept(ES6_PLUS_CONCEPT)),
         ...(await repo.getSessionsByConcept(ERRORS_CONCEPT)),
+        ...(await Promise.all(
+          CURRICULUM_CONCEPTS.map((conceptId) =>
+            repo.getSessionsByConcept(conceptId),
+          ),
+        )).flat(),
       ];
 
-      expect(all).toHaveLength(126);
-      expect(new Set(all.map((s) => s.id)).size).toBe(126);
+      expect(all).toHaveLength(238);
+      expect(new Set(all.map((s) => s.id)).size).toBe(238);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length >= 1)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);
@@ -812,7 +851,14 @@ describe('StaticContentRepository (T019)', () => {
       expect(serialized).not.toContain('"hints"');
       expect(serialized).not.toContain('"explanation"');
       expect(serialized).not.toContain('"testCases"');
-      expect(serialized).not.toContain('"correct"');
+      for (const step of session.steps) {
+        for (const option of step.options ?? []) {
+          expect(
+            Object.prototype.hasOwnProperty.call(option, 'correct'),
+            `${session.id}/${step.id}/${option.id}`,
+          ).toBe(false);
+        }
+      }
     });
 
     it('un updatedAt nulo no rompe la congelacion', async () => {

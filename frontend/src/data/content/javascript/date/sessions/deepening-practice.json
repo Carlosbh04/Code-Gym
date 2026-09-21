@@ -1,0 +1,58 @@
+{
+  "id": "js-date-deepening-practice-01",
+  "title": "Práctica: Date — deepening",
+  "difficulty": "intermediate",
+  "position": 1,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-date",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "find-error",
+      "prompt": "Localiza el error relacionado con getters, comparaciones, diferencias.",
+      "code": "const fecha = new Date('2024-01-01T00:00:00Z');\nconsole.log(fecha.getMonth() === 1);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "conceptual",
+          "text": "Conceptual: getMonth usa índices desde 0; enero es 0.",
+          "correct": true
+        },
+        {
+          "id": "syntax",
+          "text": "La sintaxis impide analizar el programa.",
+          "correct": false
+        },
+        {
+          "id": "runtime",
+          "text": "El runtime no admite esta característica.",
+          "correct": false
+        },
+        {
+          "id": "format",
+          "text": "Solo existe un problema de formato.",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Conceptual: getMonth usa índices desde 0; enero es 0.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

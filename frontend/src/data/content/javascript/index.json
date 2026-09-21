@@ -6,10 +6,34 @@
     "description": "Conceptos esenciales de JavaScript antes de avanzar a estructuras, funciones y programación asíncrona."
   },
   {
-    "id": "js-arrays",
-    "name": "Arrays",
+    "id": "js-types-operators",
+    "name": "Types & Operators",
     "technologyId": "javascript",
-    "description": "Métodos de iteración: qué devuelve cada uno, cuáles mutan y cuándo elegir map, filter o reduce."
+    "description": "Tipos primitivos, conversiones y operadores para razonar con valores sin depender de coerciones accidentales."
+  },
+  {
+    "id": "js-conditionals",
+    "name": "Conditionals",
+    "technologyId": "javascript",
+    "description": "Decisiones con if, switch, ternarios y condiciones compuestas que preservan casos límite."
+  },
+  {
+    "id": "js-loops",
+    "name": "Loops",
+    "technologyId": "javascript",
+    "description": "Bucles, contadores, acumuladores y patrones de búsqueda con límites correctos."
+  },
+  {
+    "id": "js-strings",
+    "name": "Strings",
+    "technologyId": "javascript",
+    "description": "Lectura, búsqueda, transformación y composición de texto entendiendo su inmutabilidad."
+  },
+  {
+    "id": "js-arrays-basics",
+    "name": "Arrays Basics",
+    "technologyId": "javascript",
+    "description": "Creación, acceso, mutación y copia de arrays antes de aplicar métodos de iteración."
   },
   {
     "id": "js-functions",
@@ -18,16 +42,10 @@
     "description": "Parámetros por defecto, ámbito y hoisting, y los caminos por los que una función acaba devolviendo undefined."
   },
   {
-    "id": "js-closures",
-    "name": "Closures",
+    "id": "js-scope",
+    "name": "Scope",
     "technologyId": "javascript",
-    "description": "Qué captura una función interna, cuándo dos funciones comparten la misma variable y por qué ven el valor de hoy, no el del momento en que se crearon."
-  },
-  {
-    "id": "js-promises",
-    "name": "Promises",
-    "technologyId": "javascript",
-    "description": "Cómo encadenar resultados asíncronos, propagar errores y esperar una promesa antes de usar su valor."
+    "description": "Ámbitos global, de función y de bloque; resolución léxica, hoisting, TDZ y shadowing."
   },
   {
     "id": "js-objects",
@@ -36,15 +54,69 @@
     "description": "Propiedades, referencias y copias superficiales para leer y actualizar datos sin mutar estado compartido por accidente."
   },
   {
+    "id": "js-arrays",
+    "name": "Arrays",
+    "technologyId": "javascript",
+    "description": "Métodos de iteración: qué devuelve cada uno, cuáles mutan y cuándo elegir map, filter o reduce."
+  },
+  {
+    "id": "js-closures",
+    "name": "Closures",
+    "technologyId": "javascript",
+    "description": "Qué captura una función interna, cuándo dos funciones comparten la misma variable y por qué ven el valor de hoy, no el del momento en que se crearon."
+  },
+  {
     "id": "js-es6-plus",
     "name": "ES6+",
     "technologyId": "javascript",
     "description": "Destructuring, parámetros rest y operadores modernos para expresar valores opcionales sin confundir ausencia con valores falsy."
   },
   {
+    "id": "js-json",
+    "name": "JSON",
+    "technologyId": "javascript",
+    "description": "Serialización y parseo de datos, límites del formato y manejo seguro de entradas inválidas."
+  },
+  {
+    "id": "js-set-map",
+    "name": "Set & Map",
+    "technologyId": "javascript",
+    "description": "Colecciones para unicidad y asociaciones con claves de cualquier tipo."
+  },
+  {
+    "id": "js-date",
+    "name": "Date",
+    "technologyId": "javascript",
+    "description": "Fechas, timestamps, comparaciones, diferencias y la frontera entre hora local y UTC."
+  },
+  {
+    "id": "js-modules",
+    "name": "Modules",
+    "technologyId": "javascript",
+    "description": "Exportaciones, importaciones, aliases, ámbito de módulo y dependencias explícitas."
+  },
+  {
     "id": "js-errors",
     "name": "Errors",
     "technologyId": "javascript",
     "description": "Cómo lanzar, capturar y propagar errores sin ocultar fallos ni convertir resultados inválidos en datos aparentemente correctos."
+  },
+  {
+    "id": "js-promises",
+    "name": "Promises",
+    "technologyId": "javascript",
+    "description": "Cómo encadenar resultados asíncronos, propagar errores y esperar una promesa antes de usar su valor."
+  },
+  {
+    "id": "js-event-loop",
+    "name": "Event Loop",
+    "technologyId": "javascript",
+    "description": "Orden de ejecución entre stack, APIs del runtime, tareas, microtareas y continuaciones async."
+  },
+  {
+    "id": "js-browser",
+    "name": "Browser JavaScript",
+    "technologyId": "javascript",
+    "description": "DOM, eventos, formularios, almacenamiento y fetch para conectar JavaScript con una interfaz web."
   }
 ]

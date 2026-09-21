@@ -1,0 +1,150 @@
+{
+  "id": "js-function-basics-mastery-recursion-01",
+  "title": "Recursión: composición y límites",
+  "difficulty": "advanced",
+  "position": 5,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Compara iteración y recursión para datos anidados.",
+      "code": "const datos = [1, [2, [3]]];",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "La recursión sigue la forma anidada.",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Un único for siempre basta.",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Compara iteración y recursión para datos anidados.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "Predice la suma recursiva.",
+      "code": "function suma(x){ return Array.isArray(x) ? x.reduce((t,v)=>t+suma(v),0) : x; }\nconsole.log(suma([1,[2,3]]));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "6",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "123",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Predice la suma recursiva.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Localiza el problema de profundidad.",
+      "code": "function visitar(nodo) {\n  return visitar(nodo);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "flujo",
+          "text": "Flujo: la llamada recibe el mismo problema y nunca alcanza un caso base.",
+          "correct": true
+        },
+        {
+          "id": "syntax",
+          "text": "La sintaxis es inválida.",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Localiza el problema de profundidad.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige sumarAnidados para sumar números a cualquier profundidad.",
+      "code": "function sumarAnidados(valores) {\n  return valores.reduce((total, valor) => total + valor, 0);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            1,
+            [
+              2,
+              3
+            ]
+          ],
+          "expected": 6,
+          "call": "sumarAnidados(input)",
+          "description": "suma dos niveles"
+        },
+        {
+          "input": [
+            [
+              1
+            ],
+            [
+              [
+                2
+              ]
+            ],
+            3
+          ],
+          "expected": 6,
+          "call": "sumarAnidados(input)",
+          "description": "suma profundidad variable"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Corrige sumarAnidados para sumar números a cualquier profundidad.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

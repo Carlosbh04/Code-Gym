@@ -99,3 +99,7 @@ la función al detectar el primer problema, nunca comprobarás los siguientes.
 1. ¿Qué pasa si el argumento vale `0`, `''` o `null`?
 2. ¿Está cada variable declarada en el ámbito donde se usa?
 3. ¿Hay algún camino de ejecución que termine sin `return`?
+
+## Recursión
+
+Toda recursión necesita un caso base y una llamada que acerque el problema a ese caso. Cada llamada ocupa un marco de pila; para estructuras muy profundas conviene valorar una solución iterativa.

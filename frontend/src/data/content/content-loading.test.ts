@@ -113,10 +113,10 @@ describe('contenido publicado (T070)', () => {
     const findErrorSteps = steps.filter(({ step }) => step.type === 'find-error');
     const fixCodeSteps = steps.filter(({ step }) => step.type === 'fix-code');
 
-    expect(sessions).toHaveLength(126);
-    expect(steps).toHaveLength(487);
-    expect(findErrorSteps).toHaveLength(88);
-    expect(fixCodeSteps).toHaveLength(85);
+    expect(sessions).toHaveLength(238);
+    expect(steps).toHaveLength(680);
+    expect(findErrorSteps).toHaveLength(128);
+    expect(fixCodeSteps).toHaveLength(98);
 
     for (const { sessionId, step } of findErrorSteps) {
       const label = `${sessionId}/${step.id}`;
@@ -229,7 +229,12 @@ describe('contenido publicado (T070)', () => {
               const serialized = JSON.stringify(step);
               expect(serialized).not.toContain('"hints"');
               expect(serialized).not.toContain('"explanation"');
-              expect(serialized).not.toContain('"correct"');
+              for (const option of step.options ?? []) {
+                expect(
+                  Object.prototype.hasOwnProperty.call(option, 'correct'),
+                  `${session.id}/${step.id}/${option.id}`,
+                ).toBe(false);
+              }
             }
           }
         }

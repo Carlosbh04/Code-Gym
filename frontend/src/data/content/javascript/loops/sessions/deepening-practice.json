@@ -1,0 +1,58 @@
+{
+  "id": "js-loops-deepening-practice-01",
+  "title": "Práctica: Loops — deepening",
+  "difficulty": "intermediate",
+  "position": 1,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-loops",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "find-error",
+      "prompt": "Localiza el error relacionado con for...of, for...in, break, continue, acumuladores.",
+      "code": "const valores = [3, 7, 9];\nfor (const indice in valores) { if (indice === 7) break; }",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "conceptual",
+          "text": "Conceptual: for...in entrega índices string, no los valores del array.",
+          "correct": true
+        },
+        {
+          "id": "syntax",
+          "text": "La sintaxis impide analizar el programa.",
+          "correct": false
+        },
+        {
+          "id": "runtime",
+          "text": "El runtime no admite esta característica.",
+          "correct": false
+        },
+        {
+          "id": "format",
+          "text": "Solo existe un problema de formato.",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Conceptual: for...in entrega índices string, no los valores del array.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    }
+  ]
+}

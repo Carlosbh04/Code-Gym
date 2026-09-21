@@ -1,0 +1,92 @@
+{
+  "id": "js-date-mastery-checkpoint-01",
+  "title": "Checkpoint: Date — mastery",
+  "difficulty": "advanced",
+  "position": 2,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": 80,
+  "requiredForProgression": true,
+  "conceptId": "js-date",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Explica cómo se combinan formato básico, local frente a UTC, fechas inválidas.",
+      "code": "const fecha = new Date('2024-06-01T12:00:00Z');\nconsole.log(fecha.toISOString().startsWith('2024-06-01'));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "El resultado depende del orden y del contrato de cada operación.",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Todas las operaciones son equivalentes.",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "El orden nunca importa.",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "JavaScript ignora los casos límite.",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Explica cómo se combinan formato básico, local frente a UTC, fechas inválidas.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "fix-code",
+      "prompt": "Corrige diasEntre para devolver una diferencia positiva en días completos.",
+      "code": "function diasEntre(a, b) {\n  return (b - a) / 86400000;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            0,
+            86400000
+          ],
+          "expected": 1,
+          "call": "diasEntre(...input)",
+          "description": "Corrige diasEntre para devolver una diferencia positiva en días completos."
+        },
+        {
+          "input": [
+            172800000,
+            0
+          ],
+          "expected": 2,
+          "call": "diasEntre(...input)",
+          "description": "Corrige diasEntre para devolver una diferencia positiva en días completos."
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Corrige diasEntre para devolver una diferencia positiva en días completos.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

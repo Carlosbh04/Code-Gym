@@ -349,6 +349,30 @@
         "levelId": "mastery",
         "title": "Resumen",
         "body": "Una función robusta conserva valores válidos, tiene reglas explícitas para ausencia, devuelve resultados previsibles y termina temprano solo cuando ese camino está realmente completo."
+      },
+      {
+        "type": "explanation",
+        "title": "Recursión y caso base",
+        "body": "Una función recursiva resuelve una versión menor del problema y necesita un caso base que detenga las llamadas."
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Pila y estructuras anidadas",
+        "body": "Cada llamada conserva su contexto en la pila. La recursión encaja con árboles y datos anidados, pero una profundidad extrema puede desbordarla."
+      },
+      {
+        "type": "comparison",
+        "levelId": "mastery",
+        "title": "Iteración frente a recursión",
+        "left": {
+          "title": "Iteración",
+          "body": "Suele controlar mejor memoria y grandes profundidades."
+        },
+        "right": {
+          "title": "Recursión",
+          "body": "Expresa naturalmente problemas definidos por subproblemas equivalentes."
+        }
       }
     ]
   },

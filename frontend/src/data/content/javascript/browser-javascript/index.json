@@ -1,0 +1,163 @@
+{
+  "id": "js-browser-javascript",
+  "name": "Browser JavaScript",
+  "topicId": "js-browser",
+  "technologyId": "javascript",
+  "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Fundamentos de Browser JavaScript.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Profundización de Browser JavaScript.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Dominio de Browser JavaScript.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Fundamentos",
+        "body": "Browser JavaScript: DOM, querySelector, querySelectorAll, textContent, attributes, classList."
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "DOM",
+          "querySelector",
+          "querySelectorAll",
+          "textContent",
+          "attributes",
+          "classList"
+        ]
+      },
+      {
+        "type": "explanation",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás DOM, querySelector, querySelectorAll, textContent, attributes, classList mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const titulo = document.querySelector('h1');\ntitulo.textContent = 'Hola';",
+        "caption": "Salida esperada: actualiza el primer h1"
+      },
+      {
+        "type": "warning",
+        "title": "Error frecuente",
+        "body": "Conceptual: querySelectorAll devuelve una colección; hay que recorrer sus elementos."
+      },
+      {
+        "type": "quick-check",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar DOM?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "deepening",
+        "title": "Profundización",
+        "body": "Browser JavaScript: createElement, append, remove, events, addEventListener, event object."
+      },
+      {
+        "type": "objectives",
+        "levelId": "deepening",
+        "title": "Qué vas a aprender",
+        "items": [
+          "createElement",
+          "append",
+          "remove",
+          "events",
+          "addEventListener",
+          "event object"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás createElement, append, remove, events, addEventListener, event object mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "deepening",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "const boton = document.querySelector('button');\nboton.addEventListener('click', (event) => console.log(event.type));",
+        "caption": "Salida esperada: click"
+      },
+      {
+        "type": "warning",
+        "levelId": "deepening",
+        "title": "Error frecuente",
+        "body": "Conceptual: addEventListener recibe la función, no el resultado de invocarla."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "deepening",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar createElement?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      },
+      {
+        "type": "intro",
+        "levelId": "mastery",
+        "title": "Dominio",
+        "body": "Browser JavaScript: preventDefault, forms, dataset, localStorage, sessionStorage, fetch."
+      },
+      {
+        "type": "objectives",
+        "levelId": "mastery",
+        "title": "Qué vas a aprender",
+        "items": [
+          "preventDefault",
+          "forms",
+          "dataset",
+          "localStorage",
+          "sessionStorage",
+          "fetch"
+        ]
+      },
+      {
+        "type": "explanation",
+        "levelId": "mastery",
+        "title": "Modelo mental",
+        "body": "En este nivel conectarás preventDefault, forms, dataset, localStorage, sessionStorage, fetch mediante reglas explícitas, casos límite y razonamiento sobre el resultado observable."
+      },
+      {
+        "type": "code",
+        "levelId": "mastery",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "form.addEventListener('submit', e => { e.preventDefault(); console.log(form.dataset.mode); });",
+        "caption": "Salida esperada: evita envío y lee dataset"
+      },
+      {
+        "type": "warning",
+        "levelId": "mastery",
+        "title": "Error frecuente",
+        "body": "Conceptual: fetch y response.json devuelven Promises que deben esperarse."
+      },
+      {
+        "type": "quick-check",
+        "levelId": "mastery",
+        "title": "Comprobación rápida",
+        "question": "¿Qué debes revisar al aplicar preventDefault?",
+        "answer": "El tipo de los valores, el orden de evaluación y los casos límite."
+      }
+    ]
+  }
+}

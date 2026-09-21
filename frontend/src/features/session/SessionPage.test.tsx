@@ -456,6 +456,11 @@ const failingRepo: IContentRepository = {
   getSessionById: () => Promise.reject(new Error('el contenido no se pudo leer')),
 };
 
+const missingSessionRepo: IContentRepository = {
+  ...failingRepo,
+  getSessionById: () => Promise.resolve(null),
+};
+
 // SESSION_ENTRY_GATE_TEST_DEFAULT
 beforeEach(
   () => {
@@ -801,9 +806,11 @@ describe('SessionPage (T027)', () => {
 
   describe('errores', () => {
     it('una sesión inexistente muestra el estado vacío con vuelta al inicio', async () => {
-      await loaded('js-no-existe-99');
+      renderAt('js-no-existe-99', missingSessionRepo);
 
-      expect(screen.getByText('No hemos encontrado esta sesión')).toBeInTheDocument();
+      expect(
+        await screen.findByText('No hemos encontrado esta sesión'),
+      ).toBeInTheDocument();
       expect(screen.getByText(/Sesión no encontrada: js-no-existe-99/)).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Volver al inicio' })).toHaveAttribute('href', '/');
     });
@@ -815,7 +822,7 @@ describe('SessionPage (T027)', () => {
     });
 
     it('con error no se renderiza ningún paso', async () => {
-      await loaded('js-no-existe-99');
+      await loaded('js-no-existe-99', missingSessionRepo);
 
       expect(screen.queryByRole('radio')).toBeNull();
       expect(screen.queryByRole('button', { name: 'Comprobar' })).toBeNull();

@@ -1,0 +1,104 @@
+{
+  "id": "js-function-basics-deepening-recursive-structures-01",
+  "title": "Recursión sobre estructuras anidadas",
+  "difficulty": "intermediate",
+  "position": 5,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-function-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Explica la reducción del problema.",
+      "code": "function contar(nodo) { return 1 + (nodo.hijos ?? []).reduce((n, hijo) => n + contar(hijo), 0); }",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "Cada hijo se procesa como otro nodo.",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Solo procesa un nivel.",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Explica la reducción del problema.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "Predice la profundidad.",
+      "code": "function profundidad(x) { return Array.isArray(x) ? 1 + Math.max(0, ...x.map(profundidad)) : 0; }\nconsole.log(profundidad([1,[2]]));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "2",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "1",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Predice la profundidad.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Localiza la recursión infinita.",
+      "code": "function bajar(n) {\n  return n === 0 ? 0 : bajar(n + 1);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "flujo",
+          "text": "Flujo: la llamada aumenta n y se aleja del caso base.",
+          "correct": true
+        },
+        {
+          "id": "syntax",
+          "text": "Falta una llave.",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Localiza la recursión infinita.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 3
+    }
+  ]
+}

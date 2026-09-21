@@ -154,7 +154,7 @@ describe(
                 section.levelId
                 === 'deepening',
             ),
-        ).toHaveLength(11);
+        ).toHaveLength(12);
 
         expect(
           concept.content.sections
@@ -163,11 +163,11 @@ describe(
                 section.levelId
                 === 'mastery',
             ),
-        ).toHaveLength(11);
+        ).toHaveLength(12);
 
         expect(
           concept.content.sections,
-        ).toHaveLength(27);
+        ).toHaveLength(29);
 
         expect(
           concept.content.sections
@@ -186,12 +186,21 @@ describe(
           await loadSessions();
 
         expect(sessions)
-          .toHaveLength(16);
+          .toHaveLength(17);
+
+        expect(sessions).toEqual(expect.arrayContaining([
+          expect.objectContaining({
+            id: 'js-promise-flow-mastery-promise-any-01',
+            levelId: 'mastery',
+            position: 5,
+            kind: 'practice',
+          }),
+        ]));
 
         const expected = {
           foundation: [6, 18],
           deepening: [5, 21],
-          mastery: [5, 21],
+          mastery: [6, 24],
         } as const;
 
         for (
@@ -317,9 +326,9 @@ describe(
 
         expect(counts)
           .toEqual({
-            'code-reading': 18,
-            'predict-output': 19,
-            'find-error': 11,
+            'code-reading': 19,
+            'predict-output': 20,
+            'find-error': 12,
             'fix-code': 12,
           });
       },

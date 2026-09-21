@@ -1,0 +1,104 @@
+{
+  "id": "js-promise-flow-mastery-promise-any-01",
+  "title": "Promise.any y primer éxito",
+  "difficulty": "advanced",
+  "position": 5,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-promise-flow",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Distingue Promise.any de Promise.race.",
+      "code": "Promise.any([Promise.reject('x'), Promise.resolve('ok')]);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "Resuelve con ok.",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Rechaza con x.",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Distingue Promise.any de Promise.race.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "Predice el resultado.",
+      "code": "Promise.any([Promise.reject('x'), Promise.resolve(7)]).then(console.log);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "7",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "x",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Predice el resultado.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Localiza el contrato incorrecto.",
+      "code": "const primeraExitosa = tareas =>\n  Promise.race(tareas);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "contrato",
+          "text": "Contrato: race puede rechazar primero; para el primer fulfillment corresponde any.",
+          "correct": true
+        },
+        {
+          "id": "syntax",
+          "text": "La arrow function es inválida.",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "contrato",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Localiza el contrato incorrecto.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 3
+    }
+  ]
+}

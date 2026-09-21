@@ -1,0 +1,107 @@
+{
+  "id": "js-arrays-basics-mastery-checkpoint-01",
+  "title": "Checkpoint: Arrays Basics — mastery",
+  "difficulty": "advanced",
+  "position": 2,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": 80,
+  "requiredForProgression": true,
+  "conceptId": "js-arrays-basics",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-21",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "Explica cómo se combinan concat, spread, copias, mutación, referencias, arrays anidados.",
+      "code": "const base = [1, 2];\nconst copia = [...base, 3];\nconsole.log(base.length, copia.length);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "correct",
+          "text": "El resultado depende del orden y del contrato de cada operación.",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Todas las operaciones son equivalentes.",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "El orden nunca importa.",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "JavaScript ignora los casos límite.",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Explica cómo se combinan concat, spread, copias, mutación, referencias, arrays anidados.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "fix-code",
+      "prompt": "Corrige agregarSinMutar para devolver otro array sin modificar el recibido.",
+      "code": "function agregarSinMutar(items, item) {\n  items.push(item);\n  return items;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": [
+            [
+              1,
+              2
+            ],
+            3
+          ],
+          "expected": {
+            "salida": [
+              1,
+              2,
+              3
+            ],
+            "originalSinCambios": true
+          },
+          "call": "(() => { const original = [...input[0]]; const salida = agregarSinMutar(input[0], input[1]); return { salida, originalSinCambios: JSON.stringify(input[0]) === JSON.stringify(original) }; })()",
+          "description": "Corrige agregarSinMutar para devolver otro array sin modificar el recibido."
+        },
+        {
+          "input": [
+            [],
+            "a"
+          ],
+          "expected": {
+            "salida": [
+              "a"
+            ],
+            "originalSinCambios": true
+          },
+          "call": "(() => { const original = [...input[0]]; const salida = agregarSinMutar(input[0], input[1]); return { salida, originalSinCambios: JSON.stringify(input[0]) === JSON.stringify(original) }; })()",
+          "description": "Corrige agregarSinMutar para devolver otro array sin modificar el recibido."
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Corrige agregarSinMutar para devolver otro array sin modificar el recibido.",
+      "hints": [
+        "Observa el contrato y sigue los valores paso a paso."
+      ],
+      "stepOrder": 2
+    }
+  ]
+}

@@ -209,6 +209,25 @@
         "title": "Diseña contratos, no coincidencias de source",
         "body": "La robustez se comprueba con entradas, salidas, rechazos y número de intentos observables; no buscando una implementación textual concreta.",
         "levelId": "mastery"
+      },
+      {
+        "type": "explanation",
+        "levelId": "deepening",
+        "title": "Callbacks asíncronos",
+        "body": "Un callback asíncrono inicia trabajo, pero métodos como forEach no esperan automáticamente las Promises que devuelve."
+      },
+      {
+        "type": "comparison",
+        "levelId": "mastery",
+        "title": "Promise.any y Promise.race",
+        "left": {
+          "title": "Promise.any",
+          "body": "Entrega el primer fulfillment y solo rechaza si todas rechazan."
+        },
+        "right": {
+          "title": "Promise.race",
+          "body": "Replica el primer asentamiento, sea fulfillment o rechazo."
+        }
       }
     ]
   }
