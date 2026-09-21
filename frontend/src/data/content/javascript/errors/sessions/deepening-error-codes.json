@@ -1,0 +1,183 @@
+{
+  "id": "js-errors-deepening-error-codes-01",
+  "title": "Clasificar errores sin depender del mensaje",
+  "difficulty": "intermediate",
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué valor permite clasificar este error de forma estable?",
+      "code": "const error = new Error('Debes iniciar sesión');\nerror.code = 'AUTH_REQUIRED';\nconsole.log(error.code);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "AUTH_REQUIRED",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Debes iniciar sesión",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "code puede actuar como identificador estable mientras message queda orientado a humanos.",
+      "hints": [
+        "message puede cambiar o traducirse.",
+        "code permanece como contrato."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué rama se ejecuta?",
+      "code": "const error = new Error('Servicio ocupado');\nerror.code = 'TEMPORARY_FAILURE';\nconsole.log(error.code === 'TEMPORARY_FAILURE' ? 'reintentar' : 'detener');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "reintentar",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "detener",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La decisión depende del código estable, no del texto.",
+      "hints": [
+        "Compara exactamente error.code.",
+        "El mensaje no participa."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La lógica depende del texto exacto del mensaje. Localiza el problema.",
+      "code": "function esTemporal(error) {\n  return error.message === 'Servicio temporalmente no disponible';\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "mensaje",
+          "text": "La clasificación debería usar un identificador estable como code",
+          "correct": true
+        },
+        {
+          "id": "return",
+          "text": "No se puede devolver boolean",
+          "correct": false
+        },
+        {
+          "id": "parametro",
+          "text": "Las funciones no pueden recibir errores",
+          "correct": false
+        },
+        {
+          "id": "comparacion",
+          "text": "=== no funciona con strings",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "contrato",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El mensaje puede cambiar sin que cambie la categoría funcional del fallo.",
+      "hints": [
+        "Piensa en traducciones o cambios de redacción.",
+        "La lógica necesita una señal estable."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige crearError para devolver un Error con el mensaje recibido y una propiedad code con el código recibido.",
+      "code": "function crearError(datos) {\n  return new Error(datos.message);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "code": "AUTH_REQUIRED",
+            "message": "Debes iniciar sesión"
+          },
+          "expected": "AUTH_REQUIRED|Debes iniciar sesión",
+          "call": "(() => { const error = crearError(input); return `${error.code}|${error.message}`; })()",
+          "description": "conserva código y mensaje"
+        },
+        {
+          "input": {
+            "code": "NOT_FOUND",
+            "message": "No encontrado"
+          },
+          "expected": "NOT_FOUND|Error",
+          "call": "(() => { const error = crearError(input); return `${error.code}|${error.name}`; })()",
+          "description": "sigue siendo un Error estándar"
+        },
+        {
+          "input": {
+            "code": "",
+            "message": ""
+          },
+          "expected": "|",
+          "call": "(() => { const error = crearError(input); return `${error.code}|${error.message}`; })()",
+          "description": "preserva strings vacíos como valores explícitos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "El mensaje y el código tienen responsabilidades diferentes.",
+      "hints": [
+        "Crea el Error normalmente.",
+        "Después puedes añadir la propiedad code."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

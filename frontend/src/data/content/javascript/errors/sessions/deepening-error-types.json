@@ -1,0 +1,174 @@
+{
+  "id": "js-errors-deepening-error-types-01",
+  "title": "TypeError, RangeError y contratos",
+  "difficulty": "intermediate",
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Cuál es la diferencia entre estos dos fallos?",
+      "code": "function edad(valor) {\n  if (typeof valor !== 'number') throw new TypeError('tipo');\n  if (valor < 0) throw new RangeError('rango');\n  return valor;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "TypeError señala tipo incorrecto y RangeError valor fuera del dominio",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Son exactamente el mismo error",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "RangeError solo sirve para arrays",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "TypeError solo ocurre automáticamente",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Los dos tipos representan contratos diferentes.",
+      "hints": [
+        "Piensa en tipo frente a rango.",
+        "Ambos pueden lanzarse explícitamente."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué nombre se observa?",
+      "code": "try {\n  throw new RangeError('fuera');\n} catch (error) {\n  console.log(error.name);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "RangeError",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "fuera",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "name identifica la clase concreta del error.",
+      "hints": [
+        "message sería fuera.",
+        "name y message son propiedades distintas."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La función confunde un tipo inválido con un valor fuera de rango. Localiza el error.",
+      "code": "function definirEdad(valor) {\n  if (typeof valor !== 'number') throw new RangeError('tipo incorrecto');\n  if (valor < 0 || valor > 130) throw new RangeError('fuera de rango');\n  return valor;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "tipo",
+          "text": "El primer error debería expresar un problema de tipo",
+          "correct": true
+        },
+        {
+          "id": "rango",
+          "text": "No debe validarse el rango",
+          "correct": false
+        },
+        {
+          "id": "return",
+          "text": "La función no debe devolver la edad",
+          "correct": false
+        },
+        {
+          "id": "throw",
+          "text": "No se pueden lanzar errores dentro de funciones",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "conceptual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El primer contrato falla porque valor no es number; TypeError describe mejor esa situación.",
+      "hints": [
+        "La primera condición mira typeof.",
+        "La segunda sí mira el rango."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige validarEdad para lanzar TypeError si el valor no es numérico, RangeError si está fuera de 0..130 y devolverlo si es válido.",
+      "code": "function validarEdad(valor) {\n  if (typeof valor !== 'number') return null;\n  if (valor < 0 || valor > 130) return null;\n  return valor;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": 35,
+          "expected": 35,
+          "call": "validarEdad(input)",
+          "description": "acepta una edad válida"
+        },
+        {
+          "input": "35",
+          "expected": "TypeError",
+          "call": "(() => { try { validarEdad(input); return 'sin error'; } catch (error) { return error.name; } })()",
+          "description": "clasifica un tipo inválido"
+        },
+        {
+          "input": 200,
+          "expected": "RangeError",
+          "call": "(() => { try { validarEdad(input); return 'sin error'; } catch (error) { return error.name; } })()",
+          "description": "clasifica una edad fuera de rango"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Usa errores diferentes para contratos diferentes.",
+      "hints": [
+        "typeof permite detectar el tipo.",
+        "RangeError expresa un número válido de tipo pero inválido de rango."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

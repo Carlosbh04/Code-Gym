@@ -1966,6 +1966,446 @@ const registry =
 
     [
       verifierKey(
+        'js-errors-deepening-error-types-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                0,
+
+              expected:
+                0,
+
+              call:
+                'validarEdad(input)',
+
+              description:
+                'acepta el límite inferior válido',
+            }),
+
+            Object.freeze({
+              input:
+                -1,
+
+              expected:
+                'RangeError',
+
+              call:
+                "(() => { try { validarEdad(input); return 'sin error'; } catch (error) { return error.name; } })()",
+
+              description:
+                'rechaza un número por debajo del rango',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-deepening-cause-context-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                '{"activo":false,"puntos":0}',
+
+              expected:
+                'false|0',
+
+              call:
+                "(() => { const value = cargarConfig(input); return `${value.activo}|${value.puntos}`; })()",
+
+              description:
+                'conserva datos falsy de JSON válido',
+            }),
+
+            Object.freeze({
+              input:
+                '{"nombre": }',
+
+              expected:
+                'SyntaxError',
+
+              call:
+                "(() => { try { cargarConfig(input); return 'sin error'; } catch (error) { return error.cause?.name ?? 'sin causa'; } })()",
+
+              description:
+                'preserva la causa real de otro JSON inválido',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-deepening-error-codes-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  code:
+                    'TEMPORARY_FAILURE',
+
+                  message:
+                    'Servicio ocupado',
+                }),
+
+              expected:
+                'TEMPORARY_FAILURE|Servicio ocupado',
+
+              call:
+                "(() => { const error = crearError(input); return `${error.code}|${error.message}`; })()",
+
+              description:
+                'conserva otra categoría y otro mensaje',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  code:
+                    'ZERO_CASE',
+
+                  message:
+                    '0',
+                }),
+
+              expected:
+                true,
+
+              call:
+                'crearError(input) instanceof Error',
+
+              description:
+                'continúa devolviendo una instancia Error',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-deepening-checkpoint-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                '{"data":false}',
+
+              expected:
+                false,
+
+              call:
+                'procesarEntrada(input)',
+
+              description:
+                'acepta false como valor data válido',
+            }),
+
+            Object.freeze({
+              input:
+                '{"data":0}',
+
+              expected:
+                0,
+
+              call:
+                'procesarEntrada(input)',
+
+              description:
+                'acepta cero como valor data válido',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-mastery-domain-error-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  code:
+                    'PAYMENT_REQUIRED',
+
+                  message:
+                    'Pago requerido',
+                }),
+
+              expected:
+                'DomainError|PAYMENT_REQUIRED|Pago requerido',
+
+              call:
+                "(() => { const error = crearDomainError(input); return `${error.name}|${error.code}|${error.message}`; })()",
+
+              description:
+                'conserva otro contrato de dominio',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  code:
+                    'X',
+
+                  message:
+                    'Y',
+                }),
+
+              expected:
+                true,
+
+              call:
+                'crearDomainError(input) instanceof Error',
+
+              description:
+                'mantiene la jerarquía estándar de Error',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-mastery-translate-error-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  originalMessage:
+                    'socket closed',
+
+                  code:
+                    'NETWORK_FAILURE',
+
+                  message:
+                    'Red no disponible',
+                }),
+
+              expected:
+                'NETWORK_FAILURE|Red no disponible|socket closed',
+
+              call:
+                "(() => { const original = new Error(input.originalMessage); const error = traducirError({ original, code: input.code, message: input.message }); return `${error.code}|${error.message}|${error.cause?.message}`; })()",
+
+              description:
+                'traduce otro fallo preservando el diagnóstico',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  originalMessage:
+                    'original',
+
+                  code:
+                    'X',
+
+                  message:
+                    'externo',
+                }),
+
+              expected:
+                true,
+
+              call:
+                "(() => { const original = new RangeError(input.originalMessage); return traducirError({ original, code: input.code, message: input.message }).cause === original; })()",
+
+              description:
+                'preserva exactamente la instancia original',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-mastery-recovery-policy-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  code:
+                    'NOT_FOUND',
+                }),
+
+              expected:
+                'fail',
+
+              call:
+                'decidirRecuperacion(input)',
+
+              description:
+                'un error no temporal cae en fail',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  code:
+                    '',
+                }),
+
+              expected:
+                'fail',
+
+              call:
+                'decidirRecuperacion(input)',
+
+              description:
+                'un código vacío tampoco implica recuperación',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
+        'js-errors-mastery-checkpoint-01',
+        'step-4',
+      ),
+
+      Object.freeze({
+        hiddenTestCases:
+          Object.freeze([
+            Object.freeze({
+              input:
+                Object.freeze({
+                  code:
+                    'RATE_LIMITED',
+
+                  message:
+                    'Demasiadas solicitudes',
+
+                  originalMessage:
+                    '429',
+
+                  retryable:
+                    true,
+                }),
+
+              expected:
+                'ApplicationError|RATE_LIMITED|true|429',
+
+              call:
+                "(() => { const error = normalizarFallo(input); return `${error.name}|${error.code}|${error.retryable}|${error.cause?.message}`; })()",
+
+              description:
+                'conserva otro fallo recuperable y su causa',
+            }),
+
+            Object.freeze({
+              input:
+                Object.freeze({
+                  code:
+                    'FORBIDDEN',
+
+                  message:
+                    'No permitido',
+
+                  originalMessage:
+                    'acl',
+
+                  retryable:
+                    false,
+                }),
+
+              expected:
+                'FORBIDDEN|false|No permitido',
+
+              call:
+                "(() => { const error = normalizarFallo(input); return `${error.code}|${error.retryable}|${error.message}`; })()",
+
+              description:
+                'conserva retryable false y el mensaje exterior',
+            }),
+          ]),
+
+        pedagogicalRequirements:
+          Object.freeze([]),
+
+        oracle:
+          null,
+      }),
+    ],
+
+    [
+      verifierKey(
         'js-functions-return-flow-01',
         'step-4',
       ),

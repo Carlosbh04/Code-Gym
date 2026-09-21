@@ -1,0 +1,180 @@
+{
+  "id": "js-errors-mastery-recovery-policy-01",
+  "title": "Políticas explícitas de recuperación",
+  "difficulty": "advanced",
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué código debería considerarse temporal?",
+      "code": "function puedeReintentar(error) {\n  return error.code === 'TEMPORARY_FAILURE';\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "TEMPORARY_FAILURE",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "INVALID_INPUT",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "FORBIDDEN",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "NOT_FOUND",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El contrato clasifica explícitamente qué fallos admiten reintento.",
+      "hints": [
+        "La función compara un único código.",
+        "No todos los errores deben reintentarse."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué decide una validación?",
+      "code": "const error = { code: 'INVALID_INPUT' };\nconsole.log(error.code === 'TEMPORARY_FAILURE' ? 'retry' : 'stop');",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "stop",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "retry",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "INVALID_INPUT no coincide con la categoría temporal.",
+      "hints": [
+        "Compara ambos códigos.",
+        "La rama alternativa es stop."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "Esta política reintenta cualquier error sin distinguir su categoría. Localiza el problema.",
+      "code": "function decision(error) {\n  if (error) return 'retry';\n  return 'stop';\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "politica",
+          "text": "La decisión debe depender de la categoría del error, no solo de que exista",
+          "correct": true
+        },
+        {
+          "id": "error",
+          "text": "Los errores siempre son falsy",
+          "correct": false
+        },
+        {
+          "id": "return",
+          "text": "Una función no puede devolver retry",
+          "correct": false
+        },
+        {
+          "id": "if",
+          "text": "if no puede recibir objetos",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "contrato",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Errores de validación o permisos no deberían tratarse como fallos temporales.",
+      "hints": [
+        "Todo Error es truthy.",
+        "Necesitas una señal de clasificación."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige decidirRecuperacion: TEMPORARY_FAILURE => 'retry', INVALID_INPUT => 'reject' y cualquier otro código => 'fail'.",
+      "code": "function decidirRecuperacion(error) {\n  return error ? 'retry' : 'fail';\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "code": "TEMPORARY_FAILURE"
+          },
+          "expected": "retry",
+          "call": "decidirRecuperacion(input)",
+          "description": "reintenta únicamente fallos temporales"
+        },
+        {
+          "input": {
+            "code": "INVALID_INPUT"
+          },
+          "expected": "reject",
+          "call": "decidirRecuperacion(input)",
+          "description": "rechaza errores de entrada"
+        },
+        {
+          "input": {
+            "code": "FORBIDDEN"
+          },
+          "expected": "fail",
+          "call": "decidirRecuperacion(input)",
+          "description": "no inventa recuperación para otras categorías"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La política debe depender del código y producir una decisión explícita.",
+      "hints": [
+        "Compara error.code.",
+        "Deja un fallback final para el resto."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 3,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

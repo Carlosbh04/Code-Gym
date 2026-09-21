@@ -1,0 +1,189 @@
+{
+  "id": "js-errors-mastery-checkpoint-01",
+  "title": "Checkpoint: diseño robusto de errores",
+  "difficulty": "advanced",
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué propiedad debería dirigir una decisión automática?",
+      "code": "const error = new Error('Texto visible');\nerror.code = 'RESOURCE_MISSING';",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "code",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "message completo",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "stack",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "toString únicamente",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "code ofrece una clasificación estable para la lógica.",
+      "hints": [
+        "El texto puede cambiar.",
+        "La categoría funcional no debería hacerlo."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué conserva la traducción?",
+      "code": "const original = new Error('interno');\nconst exterior = new Error('externo', { cause: original });\nconsole.log(`${exterior.message}|${exterior.cause.message}`);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "externo|interno",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "interno|externo",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "externo|externo",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "interno|interno",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Cada Error conserva su propio message y cause enlaza ambos.",
+      "hints": [
+        "exterior es el nuevo contrato.",
+        "original sigue almacenado como cause."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La función elimina la clasificación al traducir el fallo. Localiza el problema.",
+      "code": "function envolver(original) {\n  return new Error('Operación fallida', { cause: original });\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "codigo",
+          "text": "Si el consumidor necesita clasificarlo, debe añadirse una señal estable como code",
+          "correct": true
+        },
+        {
+          "id": "cause",
+          "text": "Debe eliminarse cause",
+          "correct": false
+        },
+        {
+          "id": "error",
+          "text": "No debe devolverse Error",
+          "correct": false
+        },
+        {
+          "id": "mensaje",
+          "text": "El mensaje debe estar vacío",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "contrato",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La causa ayuda al diagnóstico, pero no reemplaza una categoría estable para el consumidor.",
+      "hints": [
+        "Hay información interna y externa.",
+        "Falta la categoría exterior."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige normalizarFallo: recibe { code, message, originalMessage, retryable }; devuelve un Error con name 'ApplicationError', code, retryable, message y cause con originalMessage.",
+      "code": "function normalizarFallo(datos) {\n  return new Error(datos.message);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "code": "SERVICE_UNAVAILABLE",
+            "message": "Servicio no disponible",
+            "originalMessage": "ECONNRESET",
+            "retryable": true
+          },
+          "expected": "ApplicationError|SERVICE_UNAVAILABLE|true|Servicio no disponible|ECONNRESET",
+          "call": "(() => { const error = normalizarFallo(input); return `${error.name}|${error.code}|${error.retryable}|${error.message}|${error.cause?.message}`; })()",
+          "description": "construye el contrato completo"
+        },
+        {
+          "input": {
+            "code": "INVALID_INPUT",
+            "message": "Entrada inválida",
+            "originalMessage": "schema",
+            "retryable": false
+          },
+          "expected": "INVALID_INPUT|false",
+          "call": "(() => { const error = normalizarFallo(input); return `${error.code}|${error.retryable}`; })()",
+          "description": "conserva retryable false"
+        },
+        {
+          "input": {
+            "code": "",
+            "message": "",
+            "originalMessage": "",
+            "retryable": false
+          },
+          "expected": "ApplicationError|||false",
+          "call": "(() => { const error = normalizarFallo(input); return `${error.name}|${error.code}|${error.message}|${error.retryable}`; })()",
+          "description": "preserva valores explícitos falsy"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Construye una señal exterior estable sin perder la causa.",
+      "hints": [
+        "La causa puede ser un Error creado con originalMessage.",
+        "No sustituyas false ni strings vacíos."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

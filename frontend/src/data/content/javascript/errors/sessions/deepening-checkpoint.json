@@ -1,0 +1,174 @@
+{
+  "id": "js-errors-deepening-checkpoint-01",
+  "title": "Checkpoint: contexto y clasificación",
+  "difficulty": "intermediate",
+  "position": 4,
+  "kind": "checkpoint",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true,
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué error describe mejor un string donde se exige un número?",
+      "code": "function ejecutar(valor) {\n  if (typeof valor !== 'number') throw new TypeError('número requerido');\n  return valor;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "TypeError",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "RangeError",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "SyntaxError",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Ninguno",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La condición verifica el tipo recibido.",
+      "hints": [
+        "No se está comprobando un intervalo.",
+        "El contrato exige number."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué se conserva al envolver un fallo?",
+      "code": "const cause = new RangeError('límite');\nconst error = new Error('Operación fallida', { cause });\nconsole.log(error.cause.message);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "límite",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Operación fallida",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "RangeError",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "cause conserva el error original completo, incluido message.",
+      "hints": [
+        "El mensaje exterior es otro.",
+        "Se está leyendo error.cause.message."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La función transforma cualquier fallo en éxito aparente. Localiza el error.",
+      "code": "function leer(texto) {\n  try { return JSON.parse(texto); }\n  catch (error) { return { ok: true }; }\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "silenciado",
+          "text": "El catch inventa un resultado válido en lugar de propagar o traducir el fallo",
+          "correct": true
+        },
+        {
+          "id": "json",
+          "text": "JSON.parse nunca lanza",
+          "correct": false
+        },
+        {
+          "id": "try",
+          "text": "try no puede devolver valores",
+          "correct": false
+        },
+        {
+          "id": "catch",
+          "text": "catch necesita dos parámetros",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "flujo",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La salida hace imposible distinguir un parse correcto de un fallo.",
+      "hints": [
+        "¿Puede { ok: true } parecer válido?",
+        "Un error no recuperado debe seguir siendo observable."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige procesarEntrada: JSON inválido debe lanzar un Error con code INVALID_JSON; un objeto sin propiedad data debe lanzar code INVALID_SHAPE; si es válido devuelve data.",
+      "code": "function procesarEntrada(texto) {\n  try {\n    const value = JSON.parse(texto);\n    return value.data;\n  } catch (error) {\n    return null;\n  }\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": "{\"data\":42}",
+          "expected": 42,
+          "call": "procesarEntrada(input)",
+          "description": "devuelve los datos válidos"
+        },
+        {
+          "input": "{ roto }",
+          "expected": "INVALID_JSON",
+          "call": "(() => { try { procesarEntrada(input); return 'sin error'; } catch (error) { return error.code; } })()",
+          "description": "clasifica JSON inválido"
+        },
+        {
+          "input": "{\"otro\":1}",
+          "expected": "INVALID_SHAPE",
+          "call": "(() => { try { procesarEntrada(input); return 'sin error'; } catch (error) { return error.code; } })()",
+          "description": "clasifica una forma inválida"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "Distingue fallo de parse y fallo del contrato de datos.",
+      "hints": [
+        "No metas ambas validaciones dentro del mismo catch.",
+        "Los dos errores necesitan códigos diferentes."
+      ],
+      "stepOrder": 4
+    }
+  ]
+}

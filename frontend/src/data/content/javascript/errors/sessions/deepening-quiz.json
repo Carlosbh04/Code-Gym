@@ -1,0 +1,213 @@
+{
+  "id": "js-errors-deepening-quiz-01",
+  "title": "Quiz: errores con intención",
+  "difficulty": "intermediate",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "deepening",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué tipo de error se captura?",
+      "code": "try {\n  throw new TypeError('tipo inválido');\n} catch (error) {\n  console.log(error.name);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "TypeError",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "RangeError",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "TypeError hereda de Error pero conserva su propio name.",
+      "hints": [
+        "Observa el constructor usado con throw.",
+        "El nombre específico no desaparece al capturarlo."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué devuelve la función con un valor válido?",
+      "code": "function validar(valor) {\n  if (typeof valor !== 'number') throw new TypeError('tipo');\n  return valor * 2;\n}\nconsole.log(validar(4));",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "8",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "4",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "TypeError",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El throw solo se ejecuta para valores que no son number.",
+      "hints": [
+        "4 cumple el contrato.",
+        "La ruta normal continúa hasta return."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué conserva cause?",
+      "code": "const original = new SyntaxError('JSON roto');\nconst wrapped = new Error('Configuración inválida', { cause: original });\nconsole.log(wrapped.cause.name);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "SyntaxError",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Configuración inválida",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "cause mantiene una referencia al error original.",
+      "hints": [
+        "wrapped y original son errores distintos.",
+        "cause apunta al error que originó el nuevo."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "code-reading",
+      "prompt": "¿Qué error debería usarse para un número fuera del intervalo permitido?",
+      "code": "function porcentaje(valor) {\n  if (typeof valor !== 'number') throw new TypeError('tipo');\n  if (valor < 0 || valor > 100) throw new RangeError('rango');\n  return valor;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "RangeError",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "SyntaxError",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "ReferenceError",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "No debe lanzar",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El tipo es correcto pero el valor está fuera del rango del contrato.",
+      "hints": [
+        "Distingue tipo inválido de valor inválido.",
+        "RangeError expresa una restricción de dominio numérico."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué imprime cuando el catch vuelve a lanzar?",
+      "code": "try {\n  try { throw new Error('fallo'); }\n  catch (error) { throw error; }\n} catch (error) {\n  console.log(error.message);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "fallo",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "sin error",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "TypeError",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El catch interior no recupera; vuelve a propagar el mismo error.",
+      "hints": [
+        "Hay un segundo catch exterior.",
+        "throw error conserva el mensaje."
+      ],
+      "stepOrder": 5
+    }
+  ]
+}

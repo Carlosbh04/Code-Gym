@@ -1,1 +1,215 @@
-{"id":"js-error-handling","name":"Lanzar, capturar y propagar errores","topicId":"js-errors","technologyId":"javascript","position":0,"content":{"sections":[{"type":"intro","title":"Introducción","body":"Los errores representan rutas excepcionales que deben comunicar contexto suficiente para recuperarse."},{"type":"objectives","title":"Qué vas a aprender","items":["Lanzar errores útiles","Capturar sin silenciar"]},{"type":"code","title":"Ejemplo","language":"javascript","code":"try { return parse(input); } catch (error) { throw new Error('Entrada inválida'); }"},{"type":"warning","title":"Error común","body":"Atrapar un error y no hacer nada oculta el problema y dificulta diagnosticarlo."},{"type":"quick-check","question":"¿Qué debe aportar un error?","answer":"Contexto para que quien llama pueda responder o registrar el fallo."}]}}
+{
+  "id": "js-error-handling",
+  "name": "Lanzar, capturar y propagar errores",
+  "topicId": "js-errors",
+  "technologyId": "javascript",
+  "position": 0,
+  "levels": [
+    {
+      "id": "foundation",
+      "name": "Fundamentos",
+      "description": "Nivel base del concepto.",
+      "position": 0
+    },
+    {
+      "id": "deepening",
+      "name": "Profundización",
+      "description": "Diseña errores con contexto, tipos adecuados y límites claros de recuperación.",
+      "position": 1
+    },
+    {
+      "id": "mastery",
+      "name": "Dominio",
+      "description": "Construye contratos de error robustos para capas, dominio y flujos complejos.",
+      "position": 2
+    }
+  ],
+  "content": {
+    "sections": [
+      {
+        "type": "intro",
+        "title": "Introducción",
+        "body": "Los errores representan rutas excepcionales que deben comunicar contexto suficiente para recuperarse.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a aprender",
+        "items": [
+          "Lanzar errores útiles",
+          "Capturar sin silenciar"
+        ],
+        "levelId": "foundation"
+      },
+      {
+        "type": "code",
+        "title": "Ejemplo",
+        "language": "javascript",
+        "code": "try { return parse(input); } catch (error) { throw new Error('Entrada inválida'); }",
+        "levelId": "foundation"
+      },
+      {
+        "type": "warning",
+        "title": "Error común",
+        "body": "Atrapar un error y no hacer nada oculta el problema y dificulta diagnosticarlo.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Qué debe aportar un error?",
+        "answer": "Contexto para que quien llama pueda responder o registrar el fallo.",
+        "levelId": "foundation"
+      },
+      {
+        "type": "intro",
+        "title": "Los errores forman parte del contrato",
+        "body": "Un error útil no es solo algo que se lanza. Debe indicar qué operación falló, conservar la información necesaria y permitir que la capa que sí puede decidir actúe sobre el fallo.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a profundizar",
+        "items": [
+          "Elegir entre Error, TypeError y RangeError",
+          "Añadir contexto sin ocultar la causa",
+          "Distinguir recuperación de propagación",
+          "Evitar catch demasiado amplios",
+          "Diseñar errores que puedan clasificarse sin analizar textos"
+        ],
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Tipos de error expresivos",
+        "language": "javascript",
+        "code": "function validarEdad(valor) {\n  if (typeof valor !== 'number') throw new TypeError('edad debe ser numérica');\n  if (valor < 0 || valor > 130) throw new RangeError('edad fuera de rango');\n  return valor;\n}",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "El tipo también comunica intención",
+        "body": "TypeError expresa que el tipo recibido no cumple el contrato. RangeError expresa que el tipo es válido, pero su valor está fuera del dominio permitido.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Añadir contexto y conservar la causa",
+        "language": "javascript",
+        "code": "function cargarConfig(texto) {\n  try {\n    return JSON.parse(texto);\n  } catch (error) {\n    throw new Error('No se pudo cargar la configuración', { cause: error });\n  }\n}",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Contextualizar no significa silenciar",
+        "body": "Si una capa no puede recuperarse, puede añadir información y volver a propagar. Devolver null, {} o un valor inventado puede convertir un fallo real en datos aparentemente válidos.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "warning",
+        "title": "No captures por costumbre",
+        "body": "Un catch que no recupera, no transforma con propósito y no añade contexto suele sobrar. Dejar que el error suba puede ser más correcto que capturarlo demasiado pronto.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "code",
+        "title": "Clasificación estable",
+        "language": "javascript",
+        "code": "const error = new Error('No autorizado');\nerror.code = 'AUTH_REQUIRED';\nthrow error;",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Los mensajes son para humanos",
+        "body": "La lógica de programa no debería depender de comparar mensajes completos. Un tipo, nombre o código estable permite clasificar el fallo sin acoplarse al texto mostrado.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "quick-check",
+        "question": "Si una función recibe un string donde exige un número, ¿qué tipo estándar comunica mejor el problema?",
+        "answer": "TypeError, porque el valor recibido no tiene el tipo requerido por el contrato.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "key-point",
+        "title": "Recuperar implica tener una alternativa real",
+        "body": "Capturar solo tiene sentido cuando esa capa puede continuar de forma válida, traducir el error a su propio contrato o liberar recursos antes de propagarlo.",
+        "levelId": "deepening"
+      },
+      {
+        "type": "intro",
+        "title": "Errores entre capas",
+        "body": "En sistemas grandes, infraestructura, aplicación y dominio pueden fallar por razones diferentes. Una capa robusta traduce esos fallos sin destruir su causa ni filtrar detalles que no pertenecen al consumidor.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "objectives",
+        "title": "Qué vas a dominar",
+        "items": [
+          "Crear errores de dominio clasificables",
+          "Traducir errores entre capas",
+          "Preservar causa y contexto",
+          "Separar fallos recuperables de definitivos",
+          "Diseñar resultados observables sin depender de mensajes frágiles"
+        ],
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Error de dominio con código",
+        "language": "javascript",
+        "code": "class DomainError extends Error {\n  constructor(code, message, options) {\n    super(message, options);\n    this.name = 'DomainError';\n    this.code = code;\n  }\n}",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "La clase no es el objetivo",
+        "body": "Una clase personalizada es útil cuando expresa un contrato estable. No hace falta crear una clase para cada mensaje ni obligar una técnica si el comportamiento puede representarse de forma equivalente.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Traducir en la frontera correcta",
+        "language": "javascript",
+        "code": "function obtenerUsuario(texto) {\n  try {\n    return JSON.parse(texto);\n  } catch (error) {\n    const wrapped = new Error('Datos de usuario inválidos', { cause: error });\n    wrapped.code = 'INVALID_USER_DATA';\n    throw wrapped;\n  }\n}",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "No pierdas la causa original",
+        "body": "Traducir un error puede cambiar el mensaje o el tipo visible, pero conservar cause permite mantener la cadena de diagnóstico sin obligar a las capas superiores a conocer detalles internos.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "warning",
+        "title": "No conviertas todos los fallos en el mismo error",
+        "body": "Si validación, permisos y formato terminan con la misma señal, el consumidor pierde la capacidad de responder de forma distinta ante cada situación.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "code",
+        "title": "Clasificar antes de decidir",
+        "language": "javascript",
+        "code": "function esRecuperable(error) {\n  return error?.code === 'TEMPORARY_FAILURE';\n}",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "Recuperable no significa ignorado",
+        "body": "Un fallo temporal puede justificar un reintento; uno de validación normalmente no. La clasificación debe producir una decisión explícita, no esconder el fallo.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "quick-check",
+        "question": "¿Qué debería conservar una capa cuando reemplaza un error técnico por uno de dominio?",
+        "answer": "Un contrato estable para el consumidor y, cuando sea útil para diagnóstico, la causa original.",
+        "levelId": "mastery"
+      },
+      {
+        "type": "key-point",
+        "title": "Verifica comportamiento, no una implementación concreta",
+        "body": "Dos soluciones pueden clasificar, contextualizar y propagar correctamente usando estructuras distintas. La corrección debe medirse por el comportamiento observable salvo que el ejercicio exija explícitamente una técnica.",
+        "levelId": "mastery"
+      }
+    ]
+  }
+}

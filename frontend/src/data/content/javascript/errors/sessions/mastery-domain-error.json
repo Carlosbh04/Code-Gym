@@ -1,0 +1,183 @@
+{
+  "id": "js-errors-mastery-domain-error-01",
+  "title": "Errores de dominio estables",
+  "difficulty": "advanced",
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué propiedad diferencia la categoría funcional?",
+      "code": "const error = new Error('Saldo insuficiente');\nerror.code = 'INSUFFICIENT_BALANCE';",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "code",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "stack",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "length",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "prototype únicamente",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El código representa una categoría estable del dominio.",
+      "hints": [
+        "El mensaje puede traducirse.",
+        "La categoría debe sobrevivir a cambios de texto."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué nombre recibe un Error estándar?",
+      "code": "const error = new Error('fallo');\nerror.code = 'X';\nconsole.log(error.name);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Error",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "X",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "fallo",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Añadir code no cambia automáticamente name.",
+      "hints": [
+        "name pertenece al objeto Error.",
+        "code es una propiedad adicional."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El consumidor distingue errores buscando palabras dentro de message. Localiza el acoplamiento.",
+      "code": "function manejar(error) {\n  if (error.message.includes('saldo')) return 'rechazar';\n  return 'desconocido';\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "clasificacion",
+          "text": "Debe usar una señal estable del dominio como code",
+          "correct": true
+        },
+        {
+          "id": "includes",
+          "text": "String.includes nunca puede usarse",
+          "correct": false
+        },
+        {
+          "id": "return",
+          "text": "No puede devolverse un string",
+          "correct": false
+        },
+        {
+          "id": "parametro",
+          "text": "error no puede ser un parámetro",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "contrato",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La redacción del mensaje no debería definir la lógica del consumidor.",
+      "hints": [
+        "El texto puede traducirse.",
+        "Busca una propiedad estable."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige crearDomainError para devolver un Error con name 'DomainError', code y message tomados de datos.",
+      "code": "function crearDomainError(datos) {\n  return new Error(datos.message);\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "code": "ORDER_NOT_FOUND",
+            "message": "Pedido no encontrado"
+          },
+          "expected": "DomainError|ORDER_NOT_FOUND|Pedido no encontrado",
+          "call": "(() => { const error = crearDomainError(input); return `${error.name}|${error.code}|${error.message}`; })()",
+          "description": "crea un contrato completo"
+        },
+        {
+          "input": {
+            "code": "INVALID_STATE",
+            "message": "Estado inválido"
+          },
+          "expected": true,
+          "call": "crearDomainError(input) instanceof Error",
+          "description": "mantiene compatibilidad con Error"
+        },
+        {
+          "input": {
+            "code": "",
+            "message": ""
+          },
+          "expected": "DomainError||",
+          "call": "(() => { const error = crearDomainError(input); return `${error.name}|${error.code}|${error.message}`; })()",
+          "description": "conserva valores explícitos vacíos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "El contrato observable exige Error, name, code y message.",
+      "hints": [
+        "Puedes crear un Error y después ajustar sus propiedades.",
+        "No es obligatorio usar class si el comportamiento es equivalente."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 1,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

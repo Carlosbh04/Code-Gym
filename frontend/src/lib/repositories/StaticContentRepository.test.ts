@@ -387,16 +387,29 @@ describe('StaticContentRepository (T019)', () => {
       expect(sessions.every((session) => session.conceptId === ES6_PLUS_CONCEPT)).toBe(true);
     });
 
-    it('devuelve las 6 sesiones de Errors', async () => {
+    it('devuelve las 16 sesiones de Errors', async () => {
       const sessions = await repo.getSessionsByConcept(ERRORS_CONCEPT);
+
+      expect(sessions).toHaveLength(16);
       expect(sessions.map((session) => session.id).sort()).toEqual([
         'js-errors-catch-context-01',
         'js-errors-coding-parse-number-01',
+        'js-errors-deepening-cause-context-01',
+        'js-errors-deepening-checkpoint-01',
+        'js-errors-deepening-error-codes-01',
+        'js-errors-deepening-error-types-01',
+        'js-errors-deepening-quiz-01',
         'js-errors-finally-cleanup-01',
         'js-errors-foundation-checkpoint-01',
         'js-errors-foundation-quiz-01',
+        'js-errors-mastery-checkpoint-01',
+        'js-errors-mastery-domain-error-01',
+        'js-errors-mastery-quiz-01',
+        'js-errors-mastery-recovery-policy-01',
+        'js-errors-mastery-translate-error-01',
         'js-errors-throw-validation-01',
       ]);
+      expect(sessions.every((session) => session.conceptId === ERRORS_CONCEPT)).toBe(true);
     });
 
     it('no mezcla sesiones entre conceptos', async () => {
@@ -665,7 +678,7 @@ describe('StaticContentRepository (T019)', () => {
   });
 
   describe('integridad del contenido servido', () => {
-    it('las 93 sesiones de JavaScript conservan su contrato', async () => {
+    it('las 103 sesiones de JavaScript conservan su contrato', async () => {
       const all = [
         ...(await repo.getSessionsByConcept(ARRAYS_CONCEPT)),
         ...(await repo.getSessionsByConcept(FUNCTIONS_CONCEPT)),
@@ -676,8 +689,8 @@ describe('StaticContentRepository (T019)', () => {
         ...(await repo.getSessionsByConcept(ERRORS_CONCEPT)),
       ];
 
-      expect(all).toHaveLength(93);
-      expect(new Set(all.map((s) => s.id)).size).toBe(93);
+      expect(all).toHaveLength(103);
+      expect(new Set(all.map((s) => s.id)).size).toBe(103);
       expect(all.every((s) => s.status === 'published')).toBe(true);
       expect(all.every((s) => s.steps.length >= 1)).toBe(true);
       expect(all.every((s) => s.steps.every((st, i) => st.stepOrder === i + 1))).toBe(true);

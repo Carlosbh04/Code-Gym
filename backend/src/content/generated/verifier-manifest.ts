@@ -2435,6 +2435,368 @@ export const verifierManifest = {
       ]
     },
     {
+      "id": "js-errors-deepening-cause-context-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "message y cause son propiedades diferentes.",
+            "wrapped es el error exterior."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El error interior proviene de JSON.parse.",
+            "La causa no se convierte en el error exterior."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "contextual",
+          "hints": [
+            "Ya existe un error capturado.",
+            "Error admite una causa asociada."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": "{\"modo\":\"oscuro\"}",
+              "expected": "oscuro",
+              "call": "cargarConfig(input).modo",
+              "description": "conserva la ruta válida"
+            },
+            {
+              "input": "{ roto }",
+              "expected": "Configuración inválida",
+              "call": "(() => { try { cargarConfig(input); return 'sin error'; } catch (error) { return error.message; } })()",
+              "description": "añade contexto al fallo"
+            },
+            {
+              "input": "{\"modo\": }",
+              "expected": "SyntaxError",
+              "call": "(() => { try { cargarConfig(input); return 'sin error'; } catch (error) { return error.cause?.name ?? 'sin causa'; } })()",
+              "description": "conserva la causa original"
+            }
+          ],
+          "hints": [
+            "Debes volver a lanzar.",
+            "El segundo argumento de Error puede incluir cause."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-deepening-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "No se está comprobando un intervalo.",
+            "El contrato exige number."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El mensaje exterior es otro.",
+            "Se está leyendo error.cause.message."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            3
+          ],
+          "errorType": "flujo",
+          "hints": [
+            "¿Puede { ok: true } parecer válido?",
+            "Un error no recuperado debe seguir siendo observable."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": "{\"data\":42}",
+              "expected": 42,
+              "call": "procesarEntrada(input)",
+              "description": "devuelve los datos válidos"
+            },
+            {
+              "input": "{ roto }",
+              "expected": "INVALID_JSON",
+              "call": "(() => { try { procesarEntrada(input); return 'sin error'; } catch (error) { return error.code; } })()",
+              "description": "clasifica JSON inválido"
+            },
+            {
+              "input": "{\"otro\":1}",
+              "expected": "INVALID_SHAPE",
+              "call": "(() => { try { procesarEntrada(input); return 'sin error'; } catch (error) { return error.code; } })()",
+              "description": "clasifica una forma inválida"
+            }
+          ],
+          "hints": [
+            "No metas ambas validaciones dentro del mismo catch.",
+            "Los dos errores necesitan códigos diferentes."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-deepening-error-codes-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "message puede cambiar o traducirse.",
+            "code permanece como contrato."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Compara exactamente error.code.",
+            "El mensaje no participa."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "contrato",
+          "hints": [
+            "Piensa en traducciones o cambios de redacción.",
+            "La lógica necesita una señal estable."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "code": "AUTH_REQUIRED",
+                "message": "Debes iniciar sesión"
+              },
+              "expected": "AUTH_REQUIRED|Debes iniciar sesión",
+              "call": "(() => { const error = crearError(input); return `${error.code}|${error.message}`; })()",
+              "description": "conserva código y mensaje"
+            },
+            {
+              "input": {
+                "code": "NOT_FOUND",
+                "message": "No encontrado"
+              },
+              "expected": "NOT_FOUND|Error",
+              "call": "(() => { const error = crearError(input); return `${error.code}|${error.name}`; })()",
+              "description": "sigue siendo un Error estándar"
+            },
+            {
+              "input": {
+                "code": "",
+                "message": ""
+              },
+              "expected": "|",
+              "call": "(() => { const error = crearError(input); return `${error.code}|${error.message}`; })()",
+              "description": "preserva strings vacíos como valores explícitos"
+            }
+          ],
+          "hints": [
+            "Crea el Error normalmente.",
+            "Después puedes añadir la propiedad code."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-deepening-error-types-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Piensa en tipo frente a rango.",
+            "Ambos pueden lanzarse explícitamente."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "message sería fuera.",
+            "name y message son propiedades distintas."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "conceptual",
+          "hints": [
+            "La primera condición mira typeof.",
+            "La segunda sí mira el rango."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": 35,
+              "expected": 35,
+              "call": "validarEdad(input)",
+              "description": "acepta una edad válida"
+            },
+            {
+              "input": "35",
+              "expected": "TypeError",
+              "call": "(() => { try { validarEdad(input); return 'sin error'; } catch (error) { return error.name; } })()",
+              "description": "clasifica un tipo inválido"
+            },
+            {
+              "input": 200,
+              "expected": "RangeError",
+              "call": "(() => { try { validarEdad(input); return 'sin error'; } catch (error) { return error.name; } })()",
+              "description": "clasifica una edad fuera de rango"
+            }
+          ],
+          "hints": [
+            "typeof permite detectar el tipo.",
+            "RangeError expresa un número válido de tipo pero inválido de rango."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-deepening-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Observa el constructor usado con throw.",
+            "El nombre específico no desaparece al capturarlo."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "4 cumple el contrato.",
+            "La ruta normal continúa hasta return."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "wrapped y original son errores distintos.",
+            "cause apunta al error que originó el nuevo."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Distingue tipo inválido de valor inválido.",
+            "RangeError expresa una restricción de dominio numérico."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Hay un segundo catch exterior.",
+            "throw error conserva el mensaje."
+          ]
+        }
+      ]
+    },
+    {
       "id": "js-errors-finally-cleanup-01",
       "technologyId": "javascript",
       "topicId": "js-errors",
@@ -2566,6 +2928,401 @@ export const verifierManifest = {
           ],
           "hints": [
             "Piensa en liberar recursos."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-mastery-checkpoint-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El texto puede cambiar.",
+            "La categoría funcional no debería hacerlo."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "exterior es el nuevo contrato.",
+            "original sigue almacenado como cause."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "contrato",
+          "hints": [
+            "Hay información interna y externa.",
+            "Falta la categoría exterior."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "code": "SERVICE_UNAVAILABLE",
+                "message": "Servicio no disponible",
+                "originalMessage": "ECONNRESET",
+                "retryable": true
+              },
+              "expected": "ApplicationError|SERVICE_UNAVAILABLE|true|Servicio no disponible|ECONNRESET",
+              "call": "(() => { const error = normalizarFallo(input); return `${error.name}|${error.code}|${error.retryable}|${error.message}|${error.cause?.message}`; })()",
+              "description": "construye el contrato completo"
+            },
+            {
+              "input": {
+                "code": "INVALID_INPUT",
+                "message": "Entrada inválida",
+                "originalMessage": "schema",
+                "retryable": false
+              },
+              "expected": "INVALID_INPUT|false",
+              "call": "(() => { const error = normalizarFallo(input); return `${error.code}|${error.retryable}`; })()",
+              "description": "conserva retryable false"
+            },
+            {
+              "input": {
+                "code": "",
+                "message": "",
+                "originalMessage": "",
+                "retryable": false
+              },
+              "expected": "ApplicationError|||false",
+              "call": "(() => { const error = normalizarFallo(input); return `${error.name}|${error.code}|${error.message}|${error.retryable}`; })()",
+              "description": "preserva valores explícitos falsy"
+            }
+          ],
+          "hints": [
+            "La causa puede ser un Error creado con originalMessage.",
+            "No sustituyas false ni strings vacíos."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-mastery-domain-error-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El mensaje puede traducirse.",
+            "La categoría debe sobrevivir a cambios de texto."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "name pertenece al objeto Error.",
+            "code es una propiedad adicional."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "contrato",
+          "hints": [
+            "El texto puede traducirse.",
+            "Busca una propiedad estable."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "code": "ORDER_NOT_FOUND",
+                "message": "Pedido no encontrado"
+              },
+              "expected": "DomainError|ORDER_NOT_FOUND|Pedido no encontrado",
+              "call": "(() => { const error = crearDomainError(input); return `${error.name}|${error.code}|${error.message}`; })()",
+              "description": "crea un contrato completo"
+            },
+            {
+              "input": {
+                "code": "INVALID_STATE",
+                "message": "Estado inválido"
+              },
+              "expected": true,
+              "call": "crearDomainError(input) instanceof Error",
+              "description": "mantiene compatibilidad con Error"
+            },
+            {
+              "input": {
+                "code": "",
+                "message": ""
+              },
+              "expected": "DomainError||",
+              "call": "(() => { const error = crearDomainError(input); return `${error.name}|${error.code}|${error.message}`; })()",
+              "description": "conserva valores explícitos vacíos"
+            }
+          ],
+          "hints": [
+            "Puedes crear un Error y después ajustar sus propiedades.",
+            "No es obligatorio usar class si el comportamiento es equivalente."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-mastery-quiz-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 5,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El mensaje puede cambiar.",
+            "El código representa la categoría."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La causa sigue disponible por separado.",
+            "Se consulta domain.message."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La propiedad está definida.",
+            "Se compara explícitamente con false."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Hay dos niveles de información.",
+            "El consumidor no necesita conocer todos los detalles internos."
+          ]
+        },
+        {
+          "id": "step-5",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Se está leyendo error.code.",
+            "El mensaje es otra propiedad."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-mastery-recovery-policy-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "La función compara un único código.",
+            "No todos los errores deben reintentarse."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "Compara ambos códigos.",
+            "La rama alternativa es stop."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "contrato",
+          "hints": [
+            "Todo Error es truthy.",
+            "Necesitas una señal de clasificación."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "code": "TEMPORARY_FAILURE"
+              },
+              "expected": "retry",
+              "call": "decidirRecuperacion(input)",
+              "description": "reintenta únicamente fallos temporales"
+            },
+            {
+              "input": {
+                "code": "INVALID_INPUT"
+              },
+              "expected": "reject",
+              "call": "decidirRecuperacion(input)",
+              "description": "rechaza errores de entrada"
+            },
+            {
+              "input": {
+                "code": "FORBIDDEN"
+              },
+              "expected": "fail",
+              "call": "decidirRecuperacion(input)",
+              "description": "no inventa recuperación para otras categorías"
+            }
+          ],
+          "hints": [
+            "Compara error.code.",
+            "Deja un fallback final para el resto."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "js-errors-mastery-translate-error-01",
+      "technologyId": "javascript",
+      "topicId": "js-errors",
+      "conceptId": "js-error-handling",
+      "status": "published",
+      "totalExercises": 4,
+      "steps": [
+        {
+          "id": "step-1",
+          "type": "code-reading",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "El error de infraestructura no conoce necesariamente el dominio.",
+            "domain representa el contrato exterior."
+          ]
+        },
+        {
+          "id": "step-2",
+          "type": "predict-output",
+          "correctOptionIds": [
+            "a"
+          ],
+          "hints": [
+            "cause es el Error original.",
+            "El nuevo error tiene otro name."
+          ]
+        },
+        {
+          "id": "step-3",
+          "type": "find-error",
+          "errorLines": [
+            2
+          ],
+          "errorType": "contextual",
+          "hints": [
+            "La función recibe el error original.",
+            "No lo descartes."
+          ]
+        },
+        {
+          "id": "step-4",
+          "type": "fix-code",
+          "testCases": [
+            {
+              "input": {
+                "originalMessage": "ECONNRESET",
+                "code": "SERVICE_UNAVAILABLE",
+                "message": "Servicio no disponible"
+              },
+              "expected": "SERVICE_UNAVAILABLE|Servicio no disponible|ECONNRESET",
+              "call": "(() => { const original = new Error(input.originalMessage); const error = traducirError({ original, code: input.code, message: input.message }); return `${error.code}|${error.message}|${error.cause?.message}`; })()",
+              "description": "traduce y conserva la causa"
+            },
+            {
+              "input": {
+                "originalMessage": "timeout",
+                "code": "TEMPORARY_FAILURE",
+                "message": "Inténtalo de nuevo"
+              },
+              "expected": true,
+              "call": "(() => { const original = new TypeError(input.originalMessage); return traducirError({ original, code: input.code, message: input.message }).cause === original; })()",
+              "description": "mantiene la misma instancia causal"
+            },
+            {
+              "input": {
+                "originalMessage": "",
+                "code": "",
+                "message": ""
+              },
+              "expected": "||",
+              "call": "(() => { const original = new Error(input.originalMessage); const error = traducirError({ original, code: input.code, message: input.message }); return `${error.code}|${error.message}|${error.cause.message}`; })()",
+              "description": "no sustituye strings vacíos"
+            }
+          ],
+          "hints": [
+            "datos.original ya existe.",
+            "Úsalo como cause del nuevo Error."
           ]
         }
       ]

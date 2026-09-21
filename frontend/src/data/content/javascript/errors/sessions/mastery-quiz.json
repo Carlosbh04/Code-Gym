@@ -1,0 +1,213 @@
+{
+  "id": "js-errors-mastery-quiz-01",
+  "title": "Quiz: contratos de error entre capas",
+  "difficulty": "advanced",
+  "position": 0,
+  "kind": "quiz",
+  "levelId": "mastery",
+  "passingPercentage": 100,
+  "requiredForProgression": true,
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-19",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué información debería consumir la lógica de aplicación?",
+      "code": "const error = new Error('Usuario no encontrado');\nerror.code = 'USER_NOT_FOUND';",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "error.code",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "La posición exacta de cada palabra del mensaje",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "error.stack siempre",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Ninguna señal",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Un código estable separa el contrato funcional del texto humano.",
+      "hints": [
+        "El mensaje puede cambiar.",
+        "El código representa la categoría."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué mensaje pertenece al error de dominio?",
+      "code": "const infra = new Error('ECONNRESET');\nconst domain = new Error('Servicio no disponible', { cause: infra });\nconsole.log(domain.message);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Servicio no disponible",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "ECONNRESET",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La capa exterior define el mensaje que pertenece a su propio contrato.",
+      "hints": [
+        "La causa sigue disponible por separado.",
+        "Se consulta domain.message."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "predict-output",
+      "prompt": "¿Qué clasificación conserva un valor falsy?",
+      "code": "const error = new Error('x');\nerror.retryable = false;\nconsole.log(error.retryable === false);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "true",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "false",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "undefined",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Error",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "false puede ser información explícita y no significa ausencia.",
+      "hints": [
+        "La propiedad está definida.",
+        "Se compara explícitamente con false."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "code-reading",
+      "prompt": "¿Qué ventaja tiene conservar cause al traducir errores?",
+      "code": "const translated = new Error('Pedido inválido', { cause: original });",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Mantener el diagnóstico original sin exponerlo como contrato principal",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Convertir cualquier fallo en éxito",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Evitar completamente usar throw",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "Eliminar el mensaje exterior",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La capa puede presentar su propio contrato y conservar la cadena causal.",
+      "hints": [
+        "Hay dos niveles de información.",
+        "El consumidor no necesita conocer todos los detalles internos."
+      ],
+      "stepOrder": 4
+    },
+    {
+      "id": "step-5",
+      "type": "predict-output",
+      "prompt": "¿Qué código observa el consumidor?",
+      "code": "const error = new Error('No permitido');\nerror.code = 'FORBIDDEN';\nconsole.log(error.code);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "FORBIDDEN",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "No permitido",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "null",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "code funciona como identificador independiente de message y name.",
+      "hints": [
+        "Se está leyendo error.code.",
+        "El mensaje es otra propiedad."
+      ],
+      "stepOrder": 5
+    }
+  ]
+}

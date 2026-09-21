@@ -1,0 +1,186 @@
+{
+  "id": "js-errors-mastery-translate-error-01",
+  "title": "Traducir errores entre capas",
+  "difficulty": "advanced",
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué capa debería decidir el código de dominio?",
+      "code": "const infra = new Error('registro ausente');\nconst domain = new Error('Usuario no encontrado', { cause: infra });\ndomain.code = 'USER_NOT_FOUND';",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "La capa que traduce el fallo a su contrato",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "El mensaje interno automáticamente",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "JSON.stringify",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "El navegador siempre",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La frontera traduce detalles internos a una señal estable para su consumidor.",
+      "hints": [
+        "El error de infraestructura no conoce necesariamente el dominio.",
+        "domain representa el contrato exterior."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué nombre mantiene la causa?",
+      "code": "const original = new TypeError('id inválido');\nconst translated = new Error('No se pudo cargar usuario', { cause: original });\nconsole.log(translated.cause.name);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "TypeError",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "No se pudo cargar usuario",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "La traducción no altera el objeto guardado como cause.",
+      "hints": [
+        "cause es el Error original.",
+        "El nuevo error tiene otro name."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "La traducción pierde toda la información interna útil. Localiza el problema.",
+      "code": "function traducir(error) {\n  const nuevo = new Error('Operación fallida');\n  nuevo.code = 'OPERATION_FAILED';\n  return nuevo;\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "causa",
+          "text": "El error traducido debería conservar el error original como cause",
+          "correct": true
+        },
+        {
+          "id": "codigo",
+          "text": "No debe existir code",
+          "correct": false
+        },
+        {
+          "id": "return",
+          "text": "Los errores no pueden devolverse",
+          "correct": false
+        },
+        {
+          "id": "mensaje",
+          "text": "Error no acepta mensajes",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        2
+      ],
+      "errorType": "contextual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El consumidor obtiene un contrato nuevo, pero el diagnóstico puede conservar la causa.",
+      "hints": [
+        "La función recibe el error original.",
+        "No lo descartes."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige traducirError para devolver un Error con message y code proporcionados, preservando original como cause.",
+      "code": "function traducirError(datos) {\n  const error = new Error(datos.message);\n  error.code = datos.code;\n  return error;\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": {
+            "originalMessage": "ECONNRESET",
+            "code": "SERVICE_UNAVAILABLE",
+            "message": "Servicio no disponible"
+          },
+          "expected": "SERVICE_UNAVAILABLE|Servicio no disponible|ECONNRESET",
+          "call": "(() => { const original = new Error(input.originalMessage); const error = traducirError({ original, code: input.code, message: input.message }); return `${error.code}|${error.message}|${error.cause?.message}`; })()",
+          "description": "traduce y conserva la causa"
+        },
+        {
+          "input": {
+            "originalMessage": "timeout",
+            "code": "TEMPORARY_FAILURE",
+            "message": "Inténtalo de nuevo"
+          },
+          "expected": true,
+          "call": "(() => { const original = new TypeError(input.originalMessage); return traducirError({ original, code: input.code, message: input.message }).cause === original; })()",
+          "description": "mantiene la misma instancia causal"
+        },
+        {
+          "input": {
+            "originalMessage": "",
+            "code": "",
+            "message": ""
+          },
+          "expected": "||",
+          "call": "(() => { const original = new Error(input.originalMessage); const error = traducirError({ original, code: input.code, message: input.message }); return `${error.code}|${error.message}|${error.cause.message}`; })()",
+          "description": "no sustituye strings vacíos"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "La traducción debe conservar el nuevo contrato y la cadena causal.",
+      "hints": [
+        "datos.original ya existe.",
+        "Úsalo como cause del nuevo Error."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 2,
+  "kind": "practice",
+  "levelId": "mastery",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}

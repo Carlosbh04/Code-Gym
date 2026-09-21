@@ -1,0 +1,174 @@
+{
+  "id": "js-errors-deepening-cause-context-01",
+  "title": "Añadir contexto sin perder la causa",
+  "difficulty": "intermediate",
+  "conceptId": "js-error-handling",
+  "technologyId": "javascript",
+  "version": "1.0.0",
+  "status": "published",
+  "createdAt": "2026-09-03",
+  "updatedAt": null,
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "code-reading",
+      "prompt": "¿Qué mensaje pertenece al error exterior?",
+      "code": "const original = new SyntaxError('JSON roto');\nconst wrapped = new Error('Configuración inválida', { cause: original });\nconsole.log(wrapped.message);",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "Configuración inválida",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "JSON roto",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "SyntaxError",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "undefined",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "El nuevo Error tiene su propio mensaje y conserva el original en cause.",
+      "hints": [
+        "message y cause son propiedades diferentes.",
+        "wrapped es el error exterior."
+      ],
+      "stepOrder": 1
+    },
+    {
+      "id": "step-2",
+      "type": "predict-output",
+      "prompt": "¿Qué nombre tiene la causa?",
+      "code": "try {\n  JSON.parse('{ roto }');\n} catch (error) {\n  const wrapped = new Error('No se pudo leer', { cause: error });\n  console.log(wrapped.cause.name);\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "a",
+          "text": "SyntaxError",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "text": "Error",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "text": "No se pudo leer",
+          "correct": false
+        },
+        {
+          "id": "d",
+          "text": "null",
+          "correct": false
+        }
+      ],
+      "errorLines": null,
+      "errorType": null,
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "JSON.parse genera SyntaxError y ese objeto se conserva como cause.",
+      "hints": [
+        "El error interior proviene de JSON.parse.",
+        "La causa no se convierte en el error exterior."
+      ],
+      "stepOrder": 2
+    },
+    {
+      "id": "step-3",
+      "type": "find-error",
+      "prompt": "El código añade contexto pero destruye por completo la causa original. Localiza el problema.",
+      "code": "function cargar(texto) {\n  try { return JSON.parse(texto); }\n  catch (error) { throw new Error('Configuración inválida'); }\n}",
+      "language": "javascript",
+      "options": [
+        {
+          "id": "causa",
+          "text": "El nuevo error debería conservar el error capturado como causa",
+          "correct": true
+        },
+        {
+          "id": "parse",
+          "text": "JSON.parse no puede estar dentro de try",
+          "correct": false
+        },
+        {
+          "id": "throw",
+          "text": "El catch debe devolver un objeto vacío",
+          "correct": false
+        },
+        {
+          "id": "mensaje",
+          "text": "Un Error no puede tener mensaje",
+          "correct": false
+        }
+      ],
+      "errorLines": [
+        3
+      ],
+      "errorType": "contextual",
+      "testCases": null,
+      "expectedPatterns": null,
+      "explanation": "Añadir contexto es útil, pero conservar cause mantiene disponible el fallo original para diagnóstico.",
+      "hints": [
+        "Ya existe un error capturado.",
+        "Error admite una causa asociada."
+      ],
+      "stepOrder": 3
+    },
+    {
+      "id": "step-4",
+      "type": "fix-code",
+      "prompt": "Corrige cargarConfig para devolver JSON válido y, si el parse falla, lanzar un Error con mensaje 'Configuración inválida' cuya cause sea el error original.",
+      "code": "function cargarConfig(texto) {\n  try {\n    return JSON.parse(texto);\n  } catch (error) {\n    return {};\n  }\n}",
+      "language": "javascript",
+      "options": null,
+      "errorLines": null,
+      "errorType": null,
+      "testCases": [
+        {
+          "input": "{\"modo\":\"oscuro\"}",
+          "expected": "oscuro",
+          "call": "cargarConfig(input).modo",
+          "description": "conserva la ruta válida"
+        },
+        {
+          "input": "{ roto }",
+          "expected": "Configuración inválida",
+          "call": "(() => { try { cargarConfig(input); return 'sin error'; } catch (error) { return error.message; } })()",
+          "description": "añade contexto al fallo"
+        },
+        {
+          "input": "{\"modo\": }",
+          "expected": "SyntaxError",
+          "call": "(() => { try { cargarConfig(input); return 'sin error'; } catch (error) { return error.cause?.name ?? 'sin causa'; } })()",
+          "description": "conserva la causa original"
+        }
+      ],
+      "expectedPatterns": null,
+      "explanation": "No conviertas un parse fallido en un objeto aparentemente válido.",
+      "hints": [
+        "Debes volver a lanzar.",
+        "El segundo argumento de Error puede incluir cause."
+      ],
+      "stepOrder": 4
+    }
+  ],
+  "position": 2,
+  "kind": "practice",
+  "levelId": "deepening",
+  "passingPercentage": null,
+  "requiredForProgression": true
+}
