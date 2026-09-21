@@ -380,7 +380,17 @@ export function useSessionRecoveryController({
   }, [pending, status]);
 
   const startNewSession = useCallback(() => {
-    if (status !== 'available' && status !== 'recovery-failed') return;
+    const canRestartCompletedSession =
+      status === 'none'
+      && state.isComplete;
+
+    if (
+      status !== 'available'
+      && status !== 'recovery-failed'
+      && !canRestartCompletedSession
+    ) {
+      return;
+    }
 
     persistencePaused.current = false;
     abandoned.current = false;
@@ -399,7 +409,13 @@ export function useSessionRecoveryController({
     handledRoute.current = requestedSessionId;
     setLoadPlan({ sessionId: requestedSessionId, recovery: null });
     setStatus('checking');
-  }, [reportStorageFailure, requestedSessionId, status, store]);
+  }, [
+    reportStorageFailure,
+    requestedSessionId,
+    state.isComplete,
+    status,
+    store,
+  ]);
 
   const retryRecoveryPersistence = useCallback(() => {
     if (

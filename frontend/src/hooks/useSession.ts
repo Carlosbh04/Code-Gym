@@ -186,6 +186,7 @@ export function useSession(sessionId: string): UseSessionResult {
     resumedAt: number,
     restoredTrainingRunId: string | null,
   ) => {
+    trainingRunStart.current = null;
     stepStartedAt.current = resumedAt;
     setTrainingRunId(restoredTrainingRunId);
     serverCompletionConfirmed.current = false;
