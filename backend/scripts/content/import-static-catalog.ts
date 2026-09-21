@@ -638,7 +638,7 @@ Promise<void> {
           )
         ) {
           throw new Error(
-            `Concept ${concept.id}: position ${concept.position} está duplicada dentro de ${concept.topicId}`,
+            `Concept ${concept.id}: position ${String(concept.position)} está duplicada dentro de ${concept.topicId}`,
           );
         }
 
@@ -738,7 +738,7 @@ Promise<void> {
             )
           ) {
             throw new Error(
-              `Concept ${concept.id}: learning level position duplicada ${level.position}`,
+              `Concept ${concept.id}: learning level position duplicada ${String(level.position)}`,
             );
           }
 
@@ -979,7 +979,7 @@ Promise<void> {
             )
           ) {
             throw new Error(
-              `Session ${session.id}: position ${sessionPosition} está duplicada dentro de ${concept.id}/${learningLevelId}`,
+              `Session ${session.id}: position ${String(sessionPosition)} está duplicada dentro de ${concept.id}/${learningLevelId}`,
             );
           }
 

@@ -184,8 +184,8 @@ async function assertImportIsSafe():
           'but learning progress already exists.',
           'Refusing to re-import because the importer',
           'recreates learning-level catalog rows.',
-          `levelProgress=${levelProgress}`,
-          `conceptProgress=${conceptProgress}`,
+          `levelProgress=${String(levelProgress)}`,
+          `conceptProgress=${String(conceptProgress)}`,
         ].join(
           ' ',
         ),

@@ -8,6 +8,7 @@ export default tseslint.config(
       'node_modules/**',
       'src/generated/prisma/**',
       '.manual-backup-*/**',
+      '.manual-check-*.ts',
     ],
   },
   eslint.configs.recommended,
