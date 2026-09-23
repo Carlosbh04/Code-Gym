@@ -71,3 +71,7 @@ bundle-stats.html
 
 # Local project documentation
 docs/
+
+# Local manual backups
+.manual-*/
+*.manual-*
