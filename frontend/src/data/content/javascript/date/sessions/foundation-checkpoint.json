@@ -5,7 +5,7 @@
   "position": 2,
   "kind": "checkpoint",
   "levelId": "foundation",
-  "passingPercentage": 80,
+  "passingPercentage": null,
   "requiredForProgression": true,
   "conceptId": "js-date",
   "technologyId": "javascript",

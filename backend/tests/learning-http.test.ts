@@ -54,6 +54,9 @@ ConceptLearningStateView {
     lockReason:
       null,
 
+  status:
+    'available',
+
     stages: {
       theory: {
         status:

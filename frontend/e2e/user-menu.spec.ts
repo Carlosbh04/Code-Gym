@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 
 const AUTH_USER = {
   id: 'user-e2e-menu',
@@ -15,11 +15,6 @@ async function authenticate(page: Page) {
   };
   const profileUpdates: unknown[] = [];
 
-  await page.route('**/auth/refresh', (route) => route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify({ accessToken: 'access-token-e2e' }),
-  }));
   await page.route('**/auth/me', async (route) => {
     if (route.request().method() === 'PATCH') {
       const input = route.request().postDataJSON() as {

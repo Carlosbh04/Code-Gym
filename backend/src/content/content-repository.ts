@@ -880,10 +880,14 @@ function parseOptions(
         );
 
       const text =
-        requireString(
-          object,
-          'text',
-        );
+        object['text'];
+
+      if (
+        typeof text !== 'string'
+      ) {
+        throw new ContentDataInvariantError();
+      }
+
       return Object.freeze({
         id,
         text,

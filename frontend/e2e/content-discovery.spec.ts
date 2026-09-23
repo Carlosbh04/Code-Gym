@@ -7,22 +7,27 @@ const legacyTopics = [
   [
     'js-closures',
     'Closures',
+    'js-closure-basics',
   ],
   [
     'js-promises',
     'Promises',
+    'js-promise-flow',
   ],
   [
     'js-objects',
     'Objects',
+    'js-object-references',
   ],
   [
     'js-es6-plus',
     'ES6+',
+    'js-es6-modern-syntax',
   ],
   [
     'js-errors',
     'Errors',
+    'js-error-handling',
   ],
 ] as const;
 
@@ -31,7 +36,7 @@ test.describe(
   () => {
     test.use({
       authScenario:
-        'main-flow',
+        'arrays-access',
     });
 
     test(
@@ -142,7 +147,7 @@ test.describe(
   () => {
     test.use({
       authScenario:
-        'main-flow',
+        'functions-access',
     });
 
     test(
@@ -282,14 +287,23 @@ for (
   const [
     topicId,
     topicName,
+    targetConceptId,
   ]
   of legacyTopics
 ) {
-  test(
-    `${topicName} expone su teoría legacy sin inventar una práctica`,
-    async ({
-      page,
-    }) => {
+  test.describe(
+    `${topicName} legacy`,
+    () => {
+      test.use({
+        authTargetConceptId:
+          targetConceptId,
+      });
+
+      test(
+        `${topicName} expone su teoría legacy sin inventar una práctica`,
+        async ({
+          page,
+        }) => {
       test.setTimeout(
         45_000,
       );
@@ -347,6 +361,8 @@ for (
        * que su workspace legacy no exponga el antiguo
        * bloque "Sesiones disponibles".
        */
+        },
+      );
     },
   );
 }

@@ -1,13 +1,9 @@
 import { expect, test } from './fixtures';
 
-import {
-  createIsolatedE2EAccessToken,
-} from './helpers/isolated-authentication';
-
 const BREAKPOINTS = [320, 390, 768, 1024, 1280, 1440] as const;
 
 test.describe('con progreso persistido por el backend', () => {
-  test.use({ authScenario: 'review' });
+  test.use({ authScenario: 'review-progress' });
 
 test('Repasar convierte progreso real en recomendaciones, recovery y actividad responsive', async ({ page }) => {
   test.setTimeout(60_000);
@@ -137,29 +133,10 @@ test('Repasar convierte progreso real en recomendaciones, recovery y actividad r
 });
 });
 
+test.describe('sin progreso previo', () => {
+  test.use({ authScenario: 'review-empty' });
+
 test('Repasar ofrece un estado vacío útil sin inventar métricas', async ({ page }) => {
-  const accessToken =
-    createIsolatedE2EAccessToken(
-      'review-empty',
-    );
-
-  await page.route(
-    '**/auth/refresh',
-    async (route) => {
-      await route.fulfill({
-        contentType:
-          'application/json',
-
-        status:
-          200,
-
-        body:
-          JSON.stringify({
-            accessToken,
-          }),
-      });
-    },
-  );
 
   await page.goto('/review');
 
@@ -170,4 +147,5 @@ test('Repasar ofrece un estado vacío útil sin inventar métricas', async ({ pa
   await expect(page.getByRole('heading', { name: 'Todavía no hay suficiente actividad para generar un repaso personalizado.' })).toBeVisible();
   await expect(page.getByRole('link', { name: /Ir a entrenar/ })).toHaveAttribute('href', '/tech');
   await expect(page.getByRole('main').getByText(/\b(?:XP|racha|nivel|ranking)\b/i)).toHaveCount(0);
+});
 });

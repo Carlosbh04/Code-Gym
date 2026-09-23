@@ -18,7 +18,7 @@ vi.mock(
   }),
 );
 
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import type { ContentContextValue, Concept, Technology, Topic } from '@/types/content';
@@ -593,7 +593,7 @@ describe('SearchPopover', () => {
   it('filtra por texto, muestra tipos reales y navega al hacer click', async () => {
     renderSearch();
     const input = getDesktopInput();
-    input.focus();
+    fireEvent.focus(input);
     fireEvent.change(input, { target: { value: 'arrays' } });
 
     const option = await screen.findByRole('option', { name: /Arrays Tema · JavaScript/ });
@@ -606,7 +606,18 @@ describe('SearchPopover', () => {
   it('usa ArrowDown, ArrowUp y Enter conservando el foco', async () => {
     renderSearch();
     const input = getDesktopInput();
-    input.focus();
+
+    /*
+     * FOCUS_ACT_REGRESSION
+     *
+     * Este test comprueba document.activeElement de forma explícita.
+     * Necesitamos focus() real de JSDOM, envuelto en act para que
+     * React procese también el handler onFocus sin warnings.
+     */
+    act(() => {
+      input.focus();
+    });
+
     fireEvent.change(input, { target: { value: 'react' } });
     await screen.findByRole('option', { name: /React Tecnología/ });
 

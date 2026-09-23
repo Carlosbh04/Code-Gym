@@ -28,6 +28,8 @@ const BACKEND_ROOT =
 export function createIsolatedE2EAccessToken(
   label:
     string,
+  targetConceptId?:
+    string,
 ): string {
   const result =
     spawnSync(
@@ -103,6 +105,70 @@ export function createIsolatedE2EAccessToken(
     throw new Error(
       'Isolated E2E authentication did not return an access token',
     );
+  }
+
+  if (
+    targetConceptId !== undefined
+  ) {
+    if (
+      typeof parsed.userId
+      !== 'string'
+      || parsed.userId.length
+      === 0
+    ) {
+      throw new Error(
+        'Isolated E2E authentication did not return a user id',
+      );
+    }
+
+    const seed =
+      spawnSync(
+        process.execPath,
+        [
+          '--import',
+          'tsx',
+          'scripts/e2e/seed-learning-prerequisites.ts',
+          parsed.userId,
+          targetConceptId,
+        ],
+        {
+          cwd:
+            BACKEND_ROOT,
+
+          env: {
+            ...process.env,
+
+            NODE_ENV:
+              'test',
+
+            DB_NAME:
+              'codegym_test',
+          },
+
+          encoding:
+            'utf8',
+        },
+      );
+
+    if (
+      seed.error !== undefined
+    ) {
+      throw seed.error;
+    }
+
+    if (
+      seed.status !== 0
+    ) {
+      throw new Error(
+        [
+          'Could not seed isolated E2E learning prerequisites.',
+          `exit=${String(seed.status)}`,
+          `stderr=${seed.stderr.trim()}`,
+        ].join(
+          ' ',
+        ),
+      );
+    }
   }
 
   return parsed.accessToken;

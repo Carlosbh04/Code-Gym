@@ -4,29 +4,43 @@ export function TechnologyLoading() {
   return (
     <div
       role="status"
-      aria-live="polite"
+      aria-label="Cargando tecnologías"
+      className="
+        w-full
+        rounded-2xl
+        border
+        border-border
+        bg-card
+        p-5
+        sm:p-6
+      "
     >
-      <p className="sr-only">
-        Cargando tecnologías…
-      </p>
+      <span className="sr-only">
+        Cargando tecnologías
+      </span>
 
-      <div
-        aria-hidden="true"
-        className="grid grid-cols-2 gap-3 xl:grid-cols-3"
-      >
-        {Array.from(
-          { length: 6 },
-          (_, index) => (
-            <div
-              key={index}
-              className="min-h-32 rounded-xl border border-border bg-card p-4"
-            >
-              <Skeleton className="size-10 rounded-lg" />
-              <Skeleton className="mt-4 h-2 w-full rounded-full" />
-              <Skeleton className="mt-3 h-3 w-20" />
-            </div>
-          ),
-        )}
+      <div className="flex items-center gap-4">
+        <Skeleton
+          aria-hidden="true"
+          className="size-11 shrink-0 rounded-xl"
+        />
+
+        <div className="min-w-0 flex-1">
+          <Skeleton
+            aria-hidden="true"
+            className="h-4 w-40 max-w-full rounded-md"
+          />
+
+          <Skeleton
+            aria-hidden="true"
+            className="mt-3 h-2 w-full rounded-full"
+          />
+
+          <Skeleton
+            aria-hidden="true"
+            className="mt-3 h-3 w-24 rounded-md"
+          />
+        </div>
       </div>
     </div>
   );

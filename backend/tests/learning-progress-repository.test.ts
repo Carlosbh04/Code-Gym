@@ -137,6 +137,83 @@ describe(
         );
       },
     );
+
+    it(
+      'uses the last concept of the previous published topic when the current topic starts',
+      async () => {
+        const concept = {
+          findFirst:
+            vi.fn()
+              .mockResolvedValueOnce({
+                id:
+                  'js-types-primitives',
+                topicId:
+                  'js-types-operators',
+                technologyId:
+                  'javascript',
+                position:
+                  0,
+                topic: {
+                  position:
+                    1,
+                },
+              })
+              .mockResolvedValueOnce(
+                null,
+              ),
+        };
+
+        const topic = {
+          findFirst:
+            vi.fn()
+              .mockResolvedValue({
+                concepts: [
+                  {
+                    id:
+                      'js-variables',
+                  },
+                ],
+              }),
+        };
+
+        const repository =
+          new PrismaLearningProgressRepository(
+            {
+              concept,
+              topic,
+            } as never,
+          );
+
+        const result =
+          await repository.findConceptGate(
+            conceptIdSchema.parse(
+              'js-types-primitives',
+            ),
+          );
+
+        expect(
+          result?.previousConceptId,
+        ).toBe(
+          'js-variables',
+        );
+
+        const topicFindFirstInput:
+          unknown =
+            topic.findFirst
+              .mock.calls[0]?.[0];
+
+        expect(
+          topicFindFirstInput,
+        ).toMatchObject({
+          where: {
+            technologyId:
+              'javascript',
+            isPublished:
+              true,
+          },
+        });
+      },
+    );
   },
 );
 

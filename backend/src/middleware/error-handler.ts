@@ -19,6 +19,57 @@ function isHttpBodyError(
   return candidate.type === expectedType && candidate.status === expectedStatus;
 }
 
+function safeInternalErrorMetadata(
+  error: unknown,
+): Readonly<{
+  errorName: string;
+  errorCode?: string;
+}> {
+  /*
+   * SAFE_INTERNAL_ERROR_METADATA
+   *
+   * Nunca serializamos el Error crudo porque message/stack pueden
+   * contener SQL, URLs de conexión, hashes, tokens o datos privados.
+   *
+   * Solo conservamos metadatos estructurados que no provienen del
+   * texto del error. Esto mantiene observabilidad suficiente para
+   * distinguir errores técnicos reales (por ejemplo códigos Prisma)
+   * sin registrar secretos.
+   */
+  const errorName =
+    error instanceof Error
+      ? error.name
+      : 'UnknownError';
+
+  if (
+    typeof error === 'object'
+    && error !== null
+    && 'code' in error
+  ) {
+    const candidate =
+      (error as {
+        readonly code?: unknown;
+      }).code;
+
+    if (
+      typeof candidate === 'string'
+      && /^[A-Z][A-Z0-9_]{0,31}$/.test(
+        candidate,
+      )
+    ) {
+      return Object.freeze({
+        errorName,
+        errorCode:
+          candidate,
+      });
+    }
+  }
+
+  return Object.freeze({
+    errorName,
+  });
+}
+
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
   return (error: unknown, _request, response, next) => {
     if (response.headersSent) {
@@ -46,7 +97,17 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
       return;
     }
 
-    logger.error({ event: 'unhandledRequestError' }, 'Unhandled request error');
+    logger.error(
+      {
+        event:
+          'unhandledRequestError',
+
+        ...safeInternalErrorMetadata(
+          error,
+        ),
+      },
+      'Unhandled request error',
+    );
     response.status(500).json({
       error: {
         code: 'INTERNAL_SERVER_ERROR',

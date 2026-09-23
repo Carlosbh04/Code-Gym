@@ -68,6 +68,11 @@ export interface CompletedSessionRepository {
     userId: string,
     limit: number,
   ): Promise<readonly CompletedSessionRecord[]>;
+
+  findLatestByUserAndTechnologyId?(
+    userId: string,
+    technologyId: TechnologyId,
+  ): Promise<readonly CompletedSessionRecord[]>;
 }
 
 export class PrismaCompletedSessionRepository
@@ -255,6 +260,63 @@ implements CompletedSessionRepository {
       : mapCompletedSession(
           record,
         );
+  }
+
+  public async findLatestByUserAndTechnologyId(
+    userId: string,
+    technologyId: TechnologyId,
+  ): Promise<readonly CompletedSessionRecord[]> {
+    const records =
+      await this.prisma.completedSession.findMany({
+        where: {
+          userId,
+          technologyId,
+        },
+
+        /*
+         * TECHNOLOGY_HISTORY_SNAPSHOT
+         *
+         * La primera fila encontrada para cada sessionId
+         * es siempre su finalización más reciente.
+         */
+        orderBy: [
+          {
+            completedAt:
+              'desc',
+          },
+          {
+            id:
+              'desc',
+          },
+        ],
+      });
+
+    const seenSessionIds =
+      new Set<string>();
+
+    const latest = [];
+
+    for (const record of records) {
+      if (
+        seenSessionIds.has(
+          record.sessionId,
+        )
+      ) {
+        continue;
+      }
+
+      seenSessionIds.add(
+        record.sessionId,
+      );
+
+      latest.push(
+        mapCompletedSession(
+          record,
+        ),
+      );
+    }
+
+    return latest;
   }
 
   public async findRecentByUserId(

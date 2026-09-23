@@ -5,7 +5,7 @@ const SESSION_ID = 'js-arrays-map-vs-foreach-01';
 // TECHNOLOGY_CANONICAL_PRACTICE_SCENARIO
 test.use({
   authScenario:
-    'main-flow',
+    'arrays-access',
 });
 
 test('navega, filtra y abre una sesión desde Ejercicios conservando back/forward', async ({ page }) => {
@@ -64,7 +64,7 @@ test('abre un resultado persistido y su revisión desde Resultados', async ({ pa
 });
 });
 
-test('muestra solo los ejercicios canónicamente accesibles sin paginación innecesaria', async ({ page }) => {
+test('muestra la primera página canónica de ejercicios accesibles', async ({ page }) => {
   await page.setViewportSize({
     width: 1440,
     height: 900,
@@ -90,13 +90,13 @@ test('muestra solo los ejercicios canónicamente accesibles sin paginación inne
       15_000,
   });
 
-  // TECHNOLOGY_CANONICAL_SINGLE_PAGE_CONTRACT
+  // TechnologyExerciseList fija ocho ejercicios por página.
   await expect(
     exercises.locator(
       'article',
     ),
   ).toHaveCount(
-    5,
+    8,
     {
       timeout:
         15_000,
@@ -111,9 +111,7 @@ test('muestra solo los ejercicios canónicamente accesibles sin paginación inne
           'Paginación de ejercicios',
       },
     ),
-  ).toHaveCount(
-    0,
-  );
+  ).toBeVisible();
 
   await page.setViewportSize({
     width: 390,
@@ -132,6 +130,13 @@ test('muestra solo los ejercicios canónicamente accesibles sin paginación inne
   ).toBe(
     true,
   );
+
+  // La comprobación responsive termina aquí.
+  // El resto del flujo vuelve a desktop.
+  await page.setViewportSize({
+    width: 1440,
+    height: 900,
+  });
 
   const tabs =
     page.getByRole(

@@ -70,13 +70,104 @@ export function SearchPopover({ content }: SearchPopoverProps) {
   const [query, setQuery] = useState('');
   const [index, setIndex] = useState<SearchResult[]>([]);
   const [indexedContent, setIndexedContent] = useState<ContentContextValue | null>(null);
+  const [
+    indexedAccessToken,
+    setIndexedAccessToken,
+  ] = useState<string | null | undefined>(
+    undefined,
+  );
+  const [
+    indexRequestLoading,
+    setIndexRequestLoading,
+  ] = useState(
+    false,
+  );
   const [history, setHistory] = useState<string[]>(() => readSearchHistory());
   const [activeIndex, setActiveIndex] = useState(-1);
 
-  useEffect(() => {
-    if (content === null || content.isLoading) return;
+  /*
+   * SEARCH_INDEX_ON_DEMAND
+   *
+   * TopBar está montada durante toda la navegación autenticada.
+   * La búsqueda no debe recorrer el catálogo completo ni consultar
+   * learning hasta que el usuario realmente la abra.
+   *
+   * También se conserva una única Promise para content + token:
+   * focus/click/escritura durante la misma carga no recrean el
+   * fan-out.
+   */
+  const indexRequestRef =
+    useRef<{
+      readonly content:
+        ContentContextValue;
 
-    let active = true;
+      readonly accessToken:
+        string | null;
+
+      readonly promise:
+        Promise<SearchResult[]>;
+    } | null>(
+      null,
+    );
+
+  const mountedRef =
+    useRef(
+      true,
+    );
+
+  useEffect(
+    () => {
+      mountedRef.current =
+        true;
+
+      return () => {
+        mountedRef.current =
+          false;
+
+        indexRequestRef.current =
+          null;
+      };
+    },
+    [],
+  );
+
+  function ensureSearchIndex() {
+    if (
+      content === null
+      || content.isLoading
+    ) {
+      return;
+    }
+
+    /*
+     * El índice ya corresponde exactamente al contenido
+     * y a la autoridad autenticada actuales.
+     */
+    if (
+      indexedContent
+      === content
+      && indexedAccessToken
+        === accessToken
+    ) {
+      return;
+    }
+
+    const currentRequest =
+      indexRequestRef.current;
+
+    /*
+     * Dedupe de eventos de apertura mientras la primera
+     * construcción sigue pendiente.
+     */
+    if (
+      currentRequest !== null
+      && currentRequest.content
+        === content
+      && currentRequest.accessToken
+        === accessToken
+    ) {
+      return;
+    }
 
     // SEARCH_LEVEL_STATE_REQUEST_DEDUPE
     const levelStateRequests =
@@ -87,88 +178,159 @@ export function SearchPopover({ content }: SearchPopoverProps) {
         >
       >();
 
-    // SEARCH_CANONICAL_PRACTICE_GATE
-    void buildSearchIndex(
-      content,
+    /*
+     * SEARCH_CANONICAL_PRACTICE_GATE
+     *
+     * Se conserva la misma autoridad backend que existía
+     * antes. Únicamente cambia CUÁNDO se construye el índice.
+     */
+    const request =
+      buildSearchIndex(
+        content,
 
-      async session => {
-        /*
-         * Legacy conserva el comportamiento histórico.
-         */
-        if (
-          session.levelId
-          === undefined
-        ) {
-          return true;
-        }
-
-        /*
-         * Staged no puede generar una entrada
-         * /practice si no hay autoridad autenticada.
-         */
-        if (
-          accessToken
-          === null
-        ) {
-          return false;
-        }
-
-        try {
-          const requestKey =
-            `${session.conceptId}\u0000${session.levelId}`;
-
-          let levelStateRequest =
-            levelStateRequests.get(
-              requestKey,
-            );
-
+        async session => {
+          /*
+           * Legacy conserva el comportamiento histórico.
+           */
           if (
-            levelStateRequest
+            session.levelId
             === undefined
           ) {
-            levelStateRequest =
-              browserLearningApi
-                .getLevelState(
-                  session.conceptId,
-                  session.levelId,
-                  accessToken,
-                );
-
-            levelStateRequests.set(
-              requestKey,
-              levelStateRequest,
-            );
+            return true;
           }
 
-          const levelState =
-            await levelStateRequest;
+          /*
+           * Staged continúa fail-closed sin autoridad
+           * autenticada.
+           */
+          if (
+            accessToken
+            === null
+          ) {
+            return false;
+          }
 
-          return canEnterLearningSession(
-            session,
-            levelState,
-          );
-        } catch {
-          return false;
-        }
-      },
-    )
-      .then((nextIndex) => {
-        if (active) setIndex(nextIndex);
-      })
-      .catch(() => {
-        if (active) setIndex([]);
-      })
-      .finally(() => {
-        if (active) setIndexedContent(content);
-      });
+          try {
+            const requestKey =
+              `${session.conceptId}\u0000${session.levelId}`;
 
-    return () => {
-      active = false;
+            let levelStateRequest =
+              levelStateRequests.get(
+                requestKey,
+              );
+
+            if (
+              levelStateRequest
+              === undefined
+            ) {
+              levelStateRequest =
+                browserLearningApi
+                  .getLevelState(
+                    session.conceptId,
+                    session.levelId,
+                    accessToken,
+                  );
+
+              levelStateRequests.set(
+                requestKey,
+                levelStateRequest,
+              );
+            }
+
+            const levelState =
+              await levelStateRequest;
+
+            return canEnterLearningSession(
+              session,
+              levelState,
+            );
+          } catch {
+            /*
+             * El buscador nunca ofrece /practice staged
+             * cuando la autoridad no puede confirmarlo.
+             */
+            return false;
+          }
+        },
+      );
+
+    indexRequestRef.current = {
+      content,
+      accessToken,
+      promise:
+        request,
     };
-  }, [
-    accessToken,
-    content,
-  ]);
+
+    setIndexRequestLoading(
+      true,
+    );
+
+    /*
+     * SEARCH_INDEX_ATOMIC_SETTLE
+     *
+     * Publicamos resultado + metadata de validez + fin de loading
+     * en la misma resolución. Así no queda un setState posterior
+     * en finally después de que la UI ya haya expuesto resultados.
+     */
+    const settleIndex = (
+      nextIndex: SearchResult[],
+    ) => {
+      if (
+        !mountedRef.current
+        || indexRequestRef
+          .current
+          ?.promise
+          !== request
+      ) {
+        return;
+      }
+
+      setIndex(
+        nextIndex,
+      );
+
+      setIndexedContent(
+        content,
+      );
+
+      setIndexedAccessToken(
+        accessToken,
+      );
+
+      setIndexRequestLoading(
+        false,
+      );
+    };
+
+    void request
+      .then(
+        nextIndex => {
+          settleIndex(
+            nextIndex,
+          );
+        },
+      )
+      .catch(
+        () => {
+          settleIndex(
+            [],
+          );
+        },
+      )
+      .finally(
+        () => {
+          if (
+            indexRequestRef
+              .current
+              ?.promise
+            === request
+          ) {
+            indexRequestRef.current =
+              null;
+          }
+        },
+      );
+  }
 
   useEffect(() => {
     const closeOnOutsidePointer = (event: PointerEvent) => {
@@ -212,12 +374,36 @@ export function SearchPopover({ content }: SearchPopoverProps) {
   const suggestions = useMemo(() => getCatalogSuggestions(index), [index]);
   const selectableResults = query.trim() === '' ? suggestions : results;
   const isOpen = isOpenRequested && openLocationKey === location.key;
+
+  const hasCurrentIndex =
+    content !== null
+    && indexedContent
+      === content
+    && indexedAccessToken
+      === accessToken;
+
   const isIndexLoading =
-    content?.isLoading === true || (content !== null && indexedContent !== content);
+    content?.isLoading
+      === true
+    || (
+      isOpen
+      && content !== null
+      && (
+        !hasCurrentIndex
+        || indexRequestLoading
+      )
+    );
 
   function openSearch() {
-    setOpenLocationKey(location.key);
-    setIsOpenRequested(true);
+    setOpenLocationKey(
+      location.key,
+    );
+
+    setIsOpenRequested(
+      true,
+    );
+
+    ensureSearchIndex();
   }
 
   function selectResult(result: SearchResult) {

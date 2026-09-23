@@ -83,7 +83,19 @@ describe('Argon2id password service', () => {
     expect(first).not.toBe(second);
     await expect(verifyPassword(first, validPassword)).resolves.toBe(true);
     await expect(verifyPassword(second, validPassword)).resolves.toBe(true);
-  });
+  },
+    /*
+     * ARGON2_FRESH_SALT_TEST_TIMEOUT
+     *
+     * Este test ejecuta dos hashes Argon2id reales seguidos.
+     * Bajo la suite completa y carga paralela puede superar
+     * ligeramente el timeout por defecto de 5s.
+     *
+     * No cambia parámetros Argon2, no reduce seguridad y
+     * no modifica el timeout global de Vitest.
+     */
+    15_000,
+  );
 
   it('hashes NFC and verifies an equivalent decomposed representation', async () => {
     const decomposed = `mot-de-passe-Cafe\u0301`;

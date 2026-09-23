@@ -9,6 +9,7 @@ import {
   Database,
   FileCode2,
   Layers3,
+  LockKeyhole,
   TriangleAlert,
   Zap,
   type LucideIcon,
@@ -17,7 +18,11 @@ import { Link } from 'react-router-dom';
 
 import type { Topic } from '@/types/content';
 
-export type TopicStatus = 'completed' | 'in-progress' | 'pending';
+export type TopicStatus =
+  | 'locked'
+  | 'available'
+  | 'in-progress'
+  | 'completed';
 
 export interface TopicInsight {
   exerciseCount: number;
@@ -56,11 +61,16 @@ export function TopicList({
 }) {
   return (
     <ul className="space-y-2.5">
-      {topics.map((topic) => {
+      {topics.map((topic, index) => {
         const insight = insights.get(topic.id);
         return insight === undefined ? null : (
           <li key={topic.id}>
-            <TopicRow technologyId={technologyId} topic={topic} insight={insight} />
+            <TopicRow
+              technologyId={technologyId}
+              topic={topic}
+              insight={insight}
+              previousTopicName={topics[index - 1]?.name ?? null}
+            />
           </li>
         );
       })}
@@ -72,22 +82,22 @@ function TopicRow({
   technologyId,
   topic,
   insight,
+  previousTopicName,
 }: {
   technologyId: string;
   topic: Topic;
   insight: TopicInsight;
+  previousTopicName: string | null;
 }) {
   const Icon = ICONS[topic.id] ?? FileCode2;
+  const locked = insight.status === 'locked';
   const progressPercent = insight.conceptCount === 0
     ? 0
     : Math.round((insight.completedConcepts / insight.conceptCount) * 100);
   const progressText = `${insight.completedConcepts} de ${insight.conceptCount} ${insight.conceptCount === 1 ? 'concepto completado' : 'conceptos completados'}`;
-
-  return (
-    <Link
-      to={`/tech/${technologyId}/${topic.id}`}
-      className="group grid min-h-11 grid-cols-[3rem_minmax(0,1fr)] gap-x-3 gap-y-3 rounded-xl border border-border bg-card p-4 transition-colors duration-fast ease-standard hover:border-primary/50 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:grid-cols-[3rem_minmax(0,1fr)_auto] sm:gap-x-4 xl:grid-cols-[3rem_minmax(15rem,1fr)_9rem_minmax(8rem,10rem)_8rem_1.5rem] xl:items-center xl:gap-x-5"
-    >
+  const className = `group grid min-h-11 grid-cols-[3rem_minmax(0,1fr)] gap-x-3 gap-y-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-[3rem_minmax(0,1fr)_auto] sm:gap-x-4 xl:grid-cols-[3rem_minmax(15rem,1fr)_9rem_minmax(8rem,10rem)_8rem_1.5rem] xl:items-center xl:gap-x-5 ${locked ? 'cursor-not-allowed opacity-70' : 'transition-colors duration-fast ease-standard hover:border-primary/50 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'}`;
+  const content = (
+    <>
       <span
         aria-hidden="true"
         className="flex size-12 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary sm:row-span-3 xl:row-auto"
@@ -102,6 +112,13 @@ function TopicRow({
         <span className="mt-1 block overflow-hidden whitespace-normal break-normal text-sm leading-5 text-muted-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
           {topic.description}
         </span>
+        {locked ? (
+          <span className="mt-2 block text-sm font-medium text-muted-foreground">
+            {previousTopicName === null
+              ? 'Contenido bloqueado'
+              : `Completa ${previousTopicName} para desbloquear`}
+          </span>
+        ) : null}
       </span>
 
       <span className="col-start-2 flex flex-wrap gap-x-2 gap-y-1 text-sm text-muted-foreground sm:row-start-2 xl:col-auto xl:row-auto xl:flex-col xl:gap-1">
@@ -139,18 +156,49 @@ function TopicRow({
       <TopicStatusBadge status={insight.status} />
 
       <span className="col-span-2 flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors group-hover:border-primary/40 group-hover:text-primary sm:col-span-1 sm:col-start-3 sm:row-start-2 sm:min-h-0 sm:border-0 sm:p-0 xl:col-auto xl:row-auto">
-        <span className="sm:sr-only">Ver tema</span>
-        <ArrowRight
-          className="size-5 shrink-0 text-muted-foreground transition-transform duration-fast ease-standard group-hover:translate-x-1 group-hover:text-primary"
-          aria-hidden="true"
-        />
+        <span className="sm:sr-only">{locked ? 'Tema bloqueado' : 'Ver tema'}</span>
+        {locked ? (
+          <LockKeyhole
+            className="size-5 shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          />
+        ) : (
+          <ArrowRight
+            className="size-5 shrink-0 text-muted-foreground transition-transform duration-fast ease-standard group-hover:translate-x-1 group-hover:text-primary"
+            aria-hidden="true"
+          />
+        )}
       </span>
+    </>
+  );
+
+  return locked ? (
+    <div
+      aria-disabled="true"
+      data-topic-state="locked"
+      className={className}
+    >
+      {content}
+    </div>
+  ) : (
+    <Link
+      to={`/tech/${technologyId}/${topic.id}`}
+      data-topic-state={insight.status}
+      className={className}
+    >
+      {content}
     </Link>
   );
 }
 
 function TopicStatusBadge({ status }: { status: TopicStatus }) {
-  const config = status === 'completed'
+  const config = status === 'locked'
+    ? {
+        label: 'Bloqueado',
+        Icon: LockKeyhole,
+        className: 'border-border bg-muted text-muted-foreground',
+      }
+    : status === 'completed'
     ? {
         label: 'Completado',
         Icon: CheckCircle2,
@@ -163,9 +211,9 @@ function TopicStatusBadge({ status }: { status: TopicStatus }) {
           className: 'border-primary/30 bg-primary/10 text-primary',
         }
       : {
-          label: 'Pendiente',
+          label: 'Disponible',
           Icon: Circle,
-          className: 'border-border bg-muted text-muted-foreground',
+          className: 'border-primary/25 bg-primary/5 text-primary',
         };
 
   return (

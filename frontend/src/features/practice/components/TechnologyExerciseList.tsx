@@ -207,7 +207,7 @@ function ExercisePagination({
           <ChevronLeft className="size-4" aria-hidden="true" />
         </PaginationButton>
 
-        <div className="hidden items-center gap-2 sm:flex">
+        <div className="hidden items-center gap-2 xl:flex">
           {Array.from({ length: totalPages }, (_, index) => {
             const page = index + 1;
             return (
@@ -229,7 +229,7 @@ function ExercisePagination({
           })}
         </div>
 
-        <span className="flex min-h-11 min-w-16 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 px-3 text-sm font-semibold text-primary sm:hidden">
+        <span className="flex min-h-11 min-w-16 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 px-3 text-sm font-semibold text-primary xl:hidden">
           {currentPage} / {totalPages}
         </span>
 

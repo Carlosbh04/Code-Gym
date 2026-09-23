@@ -87,17 +87,17 @@
         {
           "id": "conceptual",
           "text": "perfil",
-          "correct": "perfil también debe protegerse antes de acceder a direccion"
+          "correct": true
         },
         {
           "id": "b",
           "text": "ciudad",
-          "correct": "?? debe cambiarse por ||"
+          "correct": false
         },
         {
           "id": "c",
           "text": "return",
-          "correct": "optional chaining no funciona dentro de return"
+          "correct": false
         }
       ],
       "errorLines": [

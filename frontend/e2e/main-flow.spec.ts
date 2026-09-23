@@ -29,7 +29,7 @@ test('completa una sesión real desde la navegación hasta el progreso', async (
   await expect(page).toHaveURL('/tech/javascript');
   await expect(page.getByRole('heading', { name: 'JavaScript', exact: true })).toBeVisible();
 
-  await page.getByRole('link', { name: /^Arrays\b/ }).click();
+  await page.locator('a[href="/tech/javascript/js-arrays"]').click();
   await expect(page).toHaveURL('/tech/javascript/js-arrays');
   await expect(
     page.getByRole('heading', {

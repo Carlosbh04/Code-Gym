@@ -13,6 +13,11 @@ const BREAKPOINTS = [
   1440,
 ] as const;
 
+test.use({
+  authTargetConceptId:
+    'js-array-iteration',
+});
+
 async function expectNoHorizontalOverflow(
   page: Page,
 ) {
@@ -249,12 +254,8 @@ test.describe(
         );
 
         await page
-          .getByRole(
-            'link',
-            {
-              name:
-                /^Arrays\b/,
-            },
+          .locator(
+            'a[href="/tech/javascript/js-arrays"]',
           )
           .click();
 

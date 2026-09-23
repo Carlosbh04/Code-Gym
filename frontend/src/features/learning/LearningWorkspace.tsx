@@ -696,6 +696,22 @@ export function LearningWorkspace({
                 state?.completed
                 ?? false;
 
+              const inProgress =
+                state !== undefined
+                && !locked
+                && !completed
+                && (
+                  state.status
+                    === 'in_progress'
+                  || Object.values(
+                    state.stages,
+                  ).some(
+                    stage =>
+                      stage.status
+                      === 'completed',
+                  )
+                );
+
               const selected =
                 concept.id
                 === selectedConcept.id;
@@ -721,6 +737,17 @@ export function LearningWorkspace({
                       selected
                         ? 'step'
                         : undefined
+                    }
+                    data-learning-concept-state={
+                      completed
+                        ? 'completed'
+                        : pending
+                          ? 'pending'
+                          : locked
+                            ? 'locked'
+                            : inProgress
+                              ? 'in-progress'
+                              : 'available'
                     }
                     className={`
                       group
@@ -818,9 +845,9 @@ export function LearningWorkspace({
                               ? 'Verificando'
                               : locked
                                 ? 'Bloqueado'
-                                : selected
-                                  ? 'En curso'
-                                  : 'Pendiente'
+                                : inProgress
+                                  ? 'En progreso'
+                                  : 'Disponible'
                         }
                       </span>
                     </span>
@@ -1268,7 +1295,8 @@ function LearningLevelProgress({
             state?.locked === true;
 
           const active =
-            level.id === activeLevelId;
+            level.id === activeLevelId
+            && !locked;
 
           const pending =
             state === undefined;
@@ -1278,10 +1306,10 @@ function LearningLevelProgress({
               ? 'Completado'
               : pending
                 ? 'Verificando'
-                : active
-                  ? 'En curso'
-                  : locked
-                    ? 'Bloqueado'
+                : locked
+                  ? 'Bloqueado'
+                  : active
+                    ? 'En curso'
                     : 'Disponible';
 
           return (
@@ -1298,10 +1326,10 @@ function LearningLevelProgress({
                   ? 'completed'
                   : pending
                     ? 'pending'
-                    : active
-                      ? 'active'
-                      : locked
-                        ? 'locked'
+                    : locked
+                      ? 'locked'
+                      : active
+                        ? 'active'
                         : 'available'
               }
               className={`

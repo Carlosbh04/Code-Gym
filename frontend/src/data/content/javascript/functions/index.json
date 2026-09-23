@@ -353,7 +353,8 @@
       {
         "type": "explanation",
         "title": "Recursión y caso base",
-        "body": "Una función recursiva resuelve una versión menor del problema y necesita un caso base que detenga las llamadas."
+        "body": "Una función recursiva resuelve una versión menor del problema y necesita un caso base que detenga las llamadas.",
+        "levelId": "foundation"
       },
       {
         "type": "explanation",

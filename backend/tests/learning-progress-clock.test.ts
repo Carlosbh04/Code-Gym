@@ -73,7 +73,7 @@ describe(
         const repository:
           LearningProgressRepository = {
             getConfiguredLearningLevels:
-              vi.fn(),
+      vi.fn().mockResolvedValue([]),
 
             getTheorySectionCountForLevel:
               vi.fn(),

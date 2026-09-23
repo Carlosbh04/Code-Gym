@@ -81,6 +81,7 @@ export class CompletedSessionService {
         | 'createCompletedSessionAndUpdateProgress'
         | 'findLatestByUserAndSessionId'
         | 'findRecentByUserId'
+        | 'findLatestByUserAndTechnologyId'
       >,
 
     private readonly clock:
@@ -165,6 +166,35 @@ export class CompletedSessionService {
       trainingRunId:
         record.trainingRunId,
     });
+  }
+
+  public async listCompletedSessionsForTechnology(
+    userId: string,
+    technologyId: TechnologyId,
+  ): Promise<readonly CompletedSessionView[]> {
+    const findLatest =
+      this.repository
+        .findLatestByUserAndTechnologyId;
+
+    if (findLatest === undefined) {
+      throw new Error(
+        'Technology completed-session snapshot is unavailable',
+      );
+    }
+
+    const records =
+      await findLatest.call(
+        this.repository,
+        userId,
+        technologyId,
+      );
+
+    return records.map(
+      record =>
+        toCompletedSessionView(
+          record,
+        ),
+    );
   }
 
   public async listRecentCompletedSessions(

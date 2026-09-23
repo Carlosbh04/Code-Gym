@@ -53,6 +53,12 @@ extends LearningStageState {
   readonly lockReason:
     'previous-concept-incomplete'
     | null;
+
+  readonly status?:
+    | 'locked'
+    | 'available'
+    | 'in_progress'
+    | 'completed';
 }
 
 export type LearningLevelId =
@@ -111,4 +117,23 @@ export interface LearningLevelStateResponse {
 export interface LearningStateResponse {
   readonly state:
     ConceptLearningState;
+}
+
+export interface TechnologyLearningConceptState {
+  readonly conceptId:
+    string;
+
+  readonly state:
+    ConceptLearningState;
+
+  readonly levels:
+    readonly LearningLevelState[];
+}
+
+export interface TechnologyLearningStateResponse {
+  readonly technologyId:
+    string;
+
+  readonly concepts:
+    readonly TechnologyLearningConceptState[];
 }

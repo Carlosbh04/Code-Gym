@@ -732,19 +732,31 @@ describe(
             },
           );
 
+        let currentFoundationRecord =
+          theoryRecord;
+
         repository
           .findLevelByUserAndConceptId
-          .mockResolvedValueOnce(
-            theoryRecord,
-          )
-          .mockResolvedValueOnce(
-            quizRecord,
+          .mockImplementation(
+            (
+              _userId,
+              _conceptId,
+              levelId,
+            ) =>
+              levelId === 'FOUNDATION'
+                ? currentFoundationRecord
+                : null,
           );
 
         repository
           .markLevelQuizPassed
-          .mockResolvedValue(
-            quizRecord,
+          .mockImplementation(
+            () => {
+              currentFoundationRecord =
+                quizRecord;
+
+              return quizRecord;
+            },
           );
 
         repository

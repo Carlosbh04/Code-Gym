@@ -137,7 +137,7 @@ test('el reflejo recorre cada línea por separado y desaparece al terminar', asy
 
 test('auth elimina movimiento decorativo cuando el usuario reduce movimiento', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/auth');
+  await page.goto('/login');
 
   await expect(page.locator('.auth-panel-entry')).toHaveCSS('animation-name', 'none');
   await expect(page.locator('.auth-brand-entry')).toHaveCSS('animation-name', 'none');

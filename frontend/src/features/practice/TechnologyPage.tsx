@@ -1,9 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import { EmptyState } from '@/components/codegym/EmptyState';
 import { Skeleton } from '@/components/codegym/Skeleton';
 import { browserLearningApi } from '@/features/learning/learning-api';
+import {
+  getHistoryTechnologyCompletedSessions,
+} from '@/features/history/history-api';
+import {
+  adaptHistoryCompletedSession,
+} from '@/features/history/history-adapters';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useContent } from '@/hooks/useContent';
 import { useHistory } from '@/hooks/useHistory';
@@ -40,43 +46,190 @@ function TechnologyPage() {
   const activeTab = resolveTechnologyTab(searchParams.get('tab'));
   const [model, setModel] = useState<TechnologyModel | null>(null);
 
+  /*
+   * TECHNOLOGY_SNAPSHOT_REQUEST_DEDUPE
+   *
+   * El view-model puede recalcularse si cambia progress u otra
+   * dependencia local. Eso no debe volver a pedir los mismos
+   * snapshots remotos mientras usuario + tecnología no cambien.
+   */
+  const technologySnapshotRef =
+    useRef<{
+      readonly key: string;
+
+      readonly learning:
+        ReturnType<
+          typeof browserLearningApi.getTechnologyState
+        >;
+
+      readonly history:
+        ReturnType<
+          typeof getHistoryTechnologyCompletedSessions
+        >;
+    } | null>(
+      null,
+    );
+
   useEffect(() => {
     if (isLoading || technology === undefined || technologyId === undefined) return;
     let active = true;
+
+    /*
+     * TECHNOLOGY_SNAPSHOT_HTTP_FANOUT_FIX
+     *
+     * Solo se crean dos requests de progreso/historial.
+     * buildTechnologyViewModel conserva su lógica actual y
+     * consume lookups locales derivados de estos snapshots.
+     */
+    const snapshot =
+      accessToken === null
+        ? null
+        : (() => {
+            const key =
+              JSON.stringify([
+                accessToken,
+                technologyId,
+              ]);
+
+            const cached =
+              technologySnapshotRef
+                .current;
+
+            if (
+              cached !== null
+              && cached.key === key
+            ) {
+              return cached;
+            }
+
+            const next = {
+              key,
+
+              learning:
+                browserLearningApi
+                  .getTechnologyState(
+                    technologyId,
+                    accessToken,
+                  ),
+
+              history:
+                getHistoryTechnologyCompletedSessions(
+                  accessToken,
+                  technologyId,
+                ),
+            };
+
+            technologySnapshotRef
+              .current =
+                next;
+
+            return next;
+          })();
+
+    if (
+      accessToken === null
+      && technologySnapshotRef.current
+        !== null
+    ) {
+      technologySnapshotRef.current =
+        null;
+    }
+
+    const technologyLearningSnapshotPromise =
+      snapshot?.learning
+      ?? null;
+
+    const technologyHistorySnapshotPromise =
+      snapshot?.history
+      ?? null;
 
     void buildTechnologyViewModel({
       technologyId,
       getTopics,
       getConceptsByTopic,
       getSessionsByConcept,
-      getCompletedSession,
+
+      getCompletedSession:
+        technologyHistorySnapshotPromise === null
+          ? getCompletedSession
+          : async sessionId => {
+              const response =
+                await technologyHistorySnapshotPromise;
+
+              const completedSession =
+                response.completedSessions.find(
+                  item =>
+                    item.sessionId
+                    === sessionId,
+                );
+
+              return completedSession === undefined
+                ? null
+                : adaptHistoryCompletedSession(
+                    completedSession,
+                  );
+            },
+
       progress,
 
       // CANONICAL_TOPIC_PROGRESS
       getConceptLearningState:
-        accessToken === null
+        technologyLearningSnapshotPromise === null
           ? undefined
-          : conceptId =>
-              browserLearningApi.getConceptState(
-                conceptId,
-                accessToken,
-              ),
+          : async conceptId => {
+              const snapshot =
+                await technologyLearningSnapshotPromise;
 
-          // TECHNOLOGY_PRACTICE_CANONICAL_GATE
-          getSessionLearningState:
-            accessToken === null
-              ? undefined
-              : (
-                  conceptId,
-                  levelId,
-                ) =>
-                  browserLearningApi
-                    .getLevelState(
-                      conceptId,
-                      levelId,
-                      accessToken,
-                    ),
-})
+              const concept =
+                snapshot.concepts.find(
+                  item =>
+                    item.conceptId
+                    === conceptId,
+                );
+
+              if (concept === undefined) {
+                throw new Error(
+                  `No canonical learning state for concept ${conceptId}`,
+                );
+              }
+
+              return concept.state;
+            },
+
+      // TECHNOLOGY_PRACTICE_CANONICAL_GATE
+      getSessionLearningState:
+        technologyLearningSnapshotPromise === null
+          ? undefined
+          : async (
+              conceptId,
+              levelId,
+            ) => {
+              const snapshot =
+                await technologyLearningSnapshotPromise;
+
+              const concept =
+                snapshot.concepts.find(
+                  item =>
+                    item.conceptId
+                    === conceptId,
+                );
+
+              const level =
+                concept?.levels.find(
+                  item =>
+                    item.levelId
+                    === levelId,
+                );
+
+              if (level === undefined) {
+                throw new Error(
+                  `No canonical ${levelId} state for concept ${conceptId}`,
+                );
+              }
+
+              return level;
+            },
+    })
       .then((nextModel) => {
         if (active) setModel({ ...nextModel, status: 'success' });
       })

@@ -116,27 +116,27 @@ describe(
         const expected = {
           FOUNDATION: {
             sections:
-              17,
+              18,
             sessions:
-              5,
+              6,
             exercises:
-              21,
+              24,
           },
           DEEPENING: {
             sections:
-              17,
+              18,
             sessions:
-              5,
+              6,
             exercises:
-              21,
+              24,
           },
           MASTERY: {
             sections:
-              17,
+              18,
             sessions:
-              5,
+              6,
             exercises:
-              21,
+              25,
           },
         } as const;
 
@@ -227,6 +227,7 @@ describe(
             'PRACTICE',
             'PRACTICE',
             'PRACTICE',
+            'PRACTICE',
             'CHECKPOINT',
           ]);
 
@@ -241,6 +242,7 @@ describe(
             2,
             3,
             4,
+            5,
           ]);
         }
       },

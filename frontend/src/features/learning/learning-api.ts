@@ -6,6 +6,7 @@ import type {
   LearningLevelState,
   LearningLevelStateResponse,
   LearningStateResponse,
+  TechnologyLearningStateResponse,
 } from './learning-types';
 
 export interface LearningHttpClient {
@@ -26,6 +27,19 @@ export class LearningApi {
     private readonly http:
       LearningHttpClient,
   ) {}
+
+  public async getTechnologyState(
+    technologyId: string,
+    accessToken: string,
+  ): Promise<TechnologyLearningStateResponse> {
+    return this.http
+      .get<TechnologyLearningStateResponse>(
+        `/learning/technologies/${encodeURIComponent(
+          technologyId,
+        )}/state`,
+        accessToken,
+      );
+  }
 
   public async getConceptState(
     conceptId: string,

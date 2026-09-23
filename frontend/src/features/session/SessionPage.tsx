@@ -1750,59 +1750,41 @@ function SessionLoading() {
       <div aria-hidden="true" className="contents">
         <header className="min-w-0 rounded-2xl border border-border bg-card/70 p-4 shadow-sm sm:p-6">
           <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0 flex-1">
-              <Skeleton className="h-4 w-56 max-w-full" />
-              <Skeleton className="mt-2 h-7 w-80 max-w-full" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-4 w-48 max-w-full" />
+              <Skeleton className="h-7 w-72 max-w-full" />
             </div>
 
             <Skeleton className="h-7 w-24 rounded-full" />
           </div>
 
-          <div className="mt-5 flex items-center gap-2">
-            {Array.from({ length: 5 }, (_, index) => (
-              <Skeleton
-                key={index}
-                className="h-1.5 flex-1 rounded-full"
-              />
-            ))}
-          </div>
-
-          <div className="mt-3 flex justify-between">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-3 w-16" />
+          <div className="mt-5 h-1.5 w-full overflow-hidden rounded-full">
+            <Skeleton className="h-full w-full rounded-full" />
           </div>
         </header>
 
-        <div className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+        <main className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
           <div className="space-y-3">
             <Skeleton className="h-6 w-4/5 max-w-2xl" />
             <Skeleton className="h-4 w-full max-w-3xl" />
-            <Skeleton className="h-4 w-3/4 max-w-2xl" />
+            <Skeleton className="h-4 w-2/3 max-w-2xl" />
           </div>
 
-          <div className="mt-6 space-y-3">
-            {Array.from({ length: 4 }, (_, index) => (
-              <div
-                key={index}
-                className="flex min-h-12 items-center gap-3 rounded-xl border border-border bg-background/30 p-3"
-              >
-                <Skeleton className="size-5 shrink-0 rounded-full" />
-                <Skeleton className="h-4 flex-1" />
-              </div>
-            ))}
+          <div className="mt-7 rounded-2xl border border-border bg-background/30 p-5 sm:p-6">
+            <Skeleton className="h-5 w-40" />
+
+            <div className="mt-5 space-y-3">
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
           </div>
 
-          <div className="mt-6 rounded-xl border border-border bg-background/30 p-4">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="mt-3 h-4 w-full" />
-            <Skeleton className="mt-2 h-4 w-5/6" />
-          </div>
-
-          <div className="mt-6 flex flex-wrap gap-3 rounded-2xl border border-border bg-background/30 p-4">
+          <div className="mt-6 flex flex-wrap justify-end gap-3">
             <Skeleton className="h-11 w-28 rounded-md" />
             <Skeleton className="h-11 w-32 rounded-md" />
           </div>
-        </div>
+        </main>
       </div>
     </section>
   );

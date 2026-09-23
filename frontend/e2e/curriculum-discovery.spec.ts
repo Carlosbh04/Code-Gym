@@ -1,19 +1,65 @@
 import { expect, test } from './fixtures';
 
 const curricula = [
-  ['JavaScript', 'Arrays'],
-  ['HTML', 'Estructura de documentos'],
-  ['CSS', 'Cascade y especificidad'],
-  ['React', 'Componentes'],
-  ['Node.js', 'Módulos'],
-  ['SQL', 'SELECT'],
+  [
+    'JavaScript',
+    'Arrays',
+    'js-arrays',
+    'js-array-iteration',
+  ],
+  [
+    'HTML',
+    'Estructura de documentos',
+    'html-document',
+    'html-document-basics',
+  ],
+  [
+    'CSS',
+    'Cascade y especificidad',
+    'css-cascade',
+    'css-cascade-specificity',
+  ],
+  [
+    'React',
+    'Componentes',
+    'react-components',
+    'react-components-basics',
+  ],
+  [
+    'Node.js',
+    'Módulos',
+    'node-modules',
+    'node-modules-imports',
+  ],
+  [
+    'SQL',
+    'SELECT',
+    'sql-select',
+    'sql-select-columns',
+  ],
 ] as const;
 
 test.describe('descubrimiento del currículo ampliado', () => {
   test.describe.configure({ mode: 'parallel' });
 
-  for (const [technology, topic] of curricula) {
-    test(`${technology} descubre teoría estructurada y práctica desde Entrenar`, async ({ page }) => {
+  for (
+    const [
+      technology,
+      topic,
+      topicId,
+      targetConceptId,
+    ]
+    of curricula
+  ) {
+    test.describe(
+      technology,
+      () => {
+        test.use({
+          authTargetConceptId:
+            targetConceptId,
+        });
+
+        test(`${technology} descubre teoría estructurada y práctica desde Entrenar`, async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveURL('/');
     await page
@@ -27,9 +73,12 @@ test.describe('descubrimiento del currículo ampliado', () => {
       .getByRole('link', { name: new RegExp(`^${technology}(?:\\s|$)`, 'i') })
       .click();
     await expect(page.getByRole('heading', { level: 1, name: technology })).toBeVisible();
-    const topicLink = page.getByRole('link', { name: new RegExp(`^${topic}(?:\\s|$)`, 'i') });
+    const topicLink = page.locator(`a[href="/tech/${technology.toLowerCase().replace('.', '')}/${topicId}"]`);
     await topicLink.focus();
     await page.keyboard.press('Enter');
+    await expect(
+      page.getByRole('heading', { level: 1, name: topic }),
+    ).toBeVisible();
 
     /*
      * CONTRATO ACTUAL DE DESCUBRIMIENTO
@@ -144,6 +193,8 @@ test.describe('descubrimiento del currículo ampliado', () => {
       ).toBeVisible();
     }
 
-    });
+        });
+      },
+    );
   }
 });

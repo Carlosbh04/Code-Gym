@@ -74,7 +74,7 @@ test.describe(
     // SEARCH_CANONICAL_SESSION_SCENARIO
     test.use({
       authScenario:
-        'main-flow',
+        'arrays-access',
     });
 
     test('encuentra una sesión real y abre su workspace', async ({ page }) => {

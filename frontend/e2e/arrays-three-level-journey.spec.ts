@@ -1,8 +1,4 @@
 import {
-  createIsolatedE2EAccessToken,
-} from './helpers/isolated-authentication';
-
-import {
   request as playwrightRequest,
   type APIRequestContext,
 } from '@playwright/test';
@@ -679,16 +675,6 @@ const MASTERY = {
   },
 } as const;
 
-async function createUser(
-  api: APIRequestContext,
-): Promise<string> {
-  void api;
-
-  return createIsolatedE2EAccessToken(
-    'arrays-three-level-journey',
-  );
-}
-
 async function getState(
   api: APIRequestContext,
   accessToken: string,
@@ -837,9 +823,16 @@ async function completePractices(
   }
 }
 
+test.use({
+  authTargetConceptId:
+    CONCEPT_ID,
+});
+
 test(
   'Arrays completa Foundation -> Deepening -> Mastery y solo entonces completa el concepto',
-  async () => {
+  async ({
+    accessToken,
+  }) => {
     test.setTimeout(
       120_000,
     );
@@ -852,11 +845,6 @@ test(
         });
 
     try {
-      const accessToken =
-        await createUser(
-          api,
-        );
-
       /*
        * INITIAL
        */

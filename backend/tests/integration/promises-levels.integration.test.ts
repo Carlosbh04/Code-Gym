@@ -76,7 +76,7 @@ const expected = {
 
   DEEPENING: {
     sections:
-      11,
+      12,
 
     sessions:
       5,
@@ -111,13 +111,13 @@ const expected = {
 
   MASTERY: {
     sections:
-      11,
+      12,
 
     sessions:
-      5,
+      6,
 
     exercises:
-      21,
+      24,
 
     ids: [
       'js-promises-mastery-quiz-01',
@@ -125,6 +125,7 @@ const expected = {
       'js-promises-mastery-timeout-boundary-01',
       'js-promises-mastery-settlement-aggregation-01',
       'js-promises-mastery-checkpoint-01',
+      'js-promise-flow-mastery-promise-any-01',
     ],
 
     kinds: [
@@ -133,6 +134,7 @@ const expected = {
       'PRACTICE',
       'PRACTICE',
       'CHECKPOINT',
+      'PRACTICE',
     ],
 
     positions: [
@@ -141,6 +143,7 @@ const expected = {
       2,
       3,
       4,
+      5,
     ],
   },
 } as const;
@@ -339,13 +342,13 @@ describe(
         expect(
           concept.learningSections,
         ).toHaveLength(
-          27,
+          29,
         );
 
         expect(
           concept.sessions,
         ).toHaveLength(
-          16,
+          17,
         );
 
         expect(
@@ -359,7 +362,7 @@ describe(
             0,
           ),
         ).toBe(
-          60,
+          63,
         );
       },
       20_000,

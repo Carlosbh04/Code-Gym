@@ -33,8 +33,30 @@ export interface HistoryCompletedSessionResponse {
   readonly completedSession: HistoryCompletedSession;
 }
 
+export interface HistoryTechnologyCompletedSessionsResponse {
+  readonly completedSessions:
+    readonly HistoryCompletedSession[];
+}
+
 export interface HistoryAttemptsResponse {
   readonly attempts: readonly HistoryAttempt[];
+}
+
+export async function getHistoryTechnologyCompletedSessions(
+  accessToken: string,
+  technologyId: string,
+): Promise<HistoryTechnologyCompletedSessionsResponse> {
+  return apiRequest<HistoryTechnologyCompletedSessionsResponse>(
+    `/history/technologies/${encodeURIComponent(
+      technologyId,
+    )}/completed-sessions`,
+    {
+      method:
+        'GET',
+
+      accessToken,
+    },
+  );
 }
 
 export async function getHistoryCompletedSession(

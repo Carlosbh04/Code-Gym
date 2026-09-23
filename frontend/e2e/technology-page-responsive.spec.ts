@@ -2,6 +2,11 @@ import { expect, test } from './fixtures';
 
 const BREAKPOINTS = [320, 390, 768, 1024, 1280, 1440] as const;
 
+test.use({
+  authScenario:
+    'arrays-access',
+});
+
 test('TechnologyPage reorganiza resumen, tabs y filas sin overflow', async ({ page }) => {
   // Firefox necesita margen al recorrer 18 combinaciones de tab/breakpoint
   // cuando toda la matriz multiengine se ejecuta en paralelo.
@@ -14,7 +19,11 @@ test('TechnologyPage reorganiza resumen, tabs y filas sin overflow', async ({ pa
   // El resumen depende del catálogo completo; Firefox puede tardar más bajo
   // la carga multiproyecto aunque la navegación ya haya terminado.
   await expect(summary).toBeVisible({ timeout: 15_000 });
-  await expect(topics.getByRole('link', { name: /Arrays/i })).toBeVisible();
+  await expect(
+    topics.locator(
+      'a[href="/tech/javascript/js-arrays"]',
+    ),
+  ).toBeVisible();
 
   for (const width of BREAKPOINTS) {
     await page.setViewportSize({ width, height: 900 });

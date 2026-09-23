@@ -6,6 +6,7 @@ import {
 
 import {
   conceptIdSchema,
+  technologyIdSchema,
 } from '../content/content-id.js';
 
 import {
@@ -26,6 +27,12 @@ export interface LearningRouterDependencies {
       | 'completeTheory'
       | 'getLevelState'
       | 'completeLevelTheory'
+    >
+    & Partial<
+      Pick<
+        LearningProgressService,
+        'getTechnologyState'
+      >
     >;
 
   readonly requireAuth:
@@ -118,6 +125,95 @@ export function createLearningRouter({
 }: LearningRouterDependencies): Router {
   const router =
     Router();
+
+  router.get(
+    '/learning/technologies/:technologyId/state',
+    requireAuth,
+    async (
+      request,
+      response,
+      next,
+    ) => {
+      const auth =
+        request.auth;
+
+      if (auth === undefined) {
+        respondUnauthorized(
+          response,
+        );
+
+        return;
+      }
+
+      const parsedTechnologyId =
+        technologyIdSchema.safeParse(
+          request.params.technologyId,
+        );
+
+      if (!parsedTechnologyId.success) {
+        respondError(
+          response,
+          400,
+          'INVALID_TECHNOLOGY_ID',
+          'Technology id is invalid',
+        );
+
+        return;
+      }
+
+      const getTechnologyState =
+        learningProgressService
+          .getTechnologyState;
+
+      if (getTechnologyState === undefined) {
+        respondError(
+          response,
+          503,
+          'LEARNING_TECHNOLOGY_SNAPSHOT_UNAVAILABLE',
+          'Technology learning snapshot is unavailable',
+        );
+
+        return;
+      }
+
+      try {
+        const snapshot =
+          await getTechnologyState.call(
+            learningProgressService,
+            auth.userId,
+            parsedTechnologyId.data,
+          );
+
+        response
+          .status(200)
+          .json({
+            technologyId:
+              snapshot.technologyId,
+
+            concepts:
+              snapshot.concepts.map(
+                concept => ({
+                  conceptId:
+                    concept.conceptId,
+
+                  state:
+                    concept.state,
+
+                  levels:
+                    concept.levels.map(
+                      level =>
+                        toPublicLearningLevelState(
+                          level,
+                        ),
+                    ),
+                }),
+              ),
+          });
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
 
   router.get(
     '/learning/concepts/:conceptId/state',

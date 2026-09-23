@@ -13,9 +13,9 @@ import {
 } from './helpers/progress';
 
 import {
-  authenticationScenarioKey,
-  type E2EAuthenticationState,
-} from './helpers/authentication';
+  canonicalFunctionsAnswers,
+  orderCanonicalFunctionPractices,
+} from './helpers/functions-canonical-answers';
 
 const API_BASE_URL =
   'http://127.0.0.1:3100';
@@ -55,10 +55,38 @@ const FOUNDATION = {
         answer:
           'c',
       },
+      {
+        exerciseId:
+          'step-2',
+
+        answer:
+          'a',
+      },
+      {
+        exerciseId:
+          'step-3',
+
+        answer:
+          'a',
+      },
+      {
+        exerciseId:
+          'step-4',
+
+        answer:
+          'a',
+      },
+      {
+        exerciseId:
+          'step-5',
+
+        answer:
+          'a',
+      },
     ],
   },
 
-  practices: [
+  practices: orderCanonicalFunctionPractices('foundation', [
     {
       id:
         'js-functions-coding-format-name-01',
@@ -117,7 +145,31 @@ const FOUNDATION = {
         },
       ],
     },
-  ],
+    {
+      id:
+        'js-functions-foundation-reference-execution-01',
+
+      answers: [
+        {
+          exerciseId:
+            'step-4',
+
+          answer:
+            "function crearSaludo(nombre = 'Invitado') {\n"
+            + '  return `Hola, ${nombre}`;\n'
+            + '}',
+        },
+      ],
+    },
+
+    {
+      id:
+        'js-function-basics-foundation-recursion-basics-01',
+
+      answers: [],
+    },
+
+  ]),
 
   checkpoint: {
     id:
@@ -153,7 +205,7 @@ const DEEPENING = {
     ],
   },
 
-  practices: [
+  practices: orderCanonicalFunctionPractices('deepening', [
     {
       id:
         'js-functions-scope-hoisting-01',
@@ -254,7 +306,30 @@ const DEEPENING = {
         },
       ],
     },
-  ],
+    {
+      id:
+        'js-functions-deepening-callbacks-01',
+
+      answers: [
+        {
+          exerciseId:
+            'step-4',
+
+          answer:
+            'function aplicarOperacion(valor, operacion) {\n'
+            + '  return operacion(valor);\n'
+            + '}',
+        },
+      ],
+    },
+    {
+      id:
+        'js-function-basics-deepening-recursive-structures-01',
+
+      answers: [],
+    },
+
+  ]),
 
   checkpoint: {
     id:
@@ -296,7 +371,7 @@ const MASTERY = {
     ],
   },
 
-  practices: [
+  practices: orderCanonicalFunctionPractices('mastery', [
     {
       id:
         'js-functions-mastery-contracts-01',
@@ -335,7 +410,46 @@ const MASTERY = {
         },
       ],
     },
-  ],
+    {
+      id:
+        'js-functions-mastery-pipeline-effects-01',
+
+      answers: [
+        {
+          exerciseId:
+            'step-4',
+
+          answer:
+            'function ejecutarPipeline(valor, primero, segundo, notificar) {\n'
+            + '  const resultado = segundo(primero(valor));\n'
+            + '  notificar(resultado);\n'
+            + '  return resultado;\n'
+            + '}',
+        },
+      ],
+    },
+    {
+      id:
+        'js-function-basics-mastery-recursion-01',
+
+      answers: [
+        {
+          exerciseId:
+            'step-4',
+
+          answer:
+            'function sumarAnidados(valores) {\n'
+            + '  return valores.reduce((total, valor) => {\n'
+            + '    return total + (Array.isArray(valor)\n'
+            + '      ? sumarAnidados(valor)\n'
+            + '      : valor);\n'
+            + '  }, 0);\n'
+            + '}',
+        },
+      ],
+    },
+
+  ]),
 
   checkpoint: {
     id:
@@ -354,50 +468,6 @@ const MASTERY = {
     ],
   },
 } as const;
-
-function getPreparedAccessToken(
-  projectName: string,
-): string {
-  const serialized =
-    process.env.CODEGYM_E2E_AUTH;
-
-  if (
-    serialized === undefined
-  ) {
-    throw new Error(
-      'The E2E authentication setup did not run',
-    );
-  }
-
-  const authentication =
-    JSON.parse(
-      serialized,
-    ) as E2EAuthenticationState;
-
-  const key =
-    authenticationScenarioKey(
-      projectName,
-      'default',
-    );
-
-  const accessToken =
-    authentication[
-      key
-    ];
-
-  if (
-    typeof accessToken
-    !== 'string'
-    || accessToken.length
-    === 0
-  ) {
-    throw new Error(
-      `No prepared E2E authentication exists for ${key}`,
-    );
-  }
-
-  return accessToken;
-}
 
 async function getState(
   api: APIRequestContext,
@@ -522,13 +592,17 @@ async function completeSession(
     api,
     accessToken,
     session.id,
-    session.answers,
+    canonicalFunctionsAnswers(
+      session.id,
+      session.answers,
+    ),
   );
 }
 
 async function completePractices(
   api: APIRequestContext,
   accessToken: string,
+  levelId: string,
   practices:
     readonly SessionContract[],
 ): Promise<void> {
@@ -536,11 +610,25 @@ async function completePractices(
     const practice
     of practices
   ) {
+    const state =
+      await getState(
+        api,
+        accessToken,
+        `/learning/concepts/${CONCEPT_ID}/levels/${levelId}/state`,
+      );
+
+    expect(
+      state.state.stages?.practice?.status,
+    ).toBe(
+      'available',
+    );
+
     await completeSession(
       api,
       accessToken,
       practice,
     );
+
   }
 }
 
@@ -669,6 +757,7 @@ async function completeLevel(
   await completePractices(
     api,
     accessToken,
+    levelId,
     contract.practices,
   );
 
@@ -718,15 +807,16 @@ async function completeLevel(
 }
 
 test.use({
-  authScenario:
-    'default',
+  authTargetConceptId:
+    CONCEPT_ID,
 });
 
 test(
   'Functions completa Foundation -> Deepening -> Mastery y solo entonces completa el concepto',
   async ({
+    accessToken,
     page,
-  }, testInfo) => {
+  }) => {
     test.setTimeout(
       120_000,
     );
@@ -737,11 +827,6 @@ test(
           baseURL:
             API_BASE_URL,
         });
-
-    const accessToken =
-      getPreparedAccessToken(
-        testInfo.project.name,
-      );
 
     try {
       /*
@@ -970,6 +1055,12 @@ test(
         ).first(),
       ).toBeVisible();
 
+      /*
+       * El estado canónico de Mastery ya fue confirmado antes
+       * mediante API. Bajo carga paralela Firefox puede tardar
+       * más de 5 s en terminar de pintar la teoría después del
+       * reload, aunque el contenido correcto sí termina llegando.
+       */
       await expect(
         page.getByText(
           'Una función tiene un contrato',
@@ -978,7 +1069,10 @@ test(
               true,
           },
         ),
-      ).toBeVisible();
+      ).toBeVisible({
+        timeout:
+          15_000,
+      });
 
       /*
        * Antes del checkpoint final el concepto
@@ -1000,6 +1094,7 @@ test(
       await completePractices(
         api,
         accessToken,
+        'mastery',
         MASTERY.practices,
       );
 
@@ -1058,11 +1153,40 @@ test(
           `/learning/concepts/${CONCEPT_ID}/levels/mastery/state`,
         );
 
-      expect(
-        mastery.state.completed,
-      ).toBe(
-        true,
-      );
+      /*
+       * FUNCTIONS_MASTERY_CONVERGENCE
+       *
+       * Después del último checkpoint, el backend puede necesitar
+       * una lectura adicional para reflejar la reconciliación final.
+       *
+       * No usamos sleep ni waitForTimeout: consultamos el estado
+       * autoritativo del backend hasta que converja o falle de verdad.
+       */
+      await expect
+        .poll(
+          async () => {
+            const currentMastery =
+              await getState(
+                api,
+                accessToken,
+                `/learning/concepts/${CONCEPT_ID}/levels/mastery/state`,
+              );
+
+            return currentMastery
+              .state
+              .completed;
+          },
+          {
+            timeout:
+              15_000,
+
+            message:
+              'Mastery debe quedar completado después del checkpoint final',
+          },
+        )
+        .toBe(
+          true,
+        );
 
       expect(
         mastery

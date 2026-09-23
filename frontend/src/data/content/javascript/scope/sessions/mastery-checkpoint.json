@@ -5,7 +5,7 @@
   "position": 2,
   "kind": "checkpoint",
   "levelId": "mastery",
-  "passingPercentage": 80,
+  "passingPercentage": null,
   "requiredForProgression": true,
   "conceptId": "js-scope",
   "technologyId": "javascript",

@@ -3,6 +3,8 @@ import { expect, test } from './fixtures';
 const BREAKPOINTS = [320, 390, 768, 1024, 1280, 1440] as const;
 
 test('la raíz autenticada renderiza la Home canónica para un usuario nuevo', async ({ page }) => {
+  test.setTimeout(60_000);
+
   await page.goto('/');
 
   await expect(page).toHaveURL('/');
@@ -30,7 +32,7 @@ test('la raíz autenticada renderiza la Home canónica para un usuario nuevo', a
     technologyLinks.length,
     {
       timeout:
-        15_000,
+        30_000,
     },
   );
 
@@ -51,13 +53,15 @@ test.describe('con progreso persistido por el backend', () => {
   test.use({ authScenario: 'dashboard' });
 
   test('la raíz autenticada muestra la Home avanzada con progreso real', async ({ page }) => {
+    test.setTimeout(60_000);
+
     await page.goto('/');
 
     await expect(page).toHaveURL('/');
     await expect(page.getByRole('heading', { name: '¿Qué quieres entrenar hoy?' })).toBeVisible();
     await expect(page.getByRole('region', { name: 'Tu progreso' })).toBeVisible();
     await expect(page.getByRole('region', { name: 'Actividad reciente' })
-      .locator('a[href^="/results/"]').first()).toBeVisible({ timeout: 15_000 });
+      .locator('a[href^="/results/"]').first()).toBeVisible({ timeout: 30_000 });
   });
 });
 

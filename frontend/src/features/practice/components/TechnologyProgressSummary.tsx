@@ -67,7 +67,7 @@ export function TechnologyProgressSummary({
             <span className="text-lg font-semibold text-muted-foreground">/ {totalConcepts}</span>
           </p>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Sesiones publicadas superadas por concepto.
+            Recorridos Foundation, Deepening y Mastery completados.
           </p>
         </div>
 

@@ -1,16 +1,13 @@
-import { HomeProgressSummary } from './HomeProgressSummary';
-import { HomeRecentActivity } from './HomeRecentActivity';
-import { ContinueCard } from './ContinueCard';
-import { TechnologyLoading } from './TechnologyLoading';
-
 import { Skeleton } from '@/components/codegym/Skeleton';
+
 export function HomeInitialLoading() {
   return (
-    <section
-      aria-busy="true"
-      aria-live="polite"
+    <div
+      role="region"
       aria-labelledby="home-loading-title"
-      className="mx-auto w-full max-w-[1450px] pb-4 pt-0 sm:pb-6"
+      aria-busy="true"
+      data-testid="home-initial-loading"
+      className="mx-auto w-full max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8"
     >
       <h1
         id="home-loading-title"
@@ -18,56 +15,47 @@ export function HomeInitialLoading() {
       >
         Cargando tu inicio…
       </h1>
-
-      <section
-        aria-label="Tecnologías"
-        className="min-w-0"
-      >
-        <div className="mb-3">
-          <div className="min-w-0 py-2">
-            <Skeleton className="h-8 w-72 max-w-full sm:h-10" />
-            <Skeleton className="mt-3 h-4 w-64 max-w-full" />
-          </div>
-
-          <div className="mt-2">
-            <Skeleton className="h-4 w-24" />
-          </div>
-        </div>
-
-        <TechnologyLoading />
+      <section className="space-y-4">
+        <Skeleton className="h-9 w-72 max-w-full rounded-lg" />
+        <Skeleton className="h-4 w-96 max-w-full rounded-md" />
       </section>
 
-      <div className="mt-4 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.34fr)_minmax(390px,0.92fr)]">
-        <div className="min-w-0">
-          <ContinueCard
-            item={null}
-            fallbackTechnology={null}
-            isLoading
-            error={null}
-            state="returning"
-            variant="advanced"
-          />
+      <section className="grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-start gap-4">
+            <Skeleton className="size-12 shrink-0 rounded-xl" />
+
+            <div className="min-w-0 flex-1">
+              <Skeleton className="h-5 w-48 max-w-full rounded-md" />
+              <Skeleton className="mt-3 h-4 w-64 max-w-full rounded-md" />
+              <Skeleton className="mt-6 h-2 w-full rounded-full" />
+            </div>
+          </div>
         </div>
 
-        <div className="min-w-0">
-          <HomeProgressSummary
-            practicedConcepts={0}
-            totalConcepts={0}
-            hasActivity={false}
-            isLoading
-            variant="advanced"
-          />
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <Skeleton className="h-5 w-32 rounded-md" />
+          <Skeleton className="mt-5 h-10 w-24 rounded-lg" />
+          <Skeleton className="mt-4 h-3 w-40 max-w-full rounded-md" />
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-40 rounded-md" />
+            <Skeleton className="h-3 w-64 max-w-full rounded-md" />
+          </div>
+
+          <Skeleton className="hidden h-9 w-24 rounded-lg sm:block" />
         </div>
 
-        <div className="min-w-0">
-          <HomeRecentActivity
-            activities={[]}
-            isLoading
-            error={null}
-            variant="advanced"
-          />
+        <div className="mt-6 space-y-3">
+          <Skeleton className="h-14 w-full rounded-xl" />
+          <Skeleton className="h-14 w-full rounded-xl" />
+          <Skeleton className="h-14 w-full rounded-xl" />
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

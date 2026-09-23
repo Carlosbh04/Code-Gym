@@ -395,7 +395,7 @@ describe('TechnologyPage (T056)', () => {
     const topics = screen.getByRole('region', { name: 'Temas de JavaScript' });
     expect(within(topics).getByText('Completado')).toBeInTheDocument();
     expect(within(topics).getByText('En progreso')).toBeInTheDocument();
-    expect(within(topics).getByText('Pendiente')).toBeInTheDocument();
+    expect(within(topics).getByText('Disponible')).toBeInTheDocument();
     expect(within(topics).getAllByText('1 ejercicio')).toHaveLength(3);
 
     const arraysProgress = within(topics).getByRole('progressbar', {
@@ -429,14 +429,28 @@ describe('TechnologyPage (T056)', () => {
               conceptId
               === STATUS_CONCEPTS[1].id;
 
+            const isClosures =
+              conceptId
+              === STATUS_CONCEPTS[2].id;
+
             return {
               conceptId,
               previousConceptId:
                 null,
               locked:
-                false,
+                isClosures,
               lockReason:
-                null,
+                isClosures
+                  ? 'previous-concept-incomplete'
+                  : null,
+              status:
+                isArrays
+                  ? 'completed'
+                  : isFunctions
+                    ? 'in_progress'
+                    : isClosures
+                      ? 'locked'
+                      : 'available',
 
               stages: {
                 theory: {
@@ -444,7 +458,9 @@ describe('TechnologyPage (T056)', () => {
                     isArrays
                       || isFunctions
                       ? 'completed'
-                      : 'available',
+                      : isClosures
+                        ? 'locked'
+                        : 'available',
                   completedAt:
                     isArrays
                       || isFunctions
@@ -526,6 +542,37 @@ describe('TechnologyPage (T056)', () => {
             '2026-09-19T09:00:00.000Z',
         };
 
+      vi.spyOn(
+        browserLearningApi,
+        'getTechnologyState',
+      ).mockImplementation(
+        async (
+          technologyId,
+          accessToken,
+        ) => ({
+          technologyId,
+
+          concepts:
+            await Promise.all(
+              STATUS_CONCEPTS.map(
+                async concept => ({
+                  conceptId:
+                    concept.id,
+
+                  state:
+                    await browserLearningApi
+                      .getConceptState(
+                        concept.id,
+                        accessToken,
+                      ),
+
+                  levels: [],
+                }),
+              ),
+            ),
+        }),
+      );
+
       const rendered =
         renderTechnologyPage({
           getTopics:
@@ -591,14 +638,14 @@ describe('TechnologyPage (T056)', () => {
             },
           );
 
-        const closuresLink =
-          within(topics).getByRole(
-            'link',
-            {
-              name:
-                /Closures/i,
-            },
-          );
+        const closuresRow =
+          within(topics)
+            .getByText(
+              'Closures',
+            )
+            .closest(
+              '[data-topic-state="locked"]',
+            );
 
         expect(
           arraysLink,
@@ -625,16 +672,32 @@ describe('TechnologyPage (T056)', () => {
         );
 
         expect(
-          closuresLink,
+          closuresRow,
         ).toHaveTextContent(
-          'Pendiente',
+          'Bloqueado',
         );
 
         expect(
-          closuresLink,
+          closuresRow,
         ).toHaveTextContent(
           '0 / 1',
         );
+
+        expect(
+          closuresRow,
+        ).toHaveTextContent(
+          'Completa Functions para desbloquear',
+        );
+
+        expect(
+          within(topics).queryByRole(
+            'link',
+            {
+              name:
+                /Closures/i,
+            },
+          ),
+        ).not.toBeInTheDocument();
 
         expect(
           getConceptState,
@@ -803,6 +866,94 @@ describe('TechnologyPage (T056)', () => {
           },
         );
 
+      vi.spyOn(
+        browserLearningApi,
+        'getTechnologyState',
+      ).mockImplementation(
+        async (
+          technologyId,
+          accessToken,
+        ) => {
+          const conceptIds =
+            Array.from(
+              new Set([
+                STAGED_ALLOWED_SESSION
+                  .conceptId,
+
+                STAGED_BLOCKED_SESSION
+                  .conceptId,
+              ]),
+            );
+
+          return {
+            technologyId,
+
+            concepts:
+              await Promise.all(
+                conceptIds.map(
+                  async conceptId => ({
+                    conceptId,
+
+                    state:
+                      await browserLearningApi
+                        .getConceptState(
+                          conceptId,
+                          accessToken,
+                        ),
+
+                    levels: [
+                      await browserLearningApi
+                        .getLevelState(
+                          conceptId,
+                          'foundation',
+                          accessToken,
+                        ),
+                    ],
+                  }),
+                ),
+              ),
+          };
+        },
+      );
+
+      const fetchMock =
+        vi.spyOn(
+          globalThis,
+          'fetch',
+        ).mockImplementation(
+          async input => {
+            const url =
+              typeof input === 'string'
+                ? input
+                : input instanceof URL
+                  ? input.toString()
+                  : input.url;
+
+            if (
+              url.includes(
+                '/history/technologies/javascript/completed-sessions',
+              )
+            ) {
+              return new Response(
+                JSON.stringify({
+                  completedSessions: [],
+                }),
+                {
+                  status: 200,
+                  headers: {
+                    'Content-Type':
+                      'application/json',
+                  },
+                },
+              );
+            }
+
+            throw new Error(
+              `Unexpected fetch in TechnologyPage staged test: ${url}`,
+            );
+          },
+        );
+
       const rendered =
         renderTechnologyPage({
           initialSearch:
@@ -966,6 +1117,7 @@ describe('TechnologyPage (T056)', () => {
 
         getConceptState.mockRestore();
         getLevelState.mockRestore();
+        fetchMock.mockRestore();
       }
     },
   );
@@ -1039,6 +1191,44 @@ describe('TechnologyPage (T056)', () => {
             'learning unavailable',
           ),
         );
+
+      vi.spyOn(
+        browserLearningApi,
+        'getTechnologyState',
+      ).mockImplementation(
+        async (
+          technologyId,
+          accessToken,
+        ) => ({
+          technologyId,
+
+          concepts: [
+            {
+              conceptId:
+                STAGED_ALLOWED_SESSION
+                  .conceptId,
+
+              state:
+                await browserLearningApi
+                  .getConceptState(
+                    STAGED_ALLOWED_SESSION
+                      .conceptId,
+                    accessToken,
+                  ),
+
+              levels: [
+                await browserLearningApi
+                  .getLevelState(
+                    STAGED_ALLOWED_SESSION
+                      .conceptId,
+                    'foundation',
+                    accessToken,
+                  ),
+              ],
+            },
+          ],
+        }),
+      );
 
       const rendered =
         renderTechnologyPage({

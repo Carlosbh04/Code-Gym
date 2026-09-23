@@ -2,14 +2,9 @@ import {
   expect,
   test,
   type Page,
-} from '@playwright/test';
+} from './fixtures';
 
 async function authenticate(page: Page) {
-  await page.route('**/auth/refresh', (route) => route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify({ accessToken: 'access-token-security-e2e' }),
-  }));
   await page.route('**/auth/me', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
@@ -26,10 +21,17 @@ async function authenticate(page: Page) {
   }));
 }
 
-test('usuario autenticado abre Seguridad y valida su nueva contraseña', async ({ page }) => {
+test('usuario autenticado abre Seguridad y valida su nueva contraseña', async ({
+  page,
+  accessToken,
+}) => {
   await authenticate(page);
   await page.route('**/auth/change-password', async (route) => {
-    expect(route.request().headers().authorization).toBe('Bearer access-token-security-e2e');
+    expect(
+      route.request().headers().authorization,
+    ).toBe(
+      `Bearer ${accessToken}`,
+    );
     expect(await route.request().postDataJSON()).toEqual({
       currentPassword: 'CurrentPassword1!',
       newPassword: 'NewSecurePassword1!',

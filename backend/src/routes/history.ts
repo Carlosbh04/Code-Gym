@@ -6,6 +6,7 @@ import {
 
 import {
   contentSessionIdSchema,
+  technologyIdSchema,
 } from '../content/content-id.js';
 
 import type {
@@ -29,6 +30,12 @@ export interface HistoryRouterDependencies {
       CompletedSessionService,
       | 'getCompletedSession'
       | 'getCompletedSessionHistoryTarget'
+    >
+    & Partial<
+      Pick<
+        CompletedSessionService,
+        'listCompletedSessionsForTechnology'
+      >
     >;
 
   readonly requireAuth:
@@ -42,6 +49,69 @@ export function createHistoryRouter({
 }: HistoryRouterDependencies): Router {
   const router =
     Router();
+
+  router.get(
+    '/history/technologies/:technologyId/completed-sessions',
+    requireAuth,
+    async (
+      request,
+      response,
+      next,
+    ) => {
+      const auth =
+        request.auth;
+
+      if (auth === undefined) {
+        respondUnauthorized(
+          response,
+        );
+
+        return;
+      }
+
+      const parsedTechnologyId =
+        technologyIdSchema.safeParse(
+          request.params.technologyId,
+        );
+
+      if (!parsedTechnologyId.success) {
+        respondNotFound(
+          response,
+        );
+
+        return;
+      }
+
+      const listCompletedSessions =
+        completedSessionService
+          .listCompletedSessionsForTechnology;
+
+      if (listCompletedSessions === undefined) {
+        respondNotFound(
+          response,
+        );
+
+        return;
+      }
+
+      try {
+        const completedSessions =
+          await listCompletedSessions.call(
+            completedSessionService,
+            auth.userId,
+            parsedTechnologyId.data,
+          );
+
+        response
+          .status(200)
+          .json({
+            completedSessions,
+          });
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
 
   router.get(
     '/history/sessions/:sessionId',

@@ -495,6 +495,13 @@ function createTopicInsight(
           return false;
         }
 
+        if (
+          learning.state.status
+          === 'in_progress'
+        ) {
+          return true;
+        }
+
         return Object.values(
           learning.state.stages,
         ).some(
@@ -505,16 +512,35 @@ function createTopicInsight(
       },
     );
 
+  const firstConceptLearning =
+    concepts[0] === undefined
+      ? undefined
+      : learningByConcept.get(
+          concepts[0].id,
+        );
+
+  const canonicalLocked =
+    useCanonicalCompletion
+    && firstConceptLearning?.status
+      === 'ready'
+    && (
+      firstConceptLearning.state.status
+        === 'locked'
+      || firstConceptLearning.state.locked
+    );
+
   const status =
     concepts.length > 0
     && completedConcepts
       === concepts.length
       ? 'completed'
-      : canonicalActivity
-        || practicedConcepts > 0
-        || completedSessions > 0
-        ? 'in-progress'
-        : 'pending';
+      : canonicalLocked
+        ? 'locked'
+        : canonicalActivity
+          || practicedConcepts > 0
+          || completedSessions > 0
+          ? 'in-progress'
+          : 'available';
 
   return {
     exerciseCount,

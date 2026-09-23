@@ -1,6 +1,7 @@
 import {
   conceptIdSchema,
   type ConceptId,
+  type TechnologyId,
 } from '../content/content-id.js';
 
 import type {
@@ -74,6 +75,16 @@ export interface RequiredPracticeCompletionStatus {
 }
 
 export interface LearningProgressRepository {
+  /*
+   * TECHNOLOGY_LEARNING_SNAPSHOT
+   *
+   * Opcional para no romper doubles legacy.
+   * Prisma implementa la capacidad real.
+   */
+  listPublishedConceptIdsByTechnology?(
+    technologyId: TechnologyId,
+  ): Promise<readonly ConceptId[]>;
+
   getConfiguredLearningLevels(
     conceptId: ConceptId,
   ): Promise<
@@ -194,6 +205,59 @@ implements LearningProgressRepository {
   public constructor(
     private readonly prisma: PrismaClient,
   ) {}
+
+  public async listPublishedConceptIdsByTechnology(
+    technologyId: TechnologyId,
+  ): Promise<readonly ConceptId[]> {
+    const concepts =
+      await this.prisma.concept.findMany({
+        where: {
+          technologyId,
+          isPublished:
+            true,
+
+          topic: {
+            isPublished:
+              true,
+
+            technology: {
+              isPublished:
+                true,
+            },
+          },
+        },
+
+        orderBy: [
+          {
+            topic: {
+              position:
+                'asc',
+            },
+          },
+          {
+            position:
+              'asc',
+          },
+          {
+            id:
+              'asc',
+          },
+        ],
+
+        select: {
+          id:
+            true,
+        },
+      });
+
+    return concepts.map(
+      concept =>
+        conceptIdSchema.parse(
+          concept.id,
+        ),
+    );
+  }
+
 
   public async getConfiguredLearningLevels(
     conceptId: ConceptId,
@@ -707,7 +771,13 @@ implements LearningProgressRepository {
         select: {
           id: true,
           topicId: true,
+          technologyId: true,
           position: true,
+          topic: {
+            select: {
+              position: true,
+            },
+          },
         },
       });
 
@@ -715,7 +785,7 @@ implements LearningProgressRepository {
       return null;
     }
 
-    const previous =
+    const previousInTopic =
       await this.prisma.concept.findFirst({
         where: {
           topicId:
@@ -757,6 +827,79 @@ implements LearningProgressRepository {
         },
       });
 
+    const previousTopic =
+      previousInTopic === null
+        ? await this.prisma.topic.findFirst({
+            where: {
+              technologyId:
+                current.technologyId,
+              isPublished:
+                true,
+              OR: [
+                {
+                  position: {
+                    lt:
+                      current.topic.position,
+                  },
+                },
+                {
+                  position:
+                    current.topic.position,
+                  id: {
+                    lt:
+                      current.topicId,
+                  },
+                },
+              ],
+              concepts: {
+                some: {
+                  isPublished:
+                    true,
+                },
+              },
+            },
+            orderBy: [
+              {
+                position:
+                  'desc',
+              },
+              {
+                id:
+                  'desc',
+              },
+            ],
+            select: {
+              concepts: {
+                where: {
+                  isPublished:
+                    true,
+                },
+                orderBy: [
+                  {
+                    position:
+                      'desc',
+                  },
+                  {
+                    id:
+                      'desc',
+                  },
+                ],
+                take:
+                  1,
+                select: {
+                  id:
+                    true,
+                },
+              },
+            },
+          })
+        : null;
+
+    const previousConceptId =
+      previousInTopic?.id
+      ?? previousTopic?.concepts[0]?.id
+      ?? null;
+
     return Object.freeze({
       conceptId:
         conceptIdSchema.parse(
@@ -770,10 +913,10 @@ implements LearningProgressRepository {
         current.position,
 
       previousConceptId:
-        previous === null
+        previousConceptId === null
           ? null
           : conceptIdSchema.parse(
-              previous.id,
+              previousConceptId,
             ),
     });
   }

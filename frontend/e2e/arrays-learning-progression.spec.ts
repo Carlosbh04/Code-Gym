@@ -1,14 +1,10 @@
 import {
-  createIsolatedE2EAccessToken,
-} from './helpers/isolated-authentication';
-
-import {
   request as playwrightRequest,
   type APIRequestContext,
 } from '@playwright/test';
 
 import {
-  expect,
+  expect as baseExpect,
   test,
   type Page,
 } from './fixtures';
@@ -16,6 +12,10 @@ import {
 import {
   completeE2ESession,
 } from './helpers/progress';
+
+const expect = baseExpect.configure({
+  timeout: 15_000,
+});
 
 const API_BASE_URL =
   'http://127.0.0.1:3100';
@@ -131,16 +131,6 @@ const REDUCE_ANSWERS = [
       + '}',
   },
 ] as const;
-
-async function createPedagogyUser(
-  api: APIRequestContext,
-): Promise<string> {
-  void api;
-
-  return createIsolatedE2EAccessToken(
-    'arrays-learning-progression',
-  );
-}
 
 async function getJson(
   api: APIRequestContext,
@@ -293,9 +283,15 @@ async function answerChoiceSessionWithFeedback(
 test.describe(
   'Arrays — progresión pedagógica real',
   () => {
+    test.use({
+      authTargetConceptId:
+        CONCEPT_ID,
+    });
+
     test(
       'tres intentos fallidos no anuncian ni desbloquean la práctica y sobreviven a la recarga',
       async ({
+        accessToken,
         page,
       }) => {
         test.setTimeout(
@@ -308,33 +304,6 @@ test.describe(
               baseURL:
                 API_BASE_URL,
             });
-
-        const accessToken =
-          await createPedagogyUser(
-            api,
-          );
-
-        await page.unroute(
-          '**/auth/refresh',
-        );
-
-        await page.route(
-          '**/auth/refresh',
-          async (
-            route,
-          ) => {
-            await route.fulfill({
-              contentType:
-                'application/json',
-              status:
-                200,
-              body:
-                JSON.stringify({
-                  accessToken,
-                }),
-            });
-          },
-        );
 
         try {
           const theoryCompletion =
@@ -537,6 +506,7 @@ test.describe(
     test(
       'Fundamentos exige teoría, quiz, prácticas y checkpoint antes de desbloquear Profundización',
       async ({
+        accessToken,
         page,
       }) => {
         test.setTimeout(
@@ -549,33 +519,6 @@ test.describe(
               baseURL:
                 API_BASE_URL,
             });
-
-        const accessToken =
-          await createPedagogyUser(
-            api,
-          );
-
-        await page.unroute(
-          '**/auth/refresh',
-        );
-
-        await page.route(
-          '**/auth/refresh',
-          async (
-            route,
-          ) => {
-            await route.fulfill({
-              contentType:
-                'application/json',
-              status:
-                200,
-              body:
-                JSON.stringify({
-                  accessToken,
-                }),
-            });
-          },
-        );
 
         try {
           /*
@@ -747,6 +690,19 @@ test.describe(
             checkpointStage,
           ).toBeDisabled();
 
+          const theoryCompleteResponse =
+            page.waitForResponse(
+              response =>
+                response
+                  .request()
+                  .method()
+                  === 'POST'
+                && new URL(
+                  response.url(),
+                ).pathname
+                  === `/learning/concepts/${CONCEPT_ID}/levels/foundation/theory/complete`,
+            );
+
           await page
             .getByRole(
               'button',
@@ -756,6 +712,15 @@ test.describe(
               },
             )
             .click();
+
+          const completedTheoryResponse =
+            await theoryCompleteResponse;
+
+          expect(
+            completedTheoryResponse.ok(),
+          ).toBe(
+            true,
+          );
 
           await expect(
             testStage,
@@ -1019,8 +984,7 @@ test.describe(
             checkpointButton,
           ).toBeEnabled();
 
-          await checkpointButton
-            .click();
+          await checkpointButton.click();
 
           await expect(
             page.getByRole(

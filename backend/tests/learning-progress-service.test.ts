@@ -11,6 +11,7 @@ import {
 
 import type {
   ConceptGateRecord,
+  LearningLevelProgressRecord,
   LearningProgressRecord,
   LearningProgressRepository,
 } from '../src/progress/learning-progress-repository.js';
@@ -89,6 +90,76 @@ function createRecord(
   };
 }
 
+function createLevelRecord(
+  conceptId:
+    typeof firstConceptId,
+  levelId:
+    LearningLevelProgressRecord['levelId'],
+  completedAt:
+    Date | null,
+): LearningLevelProgressRecord {
+  return {
+    id:
+      `learning-${conceptId}-${levelId}`,
+    userId:
+      'user-1',
+    conceptId,
+    levelId,
+    theoryCompletedAt:
+      completedAt,
+    quizPassedAt:
+      completedAt,
+    practiceCompletedAt:
+      completedAt,
+    checkpointCompletedAt:
+      completedAt,
+    completedAt,
+    createdAt:
+      firstTimestamp,
+    updatedAt:
+      firstTimestamp,
+  };
+}
+
+const canonicalLevels = [
+  {
+    conceptId:
+      firstConceptId,
+    levelId:
+      'FOUNDATION' as const,
+    name:
+      'Foundation',
+    description:
+      'Base',
+    position:
+      0,
+  },
+  {
+    conceptId:
+      firstConceptId,
+    levelId:
+      'DEEPENING' as const,
+    name:
+      'Deepening',
+    description:
+      'Profundización',
+    position:
+      1,
+  },
+  {
+    conceptId:
+      firstConceptId,
+    levelId:
+      'MASTERY' as const,
+    name:
+      'Mastery',
+    description:
+      'Dominio',
+    position:
+      2,
+  },
+] as const;
+
 function gate(
   conceptId:
     typeof firstConceptId,
@@ -123,7 +194,8 @@ function createRepository(
         LearningProgressRepository[
           'getConfiguredLearningLevels'
         ]
-      >(),
+      >()
+        .mockResolvedValue([]),
 
     getTheorySectionCountForLevel:
       vi.fn<
@@ -326,6 +398,140 @@ describe(
     );
 
     it(
+      'ignores a stale aggregate completion while a canonical level remains incomplete',
+      async () => {
+        const service =
+          new LearningProgressService(
+            createRepository({
+              getConfiguredLearningLevels:
+                vi.fn()
+                  .mockResolvedValue(
+                    canonicalLevels,
+                  ),
+              findByUserAndConceptId:
+                vi.fn()
+                  .mockResolvedValue(
+                    createRecord(
+                      firstConceptId,
+                      {
+                        completedAt:
+                          firstTimestamp,
+                      },
+                    ),
+                  ),
+              findLevelByUserAndConceptId:
+                vi.fn<
+                  LearningProgressRepository[
+                    'findLevelByUserAndConceptId'
+                  ]
+                >()
+                  .mockImplementation(
+                    (
+                      _userId,
+                      conceptId,
+                      levelId,
+                    ) =>
+                      Promise.resolve(
+                        levelId
+                        === 'FOUNDATION'
+                          ? createLevelRecord(
+                              conceptId,
+                              levelId,
+                              firstTimestamp,
+                            )
+                          : null,
+                      ),
+                  ),
+            }),
+          );
+
+        const result =
+          await service.getState(
+            'user-1',
+            firstConceptId,
+          );
+
+        expect(
+          result.completed,
+        ).toBe(
+          false,
+        );
+
+        expect(
+          result.completedAt,
+        ).toBe(
+          null,
+        );
+
+        expect(
+          result.status,
+        ).toBe(
+          'in_progress',
+        );
+      },
+    );
+
+    it(
+      'completes a canonical concept only after foundation, deepening and mastery are complete',
+      async () => {
+        const service =
+          new LearningProgressService(
+            createRepository({
+              getConfiguredLearningLevels:
+                vi.fn()
+                  .mockResolvedValue(
+                    canonicalLevels,
+                  ),
+              findLevelByUserAndConceptId:
+                vi.fn<
+                  LearningProgressRepository[
+                    'findLevelByUserAndConceptId'
+                  ]
+                >()
+                  .mockImplementation(
+                    (
+                      _userId,
+                      conceptId,
+                      levelId,
+                    ) =>
+                      Promise.resolve(
+                        createLevelRecord(
+                          conceptId,
+                          levelId,
+                          secondTimestamp,
+                        ),
+                      ),
+                  ),
+            }),
+          );
+
+        const result =
+          await service.getState(
+            'user-1',
+            firstConceptId,
+          );
+
+        expect(
+          result.completed,
+        ).toBe(
+          true,
+        );
+
+        expect(
+          result.completedAt,
+        ).toBe(
+          secondTimestamp.toISOString(),
+        );
+
+        expect(
+          result.status,
+        ).toBe(
+          'completed',
+        );
+      },
+    );
+
+    it(
       'locks an entire later concept while previous concept is incomplete',
       async () => {
         const service =
@@ -406,6 +612,96 @@ describe(
             },
           },
         });
+      },
+    );
+
+    it(
+      'keeps the next concept locked when the previous aggregate is stale but mastery is incomplete',
+      async () => {
+        const service =
+          new LearningProgressService(
+            createRepository({
+              findConceptGate:
+                vi.fn()
+                  .mockResolvedValue(
+                    gate(
+                      secondConceptId,
+                      0,
+                      firstConceptId,
+                    ),
+                  ),
+              getConfiguredLearningLevels:
+                vi.fn<
+                  LearningProgressRepository[
+                    'getConfiguredLearningLevels'
+                  ]
+                >()
+                  .mockImplementation(
+                    conceptId =>
+                      Promise.resolve(
+                        conceptId
+                        === firstConceptId
+                          ? canonicalLevels
+                          : [],
+                      ),
+                  ),
+              findByUserAndConceptId:
+                vi.fn()
+                  .mockImplementation(
+                    (
+                      _userId,
+                      conceptId,
+                    ) =>
+                      Promise.resolve(
+                        conceptId
+                        === firstConceptId
+                          ? createRecord(
+                              firstConceptId,
+                              {
+                                completedAt:
+                                  firstTimestamp,
+                              },
+                            )
+                          : null,
+                      ),
+                  ),
+              findLevelByUserAndConceptId:
+                vi.fn<
+                  LearningProgressRepository[
+                    'findLevelByUserAndConceptId'
+                  ]
+                >()
+                  .mockImplementation(
+                    (
+                      _userId,
+                      conceptId,
+                      levelId,
+                    ) =>
+                      Promise.resolve(
+                        levelId
+                        === 'FOUNDATION'
+                          ? createLevelRecord(
+                              conceptId,
+                              levelId,
+                              firstTimestamp,
+                            )
+                          : null,
+                      ),
+                  ),
+            }),
+          );
+
+        const result =
+          await service.getState(
+            'user-1',
+            secondConceptId,
+          );
+
+        expect(
+          result.locked,
+        ).toBe(
+          true,
+        );
       },
     );
 

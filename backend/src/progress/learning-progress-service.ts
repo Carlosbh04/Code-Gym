@@ -1,5 +1,6 @@
 import type {
   ConceptId,
+  TechnologyId,
 } from '../content/content-id.js';
 
 import type {
@@ -14,6 +15,12 @@ import type {
 export type LearningStageStatus =
   | 'locked'
   | 'available'
+  | 'completed';
+
+export type ConceptLearningStatus =
+  | 'locked'
+  | 'available'
+  | 'in_progress'
   | 'completed';
 
 export type LearningLockReason =
@@ -39,6 +46,9 @@ export interface ConceptLearningStateView {
 
   readonly lockReason:
     LearningLockReason | null;
+
+  readonly status:
+    ConceptLearningStatus;
 
   readonly stages: {
     readonly theory:
@@ -136,6 +146,25 @@ export interface LearningLevelTrainingCompletionInput {
     Date;
 }
 
+export interface TechnologyLearningConceptStateView {
+  readonly conceptId:
+    ConceptId;
+
+  readonly state:
+    ConceptLearningStateView;
+
+  readonly levels:
+    readonly LearningLevelStateView[];
+}
+
+export interface TechnologyLearningStateView {
+  readonly technologyId:
+    TechnologyId;
+
+  readonly concepts:
+    readonly TechnologyLearningConceptStateView[];
+}
+
 export type LearningProgressClock =
   () => Date;
 
@@ -148,6 +177,562 @@ export class LearningProgressService {
       LearningProgressClock =
         () => new Date(),
   ) {}
+
+  public async getTechnologyState(
+    userId: string,
+    technologyId: TechnologyId,
+  ): Promise<TechnologyLearningStateView> {
+    /*
+     * TECHNOLOGY_SNAPSHOT_REQUEST_CACHE
+     *
+     * El snapshot sigue delegando todas las reglas en
+     * getState()/getLevelState().
+     *
+     * Únicamente deduplicamos lecturas/reconciliaciones que
+     * esos métodos vuelven a solicitar para el mismo concepto
+     * durante ESTA petición.
+     */
+    const listConceptIds =
+      this.repository
+        .listPublishedConceptIdsByTechnology
+        ?.bind(
+          this.repository,
+        );
+
+    if (
+      listConceptIds === undefined
+    ) {
+      throw new Error(
+        'Technology learning snapshot repository capability is unavailable',
+      );
+    }
+
+    const conceptIds =
+      await listConceptIds(
+        technologyId,
+      );
+
+    const gateCache =
+      new Map<
+        string,
+        ReturnType<
+          LearningProgressRepository[
+            'findConceptGate'
+          ]
+        >
+      >();
+
+    const repairCache =
+      new Map<
+        string,
+        ReturnType<
+          LearningProgressRepository[
+            'repairFromCompletedSessions'
+          ]
+        >
+      >();
+
+    const conceptProgressCache =
+      new Map<
+        string,
+        ReturnType<
+          LearningProgressRepository[
+            'findByUserAndConceptId'
+          ]
+        >
+      >();
+
+    const configuredLevelsCache =
+      new Map<
+        string,
+        ReturnType<
+          LearningProgressRepository[
+            'getConfiguredLearningLevels'
+          ]
+        >
+      >();
+
+    const levelProgressCache =
+      new Map<
+        string,
+        ReturnType<
+          LearningProgressRepository[
+            'findLevelByUserAndConceptId'
+          ]
+        >
+      >();
+
+    const sourceRepository =
+      this.repository;
+
+    /*
+     * Repository decorator explícito.
+     *
+     * Conserva exactamente el contrato original y solamente
+     * cachea las cinco lecturas repetidas del snapshot.
+     * Los demás métodos se delegan sin alterar semántica.
+     */
+    const cachedRepository:
+      LearningProgressRepository = {
+        getConfiguredLearningLevels:
+          conceptId => {
+            const key =
+              conceptId;
+
+            const existing =
+              configuredLevelsCache
+                .get(
+                  key,
+                );
+
+            if (
+              existing !== undefined
+            ) {
+              return existing;
+            }
+
+            const pending =
+              sourceRepository
+                .getConfiguredLearningLevels(
+                  conceptId,
+                );
+
+            configuredLevelsCache
+              .set(
+                key,
+                pending,
+              );
+
+            return pending;
+          },
+
+        getTheorySectionCountForLevel:
+          (
+            conceptId,
+            levelId,
+          ) =>
+            sourceRepository
+              .getTheorySectionCountForLevel(
+                conceptId,
+                levelId,
+              ),
+
+        findLevelByUserAndConceptId:
+          (
+            cachedUserId,
+            conceptId,
+            levelId,
+          ) => {
+            const key =
+              [
+                cachedUserId,
+                conceptId,
+                levelId,
+              ].join(
+                '\u0000',
+              );
+
+            const existing =
+              levelProgressCache
+                .get(
+                  key,
+                );
+
+            if (
+              existing !== undefined
+            ) {
+              return existing;
+            }
+
+            const pending =
+              sourceRepository
+                .findLevelByUserAndConceptId(
+                  cachedUserId,
+                  conceptId,
+                  levelId,
+                );
+
+            levelProgressCache
+              .set(
+                key,
+                pending,
+              );
+
+            return pending;
+          },
+
+        getPreviousRequiredPracticeStatusForLevel:
+          (
+            cachedUserId,
+            conceptId,
+            levelId,
+            position,
+          ) =>
+            sourceRepository
+              .getPreviousRequiredPracticeStatusForLevel(
+                cachedUserId,
+                conceptId,
+                levelId,
+                position,
+              ),
+
+        getRequiredPracticeCompletionStatusForLevel:
+          (
+            cachedUserId,
+            conceptId,
+            levelId,
+          ) =>
+            sourceRepository
+              .getRequiredPracticeCompletionStatusForLevel(
+                cachedUserId,
+                conceptId,
+                levelId,
+              ),
+
+        completeLevelTheory:
+          (
+            cachedUserId,
+            conceptId,
+            levelId,
+            completedAt,
+          ) =>
+            sourceRepository
+              .completeLevelTheory(
+                cachedUserId,
+                conceptId,
+                levelId,
+                completedAt,
+              ),
+
+        markLevelQuizPassed:
+          (
+            cachedUserId,
+            conceptId,
+            levelId,
+            completedAt,
+          ) =>
+            sourceRepository
+              .markLevelQuizPassed(
+                cachedUserId,
+                conceptId,
+                levelId,
+                completedAt,
+              ),
+
+        markLevelPracticeCompleted:
+          (
+            cachedUserId,
+            conceptId,
+            levelId,
+            completedAt,
+          ) =>
+            sourceRepository
+              .markLevelPracticeCompleted(
+                cachedUserId,
+                conceptId,
+                levelId,
+                completedAt,
+              ),
+
+        markLevelCheckpointCompleted:
+          (
+            cachedUserId,
+            conceptId,
+            levelId,
+            completedAt,
+          ) =>
+            sourceRepository
+              .markLevelCheckpointCompleted(
+                cachedUserId,
+                conceptId,
+                levelId,
+                completedAt,
+              ),
+
+        markConceptCompleted:
+          (
+            cachedUserId,
+            conceptId,
+            completedAt,
+          ) =>
+            sourceRepository
+              .markConceptCompleted(
+                cachedUserId,
+                conceptId,
+                completedAt,
+              ),
+
+        findByUserAndConceptId:
+          (
+            cachedUserId,
+            conceptId,
+          ) => {
+            const key =
+              `${cachedUserId}\u0000${conceptId}`;
+
+            const existing =
+              conceptProgressCache
+                .get(
+                  key,
+                );
+
+            if (
+              existing !== undefined
+            ) {
+              return existing;
+            }
+
+            const pending =
+              sourceRepository
+                .findByUserAndConceptId(
+                  cachedUserId,
+                  conceptId,
+                );
+
+            conceptProgressCache
+              .set(
+                key,
+                pending,
+              );
+
+            return pending;
+          },
+
+        findConceptGate:
+          conceptId => {
+            const key =
+              conceptId;
+
+            const existing =
+              gateCache.get(
+                key,
+              );
+
+            if (
+              existing !== undefined
+            ) {
+              return existing;
+            }
+
+            const pending =
+              sourceRepository
+                .findConceptGate(
+                  conceptId,
+                );
+
+            gateCache.set(
+              key,
+              pending,
+            );
+
+            return pending;
+          },
+
+        repairFromCompletedSessions:
+          (
+            cachedUserId,
+            conceptId,
+          ) => {
+            const key =
+              `${cachedUserId}\u0000${conceptId}`;
+
+            const existing =
+              repairCache.get(
+                key,
+              );
+
+            if (
+              existing !== undefined
+            ) {
+              return existing;
+            }
+
+            const pending =
+              sourceRepository
+                .repairFromCompletedSessions(
+                  cachedUserId,
+                  conceptId,
+                );
+
+            repairCache.set(
+              key,
+              pending,
+            );
+
+            return pending;
+          },
+
+        getPreviousRequiredPracticeStatus:
+          (
+            cachedUserId,
+            conceptId,
+            position,
+          ) =>
+            sourceRepository
+              .getPreviousRequiredPracticeStatus(
+                cachedUserId,
+                conceptId,
+                position,
+              ),
+
+        getRequiredPracticeCompletionStatus:
+          (
+            cachedUserId,
+            conceptId,
+          ) =>
+            sourceRepository
+              .getRequiredPracticeCompletionStatus(
+                cachedUserId,
+                conceptId,
+              ),
+
+        completeTheory:
+          (
+            cachedUserId,
+            conceptId,
+            completedAt,
+          ) =>
+            sourceRepository
+              .completeTheory(
+                cachedUserId,
+                conceptId,
+                completedAt,
+              ),
+
+        markQuizPassed:
+          (
+            cachedUserId,
+            conceptId,
+            completedAt,
+          ) =>
+            sourceRepository
+              .markQuizPassed(
+                cachedUserId,
+                conceptId,
+                completedAt,
+              ),
+
+        markPracticeCompleted:
+          (
+            cachedUserId,
+            conceptId,
+            completedAt,
+          ) =>
+            sourceRepository
+              .markPracticeCompleted(
+                cachedUserId,
+                conceptId,
+                completedAt,
+              ),
+
+        markCheckpointAndConceptCompleted:
+          (
+            cachedUserId,
+            conceptId,
+            completedAt,
+          ) =>
+            sourceRepository
+              .markCheckpointAndConceptCompleted(
+                cachedUserId,
+                conceptId,
+                completedAt,
+              ),
+      };
+
+    const snapshotService =
+      new LearningProgressService(
+        cachedRepository,
+        this.clock,
+      );
+
+    /*
+     * Evitamos disparar simultáneamente todos los conceptos
+     * de la tecnología contra MySQL.
+     *
+     * Cuatro conceptos mantienen paralelismo útil sin recrear
+     * el fan-out masivo anterior.
+     */
+    const conceptBatchSize =
+      4;
+
+    const concepts:
+      TechnologyLearningConceptStateView[] =
+        [];
+
+    for (
+      let offset = 0;
+      offset < conceptIds.length;
+      offset += conceptBatchSize
+    ) {
+      const batch =
+        conceptIds.slice(
+          offset,
+          offset
+            + conceptBatchSize,
+        );
+
+      const batchStates =
+        await Promise.all(
+          batch.map(
+            async conceptId => {
+              const configuredLevels =
+                await cachedRepository
+                  .getConfiguredLearningLevels(
+                    conceptId,
+                  );
+
+              const [
+                state,
+                levels,
+              ] =
+                await Promise.all([
+                  snapshotService
+                    .getState(
+                      userId,
+                      conceptId,
+                    ),
+
+                  Promise.all(
+                    configuredLevels.map(
+                      level =>
+                        snapshotService
+                          .getLevelState(
+                            userId,
+                            conceptId,
+                            level.levelId,
+                          ),
+                    ),
+                  ),
+                ]);
+
+              return Object.freeze({
+                conceptId,
+
+                state,
+
+                levels:
+                  Object.freeze([
+                    ...levels,
+                  ]),
+              });
+            },
+          ),
+        );
+
+      concepts.push(
+        ...batchStates,
+      );
+    }
+
+    return Object.freeze({
+      technologyId,
+
+      concepts:
+        Object.freeze([
+          ...concepts,
+        ]),
+    });
+  }
 
   public async getLevelState(
     userId: string,
@@ -717,6 +1302,7 @@ export class LearningProgressService {
       context.current,
       context.gate,
       context.locked,
+      context.canonicalProgress,
     );
   }
 
@@ -1075,6 +1661,9 @@ export class LearningProgressService {
 
     readonly locked:
       boolean;
+
+    readonly canonicalProgress:
+      CanonicalConceptProgress | undefined;
   }> {
     const gate =
       await this.repository
@@ -1101,6 +1690,12 @@ export class LearningProgressService {
           conceptId,
         );
 
+    const canonicalProgress =
+      await this.getCanonicalConceptProgress(
+        userId,
+        conceptId,
+      );
+
     if (
       gate.previousConceptId
       === null
@@ -1112,6 +1707,7 @@ export class LearningProgressService {
           null,
         locked:
           false,
+        canonicalProgress,
       };
     }
 
@@ -1128,16 +1724,171 @@ export class LearningProgressService {
           gate.previousConceptId,
         );
 
+    const previousCanonicalProgress =
+      await this.getCanonicalConceptProgress(
+        userId,
+        gate.previousConceptId,
+      );
+
+    const previousCompleted =
+      previousCanonicalProgress
+      === undefined
+        ? previous?.completedAt
+          !== null
+          && previous !== null
+        : previousCanonicalProgress.completedAt
+          !== null;
+
     return {
       gate,
       current,
       previous,
       locked:
-        previous?.completedAt
-        === null
-        || previous === null,
+        !previousCompleted,
+      canonicalProgress,
     };
   }
+
+  private async getCanonicalConceptProgress(
+    userId: string,
+    conceptId: ConceptId,
+  ): Promise<CanonicalConceptProgress | undefined> {
+    const configuredLevels =
+      await this.repository
+        .getConfiguredLearningLevels(
+          conceptId,
+        );
+
+    /*
+     * Los conceptos legacy conservan su agregado histórico. En cuanto
+     * el catálogo configura el recorrido multinivel, la única autoridad
+     * de completitud son los tres niveles persistidos.
+     */
+    if (
+      configuredLevels.length
+        <= 1
+    ) {
+      return undefined;
+    }
+
+    const canonicalLevelIds:
+      readonly LearningLevelId[] = [
+        'FOUNDATION',
+        'DEEPENING',
+        'MASTERY',
+      ];
+
+    const configuredLevelIds =
+      new Set(
+        configuredLevels.map(
+          level =>
+            level.levelId,
+        ),
+      );
+
+    if (
+      canonicalLevelIds.some(
+        levelId =>
+          !configuredLevelIds.has(
+            levelId,
+          ),
+      )
+    ) {
+      return {
+        completedAt:
+          null,
+        started:
+          false,
+      };
+    }
+
+    const progressRecords =
+      await Promise.all(
+        configuredLevels.map(
+          level =>
+            this.repository
+              .findLevelByUserAndConceptId(
+                userId,
+                conceptId,
+                level.levelId,
+              ),
+        ),
+      );
+
+    const started =
+      progressRecords.some(
+        record =>
+          record !== null
+          && (
+            record.theoryCompletedAt
+              !== null
+            || record.quizPassedAt
+              !== null
+            || record.practiceCompletedAt
+              !== null
+            || record.checkpointCompletedAt
+              !== null
+            || record.completedAt
+              !== null
+          ),
+      );
+
+    if (
+      progressRecords.some(
+        record =>
+          record?.completedAt
+          === null
+          || record === null,
+      )
+    ) {
+      return {
+        completedAt:
+          null,
+        started,
+      };
+    }
+
+    const completedAt =
+      progressRecords.reduce<Date | null>(
+        (
+          latest,
+          record,
+        ) => {
+          const recordCompletedAt =
+            record?.completedAt
+            ?? null;
+
+          if (
+            recordCompletedAt === null
+          ) {
+            return latest;
+          }
+
+          if (
+            latest === null
+            || recordCompletedAt > latest
+          ) {
+            return recordCompletedAt;
+          }
+
+          return latest;
+        },
+        null,
+      );
+
+    return {
+      completedAt,
+      started:
+        true,
+    };
+  }
+}
+
+interface CanonicalConceptProgress {
+  readonly completedAt:
+    Date | null;
+  readonly started:
+    boolean;
 }
 
 export class InvalidLearningTrainingCompletionError
@@ -1277,6 +2028,8 @@ function toLearningState(
     ConceptGateRecord,
   locked:
     boolean,
+  canonicalProgress?:
+    CanonicalConceptProgress,
 ): ConceptLearningStateView {
   const theoryCompletedAt =
     record?.theoryCompletedAt
@@ -1295,8 +2048,21 @@ function toLearningState(
     ?? null;
 
   const completedAt =
-    record?.completedAt
-    ?? null;
+    canonicalProgress
+    === undefined
+      ? record?.completedAt
+        ?? null
+      : canonicalProgress.completedAt;
+
+  const started =
+    canonicalProgress
+      ?.started
+    ?? (
+      theoryCompletedAt !== null
+      || quizPassedAt !== null
+      || practiceCompletedAt !== null
+      || checkpointCompletedAt !== null
+    );
 
   if (locked) {
     return Object.freeze({
@@ -1310,6 +2076,11 @@ function toLearningState(
 
       lockReason:
         'previous-concept-incomplete',
+
+      status:
+        completedAt !== null
+          ? 'completed'
+          : 'locked',
 
       stages:
         Object.freeze({
@@ -1358,6 +2129,13 @@ function toLearningState(
 
     lockReason:
       null,
+
+    status:
+      completedAt !== null
+        ? 'completed'
+        : started
+          ? 'in_progress'
+          : 'available',
 
     stages:
       Object.freeze({

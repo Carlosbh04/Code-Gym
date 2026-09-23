@@ -84,6 +84,7 @@ interface FunctionsIndex {
 
 interface FixCodeTarget {
   readonly sessionId: string;
+  readonly publicCases: number;
   readonly hiddenCases: number;
   readonly solution: string;
 }
@@ -94,6 +95,8 @@ readonly FixCodeTarget[] =
     Object.freeze({
       sessionId:
         'js-functions-foundation-reference-execution-01',
+      publicCases:
+        3,
       hiddenCases:
         2,
       solution: `
@@ -105,6 +108,8 @@ readonly FixCodeTarget[] =
     Object.freeze({
       sessionId:
         'js-functions-deepening-callbacks-01',
+      publicCases:
+        3,
       hiddenCases:
         2,
       solution: `
@@ -116,6 +121,8 @@ readonly FixCodeTarget[] =
     Object.freeze({
       sessionId:
         'js-functions-mastery-pipeline-effects-01',
+      publicCases:
+        3,
       hiddenCases:
         2,
       solution: `
@@ -130,6 +137,28 @@ readonly FixCodeTarget[] =
           );
           notificar(resultado);
           return resultado;
+        }
+      `,
+    }),
+    Object.freeze({
+      sessionId:
+        'js-function-basics-mastery-recursion-01',
+      publicCases:
+        2,
+      hiddenCases:
+        1,
+      solution: `
+        function sumarAnidados(valores) {
+          return valores.reduce(
+            (total, valor) =>
+              total
+              + (
+                Array.isArray(valor)
+                  ? sumarAnidados(valor)
+                  : valor
+              ),
+            0,
+          );
         }
       `,
     }),
@@ -268,19 +297,19 @@ describe(
           expect.objectContaining({
             id: 'js-function-basics-foundation-recursion-basics-01',
             levelId: 'foundation',
-            position: 5,
+            position: 4,
             kind: 'practice',
           }),
           expect.objectContaining({
             id: 'js-function-basics-deepening-recursive-structures-01',
             levelId: 'deepening',
-            position: 5,
+            position: 4,
             kind: 'practice',
           }),
           expect.objectContaining({
             id: 'js-function-basics-mastery-recursion-01',
             levelId: 'mastery',
-            position: 5,
+            position: 4,
             kind: 'practice',
           }),
         ]));
@@ -330,8 +359,8 @@ describe(
             'practice',
             'practice',
             'practice',
-            'checkpoint',
             'practice',
+            'checkpoint',
           ]);
 
           expect(
@@ -452,7 +481,7 @@ describe(
         expect(
           publicStep?.testCases,
         ).toHaveLength(
-          3,
+          target.publicCases,
         );
 
         const privateConfig =
@@ -506,13 +535,13 @@ describe(
         expect(
           preview.testCases,
         ).toHaveLength(
-          3,
+          target.publicCases,
         );
 
         expect(
           authoritative.testCases,
         ).toHaveLength(
-          3
+          target.publicCases
           + target.hiddenCases,
         );
 
@@ -532,7 +561,7 @@ describe(
     );
 
     it(
-      'accepts behaviorally correct implementations for all three new fix-code exercises',
+      'accepts behaviorally correct implementations for every targeted fix-code exercise',
       async () => {
         const verifier =
           createVerifier();
